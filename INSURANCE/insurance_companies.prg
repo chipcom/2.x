@@ -4,6 +4,209 @@
 #include 'chip_mo.ch'
 #include 'edit_spr.ch'
 
+#require 'hbsqlit3'
+
+// =========== F002 =================== 
+//
+// TF_OKATO,  "C", 5, 0  // Код субъекта РФ по ОКАТО
+// SMOCOD,    "C", 5, 0  // Код СМО в ЕРСМО
+// NAM_SMOP,  "C", 1000, 0 // Наименование организации (полное)
+// NAM_SMOK,  "C", 250, 0 // Наименование организации (краткое)
+// INN,       "C", 12, 0  // ИНН
+// OGRN,      "C", 15, 0  // ОГРН
+// ORG,       "N", 1, 0  // Тип организации: 1 ? головная; 2 ? филиал
+
+// 28.05.26 вернуть массив справочнику ФФОМС F019.xml
+Function get_SMO_OKATO_OGRN_f002( mOKATO, mOGRN )
+
+  // возвращает массив
+  Static _arr
+  Local db
+  Local aTable
+  local cmd
+
+  _arr := {}
+  db := opensql_db()
+  cmd := 'SELECT tf_okato, smocod, nam_smop, nam_smok, inn, ogrn FROM f002 where tf_okato=="' + mOKATO +  '" and ogrn=="' + SubStr( mOGRN, 1, 13 ) + '"'
+  aTable := sqlite3_get_table( db, cmd )
+  If Len( aTable ) > 1
+    // берем вторую сторку
+    AAdd( _arr, aTable[ 2, 1 ] )
+    AAdd( _arr, aTable[ 2, 2 ] )
+    AAdd( _arr, Alltrim( aTable[ 2, 3 ] ) )
+    AAdd( _arr, Alltrim( aTable[ 2, 4 ] ) )
+    AAdd( _arr, aTable[ 2, 5 ] )
+    AAdd( _arr, aTable[ 2, 6 ] )
+  Endif
+  db := nil
+
+  Return _arr
+
+Function findSMO_in_f002( code )
+
+  // возвращает array
+  Static _arr
+  Local db
+  Local aTable
+  Local cmd
+
+  _arr := {}
+  db := opensql_db()
+  cmd := 'SELECT tf_okato, smocod, nam_smop, nam_smok, inn, ogrn FROM f002 where smocod=="' + code +  '"'
+//  cmd := 'SELECT tf_okato, orgtype, orgcod, nam_orgp, nam_orgk, tf_kod, smocod FROM f019 where smocod=="' + code + '"'
+  aTable := sqlite3_get_table( db, cmd )
+  If Len( aTable ) > 1
+    // берем вторую сторку
+    AAdd( _arr, aTable[ 2, 1 ] )
+    AAdd( _arr, '' )  //  aTable[ 2, 2 ] )
+    AAdd( _arr, '' )  //  val( aTable[ 2, 3 ] ) )
+    AAdd( _arr, Alltrim( aTable[ 2, 3 ] ) )
+    AAdd( _arr, Alltrim( aTable[ 2, 4 ] ) )
+    AAdd( _arr, '' )    //  aTable[ 2, 1 ] )
+    AAdd( _arr, aTable[ 2, 2 ] )
+  Endif
+  db := nil
+
+  Return _arr
+
+// 28.05.26 вернуть массив справочнику ФФОМС F019.xml
+Function get_SMO_OKATO_f002( code )
+
+  // возвращает массив
+  Static _arr
+  Local db
+  Local aTable
+  Local nI
+  local cmd
+
+  _arr := {}
+  db := opensql_db()
+  cmd := 'SELECT tf_okato, smocod, nam_smop, nam_smok, inn, ogrn FROM f002 where tf_okato=="' + code +  '"'
+  aTable := sqlite3_get_table( db, cmd )
+  If Len( aTable ) > 1
+    For nI := 2 To Len( aTable )
+      AAdd( _arr, { aTable[ nI, 1 ], ;
+        '', ;
+        '', ;
+        Alltrim( aTable[ nI, 3 ] ), ;
+        Alltrim( aTable[ nI, 4 ] ), ;
+        '', ;
+        aTable[ nI, 2 ] } )
+//      AAdd( _arr, { aTable[ nI, 1 ], ;
+//        aTable[ nI, 2 ], ;
+//        val( aTable[ nI, 3 ] ), ;
+//        Alltrim( aTable[ nI, 4 ] ), ;
+//        Alltrim( aTable[ nI, 5 ] ), ;
+//        aTable[ nI, 6 ], ;
+//        aTable[ nI, 7 ] } )
+    Next
+  Endif
+  db := nil
+
+  Return _arr
+
+// =========== F019 =================== 
+//
+// F019.xml - Справочник организаций, осуществляющих оплату медицинской помощи по обязательному медицинскому страхованию (РersAccOrg)
+// TF_OKATO,  "C", 5, 0  // Код субъекта РФ по ОКАТО
+// ORGTYPE,  "C", 1, 0  // Тип организации: 0 ? ФОМС; 1 ? ТФОМС; 2 ? СМО
+// ORGCOD,    "N", 5, 0  // Уникальный порядковый номер организации в справочнике
+// NAM_ORGP,  "C", 250, 0 // Наименование организации (полное)
+// NAM_ORGK,  "C", 250, 0 // Наименование организации (краткое)
+// TF_KOD,    "C", 2, 0  // Код ТФОМС из Справоч?ника территориальных фондов ОМС (F001)
+// SMOCOD,    "C", 5, 0  // Код СМО в ЕРСМО
+// DATEBEG,   "D",   8, 0  // Дата начала действия записи
+// DATEEND,   "D",   8, 0   // Дата окончания действия записи
+
+// 28.05.26 вернуть массив справочнику ФФОМС F014.xml
+Function getf019()
+
+  // возвращает массив
+  Static _arr
+  Local db
+  Local aTable
+  Local nI
+
+  _arr := {}
+  db := opensql_db()
+  aTable := sqlite3_get_table( db, 'SELECT tf_okato, orgtype, orgcod, nam_orgp, nam_orgk, tf_kod, smocod FROM f019' )
+  If Len( aTable ) > 1
+    For nI := 2 To Len( aTable )
+      AAdd( _arr, { aTable[ nI, 1 ], ;
+        aTable[ nI, 2 ], ;
+        val( aTable[ nI, 3 ] ), ;
+        Alltrim( aTable[ nI, 4 ] ), ;
+        Alltrim( aTable[ nI, 5 ] ), ;
+        aTable[ nI, 6 ], ;
+        aTable[ nI, 7 ] } )
+    Next
+  Endif
+  db := nil
+
+  Return _arr
+
+Function findSMO_in_f019( code )
+
+  // возвращает array
+  Static _arr
+  Local db
+  Local aTable
+  Local cmd
+
+  _arr := {}
+  db := opensql_db()
+  cmd := 'SELECT tf_okato, orgtype, orgcod, nam_orgp, nam_orgk, tf_kod, smocod FROM f019 where smocod=="' + code + '"'
+  aTable := sqlite3_get_table( db, cmd )
+  If Len( aTable ) > 1
+    // берем вторую сторку
+    AAdd( _arr, aTable[ 2, 1 ] )
+    AAdd( _arr, aTable[ 2, 2 ] )
+    AAdd( _arr, val( aTable[ 2, 3 ] ) )
+    AAdd( _arr, Alltrim( aTable[ 2, 4 ] ) )
+    AAdd( _arr, Alltrim( aTable[ 2, 5 ] ) )
+    AAdd( _arr, aTable[ 2, 6 ] )
+    AAdd( _arr, aTable[ 2, 7 ] )
+  Endif
+  db := nil
+
+  Return _arr
+
+// 28.05.26 вернуть массив справочнику ФФОМС F019.xml
+Function get_SMO_OKATO_f019( code )
+
+  // возвращает массив
+  Static _arr
+  Local db
+  Local aTable
+  Local nI
+  local cmd
+
+  _arr := {}
+  Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
+  db := opensql_db()
+//  cmd := 'SELECT tf_okato, orgtype, orgcod, nam_orgp, nam_orgk, tf_kod, smocod FROM f019 where orgtype=="2" and tf_okato=="' + code + '"'
+  cmd := 'SELECT tf_okato, orgtype, orgcod, nam_orgp, nam_orgk, tf_kod, smocod FROM f019 where tf_okato=="' + code + '"'
+  aTable := sqlite3_get_table( db, cmd )
+  If Len( aTable ) > 1
+    For nI := 2 To Len( aTable )
+      AAdd( _arr, { ;
+        Alltrim( aTable[ nI, 5 ] ), ;
+        aTable[ nI, 7 ] } )
+//      AAdd( _arr, { ;
+//        aTable[ nI, 1 ], ;
+//        aTable[ nI, 2 ], ;
+//        val( aTable[ nI, 3 ] ), ;
+//        Alltrim( aTable[ nI, 4 ] ), ;
+//        Alltrim( aTable[ nI, 5 ] ), ;
+//        aTable[ nI, 6 ], ;
+//        aTable[ nI, 7 ] } )
+    Next
+  Endif
+  db := nil
+  Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
+
+  Return _arr
+
 // 02.06.25 справочник страховых компаний в Волгоградской области
 function smo_volgograd()
 
@@ -117,21 +320,25 @@ Function smo_to_screen( ltip )
 
   Return s
 
-// вернуть наименование иногородней СМО
+// 27.05.26 вернуть наименование иногородней СМО
 Function init_ismo( lsmo )
 
-  Local s := Space( 10 ), tmp_select
+  Local s := Space( 10 )  //  , tmp_select
+  local arrSMO := {}
 
   If !Empty( lsmo )
-    tmp_select := Select()
-    r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo2', 'SMO' )
-    smo->( dbSeek( PadR( lsmo, 5 ) ) )
-    If smo->( Found() )
-      s := RTrim( smo->name )
+//    tmp_select := Select()
+//    r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo2', 'SMO' )
+//    smo->( dbSeek( PadR( lsmo, 5 ) ) )
+    arrSMO := findSMO_in_f019( lsmo )
+    If Len( arrSMO ) != 0     //   smo->( Found() )
+//      s := RTrim( smo->name )
+      s := arrSMO[ 5 ]
     Endif
-    smo->( dbCloseArea() )
-    Select ( tmp_select )
+//    smo->( dbCloseArea() )
+//    Select ( tmp_select )
   Endif
+
   Return s
 
 // вместо иногородней СМО подставить код ТФОМС

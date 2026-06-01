@@ -372,13 +372,13 @@ Function f2tfoms_hodatajstvo( nKey, oBrow, regim )
 
   Return k
 
-// 11.05.26 á®§¤ ­¨¥ ä ©«  •Ž„€’€‰‘’‚€ ¤«ï ®âáë«ª¨ ¢ ’”ŽŒ‘
+// 27.05.26 á®§¤ ­¨¥ ä ©«  •Ž„€’€‰‘’‚€ ¤«ï ®âáë«ª¨ ¢ ’”ŽŒ‘
 Function create_file_hodatajstvo( arr_m )
 
   // arr_m - ¢à¥¬¥­­®© ¬ áá¨¢
   Local i, k := 0, as, fl := .f., mnn, mb, me, mfilial, ;
     buf := save_maxrow()
-  local adbf
+  local adbf, arrSMO := {}
 
   r_use( dir_server() + 'organiz',, 'ORG' )
   If Empty( mfilial := org->filial_h )
@@ -536,7 +536,7 @@ Function create_file_hodatajstvo( arr_m )
           { 'proch', 'C', 60, 0 } }
         dbCreate( fr_data, adbf )
         Use ( fr_data ) New Alias FRD
-        r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo2', 'SMO' )
+//        r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo2', 'SMO' )
         r_use( dir_server() + 'kartote_',, 'KART_' )
         r_use( dir_server() + 'kartotek',, 'KART' )
         Set Relation To RecNo() into KART_
@@ -577,15 +577,22 @@ Function create_file_hodatajstvo( arr_m )
             frd->smo := human_->smo
 //            frd->name_smo := inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( human_->smo ) ) )
             frd->name_smo := inieditspr( A__MENUVERT, smo_volgograd(), Int( Val( human_->smo ) ) )
+            arrSMO := findSMO_in_f019( human_->smo )
             If Empty( frd->name_smo )
-              Select SMO
-              find ( PadR( human_->smo, 5 ) )
-              frd->name_smo := smo->name
+              if len( arrSMO ) != 0
+                frd->name_smo := arrSMO[ 5 ]
+              endif
+//              Select SMO
+//              find ( PadR( human_->smo, 5 ) )
+//              frd->name_smo := smo->name
             Endif
             If Empty( frd->okato := human_->okato )
-              Select SMO
-              find ( PadR( human_->smo, 5 ) )
-              frd->okato := smo->okato
+              if len( arrSMO ) != 0
+                frd->okato := arrSMO[ 1 ]
+              endif
+//              Select SMO
+//              find ( PadR( human_->smo, 5 ) )
+//              frd->okato := smo->okato
             Endif
             frd->region := inieditspr( A__MENUVERT, glob_array_srf(), frd->okato )
             frd->proch := AllTrim( AllTrim( kart_->PHONE_H ) + ' ' + AllTrim( kart_->PHONE_M ) + ' ' + kart_->PHONE_W )

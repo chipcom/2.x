@@ -15,7 +15,7 @@ Function begin_task_263()
     ++n_zapusk
     mywait()
     Public p_arr_stac_VO := {}, ; // список всех стационаров области
-    dir_263_to, ;          // каталог, куда записываются созданные пакеты
+      dir_263_to, ;          // каталог, куда записываются созданные пакеты
       dir_263_from, ;        // каталог, откуда читаются полученные пакеты
       dir_263_copy, ;        // каталог, куда перезаписываются прочитанные пакеты
       work_otd_263          // 1-работать с отделениями в подзадаче
@@ -48,11 +48,15 @@ Function begin_task_263()
 // 11.08.14 редактирование картотеки
 Function _263_kartoteka( k )
 
-  Local mas_pmt := { '~Добавление', ;
+  Local mas_pmt := { ;
+    '~Добавление', ;
     '~Редактирование' }
-  Local mas_msg := { 'Добавление в картотеку информации о больном', ;
+  Local mas_msg := { ;
+    'Добавление в картотеку информации о больном', ;
     'Редактирование информации из карточки больного' }
-  Local mas_fun := { 'append_kart()', 'regi_kart()' }
+  Local mas_fun := { ;
+    'append_kart()', ;
+    'regi_kart()' }
 
   glob_task := X_REGIST
   If k == 2 // для стационара
@@ -117,24 +121,25 @@ Function f_get_profil( k, r, c, lprofil_k )
   Endif
   Return ret
 
-// 10.09.25 Проверка информации перед отправкой в ТФОМС
+// 29.05.26 Проверка информации перед отправкой в ТФОМС
 Function _263_to_proverka( yes_msg, /*@*/yes_I07)
 
   Local i, j, s, ikol := 0, lkod_k, ldate, buf := save_maxrow(), k1, k2, ;
     arr_i01 := {}, arr_i03 := {}, arr_i04 := {}, arr_i05 := {}, arr_i06 := {}, ;
     ldate_h_1, max_date, ta, arr_error := {}
+  local arrSMO
 
   yes_I07 := .f.
   Default yes_msg To .t.
   mywait( 'Проверка перед составлением...' )
   r_use( dir_exe() + '_mo_mkb', cur_dir() + '_mo_mkb', 'MKB_10' )
-  r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo2', 'SMO' )
+//  r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo2', 'SMO' )
   r_use( dir_server() + 'mo_pers', , 'P2' )
   r_use( dir_server() + 'kartote_', , 'KART_' )
   r_use( dir_server() + 'kartotek', , 'KART' )
   Set Relation To RecNo() into KART_
   g_use( dir_server() + 'mo_nnapr', , 'NAPR' )
-  Set Relation To kod_k into KART
+  Set Relation To FIELD->kod_k into KART
   Index On Str( FIELD->kod_k, 7 ) to ( cur_dir() + 'tmp_naprkodk' )
   // I01
   Select NAPR
@@ -163,7 +168,7 @@ Function _263_to_proverka( yes_msg, /*@*/yes_I07)
       ldate := napr->date_d
       ldate_h_1 := napr->date_h_1
       If !valid_guid( napr->ID_1 )
-        g_rlock( forever )
+        g_rlock( 'forever' )
         napr->ID_1 := mo_guid( 1, napr->kod )
         Unlock
       Endif
@@ -241,7 +246,7 @@ Function _263_to_proverka( yes_msg, /*@*/yes_I07)
         Endif
       Endif
       valid_sn_polis( kart_->vpolis, kart_->SPOLIS, kart_->NPOLIS, ta, Between( kart_->smo, '34001', '34007' ) )
-      Select SMO
+//      Select SMO
       If AllTrim( kart_->smo ) == '34'
         If Empty( kart_->KVARTAL_D )
           AAdd( ta, 'не введён субъект РФ, в котором застрахован пациент' )
@@ -249,9 +254,11 @@ Function _263_to_proverka( yes_msg, /*@*/yes_I07)
           AAdd( ta, 'не введена иногородняя страховая компания' )
         Endif
       Else
-        Select SMO
-        find ( kart_->smo )
-        If !Found()
+//        Select SMO 
+//        find ( kart_->smo )
+        arrSMO := findSMO_in_f019( kart_->smo )
+//        If !Found()
+        if Len( arrSMO ) == 0
           AAdd( ta, 'не найдена СМО с кодом "' + kart_->smo + '"' )
         Endif
       Endif
@@ -402,7 +409,7 @@ Function _263_to_proverka( yes_msg, /*@*/yes_I07)
       lkod_k := napr->kod_k
       ldate := napr->DATE_H_4
       If !valid_guid( napr->ID_4 )
-        g_rlock( forever )
+        g_rlock( 'forever' )
         napr->ID_4 := mo_guid( 1, napr->kod )
         Unlock
       Endif
@@ -467,7 +474,7 @@ Function _263_to_proverka( yes_msg, /*@*/yes_I07)
         Endif
       Endif
       valid_sn_polis( kart_->vpolis, kart_->SPOLIS, kart_->NPOLIS, ta, Between( kart_->smo, '34001', '34007' ) )
-      Select SMO
+//      Select SMO
       If AllTrim( kart_->smo ) == '34'
         If Empty( kart_->KVARTAL_D )
           AAdd( ta, 'не введён субъект РФ, в котором застрахован пациент' )
@@ -475,9 +482,11 @@ Function _263_to_proverka( yes_msg, /*@*/yes_I07)
           AAdd( ta, 'не введена иногородняя страховая компания' )
         Endif
       Else
-        Select SMO
-        find ( kart_->smo )
-        If !Found()
+//        Select SMO
+//        find ( kart_->smo )
+        arrSMO := findSMO_in_f019( kart_->smo )
+//        If !Found()
+        if Len( arrSMO ) == 0
           AAdd( ta, 'не найдена СМО с кодом "' + kart_->smo + '"' )
         Endif
       Endif
@@ -541,7 +550,7 @@ Function _263_to_proverka( yes_msg, /*@*/yes_I07)
       lkod_k := napr->kod_k
       ldate := napr->DATE_H_4
       If !valid_guid( napr->ID_4 )
-        g_rlock( forever )
+        g_rlock( 'forever' )
         napr->ID_4 := mo_guid( 1, napr->kod )
         Unlock
       Endif
@@ -602,7 +611,7 @@ Function _263_to_proverka( yes_msg, /*@*/yes_I07)
       Endif
       If !Empty( kart_->NPOLIS )
         valid_sn_polis( kart_->vpolis, kart_->SPOLIS, kart_->NPOLIS, ta, Between( kart_->smo, '34001', '34007' ) )
-        Select SMO
+//        Select SMO
         If AllTrim( kart_->smo ) == '34'
           If Empty( kart_->KVARTAL_D )
             AAdd( ta, 'не введён субъект РФ, в котором застрахован пациент' )
@@ -610,9 +619,11 @@ Function _263_to_proverka( yes_msg, /*@*/yes_I07)
             AAdd( ta, 'не введена иногородняя страховая компания' )
           Endif
         Else
-          Select SMO
-          find ( kart_->smo )
-          If !Found()
+//          Select SMO
+//          find ( kart_->smo )
+        arrSMO := findSMO_in_f019( kart_->smo )
+//        If !Found()
+        if Len( arrSMO ) == 0
             AAdd( ta, 'не найдена СМО с кодом "' + kart_->smo + '"' )
           Endif
         Endif
@@ -676,7 +687,7 @@ Function _263_to_proverka( yes_msg, /*@*/yes_I07)
       Select NAPR
       Goto ( arr_i06[ i, 2, j ] )
       If !valid_guid( napr->ID_6 )
-        g_rlock( forever )
+        g_rlock( 'forever' )
         napr->ID_6 := mo_guid( 1, napr->kod )
         Unlock
       Endif
@@ -764,7 +775,7 @@ Function _263_to_proverka( yes_msg, /*@*/yes_I07)
                 AAdd( ta, '-количество свободных коек меньше нуля' )
               Elseif k1 == k2
                 If k1 != n7->PLACE_FREE
-                  g_rlock( forever )
+                  g_rlock( 'forever' )
                   n7->PLACE_FREE := k1
                   Unlock
                   Commit
@@ -875,6 +886,7 @@ Function _263_to_sostavlenie()
   Local i, j, k, mnn, nfile,  arr_f := {}, name_txt, file_error, buf := save_maxrow(), ;
     arr_i01 := {}, arr_i03 := {}, arr_i04 := {}, arr_i05 := {}, arr_i06 := {}, ;
     fl_error := .f., yes_i07 := .f.
+  Local oXmlDoc, oXmlNode, oMo_d, oDir, oPAC, oCon, oDate_hosp
 
   If Empty( dir_263_to )
     Return func_error( 4, 'Не настроен каталог обмена в режиме "Настройка каталогов"' )
@@ -957,7 +969,7 @@ Function _263_to_sostavlenie()
     For j := 1 To Len( arr_i01[ i, 2 ] )
       Select NAPR
       Goto ( arr_i01[ i, 2, j ] )
-      g_rlock( forever )
+      g_rlock( 'forever' )
       napr->KOD_F_1out := nf->KOD // код файла - по файлу mo_nfile
       napr->T_ANS_1 := 0
       napr->DATE_R := kart->date_r // дата рождения
@@ -1109,7 +1121,7 @@ Function _263_to_sostavlenie()
         For j := 1 To Len( arr_i03[ i, 2 ] )
           Select NAPR
           Goto ( arr_i03[ i, 2, j ] )
-          g_rlock( forever )
+          g_rlock( 'forever' )
           napr->KOD_F_3out := nf->KOD // код файла - по файлу mo_nfile
           napr->T_ANS_3 := 0
           //
@@ -1198,7 +1210,7 @@ Function _263_to_sostavlenie()
       For j := 1 To Len( arr_i04[ i, 2 ] )
         Select NAPR
         Goto ( arr_i04[ i, 2, j ] )
-        g_rlock( forever )
+        g_rlock( 'forever' )
         napr->KOD_F_4out := nf->KOD // код файла - по файлу mo_nfile
         napr->T_ANS_4 := 0
         napr->DATE_R := kart->date_r // дата рождения
@@ -1334,7 +1346,7 @@ Function _263_to_sostavlenie()
       For j := 1 To Len( arr_i05[ i, 2 ] )
         Select NAPR
         Goto ( arr_i05[ i, 2, j ] )
-        g_rlock( forever )
+        g_rlock( 'forever' )
         napr->KOD_F_4out := nf->KOD // код файла - по файлу mo_nfile
         napr->T_ANS_4 := 0
         napr->DATE_R := kart->date_r // дата рождения
@@ -1469,7 +1481,7 @@ Function _263_to_sostavlenie()
       For j := 1 To Len( arr_i06[ i, 2 ] )
         Select NAPR
         Goto ( arr_i06[ i, 2, j ] )
-        g_rlock( forever )
+        g_rlock( 'forever' )
         napr->KOD_F_6out := nf->KOD // код файла - по файлу mo_nfile
         napr->T_ANS_6 := 0
         //
@@ -1528,11 +1540,11 @@ Function _263_to_sostavlenie()
     Index On Upper( FIELD->name_f ) to ( cur_dir() + 'tmp_nf' ) For FIELD->in_out == 1
     find ( Upper( nfile ) ) // наверное уже отправляли I07 в ТФОМС
     If Found()
-      g_rlock( forever ) // бесконечная попытка блокировать запись
+      g_rlock( 'forever' ) // бесконечная попытка блокировать запись
       // удалим предыдущий XML-файл
       Delete File ( dir_server() + dir_NAPR_MO() + hb_ps() + AllTrim( nf->NAME_F ) + szip() )
     Else
-      g_rlock( .t., forever ) // бесконечная попытка добавить запись
+      g_rlock( .t., 'forever' ) // бесконечная попытка добавить запись
       nf->KOD := RecNo()            // код файла
     Endif
     nfile += '_' + Right( Str( Year( d7->DATE_R_EDI ), 4 ), 2 ) + ;
@@ -1621,7 +1633,7 @@ Function _263_to_sostavlenie()
       nf->TWORK2 := hour_min( Seconds() ) // время окончания обработки
       nf->TXT_F := name_txt
       Select D7
-      g_rlock( forever )
+      g_rlock( 'forever' )
       d7->DATE_R_OUT := d7->DATE_R_EDI
       d7->DATE_OUT := sys_date
       AAdd( arr_f, { nfile, 0 } )
@@ -1677,7 +1689,7 @@ Function _263_to_sostavlenie()
 // 03.08.14 Просмотр протоколов записи информационных пакетов в ТФОМС
 Function _263_to_protokol()
 
-  Local i, d, s, blk, t_arr[ BR_LEN ], buf := save_maxrow()
+  Local s, blk, t_arr[ BR_LEN ], buf := save_maxrow()
 
   mywait()
   dbCreate( cur_dir() + 'tmp', { ;
@@ -1705,7 +1717,8 @@ Function _263_to_protokol()
   t_arr[ BR_COLOR ] := color0
   t_arr[ BR_ARR_BROWSE ] := { '═', '░', '═', , .t. }
   blk := nil
-  t_arr[ BR_COLUMN ] := { { '   Дата', {|| full_date( tmp->named ) }, blk }, ;
+  t_arr[ BR_COLUMN ] := { ;
+    { '   Дата', {|| full_date( tmp->named ) }, blk }, ;
     { ' Время', {|| tmp->namet }, blk } }
   t_arr[ BR_STAT_MSG ] := {|| status_key( '^<Esc>^ - выход;  ^<Enter>^ - просмотр файла протокола записи' ) }
   t_arr[ BR_EDIT ] := {| nk, ob| f2_263_to_protokol( nk, ob, 'edit' ) }
@@ -1757,7 +1770,8 @@ Function _263_to_i01()
   t_arr[ BR_COLOR ] := color0
   t_arr[ BR_ARR_BROWSE ] := { '═', '░', '═', 'N/BG, W+/N, B/BG, W+/B, RB/BG, W+/RB, R/BG, W+/R', .t. }
   blk := {|| iif( Empty( nf->TWORK2 ) .or. nf->t_ans == 2, { 7, 8 }, iif( nf->t_ans == 0, { 5, 6 }, { 1, 2 } ) ) }
-  t_arr[ BR_COLUMN ] := { { ' Имя файла', {|| Left( nf->name_f, 22 ) }, blk }, ;
+  t_arr[ BR_COLUMN ] := { ;
+    { ' Имя файла', {|| Left( nf->name_f, 22 ) }, blk }, ;
     { ' Отч.дата', {|| full_date( nf->date_r ) }, blk }, ;
     { ' Кол.', {|| Str( nf->kol, 5 ) }, blk }, ;
     { 'Дата и время записи', {|| PadR( f1_263_to_i01( 3 ), 38 ) }, blk } }
@@ -1776,7 +1790,7 @@ Function _263_to_i01()
 Function f1_263_to_i01( k )
 
   Static buf
-  Local s, ta[ 2 ], k1, k2
+  Local s, ta[ 2 ]
 
   If k == 0
     buf := box_shadow( MaxRow() -4, 0, MaxRow() -1, 79, color1, 'Полное наименование стационара', 'B+/B' )
@@ -1805,8 +1819,8 @@ Function f1_263_to_i01( k )
 // 10.09.25
 Function f2_263_to_i01( nKey, oBrow, regim )
 
-  Local lkod, buf, r1, rec, i, ret := -1, arr, lcodem, n1, n2, ;
-    n_file := cur_dir() + 'i01.txt', sh := 80, HH := 60, t_arr[ 4 ], s, s1, s2, s3, s4
+  Local buf, i, ret := -1, arr, ;
+    n_file := cur_dir() + 'i01.txt', sh := 80, HH := 60, t_arr[ 4 ], s
 
   If regim == 'edit'
     Do Case
@@ -1836,7 +1850,7 @@ Function f2_263_to_i01( nKey, oBrow, regim )
           Set Index To
           For i := 1 To Len( arr )
             Goto ( arr[ i ] )
-            g_rlock( forever )
+            g_rlock( 'forever' )
             napr->KOD_F_1out := 0 // код файла - по файлу mo_nfile
           Next
           napr->( dbCloseArea() )
@@ -1947,7 +1961,8 @@ Function _263_to_i03()
   t_arr[ BR_COLOR ] := color0
   t_arr[ BR_ARR_BROWSE ] := { '═', '░', '═', 'N/BG, W+/N, B/BG, W+/B, RB/BG, W+/RB, R/BG, W+/R', .t. }
   blk := {|| iif( Empty( nf->TWORK2 ) .or. nf->t_ans == 2, { 7, 8 }, iif( nf->t_ans == 0, { 5, 6 }, { 1, 2 } ) ) }
-  t_arr[ BR_COLUMN ] := { { ' Имя файла', {|| Left( nf->name_f, 22 ) }, blk }, ;
+  t_arr[ BR_COLUMN ] := { ;
+    { ' Имя файла', {|| Left( nf->name_f, 22 ) }, blk }, ;
     { ' Отч.дата', {|| full_date( nf->date_r ) }, blk }, ;
     { ' Кол.', {|| Str( nf->kol, 5 ) }, blk }, ;
     { 'Дата и время записи', {|| PadR( f1_263_to_i01( 3 ), 38 ) }, blk } }
@@ -1962,8 +1977,8 @@ Function _263_to_i03()
 // 10.09.25
 Function f2_263_to_i03( nKey, oBrow, regim )
 
-  Local lkod, buf, r1, rec, i, ret := -1, arr, lcodem, n1, n2, ;
-    n_file := cur_dir() + 'I03.txt', sh := 80, HH := 60, t_arr[ 4 ], s1, s2, s3, s4
+  Local buf, i, ret := -1, arr, ;
+    n_file := cur_dir() + 'I03.txt', sh := 80, HH := 60, t_arr[ 4 ]
 
   If regim == 'edit'
     Do Case
@@ -1993,7 +2008,7 @@ Function f2_263_to_i03( nKey, oBrow, regim )
           Set Index To
           For i := 1 To Len( arr )
             Goto ( arr[ i ] )
-            g_rlock( forever )
+            g_rlock( 'forever' )
             napr->KOD_F_3out := 0 // код файла - по файлу mo_nfile
           Next
           napr->( dbCloseArea() )
@@ -2118,7 +2133,8 @@ Function _263_to_i04( k )
   t_arr[ BR_COLOR ] := color0
   t_arr[ BR_ARR_BROWSE ] := { '═', '░', '═', 'N/BG, W+/N, B/BG, W+/B, RB/BG, W+/RB, R/BG, W+/R', .t. }
   blk := {|| iif( Empty( nf->TWORK2 ) .or. nf->t_ans == 2, { 7, 8 }, iif( nf->t_ans == 0, { 5, 6 }, { 1, 2 } ) ) }
-  t_arr[ BR_COLUMN ] := { { ' Имя файла', {|| Left( nf->name_f, 22 ) }, blk }, ;
+  t_arr[ BR_COLUMN ] := { ;
+    { ' Имя файла', {|| Left( nf->name_f, 22 ) }, blk }, ;
     { ' Отч.дата', {|| full_date( nf->date_r ) }, blk }, ;
     { ' Кол.', {|| Str( nf->kol, 5 ) }, blk }, ;
     { 'Дата и время записи', {|| PadR( f1_263_to_i01( 3 ), 38 ) }, blk } }
@@ -2164,7 +2180,7 @@ Function f2_263_to_i04( nKey, oBrow, regim )
           Set Index To
           For i := 1 To Len( arr )
             Goto ( arr[ i ] )
-            g_rlock( forever )
+            g_rlock( 'forever' )
             napr->KOD_F_4out := 0 // код файла - по файлу mo_nfile
           Next
           napr->( dbCloseArea() )
@@ -2294,7 +2310,8 @@ Function _263_to_i06()
   t_arr[ BR_COLOR ] := color0
   t_arr[ BR_ARR_BROWSE ] := { '═', '░', '═', 'N/BG, W+/N, B/BG, W+/B, RB/BG, W+/RB, R/BG, W+/R', .t. }
   blk := {|| iif( Empty( nf->TWORK2 ) .or. nf->t_ans == 2, { 7, 8 }, iif( nf->t_ans == 0, { 5, 6 }, { 1, 2 } ) ) }
-  t_arr[ BR_COLUMN ] := { { ' Имя файла', {|| Left( nf->name_f, 22 ) }, blk }, ;
+  t_arr[ BR_COLUMN ] := { ;
+    { ' Имя файла', {|| Left( nf->name_f, 22 ) }, blk }, ;
     { ' Отч.дата', {|| full_date( nf->date_r ) }, blk }, ;
     { ' Кол.', {|| Str( nf->kol, 5 ) }, blk }, ;
     { 'Дата и время записи', {|| PadR( f1_263_to_i01( 3 ), 38 ) }, blk } }
@@ -2340,7 +2357,7 @@ Function f2_263_to_i06( nKey, oBrow, regim )
           Set Index To
           For i := 1 To Len( arr )
             Goto ( arr[ i ] )
-            g_rlock( forever )
+            g_rlock( 'forever' )
             napr->KOD_F_6out := 0 // код файла - по файлу mo_nfile
           Next
           napr->( dbCloseArea() )
@@ -2619,7 +2636,7 @@ Function _263_from_read()
           If emptyany( nf->d_ans, nf->t_ans ) // если ответа ещё не было
             is_read := .t.
             Select NF
-            g_rlock( forever )
+            g_rlock( 'forever' )
             nf->DWORK := sys_date         // дата обработки файла
             nf->TWORK1 := hour_min( Seconds() ) // время начала обработки
             // читаем протокол
@@ -2661,7 +2678,7 @@ Function _263_from_read()
                       Select NFN
                       find ( Str( napr->kod, 6 ) )
                       If Found()
-                        g_rlock( forever )
+                        g_rlock( 'forever' )
                         nfn->OSHIB := tmp2->OSHIB
                         nfn->IM_POL := tmp2->IM_POL
                         dbUnlock()
@@ -2676,14 +2693,14 @@ Function _263_from_read()
                       Select NFN
                       find ( Str( napr->kod, 6 ) )
                       If Found()
-                        g_rlock( forever )
+                        g_rlock( 'forever' )
                         nfn->OSHIB := nerrf
                         dbUnlock()
                       Endif
                     Endif
                   Endif
                   Select NAPR
-                  g_rlock( forever )
+                  g_rlock( 'forever' )
                   napr->T_ANS_1 := nerr
                   dbUnlock()
                   Skip
@@ -2710,7 +2727,7 @@ Function _263_from_read()
                       Select NFN
                       find ( Str( napr->kod, 6 ) )
                       If Found()
-                        g_rlock( forever )
+                        g_rlock( 'forever' )
                         nfn->OSHIB := tmp2->OSHIB
                         nfn->IM_POL := tmp2->IM_POL
                         dbUnlock()
@@ -2725,14 +2742,14 @@ Function _263_from_read()
                       Select NFN
                       find ( Str( napr->kod, 6 ) )
                       If Found()
-                        g_rlock( forever )
+                        g_rlock( 'forever' )
                         nfn->OSHIB := nerrf
                         dbUnlock()
                       Endif
                     Endif
                   Endif
                   Select NAPR
-                  g_rlock( forever )
+                  g_rlock( 'forever' )
                   napr->T_ANS_3 := nerr
                   dbUnlock()
                   Skip
@@ -2759,7 +2776,7 @@ Function _263_from_read()
                       Select NFN
                       find ( Str( napr->kod, 6 ) )
                       If Found()
-                        g_rlock( forever )
+                        g_rlock( 'forever' )
                         nfn->OSHIB := tmp2->OSHIB
                         nfn->IM_POL := tmp2->IM_POL
                         dbUnlock()
@@ -2774,14 +2791,14 @@ Function _263_from_read()
                       Select NFN
                       find ( Str( napr->kod, 6 ) )
                       If Found()
-                        g_rlock( forever )
+                        g_rlock( 'forever' )
                         nfn->OSHIB := nerrf
                         dbUnlock()
                       Endif
                     Endif
                   Endif
                   Select NAPR
-                  g_rlock( forever )
+                  g_rlock( 'forever' )
                   napr->T_ANS_4 := nerr
                   dbUnlock()
                   Skip
@@ -2808,7 +2825,7 @@ Function _263_from_read()
                       Select NFN
                       find ( Str( napr->kod, 6 ) )
                       If Found()
-                        g_rlock( forever )
+                        g_rlock( 'forever' )
                         nfn->OSHIB := tmp2->OSHIB
                         nfn->IM_POL := tmp2->IM_POL
                         dbUnlock()
@@ -2823,14 +2840,14 @@ Function _263_from_read()
                       Select NFN
                       find ( Str( napr->kod, 6 ) )
                       If Found()
-                        g_rlock( forever )
+                        g_rlock( 'forever' )
                         nfn->OSHIB := nerrf
                         dbUnlock()
                       Endif
                     Endif
                   Endif
                   Select NAPR
-                  g_rlock( forever )
+                  g_rlock( 'forever' )
                   napr->T_ANS_6 := nerr
                   dbUnlock()
                   Skip
@@ -2847,7 +2864,7 @@ Function _263_from_read()
                 Index On Str( FIELD->kod, 6 ) to ( cur_dir() + 'tmp_naprkod' ) For FIELD->KOD_F_1out == nf->KOD
                 Go Top
                 Do While !Eof()
-                  g_rlock( forever )
+                  g_rlock( 'forever' )
                   napr->T_ANS_1 := 1
                   dbUnlock()
                   Skip
@@ -2857,7 +2874,7 @@ Function _263_from_read()
                 Index On Str( FIELD->kod, 6 ) to ( cur_dir() + 'tmp_naprkod' ) For FIELD->KOD_F_3out == nf->KOD
                 Go Top
                 Do While !Eof()
-                  g_rlock( forever )
+                  g_rlock( 'forever' )
                   napr->T_ANS_3 := 1
                   dbUnlock()
                   Skip
@@ -2867,7 +2884,7 @@ Function _263_from_read()
                 Index On Str( FIELD->kod, 6 ) to ( cur_dir() + 'tmp_naprkod' ) For FIELD->KOD_F_4out == nf->KOD
                 Go Top
                 Do While !Eof()
-                  g_rlock( forever )
+                  g_rlock( 'forever' )
                   napr->T_ANS_4 := 1
                   dbUnlock()
                   Skip
@@ -2877,7 +2894,7 @@ Function _263_from_read()
                 Index On Str( FIELD->kod, 6 ) to ( cur_dir() + 'tmp_naprkod' ) For FIELD->KOD_F_6out == nf->KOD
                 Go Top
                 Do While !Eof()
-                  g_rlock( forever )
+                  g_rlock( 'forever' )
                   napr->T_ANS_6 := 1
                   dbUnlock()
                   Skip
@@ -2968,7 +2985,7 @@ Function _263_from_read()
                   Index On FIELD->num_d to ( cur_dir() + 'tmp_naprnum' )
                   // добавим запись о принимаемом файле
                   Select NF
-                  g_rlock( .t., forever ) // бесконечная попытка добавить запись
+                  g_rlock( .t., 'forever' ) // бесконечная попытка добавить запись
                   nf->KOD := RecNo()            // код файла
                   nf->DATE_F := tmp1->DATE_F    // дата файла
                   nf->NAME_F := tmp1->NAME_F    // имя файла без расширения (и ZIP-архива)
@@ -3005,7 +3022,7 @@ Function _263_from_read()
                     Select NAPR
                     find ( tmp2->NUM_D )
                     If Found()
-                      g_rlock( forever )
+                      g_rlock( 'forever' )
                       If napr->KOD_K > 0
                         m1kod_k := napr->KOD_K
                       Endif
@@ -3014,7 +3031,7 @@ Function _263_from_read()
                         StrFile( Space( 7 ) + 'это наше направление - почему-то не найдено в отправленных - добавляем' + ;
                           hb_eol(), cFileProtokol, .t. )
                       Endif
-                      g_rlock( .t., forever ) // бесконечная попытка добавить запись
+                      g_rlock( .t., 'forever' ) // бесконечная попытка добавить запись
                       napr->KOD := RecNo() // код направления - номер записи
                       napr->NUM_D := tmp2->NUM_D
                       napr->DATE_D := tmp2->DATE_D
@@ -3054,7 +3071,7 @@ Function _263_from_read()
                   Set Index to ( cur_dir() + 'tmp_napr' )
                   // добавим запись о принимаемом файле
                   Select NF
-                  g_rlock( .t., forever ) // бесконечная попытка добавить запись
+                  g_rlock( .t., 'forever' ) // бесконечная попытка добавить запись
                   nf->KOD := RecNo()            // код файла
                   nf->DATE_F := tmp1->DATE_F    // дата файла
                   nf->NAME_F := tmp1->NAME_F    // имя файла без расширения (и ZIP-архива)
@@ -3077,7 +3094,7 @@ Function _263_from_read()
                     Select NAPR
                     find ( Upper( tmp2->ID_D ) )
                     If Found()
-                      g_rlock( forever )
+                      g_rlock( 'forever' )
                       kart->( dbGoto( napr->KOD_K ) )
                       mfio := AllTrim( kart->fio )
                       //
@@ -3138,7 +3155,7 @@ Function _263_from_read()
                   Endif
                   // добавим запись о принимаемом файле
                   Select NF
-                  g_rlock( .t., forever ) // бесконечная попытка добавить запись
+                  g_rlock( .t., 'forever' ) // бесконечная попытка добавить запись
                   nf->KOD := RecNo()            // код файла
                   nf->DATE_F := tmp1->DATE_F    // дата файла
                   nf->NAME_F := tmp1->NAME_F    // имя файла без расширения (и ZIP-архива)
@@ -3184,7 +3201,7 @@ Function _263_from_read()
                           StrFile( Space( 7 ) + 'направление № ' + AllTrim( napr->NUM_D ) + ' от ' + date_8( napr->DATE_D ) + ;
                             hb_eol(), cFileProtokol, .t. )
                         Endif
-                        g_rlock( forever )
+                        g_rlock( 'forever' )
                         napr->KOD_F_4in := nf->KOD // код файла - по файлу mo_nfile
                         Unlock
                       Else
@@ -3201,7 +3218,7 @@ Function _263_from_read()
                             StrFile( Space( 7 ) + 'направление № ' + AllTrim( napr->NUM_D ) + ' от ' + date_8( napr->DATE_D ) + ;
                               hb_eol(), cFileProtokol, .t. )
                           Endif
-                          g_rlock( forever )
+                          g_rlock( 'forever' )
                           napr->CODEM_FROM := iif( Empty( tmp2->LPU_D ), glob_mo()[ _MO_KOD_TFOMS ], tmp2->LPU_D )
                           napr->TYPE_H_4 := tmp2->TYPE_H
                           napr->ID_4 := tmp2->ID_H
@@ -3231,7 +3248,7 @@ Function _263_from_read()
                         If ( m1kod_k := _263_add_kart( 0, mfio, cFileProtokol, .f. ) ) > 0
                           // добавим запись в картотеке (или перезапишем)
                           Select NAPR
-                          g_rlock( .t., forever ) // бесконечная попытка добавить запись
+                          g_rlock( .t., 'forever' ) // бесконечная попытка добавить запись
                           napr->KOD := RecNo() // код направления - номер записи
                           //
                           napr->KOD_K := m1kod_k // код по картотеке
@@ -3284,7 +3301,7 @@ Function _263_from_read()
                   Endif
                   // добавим запись о принимаемом файле
                   Select NF
-                  g_rlock( .t., forever ) // бесконечная попытка добавить запись
+                  g_rlock( .t., 'forever' ) // бесконечная попытка добавить запись
                   nf->KOD := RecNo()            // код файла
                   nf->DATE_F := tmp1->DATE_F    // дата файла
                   nf->NAME_F := tmp1->NAME_F    // имя файла без расширения (и ZIP-архива)
@@ -3324,7 +3341,7 @@ Function _263_from_read()
                           StrFile( Space( 7 ) + 'направление № ' + AllTrim( napr->NUM_D ) + ' от ' + date_8( napr->DATE_D ) + ;
                             hb_eol(), cFileProtokol, .t. )
                         Endif
-                        g_rlock( forever )
+                        g_rlock( 'forever' )
                         napr->KOD_F_6in := nf->KOD // код файла - по файлу mo_nfile
                         If Empty( napr->KOD_F_6out )
                           napr->KOD_F_6out := -99 // не наш
@@ -3349,7 +3366,7 @@ Function _263_from_read()
                             StrFile( Space( 7 ) + 'направление № ' + AllTrim( napr->NUM_D ) + ' от ' + date_8( napr->DATE_D ) + ;
                               hb_eol(), cFileProtokol, .t. )
                           Endif
-                          g_rlock( forever )
+                          g_rlock( 'forever' )
                           napr->DATE_6 := tmp2->DATE_D // дата выписки
                           napr->KOD_F_6in := nf->KOD // код файла - по файлу mo_nfile
                           If Empty( napr->KOD_F_6out )
@@ -3374,7 +3391,7 @@ Function _263_from_read()
                                 StrFile( Space( 7 ) + kart->fio + ;
                                   hb_eol(), cFileProtokol, .t. )
                                 Select NAPR
-                                g_rlock( forever )
+                                g_rlock( 'forever' )
                                 napr->DATE_6 := tmp2->DATE_D // дата выписки
                                 napr->KOD_F_6in := nf->KOD   // код файла - по файлу mo_nfile
                                 If Empty( napr->KOD_F_6out )
@@ -3422,12 +3439,12 @@ Function _263_from_read()
                   is_read := .t.
                   Select NF
                   If lrec_nf == 0
-                    g_rlock( .t., forever ) // бесконечная попытка добавить запись
+                    g_rlock( .t., 'forever' ) // бесконечная попытка добавить запись
                     nf->KOD := RecNo()            // код файла
                     lrec_nf := nf->KOD
                   Else
                     Goto ( lrec_nf )
-                    g_rlock( forever ) // бесконечная попытка блокировать запись
+                    g_rlock( 'forever' ) // бесконечная попытка блокировать запись
                   Endif
                   nf->DATE_F := tmp1->DATE_F    // дата файла
                   nf->NAME_F := tmp1->NAME_F    // имя файла без расширения (и ZIP-архива)
@@ -3720,7 +3737,7 @@ Function f2_263_from_i01( nKey, oBrow, regim )
           Set Index To
           For i := 1 To Len( arr )
             If napr->CODEM_1 == napr->S_CODEM // код поликлиники == код стационара
-              g_rlock( forever )
+              g_rlock( 'forever' )
               napr->KOD_F_1in := 0 // код файла - по файлу mo_nfile
             Else
               deleterec( .t. )
@@ -3852,7 +3869,7 @@ Function _263_add_kart( lkod_k, lfio, cFileProtokol, yes_append )
     StrFile( Space( 7 ) + 'данный пациент найден в нашей картотеке' + ;
       hb_eol(), cFileProtokol, .t. )
     Goto ( lkod_k )
-    g_rlock( forever )
+    g_rlock( 'forever' )
   Endif
   Private mdate_r := kart->DATE_R, m1VZROS_REB := 0, M1NOVOR := 0
   fv_date_r()
@@ -3871,7 +3888,7 @@ Function _263_add_kart( lkod_k, lfio, cFileProtokol, yes_append )
     Append Blank
   Enddo
   Goto ( lkod_k )
-  g_rlock( forever )
+  g_rlock( 'forever' )
   kart_->VPOLIS    := tmp2->TYPE_P
   kart_->SPOLIS    := tmp2->SER_P
   kart_->NPOLIS    := tmp2->NUM_P
@@ -3890,7 +3907,7 @@ Function _263_add_kart( lkod_k, lfio, cFileProtokol, yes_append )
   Enddo
   If !Empty( tmp2->ENP )
     Goto ( lkod_k )
-    g_rlock( forever )
+    g_rlock( 'forever' )
     kart2->kod_mis := tmp2->ENP
   Endif
   //
@@ -3898,7 +3915,7 @@ Function _263_add_kart( lkod_k, lfio, cFileProtokol, yes_append )
   find ( Str( lkod_k, 7 ) )
   If Found()
     If kart->MEST_INOG == 9
-      g_rlock( forever )
+      g_rlock( 'forever' )
       kfio->FAM := tmp2->SURNAME
       kfio->IM  := tmp2->NAME
       kfio->OT  := tmp2->PATRONYMIC
@@ -3921,7 +3938,7 @@ Function _263_add_kart( lkod_k, lfio, cFileProtokol, yes_append )
   find ( Str( lkod_k, 7 ) )
   If Found()
     If fl_nameismo
-      g_rlock( forever )
+      g_rlock( 'forever' )
       ksn->smo_name := tmp2->NAME_SMO
     Else
       deleterec( .t. )
@@ -4647,21 +4664,6 @@ Function f_profil_k_v020_t007( sprk20, lpr, ldate_r )
 
   lprk := lprk20
   If ldate_r > 0d20190115 // с 16 января
-    // if select('T7') > 0
-    // t7->(dbCloseArea())
-    // endif
-    // R_Use(dir_exe() + '_mo_t007', cur_dir() + '_mo_t0072', 'T7')
-    // find (str(lprk20, 3) + str(lpr, 3))
-    // if found()
-    // lprk := t7->profil_k
-    // else
-    // find (str(lprk20, 3))
-    // if found()
-    // lprk := t7->profil_k
-    // endif
-    // endif
-    // t7->(dbCloseArea())
-
     For Each row in arrT007
       If row[ 2 ] == lprk20 .and. row[ 3 ] == lpr
         lprk := row[ 1 ]

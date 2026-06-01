@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 24.05.26 ДВН - добавление или редактирование случая (листа учета)
+// 28.05.26 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -1335,16 +1335,18 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
       r_use( dir_server() + 'mo_su',, 'MOSU' )
       use_base( 'mo_hu' )
 
-      do while .t.
-        mohu->( dbSeek( Str( Loc_kod, 7 ) ) )
-        if mohu->( Found() )
-          mohu->( dbRLock() )
-          deleterec( .t., .f. )  // очистка записи
-          mohu->( dbUnlock() )
-        else
-          exit
-        Endif
-      Enddo
+      if Loc_kod != 0
+        do while .t.
+          mohu->( dbSeek( Str( Loc_kod, 7 ) ) )
+          if mohu->( Found() )
+            mohu->( dbRLock() )
+            deleterec( .t., .f. )  // очистка записи
+            mohu->( dbUnlock() )
+          else
+            exit
+          Endif
+        Enddo
+      endif
 
       use_base( 'human_u' )
 /*

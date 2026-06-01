@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 02.02.26
+// 29.05.26
 Function f_valid2ad_cr( k_date )
 
   Static mm_bartel := { ;
@@ -66,9 +66,15 @@ Function f_valid2ad_cr( k_date )
   arr_ad_criteria := getadditionalcriteria( k_date )  // загрузим доп. критерии на дату
 
   input_ad_cr := .f.
-  mm_ad_cr := {}
+  mm_ad_cr := {} 
   If eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL ) .and. m1vmp == 0
-    If m1profil == 158 // реабилитация
+    if m1profil == 84   // скорая медицинская помощь
+      If m1usl_ok == USL_OK_HOSPITAL
+        input_ad_cr := .t.
+        AAdd( mm_ad_cr, { 'не проставляется дополнительный критерий                  ', '   ' } )
+        AAdd( mm_ad_cr, { 'dosut - досутоное пребывание в стационаре СМП', 'dosut' } ) // Оказание медицинской помощи в стационарном отделении скорой медицинской помощи продолжительностью не более 24 часов
+      endif
+    elseif m1profil == 158  // реабилитация
       input_ad_cr := .t.
       AAdd( mm_ad_cr, mm_rb[ 1 ] )
       If m1usl_ok == USL_OK_HOSPITAL
@@ -254,5 +260,9 @@ Function f_valid2ad_cr( k_date )
     mprofil_m := SubStr( inieditspr( A__MENUVERT, getm003(),  m1PROFIL_M ), 1, 15 )
     update_get( 'mprofil_m' )
   Endif
+
+//  if Empty( mad_cr )
+//    input_ad_cr := .f.
+//  endif
 
   Return .t.

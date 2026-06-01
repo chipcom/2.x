@@ -441,18 +441,18 @@ Function pob2_statist( k, serv_arr, is_all )
     { "STOIM",      "N",     20,      4 };   // стоимость услуг
     }
   adbf2 := { ;
-    { "otd",        "N",      3,      0 }, ;  // отделение, где оказана услуга
-    { "U_KOD",    "N",      4,      0 }, ;  // код услуги
-    { "U_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
-    { "U_NAME",     "C",     65,      0 }, ;  // наименование услуги
-    { "VR_AS",      "N",      1,      0 }, ;  // врач - 1 ; ассистент - 2
-    { "TAB_NOM",    "N",      5,      0 }, ;  // таб.номер врача (ассистента)
-    { "SVOD_NOM",   "N",      5,      0 }, ;  // сводный таб.номер
-    { "KOD_VR",     "N",      4,      0 }, ;  // код врача
-    { "FIO",        "C",     50,      0 }, ;  // Ф.И.О. врача
-    { "TRUDOEM",    "N",     11,      4 }, ;  // трудоемкость услуг УЕТ
-    { "KOL",    "N",      6,      0 }, ;  // количество услуг
-    { "STOIM",    "N",     16,      4 };   // итоговая стоимость услуги
+    { "otd",      "N",  3, 0 }, ;  // отделение, где оказана услуга
+    { "U_KOD",    "N",  4, 0 }, ;  // код услуги
+    { "U_SHIFR",  "C", 10, 0 }, ;  // шифр услуги
+    { "U_NAME",   "C", 65, 0 }, ;  // наименование услуги
+    { "VR_AS",    "N",  1, 0 }, ;  // врач - 1 ; ассистент - 2
+    { "TAB_NOM",  "N",  5, 0 }, ;  // таб.номер врача (ассистента)
+    { "SVOD_NOM", "N",  5, 0 }, ;  // сводный таб.номер
+    { "KOD_VR",   "N",  4, 0 }, ;  // код врача
+    { "FIO",      "C", 50, 0 }, ;  // Ф.И.О. врача
+    { "TRUDOEM",  "N", 11, 4 }, ;  // трудоемкость услуг УЕТ
+    { "KOL",      "N",  6, 0 }, ;  // количество услуг
+    { "STOIM",    "N", 16, 4 };   // итоговая стоимость услуги
     }
   If k == 13 .and. !is_all
     dbCreate( cur_dir() + "tmp", adbf2 )
@@ -473,7 +473,8 @@ Function pob2_statist( k, serv_arr, is_all )
   Else
     dbCreate( cur_dir() + "tmp", adbf2 )
   Endif
-  waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
+  waitstatus( "<Esc> - прервать поиск" )
+  mark_keys( { "<Esc>" } )
   Use ( cur_dir() + "tmp" )
   Do Case
   Case k == 0  // Количество услуг и сумма лечения по службам (с разбивкой по отделениям)
@@ -1816,12 +1817,13 @@ Function st_plat_fio( reg )
     Skip
   Enddo
   Close databases
-  adbf := { { "kod",  "N", 7, 0 }, ;  // код л/у
+  adbf := { ;
+    { "kod",  "N", 7, 0 }, ;  // код л/у
     { "kod_k", "N", 7, 0 }, ;  // код по картотеке
     { "kod_p", "N", 4, 0 }, ;  // код персонала
     { "otd",  "N", 3, 0 }, ;  // код отделения
     { "summa", "N", 12, 2 } ;
-    }   // общая сумма лечения по данному отделению
+  }   // общая сумма лечения по данному отделению
   dbCreate( cur_dir() + "tmp", adbf )
   Use ( cur_dir() + "tmp" ) new
   Index On Str( kod_k, 7 ) + Str( kod, 7 ) + Str( otd, 3 ) + Str( kod_p, 4 ) to ( cur_dir() + "tmp" )
@@ -2141,7 +2143,8 @@ Function st_plat_ms( reg )
     { "SUMMA",      "N",     18,      2 };   // ст-ть услуг (зарплата)
     }
   dbCreate( cur_dir() + "tmp", adbf )
-  waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
+  waitstatus( "<Esc> - прервать поиск" )
+  mark_keys( { "<Esc>" } )
   Use ( cur_dir() + "tmp" )
   Index On Str( kod, 4 ) to ( cur_dir() + "tmp" )
   // по дате окончания лечения
@@ -2445,7 +2448,7 @@ Function pl_mnog_poisk()
   //
   dbCreate( cur_dir() + "tmp", { ;
     { "U_KOD",    "N",      4,      0 }, ;  // код услуги
-  { "U_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
+    { "U_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
     { "U_NAME",     "C",     65,      0 } ;  // наименование услуги
   } )
   Use ( cur_dir() + "tmp" )
@@ -2772,7 +2775,8 @@ aadd(mm_tmp, {"rajon","N",2,0,NIL,;
     If !flag_hu .and. is_oplata != 7
       flag_hu := ( mn->med1 > 0 .or. mn->san1 > 0 )
     Endif
-    dbCreate( cur_dir() + "tmp", { { "kod", "N", 7, 0 }, ;
+    dbCreate( cur_dir() + "tmp", { ;
+      { "kod", "N", 7, 0 }, ;
       { "stoim", "N", 10, 2 } } )
     Use ( cur_dir() + "tmp" ) new
     dbCreate( cur_dir() + "tmp_k", { { "kod_k", "N", 7, 0 } } )
@@ -3475,11 +3479,12 @@ Function pl_napr_vrach()
   speriod := arr_m[ 4 ]
   begin_date := arr_m[ 7 ]
   end_date := arr_m[ 8 ]
-  waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
+  waitstatus( "<Esc> - прервать поиск" )
+  mark_keys( { "<Esc>" } )
   adbf := { ;
-    { "KOD_VR",     "N",      4,      0 }, ;  // код врача
-  { "KOL",    "N",      6,      0 }, ;  // количество больных
-    { "SUMMA",    "N",     14,      2 };   // общая стоимость
+    { "KOD_VR", "N",  4, 0 }, ;  // код врача
+    { "KOL",    "N",  6, 0 }, ;  // количество больных
+    { "SUMMA",  "N", 14, 2 };   // общая стоимость
   }
   dbCreate( cur_dir() + "tmp", adbf )
   Use ( cur_dir() + "tmp" )
@@ -3602,16 +3607,17 @@ Function pl_napr2vrach()
     Enddo
     perso->( dbCloseArea() )
   Endif
-  waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
+  waitstatus( "<Esc> - прервать поиск" )
+  mark_keys( { "<Esc>" } )
   adbf := { ;
-    { "U_KOD",    "N",      4,      0 }, ;  // код услуги
-  { "U_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
-    { "U_NAME",     "C",     65,      0 }, ;  // наименование услуги
-  { "TAB_NOM",    "N",      5,      0 }, ;  // таб.номер врача
-    { "KOD_VR",     "N",      4,      0 }, ;  // код врача
-  { "FIO",        "C",     50,      0 }, ;  // Ф.И.О. врача
-    { "KOL",    "N",      6,      0 }, ;  // количество услуг
-  { "STOIM",    "N",     14,      2 };   // итоговая стоимость услуги
+    { "U_KOD",   "N",  4, 0 }, ;  // код услуги
+    { "U_SHIFR", "C", 10, 0 }, ;  // шифр услуги
+    { "U_NAME",  "C", 65, 0 }, ;  // наименование услуги
+    { "TAB_NOM", "N",  5, 0 }, ;  // таб.номер врача
+    { "KOD_VR",  "N",  4, 0 }, ;  // код врача
+    { "FIO",     "C", 50, 0 }, ;  // Ф.И.О. врача
+    { "KOL",     "N",  6, 0 }, ;  // количество услуг
+    { "STOIM",   "N", 14, 2 };   // итоговая стоимость услуги
     }
   dbCreate( cur_dir() + "tmp", adbf )
   Use ( cur_dir() + "tmp" ) new
@@ -3760,16 +3766,18 @@ Function ob_ved_vz()
   a_t[ 3 ] := "                              │  " + p_sb + "г.│    Дебет   │    Кредит  │  " + p_se + "г."
   a_t[ 4 ] := "──────────────────────────────┴────────────┴────────────┴────────────┴────────────"
   //
-  dbCreate( cur_dir() + "tmp", { { "kod_k", "N", 7, 0 }, ; // код больного по картотеке
-  { "pr_smo", "N", 6, 0 }, ; // код предприятия / СМО
-  { "SALDO1", "N", 13, 2 }, ;
+  dbCreate( cur_dir() + "tmp", { ;
+    { "kod_k", "N", 7, 0 }, ; // код больного по картотеке
+    { "pr_smo", "N", 6, 0 }, ; // код предприятия / СМО
+    { "SALDO1", "N", 13, 2 }, ;
     { "DEBET", "N", 13, 2 }, ;
     { "KREDIT", "N", 13, 2 }, ;
     { "SALDO2", "N", 13, 2 } } ) //
-  dbCreate( cur_dir() + "tmp1", { { "name", "C", 30, 0 }, ; // наименование предприятия
-  { "tip_usl", "N", 1, 0 }, ; // 2-взаимозачет, 1-добр.СМО
-  { "pr_smo", "N", 6, 0 }, ; // код предприятия / СМО
-  { "SALDO1", "N", 13, 2 }, ;
+  dbCreate( cur_dir() + "tmp1", { ;
+    { "name", "C", 30, 0 }, ; // наименование предприятия
+    { "tip_usl", "N", 1, 0 }, ; // 2-взаимозачет, 1-добр.СМО
+    { "pr_smo", "N", 6, 0 }, ; // код предприятия / СМО
+    { "SALDO1", "N", 13, 2 }, ;
     { "DEBET", "N", 13, 2 }, ;
     { "KREDIT", "N", 13, 2 }, ;
     { "SALDO2", "N", 13, 2 } } ) //
@@ -3782,7 +3790,8 @@ Function ob_ved_vz()
   r_use( dir_server() + "hum_p",, "HP" )
   Index On kod_k to ( cur_dir() + "tmp_hp" ) ;
     For equalany( hp->tip_usl, 1, 2 ) .and. hp->k_data <= arr_m[ 6 ] progress
-  waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
+  waitstatus( "<Esc> - прервать поиск" )
+  mark_keys( { "<Esc>" } )
   Go Top
   Do While !Eof()
     updatestatus()
@@ -4119,7 +4128,8 @@ Function f4ob_ved_vz( par )
     buf := save_row( MaxRow() ), adbf, msaldo1, msaldo2, sum1, sum2
 
   mywait()
-  adbf := { { "d_dokum", "D", 8, 0 }, ;
+  adbf := { ;
+    { "d_dokum", "D", 8, 0 }, ;
     { "prim",   "C", 30, 0 }, ;
     { "summa",  "N", 11, 2 } }
   dbCreate( cur_dir() + "tmp1_", adbf )
@@ -5235,7 +5245,8 @@ Function pl1_priemden( tip )
   Endif
   //
   mywait()
-  dbCreate( cur_dir() + "tmp", { { "kod",        "N",  4,  0 }, ;
+  dbCreate( cur_dir() + "tmp", { ;
+    { "kod",        "N",  4,  0 }, ;
     { "name",       "C", 65,  0 }, ;
     { "full_name",  "C", 120,  0 }, ;
     { "kod_1",      "C", 10,  0 }, ;
@@ -5244,7 +5255,7 @@ Function pl1_priemden( tip )
     { "operat",     "N",  3,  0 }, ;
     { "operatf",    "C", 40,  0 }, ;
     { "FR_zavod",   "C", 16,  0 };
-    } )
+  } )
   Use ( cur_dir() + "tmp" ) new
   If tip == 1
     Index On Str( kod, 4 ) to ( cur_dir() + "tmp_u" )
@@ -5458,7 +5469,8 @@ Function pl2_priemden( tip )
   Endif
   //
   mywait()
-  dbCreate( cur_dir() + "tmp", { { "kod",        "N",  4,  0 }, ;
+  dbCreate( cur_dir() + "tmp", { ;
+    { "kod",        "N",  4,  0 }, ;
     { "name",       "C", 65,  0 }, ;
     { "full_name",  "C", 120,  0 }, ;
     { "kod_1",      "C", 10,  0 }, ;
@@ -5993,26 +6005,30 @@ Function f1r_s_plat()
   speriod := arr_m[ 4 ]
   begin_date := arr_m[ 7 ]
   end_date := arr_m[ 8 ]
-  waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
+  waitstatus( "<Esc> - прервать поиск" )
+  mark_keys( { "<Esc>" } )
   //
-  dbCreate( cur_dir() + "tmp", { { "n_kvit", "N", 5, 0 }, ; // номер квитанционной книжки
-  { "kv_cia", "N", 6, 0 }, ; // номер квитанции
-  { "U_KOD", "N", 4, 0 }, ; // код услуги
-  { "SHIFR", "C", 10, 0 }, ; // шифр услуги
-  { "KOD_VR", "N", 4, 0 }, ; // код врача
-  { "KOL", "N", 5, 0 }, ; // количество услуг
-  { "STOIM", "N", 10, 2 } } ) // итоговая стоимость услуги
+  dbCreate( cur_dir() + "tmp", { ;
+    { "n_kvit", "N", 5, 0 }, ; // номер квитанционной книжки
+    { "kv_cia", "N", 6, 0 }, ; // номер квитанции
+    { "U_KOD", "N", 4, 0 }, ; // код услуги
+    { "SHIFR", "C", 10, 0 }, ; // шифр услуги
+    { "KOD_VR", "N", 4, 0 }, ; // код врача
+    { "KOL", "N", 5, 0 }, ; // количество услуг
+    { "STOIM", "N", 10, 2 } } ) // итоговая стоимость услуги
   Use ( cur_dir() + "tmp" )
   Index On Str( kod_vr, 4 ) + Str( n_kvit, 5 ) + Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
   Index On Str( kod_vr, 4 ) + Str( n_kvit, 5 ) + fsort_usl( shifr ) to ( cur_dir() + "tmpn" )
-  dbCreate( cur_dir() + "tmpt", { { "n_kvit", "N", 5, 0 }, ; // номер квитанционной книжки
-  { "STOIM", "N", 10, 2 } } ) // итоговая стоимость услуги
+  dbCreate( cur_dir() + "tmpt", { ;
+    { "n_kvit", "N", 5, 0 }, ; // номер квитанционной книжки
+    { "STOIM", "N", 10, 2 } } ) // итоговая стоимость услуги
   Use ( cur_dir() + "tmpt" )
   Index On Str( n_kvit, 5 ) to ( cur_dir() + "tmpt" )
-  dbCreate( cur_dir() + "tmpu", { { "U_KOD", "N", 4, 0 }, ; // код услуги
-  { "SHIFR", "C", 10, 0 }, ; // шифр услуги
-  { "KOL", "N", 5, 0 }, ; // количество услуг
-  { "STOIM", "N", 10, 2 } } ) // итоговая стоимость услуги
+  dbCreate( cur_dir() + "tmpu", { ;
+    { "U_KOD", "N", 4, 0 }, ; // код услуги
+    { "SHIFR", "C", 10, 0 }, ; // шифр услуги
+    { "KOL", "N", 5, 0 }, ; // количество услуг
+    { "STOIM", "N", 10, 2 } } ) // итоговая стоимость услуги
   Use ( cur_dir() + "tmpu" )
   Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpuk" )
   Index On fsort_usl( shifr ) to ( cur_dir() + "tmpun" )
@@ -6181,12 +6197,14 @@ Function f2r_spl_plat( reg )
     Return Nil
   Endif
   sreg1 := reg1
-  waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
+  waitstatus( "<Esc> - прервать поиск" )
+  mark_keys( { "<Esc>" } )
   //
-  dbCreate( cur_dir() + "tmp", { { "U_KOD", "N", 4, 0 }, ; // код услуги
-  { "KOD_VR", "N", 4, 0 }, ; // код врача
-  { "KOL", "N", 5, 0 }, ; // количество услуг
-  { "STOIM", "N", 10, 2 } } ) // итоговая стоимость услуги
+  dbCreate( cur_dir() + "tmp", { ;
+    { "U_KOD", "N", 4, 0 }, ; // код услуги
+    { "KOD_VR", "N", 4, 0 }, ; // код врача
+    { "KOL", "N", 5, 0 }, ; // количество услуг
+    { "STOIM", "N", 10, 2 } } ) // итоговая стоимость услуги
   Use ( cur_dir() + "tmp" )
   Index On Str( kod_vr, 4 ) + Str( u_kod, 4 ) to ( cur_dir() + "tmp" )
   r_use( dir_server() + "uslugi", dir_server() + "uslugi", "USL" )
@@ -6339,13 +6357,15 @@ Function f3r_s_plat()
     Return Nil
   Endif
   sreg1 := reg1
-  waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
+  waitstatus( "<Esc> - прервать поиск" )
+  mark_keys( { "<Esc>" } )
   //
-  dbCreate( cur_dir() + "tmp", { { "kod_k", "N", 7, 0 }, ; // код больного по картотеке
-  { "kv_cia", "N", 6, 0 }, ; // номер квитанции
-  { "pdate", "C", 4, 0 }, ;
+  dbCreate( cur_dir() + "tmp", { ;
+    { "kod_k", "N", 7, 0 }, ; // код больного по картотеке
+    { "kv_cia", "N", 6, 0 }, ; // номер квитанции
+    { "pdate", "C", 4, 0 }, ;
     { "KOL", "N", 5, 0 }, ; // количество услуг
-  { "STOIM", "N", 10, 2 } } ) // итоговая стоимость услуги
+    { "STOIM", "N", 10, 2 } } ) // итоговая стоимость услуги
   Use ( cur_dir() + "tmp" )
   r_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HPU" )
   r_use( dir_server() + "hum_p", dir_server() + "hum_pv", "HP" )
@@ -6465,11 +6485,12 @@ Function f4r_s_plat()
     Endif
   Next
   //
-  dbCreate( cur_dir() + "tmp", { { "kod_k", "N", 7, 0 }, ; // код больного по картотеке
-  { "rec_hp", "N", 7, 0 }, ; // номер записи по базе "hum_p"
-  { "kv_cia", "N", 6, 0 }, ; // номер квитанции
-  { "KOL", "N", 5, 0 }, ; // количество услуг
-  { "STOIM", "N", 10, 2 } } ) // итоговая стоимость услуги
+  dbCreate( cur_dir() + "tmp", { ;
+    { "kod_k", "N", 7, 0 }, ; // код больного по картотеке
+    { "rec_hp", "N", 7, 0 }, ; // номер записи по базе "hum_p"
+    { "kv_cia", "N", 6, 0 }, ; // номер квитанции
+    { "KOL", "N", 5, 0 }, ; // количество услуг
+    { "STOIM", "N", 10, 2 } } ) // итоговая стоимость услуги
   Use ( cur_dir() + "tmp" )
   g_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HPU" )
   g_use( dir_server() + "hum_p",, "HP" )
@@ -6482,7 +6503,8 @@ Function f4r_s_plat()
       For f_is_uch( st_a_uch, hp->lpu ) .and. Left( hp->pdate, 2 ) == slyear ;
       .and. AScan( arr_kv, {| x| Between( hp->kv_cia, x[ 1 ], x[ 2 ] ) } ) > 0
   Endif
-  waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
+  waitstatus( "<Esc> - прервать поиск" )
+  mark_keys( { "<Esc>" } )
   Go Top
   min_date := max_date := hp->pdate
   Do While !Eof()
@@ -6673,9 +6695,10 @@ Function f5r_s_plat()
   Endif
   buf := save_row( MaxRow() )
   mywait()
-  dbCreate( cur_dir() + "tmp", { { "n_kvit", "N", 5, 0 }, ; // номер квитанционной книжки
-  { "kv_cia", "N", 6, 0 }, ; // номер квитанции
-  { "stoim", "N", 10, 2 } } ) // сумма квитанции
+  dbCreate( cur_dir() + "tmp", { ;
+    { "n_kvit", "N", 5, 0 }, ; // номер квитанционной книжки
+    { "kv_cia", "N", 6, 0 }, ; // номер квитанции
+    { "stoim", "N", 10, 2 } } ) // сумма квитанции
   Use ( cur_dir() + "tmp" )
   Index On Str( kv_cia, 6 ) to ( cur_dir() + "tmp" )
   g_use( dir_server() + "hum_p",, "HP" )
@@ -6787,9 +6810,10 @@ Function pl_vyruchka()
         ADel( arr_kv, i ) ; --k
       Endif
     Next
-    dbCreate( cur_dir() + "tmp", { { "n_kvit", "N", 5, 0 }, ; // номер квитанционной книжки
-    { "kv_cia", "N", 6, 0 }, ; // номер квитанции
-    { "stoim", "N", 10, 2 } } ) // сумма квитанции
+    dbCreate( cur_dir() + "tmp", { ;
+      { "n_kvit", "N", 5, 0 }, ; // номер квитанционной книжки
+      { "kv_cia", "N", 6, 0 }, ; // номер квитанции
+      { "stoim", "N", 10, 2 } } ) // сумма квитанции
     Use ( cur_dir() + "tmp" )
     Index On Str( kv_cia, 6 ) to ( cur_dir() + "tmp" )
     g_use( dir_server() + "hum_p",, "HP" )
@@ -7012,8 +7036,8 @@ Function po_isp_nap( reg )
   Elseif k == 2
     dbCreate( cur_dir() + "tmp", { ;
       { "U_KOD",    "N",      4,      0 }, ;  // код услуги
-    { "U_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
-    { "U_NAME",     "C",     65,      0 } } )  // наименование услуги
+      { "U_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
+      { "U_NAME",     "C",     65,      0 } } )  // наименование услуги
     Use ( cur_dir() + "tmp" )
     Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
     Index On fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
@@ -7023,8 +7047,12 @@ Function po_isp_nap( reg )
     dbEval( {|| AAdd( arr_usl, tmp->u_kod ) } )
     Use
   Endif
-  waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
-  dbCreate( cur_dir() + "tmp", { { "rec", "N", 7, 0 }, { "rec_vr", "N", 6, 0 }, { "sum_usl", "N", 8, 2 } } )
+  waitstatus( "<Esc> - прервать поиск" )
+  mark_keys( { "<Esc>" } )
+  dbCreate( cur_dir() + "tmp", { ;
+    { "rec", "N", 7, 0 }, ;
+    { "rec_vr", "N", 6, 0 }, ;
+    { "sum_usl", "N", 8, 2 } } )
   Use ( cur_dir() + "tmp" ) new
   g_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HU" )
   g_use( dir_server() + "hum_p", dir_server() + "hum_pd", "HUMAN" )
@@ -7158,8 +7186,8 @@ Function po_pr_vr_as( reg )
   Elseif k == 2
     dbCreate( cur_dir() + "tmp", { ;
       { "U_KOD",    "N",      4,      0 }, ;  // код услуги
-    { "U_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
-    { "U_NAME",     "C",     65,      0 } } )  // наименование услуги
+      { "U_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
+      { "U_NAME",     "C",     65,      0 } } )  // наименование услуги
     Use ( cur_dir() + "tmp" )
     Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
     Index On fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
@@ -7169,7 +7197,8 @@ Function po_pr_vr_as( reg )
     dbEval( {|| AAdd( arr_usl, tmp->u_kod ) } )
     Use
   Endif
-  waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
+  waitstatus( "<Esc> - прервать поиск" )
+  mark_keys( { "<Esc>" } )
   dbCreate( cur_dir() + "tmp", { { "rec", "N", 7, 0 } } )
   Use ( cur_dir() + "tmp" ) new
   g_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HU" )
@@ -7285,7 +7314,8 @@ Function po_pr_oms( reg )
   add_string( "" )
   add_string( Center( arr[ 4 ], sh ) )
   //
-  waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
+  waitstatus( "<Esc> - прервать поиск" )
+  mark_keys( { "<Esc>" } )
   g_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "PHU" )
   g_use( dir_server() + "uslugi",, "USL" )
   g_use( dir_server() + "hum_p",, "PHUMAN" )
@@ -7366,8 +7396,10 @@ Function po_pr_ot_pe()
   If ( arr := year_month() ) == NIL
     Return Nil
   Endif
-  waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
-  dbCreate( cur_dir() + "tmp", { { "rec", "N", 7, 0 }, ;
+  waitstatus( "<Esc> - прервать поиск" )
+  mark_keys( { "<Esc>" } )
+  dbCreate( cur_dir() + "tmp", { ;
+    { "rec", "N", 7, 0 }, ;
     { "otd", "N", 3, 0 }, ;
     { "otd_new", "N", 3, 0 } } )
   Use ( cur_dir() + "tmp" ) new
@@ -7489,19 +7521,22 @@ Function pl_vzaimozach()
   If ( arr_m := year_month() ) == NIL
     Return Nil
   Endif
-  waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
+  waitstatus( "<Esc> - прервать поиск" )
+  mark_keys( { "<Esc>" } )
   //
-  dbCreate( cur_dir() + "tmp", { { "kod_k", "N", 7, 0 }, ; // код больного по картотеке
-  { "tip_usl", "N", 1, 0 }, ; // 2-взаимозачет, 1-добр.СМО
-  { "pr_smo", "N", 6, 0 }, ; // код предприятия / СМО
-  { "KOL", "N", 5, 0 }, ; // количество листов учета
-  { "D_POLIS", "C", 25, 0 }, ; // полис
-  { "N_DATA", "D", 8, 0 }, ; // дата начала лечения
-  { "K_DATA", "D", 8, 0 }, ; // дата окончания лечения
-  { "STOIM", "N", 10, 2 } } ) // итоговая стоимость услуг
+  dbCreate( cur_dir() + "tmp", { ;
+    { "kod_k", "N", 7, 0 }, ; // код больного по картотеке
+    { "tip_usl", "N", 1, 0 }, ; // 2-взаимозачет, 1-добр.СМО
+    { "pr_smo", "N", 6, 0 }, ; // код предприятия / СМО
+    { "KOL", "N", 5, 0 }, ; // количество листов учета
+    { "D_POLIS", "C", 25, 0 }, ; // полис
+    { "N_DATA", "D", 8, 0 }, ; // дата начала лечения
+    { "K_DATA", "D", 8, 0 }, ; // дата окончания лечения
+    { "STOIM", "N", 10, 2 } } ) // итоговая стоимость услуг
   Use ( cur_dir() + "tmp" ) new
   Index On Str( tip_usl, 1 ) + Str( pr_smo, 6 ) + Str( kod_k, 7 ) to ( cur_dir() + "tmp" )
-  dbCreate( cur_dir() + "tmp2", { { "rec_tmp", "N", 6, 0 }, ;
+  dbCreate( cur_dir() + "tmp2", { ;
+    { "rec_tmp", "N", 6, 0 }, ;
     { "rec_hp", "N", 7, 0 }, ;
     { "D_POLIS", "C", 25, 0 } } ) // полис
   Use ( cur_dir() + "tmp2" ) new
@@ -7538,11 +7573,12 @@ Function pl_vzaimozach()
   Endif
   j := tmp->( LastRec() )
   If !fl_exit .and. j > 0
-    dbCreate( cur_dir() + "tmp1", { { "name", "C", 30, 0 }, ; // наименование предприятия
-    { "tip_usl", "N", 1, 0 }, ; // 2-взаимозачет, 1-добр.СМО
-    { "pr_smo", "N", 6, 0 }, ; // код предприятия / СМО
-    { "KOL", "N", 6, 0 }, ; // количество больных
-    { "STOIM", "N", 11, 2 } } ) // итоговая стоимость лечения
+    dbCreate( cur_dir() + "tmp1", { ;
+      { "name", "C", 30, 0 }, ; // наименование предприятия
+      { "tip_usl", "N", 1, 0 }, ; // 2-взаимозачет, 1-добр.СМО
+      { "pr_smo", "N", 6, 0 }, ; // код предприятия / СМО
+      { "KOL", "N", 6, 0 }, ; // количество больных
+      { "STOIM", "N", 11, 2 } } ) // итоговая стоимость лечения
     g_use( dir_server() + "p_pr_vz",, "PRED" )
     g_use( dir_server() + "p_d_smo",, "SMO" )
     Use ( cur_dir() + "tmp1" ) new
@@ -7675,7 +7711,8 @@ Function f1_pl_vzaim( nKey, oBrow, regim )
     rec_tmp1 := tmp1->( RecNo() )
     buf := SaveScreen()
     mywait()
-    dbCreate( cur_dir() + "tmp9", { { "kod",     "N", 4,   0 }, ;
+    dbCreate( cur_dir() + "tmp9", { ;
+      { "kod",     "N", 4,   0 }, ;
       { "name",    "C", 60,  0 }, ;
       { "kod_1",   "C", 10,  0 }, ;
       { "kol_vo",  "N", 10,  0 }, ;
@@ -8066,15 +8103,17 @@ Function vr_vzaimozach( regim )
   If ( arr_m := year_month() ) == NIL
     Return Nil
   Endif
-  waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
+  waitstatus( "<Esc> - прервать поиск" )
+  mark_keys( { "<Esc>" } )
   //
-  dbCreate( cur_dir() + "tmp", { { "kod",        "N",      4,      0 }, ; // код персонала
-  { "FIO",        "C",     50,      0 }, ;  // Ф.И.О. врача
-    { "TRUDOEM",    "N",     11,      4 }, ;  // трудоемкость услуг УЕТ
-  { "KOL",    "N",      6,      0 }, ;  // количество услуг
-    { "STOIM_OB",   "N",     12,      2 }, ;  // итоговая стоимость услуг
-  { "STOIM",    "N",     12,      2 }, ;  // итоговая стоимость услуг
-    { "ZARPLATA",   "N",     12,      2 } } )  // на зарплату
+  dbCreate( cur_dir() + "tmp", { ;
+    { "kod",      "N",  4, 0 }, ; // код персонала
+    { "FIO",      "C", 50, 0 }, ;  // Ф.И.О. врача
+    { "TRUDOEM",  "N", 11, 4 }, ;  // трудоемкость услуг УЕТ
+    { "KOL",      "N",  6, 0 }, ;  // количество услуг
+    { "STOIM_OB", "N", 12, 2 }, ;  // итоговая стоимость услуг
+    { "STOIM",    "N", 12, 2 }, ;  // итоговая стоимость услуг
+    { "ZARPLATA", "N", 12, 2 } } )  // на зарплату
   Use ( cur_dir() + "tmp" )
   Index On Str( kod, 4 ) to ( cur_dir() + "tmp" )
   useuch_usl()
@@ -8585,7 +8624,8 @@ Function ob2_v_usl( is_get, r1, mtitul )
   usl->( dbCloseArea() )
   RestScreen( buf )
   If !is_get
-    waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
+    waitstatus( "<Esc> - прервать поиск" )
+    mark_keys( { "<Esc>" } )
   Endif
 
   Return ret
@@ -9111,20 +9151,21 @@ Function sv1_ved_plat( arr, arr_otd )
     fl7_plan := .t.
   Endif
   adbf2 := { ;
-    { "KOD_VR",     "N",      4,      0 }, ;  // код врача
-  { "FIO",        "C",     50,      0 }, ;  // Ф.И.О. врача (ассистента)
-    { "TRUDOEM",    "N",     11,      4 }, ;  // трудоемкость услуг УЕТ
-  { "KOL",    "N",      6,      0 }, ;  // количество услуг
-    { "STOIM",    "N",     14,      2 }, ;  // итоговая стоимость услуги
-  { "KOL1",    "N",      6,      0 }, ;  // платные
-    { "STOIM1",    "N",     14,      2 }, ;  // платные
-  { "KOL2",    "N",      6,      0 }, ;  // доплаты за услуги
-    { "STOIM2",    "N",     14,      2 }, ;  // доплаты за услуги
-  { "KOL3",    "N",      6,      0 }, ;  // материалы
-    { "STOIM3",    "N",     14,      2 };   // материалы
+    { "KOD_VR",  "N",  4, 0 }, ;  // код врача
+    { "FIO",     "C", 50, 0 }, ;  // Ф.И.О. врача (ассистента)
+    { "TRUDOEM", "N", 11, 4 }, ;  // трудоемкость услуг УЕТ
+    { "KOL",     "N",  6, 0 }, ;  // количество услуг
+    { "STOIM",   "N", 14, 2 }, ;  // итоговая стоимость услуги
+    { "KOL1",    "N",  6, 0 }, ;  // платные
+    { "STOIM1",  "N", 14, 2 }, ;  // платные
+    { "KOL2",    "N",  6, 0 }, ;  // доплаты за услуги
+    { "STOIM2",  "N", 14, 2 }, ;  // доплаты за услуги
+    { "KOL3",    "N",  6, 0 }, ;  // материалы
+    { "STOIM3",  "N", 14, 2 };   // материалы
   }
   dbCreate( cur_dir() + "tmp", adbf2 )
-  waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
+  waitstatus( "<Esc> - прервать поиск" )
+  mark_keys( { "<Esc>" } )
   Use ( cur_dir() + "tmp" )
   Index On Str( kod_vr, 4 ) to ( cur_dir() + "tmpk" )
   If mem_trudoem == 2
@@ -9231,7 +9272,8 @@ Function sv2_ved_plat( arr, arr_otd )
 
   begin_date := arr[ 7 ]
   end_date := arr[ 8 ]
-  waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
+  waitstatus( "<Esc> - прервать поиск" )
+  mark_keys( { "<Esc>" } )
   Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmpk" ) Alias TMP
   If mem_trudoem == 2
     useuch_usl()
@@ -10759,11 +10801,12 @@ Function st1_plat_fio()
     Skip
   Enddo
   Close databases
-  adbf := { { "kod",  "N", 7, 0 }, ;  // код л/у
-    { "kod_k", "N", 7, 0 }, ;  // код по картотеке
-  { "kod_p", "N", 4, 0 }, ;  // код персонала
-    { "otd",  "N", 3, 0 }, ;  // код отделения
-  { "summa", "N", 12, 2 }, ;  // общая сумма лечения по данному отделению
+  adbf := { ;
+    { "kod",      "N", 7, 0 }, ;  // код л/у
+    { "kod_k",    "N", 7, 0 }, ;  // код по картотеке
+    { "kod_p",    "N", 4, 0 }, ;  // код персонала
+    { "otd",      "N", 3, 0 }, ;  // код отделения
+    { "summa",    "N", 12, 2 }, ;  // общая сумма лечения по данному отделению
     { "sm_vozvr", "N", 12, 2 }; // общая сумма лечения по данному отделению
   }
   dbCreate( cur_dir() + "tmp", adbf )
@@ -11071,7 +11114,8 @@ Function pl_print_faktura( ret, sk, ss )
   //
   Private pole := "_t->name"
   delfrfiles()
-  dbCreate( fr_titl, { { "title1", "C", 100, 0 }, ;
+  dbCreate( fr_titl, { ;
+    { "title1", "C", 100, 0 }, ;
     { "title2", "C", 100, 0 }, ;
     { "name01", "C", 200, 0 }, ;
     { "name02", "C", 200, 0 }, ;
@@ -11170,7 +11214,8 @@ Function pl_print_akt( ret, sk, ss )
 
   //
   delfrfiles()
-  dbCreate( fr_titl, { { "nomer", "C", 10, 0 }, ;
+  dbCreate( fr_titl, { ;
+    { "nomer", "C", 10, 0 }, ;
     { "data", "C", 30, 0 }, ;
     { "prod_name", "C", 150, 0 }, ;
     { "prod_adres", "C", 100, 0 }, ;
@@ -11231,7 +11276,8 @@ Function rees_new_vzaim( nd_faktura )
 
   delfrfiles()
   mywait()
-  adbf := { { "n_fakt", "C", 10, 0 }, ;
+  adbf := { ;
+    { "n_fakt", "C", 10, 0 }, ;
     { "d_fakt", "C", 10, 0 }, ;
     { "n_dog", "C", 30, 0 }, ;
     { "d_dog", "C", 10, 0 }, ;
@@ -11245,7 +11291,8 @@ Function rees_new_vzaim( nd_faktura )
     { "pok2name", "C", 150, 0 }, ;
     { "stoim", "N", 15, 2 } }
   dbCreate( fr_titl, adbf )
-  adbf := { { "nomer",   "N", 4, 0 }, ;
+  adbf := { ;
+    { "nomer",   "N", 4, 0 }, ;
     { "fio",     "C", 60, 0 }, ;
     { "polis",   "C", 25, 0 }, ;
     { "n_kart",  "C", 10, 0 }, ;
@@ -11256,8 +11303,8 @@ Function rees_new_vzaim( nd_faktura )
     { "vrach",   "C", 50, 0 }, ;
     { "diagnoz", "C", 6, 0 }, ;
     { "GP_NOMER", "C", 16, 0 }, ; // № гарантийного письма по ДМС
-  { "GP_DATE", "C", 10, 0 }, ; // дата гарантийного письма по ДМС
-  { "cena",    "N", 10, 2 }, ;
+    { "GP_DATE", "C", 10, 0 }, ; // дата гарантийного письма по ДМС
+    { "cena",    "N", 10, 2 }, ;
     { "kol",     "N", 4, 0 }, ;
     { "summa",   "N", 12, 2 } }
   dbCreate( fr_data, adbf )
@@ -11438,7 +11485,8 @@ Function rees_new_vzaim_pol3( nd_faktura )
 
   delfrfiles()
   mywait()
-  adbf := { { "n_fakt", "C", 10, 0 }, ;
+  adbf := { ;
+    { "n_fakt", "C", 10, 0 }, ;
     { "d_fakt", "C", 10, 0 }, ;
     { "n_dog", "C", 30, 0 }, ;
     { "d_dog", "C", 10, 0 }, ;
@@ -11452,7 +11500,8 @@ Function rees_new_vzaim_pol3( nd_faktura )
     { "pok2name", "C", 150, 0 }, ;
     { "stoim", "N", 15, 2 } }
   dbCreate( fr_titl, adbf )
-  adbf := { { "nomer",   "N", 4, 0 }, ;
+  adbf := { ;
+    { "nomer",   "N", 4, 0 }, ;
     { "fio",     "C", 60, 0 }, ;
     { "pol",     "C", 1, 0 }, ;
     { "adres",   "C", 60, 0 }, ;
@@ -11700,7 +11749,8 @@ Function pl_priemshk()
   Endif
   //
   mywait()
-  dbCreate( cur_dir() + "tmp", { { "kod",     "N",  4,  0 }, ;
+  dbCreate( cur_dir() + "tmp", { ;
+    { "kod",     "N",  4,  0 }, ;
     { "fio",     "C", 60,  0 }, ;
     { "chek",    "N", 10,  0 }, ;
     { "kod_hum", "N", 10,  0 }, ;
