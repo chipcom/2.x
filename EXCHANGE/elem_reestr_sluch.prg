@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 29.05.26
+// 02.06.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -620,10 +620,16 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         p2->( dbGoto( human_->vrach ) )
         mo_add_xml_stroke( oSL, 'IDDOKT', p2->snils )
       Endif
-      If is_zak_sl .or. is_zak_sl_vr
+      If is_zak_sl .or. is_zak_sl_vr 
         mo_add_xml_stroke( oSL, 'ED_COL', '1' )
         mo_add_xml_stroke( oSL, 'TARIF', lstr( tarif_zak_sl, 10, 2 ) )
       Endif
+
+      If is_KSG
+        mo_add_xml_stroke( oSL, 'ED_COL', '1' )
+        mo_add_xml_stroke( oSL, 'TARIF', lstr( tarif_zak_sl, 10, 2 ) )
+      endif
+
       mo_add_xml_stroke( oSL, 'SUM_M', lstr( human->cena_1, 10, 2 ) )
 
       // проверим лекарственные препараты
