@@ -71,7 +71,7 @@ Function reconstruct_security( is_local_version )
   Endif
   Return Nil
 
-// 01.06.26 реконстукция баз данных
+// 02.06.26 реконстукция баз данных
 Function reconstruct_db( is_local_version )
 
   Local base1 := { ;
@@ -213,7 +213,9 @@ Function reconstruct_db( is_local_version )
     { 'PC5',        'C',  10, 0 }, ; //
     { 'PN1',        'N',  10, 0 }, ; //
     { 'PN2',        'N',  10, 0 }, ; //
-    { 'PN3',        'N',  10, 0 } ;  //
+    { 'PN3',        'N',  10, 0 }, ; //
+    { 'DATE_OT',    'D',   8, 0 }, ; // дата прекращения страхования (смерть, покинул область)
+    { 'MO_OT',      'C',   6, 0 } ;  // код МО прикрепления при окончании страхования
   }
   //
   Local mo_kinos := { ;  // справочник сведений об иностранце (при картотеке)
