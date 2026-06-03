@@ -98,7 +98,7 @@ Function files_nsi_exists( dir_file )
   Endif
   Return lRet
 
-// 09.04.26 проверка и переиндексирование справочников ТФОМС
+// 03.06.26 проверка и переиндексирование справочников ТФОМС
 Function index_work_dir( dir_spavoch, working_dir, flag )
 
   Local fl := .t., i, buf := save_maxrow()
@@ -183,8 +183,8 @@ Function index_work_dir( dir_spavoch, working_dir, flag )
   // справочник ОКАТО
   okato_index( flag )
   //
-  // справочник страховых компаний РФ
-  glob_array_srf( dir_spavoch, working_dir )
+//  // справочник страховых компаний РФ
+//  glob_array_srf( dir_spavoch, working_dir )
   rest_box( buf )
   Return Nil
 
