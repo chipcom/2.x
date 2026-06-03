@@ -145,6 +145,7 @@ Function getf019()
 
   Return _arr
 
+// 03.06.26
 Function findSMO_in_f019( code )
 
   // возвращает array
@@ -155,7 +156,7 @@ Function findSMO_in_f019( code )
 
   _arr := {}
   db := opensql_db()
-  cmd := 'SELECT tf_okato, orgtype, orgcod, nam_orgp, nam_orgk, tf_kod, smocod FROM f019 where smocod=="' + code + '"'
+  cmd := 'SELECT tf_okato, orgtype, orgcod, nam_orgp, nam_orgk, tf_kod, smocod FROM f019 where smocod=="' + code + '" or orgcod=="' + code + '"'
   aTable := sqlite3_get_table( db, cmd )
   If Len( aTable ) > 1
     // берем вторую сторку
@@ -171,7 +172,7 @@ Function findSMO_in_f019( code )
 
   Return _arr
 
-// 28.05.26 вернуть массив справочнику ФФОМС F019.xml
+// 03.06.26 вернуть массив справочнику ФФОМС F019.xml
 Function get_SMO_OKATO_f019( code )
 
   // возвращает массив
@@ -191,7 +192,7 @@ Function get_SMO_OKATO_f019( code )
     For nI := 2 To Len( aTable )
       AAdd( _arr, { ;
         Alltrim( aTable[ nI, 5 ] ), ;
-        aTable[ nI, 7 ] } )
+        iif( Empty( aTable[ nI, 7 ] ), aTable[ nI, 3 ], aTable[ nI, 7 ] ) } )
 //      AAdd( _arr, { ;
 //        aTable[ nI, 1 ], ;
 //        aTable[ nI, 2 ], ;
