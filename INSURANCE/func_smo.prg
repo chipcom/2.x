@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 27.05.26
+// 04.06.26
 Function func_valid_ismo( get, lkomu, sh, name_var )
 
   Local r1, r2, n := 3, buf, tmp_keys, tmp_list, tmp_color
@@ -26,9 +26,12 @@ Function func_valid_ismo( get, lkomu, sh, name_var )
     box_shadow( r1, 2, r2, 77, 'N+/W', '‚¢®¤ ¨­®£®à®¤­¥© ‘ŒŽ', 'GR/W' )
     tmp_color := SetColor( 'N/W, W+/N, , , B/W' )
     @ r1 + 1, 4 Say '‘ã¡ê¥ªâ ”' Get mokato ;
-      reader {| x| menu_reader( x, ;
-      { {| k, r, c| get_srf( k, r, c ) }, 62 }, A__FUNCTION, , , .f. ) } ;
+      reader {| x| menu_reader( x, glob_array_srf(), A__MENUVERT, , , .f. ) } ;
       valid {| g, o| when_ismo( g, o ) }
+
+//      reader {| x| menu_reader( x, ;
+//      { {| k, r, c| get_srf( k, r, c ) }, 62 }, A__FUNCTION, , , .f. ) } ;
+
     @ r1 + 2, 4 Say '‘ŒŽ' Get mismo ;
       reader {| x| menu_reader( x, mm_ismo, A__MENUVERT, , , .f. ) } ;
       when {|| Len( mm_ismo ) > 0  } ;  //.and. Empty( mnameismo ) } ;
@@ -48,6 +51,7 @@ Function func_valid_ismo( get, lkomu, sh, name_var )
 
   Return .t.
 
+/*
 //
 Function get_srf( k, r, c )
 
@@ -87,7 +91,6 @@ Function get_srf( k, r, c )
   edit_browse( t_arr )
   tmp->( dbCloseArea() )
   Return ret
-
 //
 Function f2_srf( nk, ob )
 
@@ -142,6 +145,7 @@ Function f2_srf( nk, ob )
   Endif
 
   Return ret
+*/
 
 // 28.05.26
 Function when_ismo( get, old )
