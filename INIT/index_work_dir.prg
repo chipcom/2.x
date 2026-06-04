@@ -4,7 +4,7 @@
 #define NUMBER_YEAR 3 // число лет для переиндексации назад
 #define INDEX_NEED  2 // число лет обязательной переиндексации
 
-// 06.01.25 проверка наличия справочников НСИ
+// 04.06.26 проверка наличия справочников НСИ
 Function files_nsi_exists( dir_file )
 
   Local lRet := .t.
@@ -47,8 +47,8 @@ Function files_nsi_exists( dir_file )
   AAdd( arr_check, sbase )
 
   // справочник страховых компаний РФ
-  sbase := dir_file + '_mo_smo' + cDbf
-  AAdd( arr_check, sbase )
+  //sbase := dir_file + '_mo_smo' + cDbf
+  //AAdd( arr_check, sbase )
 
   // onkko_vmp
   sbase := dir_file + '_mo_ovmp' + cDbf
