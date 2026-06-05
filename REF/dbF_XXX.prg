@@ -10,13 +10,13 @@
 
 // =========== F003 ===================
 //
-// 09.09.25 {_MO_KOD_TFOMS,_MO_SHORT_NAME}
+// 05.04.26 {_MO_KOD_TFOMS,_MO_SHORT_NAME}
 Function viewf003()
 
   Local nTop, nLeft, nBottom, nRight
   Local tmp_select := Select()
   Local l := 0, fl
-  Local ar, aStruct, dbName := '_mo_f003', indexName := cur_dir() + dbName
+  Local ar, aStruct
   Local color_say := 'N/W', color_get := 'W/N*'
   Local oBox, oBoxRegion
   Local strRegion := 'Выбор региона'
@@ -26,12 +26,16 @@ Function viewf003()
   Local selectedRegion := '34'
   Local sbase := 'mo_add'
   Local prev_codem := 0, cur_codem := 0
-  Local i
+  Local i, ifi
+  local nRegion := 34
+  local tmpName := cur_dir() + 'tmp_F003'
+  local dbName := '_mo_f003', indexName := cur_dir() + dbName
 
-  Private nRegion := 34
-  Private tmpName := cur_dir() + 'tmp_F003', tmpAlias := 'tF003'
+//  Private nRegion := 34
+//  Private tmpName := cur_dir() + 'tmp_F003', tmpAlias := 'tF003'
+  Private tmpAlias := 'tF003'
   Private oBoxCompany
-  Private fl_space := .f., fl_other_region := .f.
+//  Private fl_space := .f., fl_other_region := .f.
 
   ar := {}
   For i := 1 To Len( ar_f010 )
@@ -78,7 +82,7 @@ Function viewf003()
   Else
     selectedRegion  := ar_f010[ nRegion, 2 ]
   Endif
-  fl_other_region := .f.
+//  fl_other_region := .f.
 
   // создадим временный файл для отбора организаций выбранного региона
   dbCreate( tmpName, aStruct )
@@ -92,7 +96,7 @@ Function viewf003()
     ( tmpAlias )->NAMEMOK := ( dbName )->NAMEMOK
     ( tmpAlias )->NAMEMOP := ( dbName )->NAMEMOP
     ( tmpAlias )->ADDRESS := ( dbName )->ADDRESS
-    ( tmpAlias )->YEAR := ( dbName )->YEAR
+//    ( tmpAlias )->YEAR := ( dbName )->YEAR
 
     ( dbName )->( dbSkip() )
   Enddo
@@ -102,7 +106,7 @@ Function viewf003()
   dbCreateIndex( tmpName, 'NAMEMOK', , NIL )
 
   ( tmpAlias )->( dbGoTop() )
-  If fl := alpha_browse( oBox:Top + 1, oBox:Left + 1, oBox:Bottom -5, oBox:Right - 1, 'ColumnF003', color0, , , , , , 'ViewRecordF003', 'controlF003', , { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B' } )
+  If fl := alpha_browse( oBox:Top + 1, oBox:Left + 1, oBox:Bottom -5, oBox:Right - 1, 'ColumnF003( tmpAlias)', color0, , , , , , 'ViewRecordF003', 'controlF003', , { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B' } )
     // проверяем выбор
     If ( ifi := hb_AScan( glob_arr_mo(), {| x| x[ _MO_KOD_FFOMS ] == ( tmpAlias )->MCOD }, , , .t. ) ) > 0
       // нашли в файле
@@ -148,8 +152,8 @@ Function controlf003( nkey, oBrow )
   Local ret := -1
   Return ret
 
-// 15.10.21
-Function columnf003( oBrow )
+// 05.06.26
+Function columnf003( oBrow, tmpAlias )
 
   Local oColumn
 
@@ -184,9 +188,10 @@ Function viewrecordf003()
 Function getf003mo( mCode )
 
   // mCode - код МО по F003
-  Local arr, dbName := '_mo_f003', indexName := cur_dir() + dbName + 'cod'
+  Local arr
   Local tmp_select := Select()
   Local i // возьмём первое по порядку МО
+  local dbName := '_mo_f003', indexName := cur_dir() + dbName + 'cod'
 
   If SubStr( mCode, 1, 2 ) != '34'
 
