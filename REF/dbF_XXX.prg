@@ -106,7 +106,7 @@ Function viewf003()
   dbCreateIndex( tmpName, 'NAMEMOK', , NIL )
 
   ( tmpAlias )->( dbGoTop() )
-  If fl := alpha_browse( oBox:Top + 1, oBox:Left + 1, oBox:Bottom -5, oBox:Right - 1, 'ColumnF003( tmpAlias)', color0, , , , , , 'ViewRecordF003', 'controlF003', , { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B' } )
+  If fl := alpha_browse( oBox:Top + 1, oBox:Left + 1, oBox:Bottom -5, oBox:Right - 1, 'ColumnF003', color0, , , , , , 'ViewRecordF003', 'controlF003', , { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B' } )
     // проверяем выбор
     If ( ifi := hb_AScan( glob_arr_mo(), {| x| x[ _MO_KOD_FFOMS ] == ( tmpAlias )->MCOD }, , , .t. ) ) > 0
       // нашли в файле
@@ -153,7 +153,7 @@ Function controlf003( nkey, oBrow )
   Return ret
 
 // 05.06.26
-Function columnf003( oBrow, tmpAlias )
+Function columnf003( oBrow )
 
   Local oColumn
 
@@ -174,7 +174,6 @@ Function viewrecordf003()
     oBoxCompany:clear()
   Endif
   // разобьем полное наменование на подстроки
-  // perenos(arr,(tmpAlias)->NAMEMOP,50)
   perenos( arr, ( tmpAlias )->NAMEMOP, oBoxCompany:Width )
   count := iif( Len( arr ) > oBoxCompany:Height, oBoxCompany:Height, Len( arr ) )
 

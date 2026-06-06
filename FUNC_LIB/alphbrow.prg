@@ -42,7 +42,7 @@ FUNCTION Alpha_Browse( nTop, nLeft, nBottom, nRight, ;
       t_color := setcolor(), i, j, nsec := seconds(), ;
       fl_mouse, x_mouse := 0, y_mouse := 0, km, fl_rbrd := .f., COUNT, NSTR,;
       color_find, static_find := '', buf_static, len_static
-  local mfunction1, endmfunc := '', stF
+//  local mfunction1, endmfunc := '', stF
 
   Private oBrowse, tmp, pr1, pr2, pc1, pc2
   DEFAULT fl_index TO .t., fl_noclear TO .f., mfunction TO '', ;
@@ -87,19 +87,19 @@ FUNCTION Alpha_Browse( nTop, nLeft, nBottom, nRight, ;
     oBrowse:colorSpec := arr_Browse[ 4 ]
   endif
 
-  if !empty( mfunction ) .and. '(' $ mfunction
-    mfunction1 := SubStr( mfunction, 1, At( '(', mfunction ) - 1 )
-    endmfunc := SubStr( mfunction, At( '(', mfunction ) + 1 )
-  else
-    mfunction1 := mfunction
-  endif
+//  if !empty( mfunction ) .and. '(' $ mfunction
+//    mfunction1 := SubStr( mfunction, 1, At( '(', mfunction ) - 1 )
+//    endmfunc := SubStr( mfunction, At( '(', mfunction ) + 1 )
+//  else
+//    mfunction1 := mfunction
+//  endif
 
-  if empty( endmfunc )
-    nKey := &( mfunction1 + '(oBrowse)' )   // добавление столбцов
-  else
-    stF := mfunction1 + '(oBrowse,' + endmfunc
-    nKey := &( mfunction1 + '(oBrowse,' + endmfunc )   // добавление столбцов
-  endif
+//  if empty( endmfunc )
+    nKey := &( mfunction + '(oBrowse)' )   // добавление столбцов
+//  else
+//    stF := mfunction1 + '(oBrowse,' + endmfunc
+//    nKey := &( mfunction1 + '(oBrowse,' + endmfunc )   // добавление столбцов
+//  endif
 
   if arr_block != NIL .and. valtype( arr_block ) == 'A'
     oBrowse:goTopBlock := arr_block[ 1 ]
