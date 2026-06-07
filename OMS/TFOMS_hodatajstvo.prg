@@ -247,6 +247,9 @@ Function tfoms_hodatajstvo_new( )
             flag_zap := .T.
           endif  
         Endif
+       if kart2->kod_tf > 0 .and. len( alltrim( kart2->mo_pr ) ) < 6
+        flag_zap := .T.
+       endif
         if flag_zap
           Select TMP_K
           Append Blank
