@@ -8,242 +8,6 @@
 
 #require 'hbsqlit3'
 
-// =========== F003 ===================
-//
-// 05.04.26 {_MO_KOD_TFOMS,_MO_SHORT_NAME}
-Function viewf003()
-
-  Local nTop, nLeft, nBottom, nRight
-  Local tmp_select := Select()
-  Local l := 0, fl
-  Local ar, aStruct
-  Local color_say := 'N/W', color_get := 'W/N*'
-  Local oBox, oBoxRegion
-  Local strRegion := 'Выбор региона'
-  Local lFileCreated := .f.
-  Local retMCOD := { '', Space( 10 ) }
-  Local ar_f010 := getf010()
-  Local selectedRegion := '34'
-  Local sbase := 'mo_add'
-  Local prev_codem := 0, cur_codem := 0
-  Local i, ifi
-  local nRegion := 34
-  local tmpName := cur_dir() + 'tmp_F003'
-  local dbName := '_mo_f003', indexName := cur_dir() + dbName
-
-//  Private nRegion := 34
-//  Private tmpName := cur_dir() + 'tmp_F003', tmpAlias := 'tF003'
-  Private tmpAlias := 'tF003'
-  Private oBoxCompany
-//  Private fl_space := .f., fl_other_region := .f.
-
-  ar := {}
-  For i := 1 To Len( ar_f010 )
-    AAdd( ar, ar_f010[ i, 1 ] )
-    l := Max( l, Len( ar[ i ] ) )
-  Next
-
-  dbUseArea( .t., 'DBFNTX', dir_exe() + dbName, dbName, .t., .f. )
-  aStruct := ( dbName )->( dbStruct() )
-  ( dbName )->( dbCreateIndex( indexName, 'substr(MCOD,1,2)', , NIL ) )
-
-  nTop := 4
-  nLeft := 3
-  nBottom := 23
-  nRight := 77
-
-  // окно выбора региона
-  oBoxRegion := tbox():new( nTop, nLeft, nBottom, nRight )
-  oBoxRegion:Caption := 'Выберите регион'
-  oBoxRegion:Frame := BORDER_SINGLE
-
-  // окно полного наименования организации
-  oBoxCompany := tbox():new( 19, 11, 21, 68 )
-  oBoxCompany:Frame := BORDER_NONE
-  oBoxCompany:Color := color5
-
-  // главное окно
-  oBox := Nil // уничтожим окно
-  oBox := tbox():new( 2, 10, 22, 70 )
-  oBox:Color := color_say + ',' + color_get
-  oBox:Frame := BORDER_DOUBLE
-  oBox:MessageLine := '^^ или нач.буква - просмотр;  ^<Esc>^ - выход;  ^<Enter>^ - выбор'
-  oBox:Save := .t.
-
-  oBoxRegion:MessageLine := '^^ или нач.буква - просмотр;  ^<Esc>^ - выход;  ^<Enter>^ - выбор'
-  oBoxRegion:Save := .t.
-  oBoxRegion:view()
-  nRegion := AChoice( oBoxRegion:Top + 1, oBoxRegion:Left + 1, oBoxRegion:Bottom -1, oBoxRegion:Right - 1, ar, , , 34 )
-  If nRegion == 0
-    ( dbName )->( dbCloseArea() )
-    ( tmpAlias )->( dbCloseArea() )
-    Select ( tmp_select )
-    Return retMCOD
-  Else
-    selectedRegion  := ar_f010[ nRegion, 2 ]
-  Endif
-//  fl_other_region := .f.
-
-  // создадим временный файл для отбора организаций выбранного региона
-  dbCreate( tmpName, aStruct )
-  dbUseArea( .t.,, tmpName, tmpAlias, .t., .f. )
-
-  ( dbName )->( dbGoTop() )
-  ( dbName )->( dbSeek( selectedRegion ) )
-  Do While SubStr( ( dbName )->MCOD, 1, 2 ) == selectedRegion
-    ( tmpAlias )->( dbAppend() )
-    ( tmpAlias )->MCOD := ( dbName )->MCOD
-    ( tmpAlias )->NAMEMOK := ( dbName )->NAMEMOK
-    ( tmpAlias )->NAMEMOP := ( dbName )->NAMEMOP
-    ( tmpAlias )->ADDRESS := ( dbName )->ADDRESS
-//    ( tmpAlias )->YEAR := ( dbName )->YEAR
-
-    ( dbName )->( dbSkip() )
-  Enddo
-
-  oBox:Caption := 'Выбор направившей организации'
-  oBox:view()
-  dbCreateIndex( tmpName, 'NAMEMOK', , NIL )
-
-  ( tmpAlias )->( dbGoTop() )
-  If fl := alpha_browse( oBox:Top + 1, oBox:Left + 1, oBox:Bottom -5, oBox:Right - 1, 'ColumnF003', color0, , , , , , 'ViewRecordF003', 'controlF003', , { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B' } )
-    // проверяем выбор
-    If ( ifi := hb_AScan( glob_arr_mo(), {| x| x[ _MO_KOD_FFOMS ] == ( tmpAlias )->MCOD }, , , .t. ) ) > 0
-      // нашли в файле
-      Alert( 'Медицинское учреждение уже добавлено в справочник!' )
-    Else
-      If g_use( dir_server() + sbase, dir_server() + sbase, sbase, , .t., )
-        ( sbase )->( dbGoTop() )
-        Do While ! ( sbase )->( Eof() )
-          prev_codem := ( sbase )->CODEM
-          ( sbase )->( dbSkip() )
-          cur_codem := ( sbase )->CODEM
-          If ( Val( cur_codem ) - Val( prev_codem ) ) != 1
-            ( sbase )->( dbAppend() )
-            ( sbase )->MCOD := ( tmpAlias )->MCOD
-            ( sbase )->CODEM := Str( Val( prev_codem ) + 1, 6 )
-            ( sbase )->NAMEF := ( tmpAlias )->NAMEMOK
-            ( sbase )->NAMES := ( tmpAlias )->NAMEMOP
-            ( sbase )->ADRES := ( tmpAlias )->ADDRESS
-            ( sbase )->DEND := hb_SToD( '20251231' )
-            Exit
-          Endif
-        Enddo
-        ( sbase )->( dbCloseArea() )
-        retMCOD := { Str( Val( prev_codem ) + 1, 6 ), AllTrim( ( tmpAlias )->NAMEMOK ) }
-      Endif
-    Endif
-
-  Endif
-  selectedRegion := ''
-
-  oBoxRegion := NIL
-  oBoxCompany := nil
-  oBox := nil
-  ( tmpAlias )->( dbCloseArea() )
-  ( dbName )->( dbCloseArea() )
-  Select ( tmp_select )
-
-  Return retMCOD
-
-// 15.10.21
-Function controlf003( nkey, oBrow )
-
-  Local ret := -1
-  Return ret
-
-// 05.06.26
-Function columnf003( oBrow )
-
-  Local oColumn
-
-  oColumn := TBColumnNew( Center( 'Наименование', 50 ), {|| Left( ( tmpAlias )->NAMEMOK, 50 ) } )
-  oBrow:addcolumn( oColumn )
-  status_key( '^<Esc>^ - выход; ^<Enter>^ - выбор' )
-
-  Return Nil
-
-// 21.01.21
-Function viewrecordf003()
-
-  Local i, arr := {}, count
-
-  If ! oBoxCompany:Visible
-    oBoxCompany:view()
-  Else
-    oBoxCompany:clear()
-  Endif
-  // разобьем полное наменование на подстроки
-  perenos( arr, ( tmpAlias )->NAMEMOP, oBoxCompany:Width )
-  count := iif( Len( arr ) > oBoxCompany:Height, oBoxCompany:Height, Len( arr ) )
-
-  For i := 1 To count
-    @ oBoxCompany:Top + i - 1, oBoxCompany:Left + 1 Say arr[ i ]
-  Next
-
-  Return Nil
-
-// 09.09.25
-Function getf003mo( mCode )
-
-  // mCode - код МО по F003
-  Local arr
-  Local tmp_select := Select()
-  Local i // возьмём первое по порядку МО
-  local dbName := '_mo_f003', indexName := cur_dir() + dbName + 'cod'
-
-  If SubStr( mCode, 1, 2 ) != '34'
-
-    arr := AClone( glob_arr_mo()[ 1 ] )
-    If Empty( mCode ) .or. ( Len( mCode ) != 6 )
-      For i := 1 To Len( arr )
-        If ValType( arr[ i ] ) == 'C'
-          arr[ i ] := Space( 6 ) // и очистим строковые элементы
-        Endif
-      Next
-      Select( tmp_select )
-      Return arr
-    Endif
-
-    arr := Array( _MO_LEN_ARR )
-
-    dbUseArea( .t., 'DBFNTX', dir_exe() + dbName, dbName, .t., .f. )
-    ( dbName )->( dbCreateIndex( indexName, 'MCOD', , NIL ) )
-
-    ( dbName )->( dbGoTop() )
-    If ( dbName )->( dbSeek( mCode ) )
-      arr[ _MO_KOD_FFOMS ]  := ( dbName )->MCOD
-      arr[ _MO_KOD_TFOMS ]  := ''
-      arr[ _MO_FULL_NAME ]  := AllTrim( ( dbName )->NAMEMOP )
-      arr[ _MO_SHORT_NAME ] := AllTrim( ( dbName )->NAMEMOK )
-      arr[ _MO_ADRES ]      := AllTrim( ( dbName )->ADDRESS )
-      arr[ _MO_PROD ]       := ''
-      arr[ _MO_DEND ]       := CToD( '01-01-2021' )
-      arr[ _MO_STANDART ]   := 1
-      arr[ _MO_UROVEN ]     := 1
-      arr[ _MO_IS_MAIN ]    := .t.
-      arr[ _MO_IS_UCH ]     := .t.
-      arr[ _MO_IS_SMP ]     := .t.
-    Endif
-    ( dbName )->( dbCloseArea() )
-  Else
-    arr := AClone( glob_arr_mo()[ 1 ] )
-    For i := 1 To Len( arr )
-      If ValType( arr[ i ] ) == 'C'
-        arr[ i ] := Space( 6 ) // и очистим строковые элементы
-      Endif
-    Next
-    If !Empty( mCode )
-      If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == mCode } ) ) > 0
-        arr := glob_arr_mo()[ i ]
-      Elseif ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_FFOMS ] == mCode } ) ) > 0
-        arr := glob_arr_mo()[ i ]
-      Endif
-    Endif
-  Endif
-  Select( tmp_select )
-  Return arr
-
 // =========== F005 ===================
 //
 // 27.02.21 вернуть массив Классификатор статусов оплаты медицинской помощи F005.xml
@@ -357,7 +121,7 @@ Function getf009()
 
 // =========== F010 ===================
 //
-// 14.10.24 вернуть массив регионов по справочнику регионов ТФОМС F010.xml
+// 06.06.26 вернуть массив регионов по справочнику регионов ТФОМС F010.xml
 Function getf010()
 
   // F010.xml - Классификатор субъектов Российской Федерации
@@ -383,10 +147,7 @@ Function getf010()
       Next
     Endif
     db := nil
-    AAdd( _arr, { 'Федерального подчинения', '99', 0 } )
-    If hb_FileExists( dir_exe() + 'f010' + sdbf() )
-      FErase( dir_exe() + 'f010' + sdbf() )
-    Endif
+//    AAdd( _arr, { 'Федерального подчинения', '99', 0 } )
     Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
   Endif
 
@@ -548,6 +309,247 @@ Function getf015()
   Endif
 
   Return _arr
+
+// =========== F032 ===================
+//
+// 06.06.26 {_MO_KOD_TFOMS,_MO_SHORT_NAME}
+Function viewf032()
+
+  Local nTop, nLeft, nBottom, nRight
+  Local tmp_select := Select()
+  Local l := 0, fl
+  Local ar, aStruct
+  Local color_say := 'N/W', color_get := 'W/N*'
+  Local oBox, oBoxRegion
+  Local strRegion := 'Выбор региона'
+  Local lFileCreated := .f.
+  Local retMCOD := { '', Space( 10 ) }
+  Local ar_f010 := getf010()
+  Local selectedRegion := '34'
+  Local sbase := 'mo_add'
+  Local prev_codem := 0, cur_codem := 0
+  Local i, ifi
+  local nRegion := 34
+  local tmpName := cur_dir() + 'tmp_F032'
+//  local dbName := '_mo_f003', indexName := cur_dir() + dbName
+  local dbName := '_mo_f032', indexName := cur_dir() + dbName
+
+//  Private nRegion := 34
+//  Private tmpName := cur_dir() + 'tmp_F003', tmpAlias := 'tF003'
+  Private tmpAlias := 'tF032'
+  Private oBoxCompany
+//  Private fl_space := .f., fl_other_region := .f.
+
+  ar := {}
+  For i := 1 To Len( ar_f010 )
+    if between_date( ar_f010[ i, 5 ], ar_f010[ i, 6 ], Date() )
+      AAdd( ar, ar_f010[ i, 1 ] )
+//      l := Max( l, Len( ar[ i ] ) )
+      l := Max( l, Len( ar[ Len( ar ) ] ) )
+    endif
+  Next
+
+  dbUseArea( .t., 'DBFNTX', dir_exe() + dbName, dbName, .t., .f. )
+  aStruct := ( dbName )->( dbStruct() )
+  ( dbName )->( dbCreateIndex( indexName, 'substr(MCOD,1,2)', , NIL ) )
+
+  nTop := 4
+  nLeft := 3
+  nBottom := 23
+  nRight := 77
+
+  // окно выбора региона
+  oBoxRegion := tbox():new( nTop, nLeft, nBottom, nRight )
+  oBoxRegion:Caption := 'Выберите регион'
+  oBoxRegion:Frame := BORDER_SINGLE
+
+  // окно полного наименования организации
+  oBoxCompany := tbox():new( 19, 11, 21, 68 )
+  oBoxCompany:Frame := BORDER_NONE
+  oBoxCompany:Color := color5
+
+  // главное окно
+  oBox := Nil // уничтожим окно
+  oBox := tbox():new( 2, 10, 22, 70 )
+  oBox:Color := color_say + ',' + color_get
+  oBox:Frame := BORDER_DOUBLE
+  oBox:MessageLine := '^^ или нач.буква - просмотр;  ^<Esc>^ - выход;  ^<Enter>^ - выбор'
+  oBox:Save := .t.
+
+  oBoxRegion:MessageLine := '^^ или нач.буква - просмотр;  ^<Esc>^ - выход;  ^<Enter>^ - выбор'
+  oBoxRegion:Save := .t.
+  oBoxRegion:view()
+  nRegion := AChoice( oBoxRegion:Top + 1, oBoxRegion:Left + 1, oBoxRegion:Bottom -1, oBoxRegion:Right - 1, ar, , , 34 )
+  If nRegion == 0
+    ( dbName )->( dbCloseArea() )
+    ( tmpAlias )->( dbCloseArea() )
+    Select ( tmp_select )
+    Return retMCOD
+  Else
+    selectedRegion  := ar_f010[ nRegion, 2 ]
+  Endif
+//  fl_other_region := .f.
+
+  // создадим временный файл для отбора организаций выбранного региона
+  dbCreate( tmpName, aStruct )
+  dbUseArea( .t.,, tmpName, tmpAlias, .t., .f. )
+
+  ( dbName )->( dbGoTop() )
+  ( dbName )->( dbSeek( selectedRegion ) )
+  Do While SubStr( ( dbName )->MCOD, 1, 2 ) == selectedRegion
+    ( tmpAlias )->( dbAppend() )
+    ( tmpAlias )->MCOD := ( dbName )->MCOD
+    ( tmpAlias )->NAMEMOK := ( dbName )->NAMEMOK
+    ( tmpAlias )->NAMEMOP := ( dbName )->NAMEMOP
+    ( tmpAlias )->ADDRESS := ( dbName )->ADDRESS
+//    ( tmpAlias )->YEAR := ( dbName )->YEAR
+
+    ( dbName )->( dbSkip() )
+  Enddo
+
+  oBox:Caption := 'Выбор направившей организации'
+  oBox:view()
+  dbCreateIndex( tmpName, 'NAMEMOK', , NIL )
+
+  ( tmpAlias )->( dbGoTop() )
+  If fl := alpha_browse( oBox:Top + 1, oBox:Left + 1, oBox:Bottom -5, oBox:Right - 1, 'ColumnF032', color0, , , , , , 'ViewRecordF032', 'controlF032', , { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B' } )
+    // проверяем выбор
+    If ( ifi := hb_AScan( glob_arr_mo(), {| x| x[ _MO_KOD_FFOMS ] == ( tmpAlias )->MCOD }, , , .t. ) ) > 0
+      // нашли в файле
+      Alert( 'Медицинское учреждение уже добавлено в справочник!' )
+    Else
+      If g_use( dir_server() + sbase, dir_server() + sbase, sbase, , .t., )
+        ( sbase )->( dbGoTop() )
+        Do While ! ( sbase )->( Eof() )
+          prev_codem := ( sbase )->CODEM
+          ( sbase )->( dbSkip() )
+          cur_codem := ( sbase )->CODEM
+          If ( Val( cur_codem ) - Val( prev_codem ) ) != 1
+            ( sbase )->( dbAppend() )
+            ( sbase )->MCOD := ( tmpAlias )->MCOD
+            ( sbase )->CODEM := Str( Val( prev_codem ) + 1, 6 )
+            ( sbase )->NAMEF := ( tmpAlias )->NAMEMOK
+            ( sbase )->NAMES := ( tmpAlias )->NAMEMOP
+            ( sbase )->ADRES := ( tmpAlias )->ADDRESS
+            ( sbase )->DEND := hb_SToD( '20261231' )
+            Exit
+          Endif
+        Enddo
+        ( sbase )->( dbCloseArea() )
+        retMCOD := { Str( Val( prev_codem ) + 1, 6 ), AllTrim( ( tmpAlias )->NAMEMOK ) }
+      Endif
+    Endif
+
+  Endif
+  selectedRegion := ''
+
+  oBoxRegion := NIL
+  oBoxCompany := nil
+  oBox := nil
+  ( tmpAlias )->( dbCloseArea() )
+  ( dbName )->( dbCloseArea() )
+  Select ( tmp_select )
+
+  Return retMCOD
+
+// 06.06.26
+Function controlf032( nkey, oBrow )
+
+  Local ret := -1
+  Return ret
+
+// 06.06.26
+Function columnf032( oBrow )
+
+  Local oColumn
+
+  oColumn := TBColumnNew( Center( 'Наименование', 50 ), {|| Left( ( tmpAlias )->NAMEMOK, 50 ) } )
+  oBrow:addcolumn( oColumn )
+  status_key( '^<Esc>^ - выход; ^<Enter>^ - выбор' )
+
+  Return Nil
+
+// 21.01.21
+Function viewrecordf032()
+
+  Local i, arr := {}, count
+
+  If ! oBoxCompany:Visible
+    oBoxCompany:view()
+  Else
+    oBoxCompany:clear()
+  Endif
+  // разобьем полное наменование на подстроки
+  perenos( arr, ( tmpAlias )->NAMEMOP, oBoxCompany:Width )
+  count := iif( Len( arr ) > oBoxCompany:Height, oBoxCompany:Height, Len( arr ) )
+
+  For i := 1 To count
+    @ oBoxCompany:Top + i - 1, oBoxCompany:Left + 1 Say arr[ i ]
+  Next
+
+  Return Nil
+
+// 06.06.26
+Function getf032mo( mCode )
+
+  // mCode - код МО по F003
+  Local arr
+  Local tmp_select := Select()
+  Local i // возьмём первое по порядку МО
+//  local dbName := '_mo_f003', indexName := cur_dir() + dbName + 'cod'
+  local dbName := '_mo_f032', indexName := cur_dir() + dbName + 'cod'
+
+  If SubStr( mCode, 1, 2 ) != '34'
+
+    arr := AClone( glob_arr_mo()[ 1 ] )
+    If Empty( mCode ) .or. ( Len( mCode ) != 6 )
+      For i := 1 To Len( arr )
+        If ValType( arr[ i ] ) == 'C'
+          arr[ i ] := Space( 6 ) // и очистим строковые элементы
+        Endif
+      Next
+      Select( tmp_select )
+      Return arr
+    Endif
+
+    arr := Array( _MO_LEN_ARR )
+
+    dbUseArea( .t., 'DBFNTX', dir_exe() + dbName, dbName, .t., .f. )
+    ( dbName )->( dbCreateIndex( indexName, 'MCOD', , NIL ) )
+
+    ( dbName )->( dbGoTop() )
+    If ( dbName )->( dbSeek( mCode ) )
+      arr[ _MO_KOD_FFOMS ]  := ( dbName )->MCOD
+      arr[ _MO_KOD_TFOMS ]  := ''
+      arr[ _MO_FULL_NAME ]  := AllTrim( ( dbName )->NAMEMOP )
+      arr[ _MO_SHORT_NAME ] := AllTrim( ( dbName )->NAMEMOK )
+      arr[ _MO_ADRES ]      := AllTrim( ( dbName )->ADDRESS )
+      arr[ _MO_PROD ]       := ''
+      arr[ _MO_DEND ]       := CToD( '01-01-2021' )
+      arr[ _MO_STANDART ]   := 1
+      arr[ _MO_UROVEN ]     := 1
+      arr[ _MO_IS_MAIN ]    := .t.
+      arr[ _MO_IS_UCH ]     := .t.
+      arr[ _MO_IS_SMP ]     := .t.
+    Endif
+    ( dbName )->( dbCloseArea() )
+  Else
+    arr := AClone( glob_arr_mo()[ 1 ] )
+    For i := 1 To Len( arr )
+      If ValType( arr[ i ] ) == 'C'
+        arr[ i ] := Space( 6 ) // и очистим строковые элементы
+      Endif
+    Next
+    If !Empty( mCode )
+      If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == mCode } ) ) > 0
+        arr := glob_arr_mo()[ i ]
+      Elseif ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_FFOMS ] == mCode } ) ) > 0
+        arr := glob_arr_mo()[ i ]
+      Endif
+    Endif
+  Endif
+  Select( tmp_select )
+  Return arr
 
 // 30.03.26
 function get_f032()
