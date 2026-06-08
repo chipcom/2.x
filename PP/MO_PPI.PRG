@@ -2022,7 +2022,7 @@ Function z_gurnal_pp()
     nil, ;
     CToD( '' ), nil, ;
     'Дата рождения (максимальная)' } )
-  Delete File ( tmp_file )
+  Delete File ( tmp_file + sdbf() )
   init_base( tmp_file,, mm_tmp, 0 )
   k := f_edit_spr( A__APPEND, mm_tmp, 'запросу для печати журнала', ;
     'g_use(cur_dir()+"tmp_mn_p",,,.t.,.t.)', 0, 1,,,,, 'wr_mn_pp' )

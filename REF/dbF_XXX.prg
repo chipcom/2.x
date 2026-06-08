@@ -312,7 +312,7 @@ Function getf015()
 
 // =========== F032 ===================
 //
-// 06.06.26 {_MO_KOD_TFOMS,_MO_SHORT_NAME}
+// 08.06.26 {_MO_KOD_TFOMS,_MO_SHORT_NAME}
 Function viewf032()
 
   Local nTop, nLeft, nBottom, nRight
@@ -333,10 +333,12 @@ Function viewf032()
   local tmpName := cur_dir() + 'tmp_F032'
 //  local dbName := '_mo_f003', indexName := cur_dir() + dbName
   local dbName := '_mo_f032', indexName := cur_dir() + dbName
+  local funcColumn, funcView  //  , funcControlKey
+  local tmpAlias := 'tF032'
 
 //  Private nRegion := 34
 //  Private tmpName := cur_dir() + 'tmp_F003', tmpAlias := 'tF003'
-  Private tmpAlias := 'tF032'
+//  Private tmpAlias := 'tF032'
   Private oBoxCompany
 //  Private fl_space := .f., fl_other_region := .f.
 
@@ -386,7 +388,8 @@ Function viewf032()
     Select ( tmp_select )
     Return retMCOD
   Else
-    selectedRegion  := ar_f010[ nRegion, 2 ]
+//    selectedRegion  := ar_f010[ nRegion, 2 ]
+    selectedRegion  := StrZero( nRegion, 2 )
   Endif
 //  fl_other_region := .f.
 
@@ -411,8 +414,13 @@ Function viewf032()
   oBox:view()
   dbCreateIndex( tmpName, 'NAMEMOK', , NIL )
 
+  funcColumn := 'columnF032' + '(' + 'oBrowse, "' + tmpAlias + '")'
+  funcView := 'ViewRecordF032' + '("' + tmpAlias + '")'
+//  funcControlKey := 'controlF032' + '("' + tmpAlias + '")'
+
   ( tmpAlias )->( dbGoTop() )
-  If fl := alpha_browse( oBox:Top + 1, oBox:Left + 1, oBox:Bottom -5, oBox:Right - 1, 'ColumnF032', color0, , , , , , 'ViewRecordF032', 'controlF032', , { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B' } )
+//  If fl := alpha_browse( oBox:Top + 1, oBox:Left + 1, oBox:Bottom -5, oBox:Right - 1, 'ColumnF032', color0, , , , , , 'ViewRecordF032', 'controlF032', , { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B' } )
+  If fl := alpha_browse( oBox:Top + 1, oBox:Left + 1, oBox:Bottom -5, oBox:Right - 1, funcColumn, color0, , , , , , funcView, 'controlF032', , { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B' } )
     // проверяем выбор
     If ( ifi := hb_AScan( glob_arr_mo(), {| x| x[ _MO_KOD_FFOMS ] == ( tmpAlias )->MCOD }, , , .t. ) ) > 0
       // нашли в файле
@@ -456,21 +464,23 @@ Function viewf032()
 Function controlf032( nkey, oBrow )
 
   Local ret := -1
+
   Return ret
 
 // 06.06.26
-Function columnf032( oBrow )
+Function columnf032( oBrow, al )
 
   Local oColumn
 
-  oColumn := TBColumnNew( Center( 'Наименование', 50 ), {|| Left( ( tmpAlias )->NAMEMOK, 50 ) } )
+//  oColumn := TBColumnNew( Center( 'Наименование', 50 ), {|| Left( ( tmpAlias )->NAMEMOK, 50 ) } )
+  oColumn := TBColumnNew( Center( 'Наименование', 50 ), {|| Left( ( al )->NAMEMOK, 50 ) } )
   oBrow:addcolumn( oColumn )
   status_key( '^<Esc>^ - выход; ^<Enter>^ - выбор' )
 
   Return Nil
 
 // 21.01.21
-Function viewrecordf032()
+Function viewrecordf032( al )
 
   Local i, arr := {}, count
 
@@ -480,7 +490,8 @@ Function viewrecordf032()
     oBoxCompany:clear()
   Endif
   // разобьем полное наменование на подстроки
-  perenos( arr, ( tmpAlias )->NAMEMOP, oBoxCompany:Width )
+//  perenos( arr, ( tmpAlias )->NAMEMOP, oBoxCompany:Width )
+  perenos( arr, ( al )->NAMEMOP, oBoxCompany:Width )
   count := iif( Len( arr ) > oBoxCompany:Height, oBoxCompany:Height, Len( arr ) )
 
   For i := 1 To count
@@ -696,7 +707,7 @@ Function get_f034( mUIDSPMO )
 // 14.04.26 вернуть массив из справочника F034
 Function get_f034_usl_ok( mUIDSPMO, usl_ok )
 
-  Local aF034, i
+  Local aF034
   Local arr
 
 //  MPVID	Char	4	О	Код вида МП, оказываемой МО по указанному условию оказания и профилю МП. 

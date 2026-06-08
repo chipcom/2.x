@@ -2669,7 +2669,7 @@ aadd(mm_tmp, {"rajon","N",2,0,NIL,;
     {| x| menu_reader( x, arr_doc, A__MENUBIT ) }, ;
     lvid_doc, {| x| inieditspr( A__MENUBIT, arr_doc, x ) }, ;
     "Вид документа", NIL } )
-  Delete File ( tmp_file )
+  Delete File ( tmp_file + sdbf() )
   init_base( tmp_file,, mm_tmp, 0 )
   //
   r_use( dir_server() + "plat_ms", dir_server() + "plat_ms", "MS" )

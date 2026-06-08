@@ -1,14 +1,14 @@
 #include 'function.ch'
-#include 'inkey.ch'
+#include 'inkey.ch' 
 
-// 05.06.26
+// 08.06.26
 FUNCTION Alpha_Browse( nTop, nLeft, nBottom, nRight, ;
                        mfunction, mcolor, titul, titul_color, ;
                        fl_index, fl_noclear, arr_block, ;
                        m1function, n_func, arr_mouse, arr_Browse )
 
   // nTop, nLeft, nBottom, nRight - габариты окна
-  // mfunction - функция для составления столбцов TBrowse
+  // mfunction - функция для составления столбцов TBrowse, строка имя_функции, или строка_функции(Obrowse, add argc)
   // mcolor - цвет TBrowse
   // titul, titul_color - заголовок и его цвет
   // fl_index - лог.величина, указывающая, проиндексирована ли БД по алфавиту
@@ -20,7 +20,7 @@ FUNCTION Alpha_Browse( nTop, nLeft, nBottom, nRight, ;
   //             4 - строка, добавляемая в начало FIND для поиска по нач.букве
   //             5 - условие для проверки поиска по начальной букве
   //                 (это второй параметр в функции блока кода Skip)
-  // m1function - функция, вызываемая на каждом шаге TBrowse (рисование)
+  // m1function - функция, вызываемая на каждом шаге TBrowse (рисование), строка имя_функции, или строка_функции(add argc)
   // n_func - функция, вызываемая при нажатии определенных клавиш
   // arr_mouse - массив областей для мыши
   // arr_Browse - массив других параметров для TBrowse:
@@ -42,7 +42,6 @@ FUNCTION Alpha_Browse( nTop, nLeft, nBottom, nRight, ;
       t_color := setcolor(), i, j, nsec := seconds(), ;
       fl_mouse, x_mouse := 0, y_mouse := 0, km, fl_rbrd := .f., COUNT, NSTR,;
       color_find, static_find := '', buf_static, len_static
-//  local mfunction1, endmfunc := '', stF
 
   Private oBrowse, tmp, pr1, pr2, pc1, pc2
   DEFAULT fl_index TO .t., fl_noclear TO .f., mfunction TO '', ;
@@ -58,6 +57,7 @@ FUNCTION Alpha_Browse( nTop, nLeft, nBottom, nRight, ;
         arr_Browse[ 6 ] TO 60   ,;
         arr_Browse[ 7 ] TO '*+-',;
         arr_Browse[ 8 ] TO .f.
+
   if !empty( m1function ) .and. !( '(' $ m1function )
     m1function += '()'
   endif
@@ -87,19 +87,18 @@ FUNCTION Alpha_Browse( nTop, nLeft, nBottom, nRight, ;
     oBrowse:colorSpec := arr_Browse[ 4 ]
   endif
 
-//  if !empty( mfunction ) .and. '(' $ mfunction
-//    mfunction1 := SubStr( mfunction, 1, At( '(', mfunction ) - 1 )
-//    endmfunc := SubStr( mfunction, At( '(', mfunction ) + 1 )
-//  else
-//    mfunction1 := mfunction
-//  endif
-
-//  if empty( endmfunc )
+  if !empty( mfunction ) .and. '(' $ mfunction
+    nKey := &mfunction   // добавление столбцов
+  else
     nKey := &( mfunction + '(oBrowse)' )   // добавление столбцов
-//  else
-//    stF := mfunction1 + '(oBrowse,' + endmfunc
-//    nKey := &( mfunction1 + '(oBrowse,' + endmfunc )   // добавление столбцов
-//  endif
+  endif 
+
+////  if empty( endmfunc )
+//    nKey := &( mfunction + '(oBrowse)' )   // добавление столбцов
+////  else
+////    stF := mfunction1 + '(oBrowse,' + endmfunc
+////    nKey := &( mfunction1 + '(oBrowse,' + endmfunc )   // добавление столбцов
+////  endif
 
   if arr_block != NIL .and. valtype( arr_block ) == 'A'
     oBrowse:goTopBlock := arr_block[ 1 ]
