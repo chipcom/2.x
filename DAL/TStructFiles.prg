@@ -22,7 +22,7 @@ METHOD ExistFileClass( className ) CLASS TStructFiles
 	
 	return hb_FileExists( descrFile:FileName )
 
-// 19.05.26
+// 01.06.26
 METHOD New() CLASS TStructFiles
 
 	Local cClassName := '', aEtalonDB := {}, aIndex := { }, cName := '', cAlias := ''
@@ -332,7 +332,8 @@ METHOD New() CLASS TStructFiles
 					{ 'SOME_SOGL', 'C',255,0 }, ;  // код согласования нескольких отделений с программой SDS
 			    { 'LPU_1',     'C',17, 0 }, ;  // Уникальный номер структурного подразделения МО, осуществляющей деятельность в сфере ОМС, на соответствующий финансовый год, по данным ЕРМО F033
 			    { 'MOP',       'N', 3, 0 }, ;  // Код Классификатора места обращения (посещений) (KMOP) по умолчанию
-    			{ 'PROFIL_M',  'N', 3, 0 }  ; // профилей медицинской помощи M003 по умолчанию
+    			{ 'PROFIL_M',  'N', 3, 0 },  ; // профилей медицинской помощи M003 по умолчанию
+			    { 'DS_STAC',   'N', 1, 0 } ;  // если это дневной стационар при стационаре - 1, при поликлинике - 0
 				} 
 	cAlias := 'TSubdivisionDB'
 	aIndex := { }

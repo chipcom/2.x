@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 28.05.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
+// 01.06.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
 Function defenition_ksg( par, k_data2, lDoubleSluch )
 
   // файлы 'human', 'human_' и 'human_2' открыты и стоят на нужной записи
@@ -13,51 +13,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
   // выполнено use_base('mo_hu', 'MOHU') - для записи
   Static ver_year := 0 // последний проверяемый год
   Static sp0, sp1, sp6, sp15
-/*
-  Static a_iskl_1 := { ; // исключение из правил №1
-    { 'st02.010', 'st02.008' }, ;
-    { 'st02.011', 'st02.008' }, ;
-    { 'st02.010', 'st02.009' }, ;
-    { 'st14.001', 'st04.002' }, ;
-    { 'st14.004', 'st04.002' }, ;
-    { 'st21.001', 'st21.007' }, ;
-    { 'st34.002', 'st34.001' }, ;
-    { 'st34.002', 'st26.001' }, ;
-    { 'st34.006', 'st30.003' }, ;
-    { 'st09.001', 'st30.005' }, ;
-    { 'st31.002', 'st31.017' }, ;
-    { 'st37.001', '' }, ;
-    { 'st37.002', '' }, ;
-    { 'st37.003', '' }, ;
-    { 'st37.004', '' }, ;
-    { 'st37.005', '' }, ;
-    { 'st37.006', '' }, ;
-    { 'st37.007', '' }, ;
-    { 'st37.008', '' }, ;
-    { 'st37.009', '' }, ;
-    { 'st37.010', '' }, ;
-    { 'st37.011', '' }, ;
-    { 'st37.012', '' }, ;
-    { 'st37.013', '' }, ;
-    { 'st37.014', '' }, ;
-    { 'st37.015', '' }, ;
-    { 'st37.016', '' }, ;
-    { 'st37.017', '' }, ;
-    { 'st37.018', '' }, ;
-    { 'ds37.001', '' }, ;
-    { 'ds37.002', '' }, ;
-    { 'ds37.003', '' }, ;
-    { 'ds37.004', '' }, ;
-    { 'ds37.005', '' }, ;
-    { 'ds37.006', '' }, ;
-    { 'ds37.007', '' }, ;
-    { 'ds37.008', '' }, ;
-    { 'ds37.009', '' }, ;
-    { 'ds37.010', '' }, ;
-    { 'ds37.011', '' }, ;
-    { 'ds37.012', '' };
-  }
-*/
+
   Local mdiagnoz, aHirKSG := {}, aTerKSG := {}, fl_cena := .f., lvmp, lvidvmp := 0, lstentvmp := 0, ;
     strSoob, ar1, fl, im, lshifr, ln_data, lk_data, lvr, ldni, ldate_r, lpol, lprofil_k, ;
     lfio, cenaTer := 0, cenaHir := 0, ars := {}, arerr := {}, ;
@@ -288,8 +244,8 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
       If mosu->( RecNo() ) != mohu->u_kod
         mosu->( dbGoto( mohu->u_kod ) )
       Endif
-      If AScan( amohu, mosu->shifr1 ) == 0
-        AAdd( amohu, mosu->shifr1 )
+      If AScan( amohu, AllTrim( mosu->shifr1 ) ) == 0
+        AAdd( amohu, AllTrim( mosu->shifr1 ) )
       Endif
       dbSelectArea( lalf )
       find ( PadR( mosu->shifr1, 20 ) )
@@ -304,8 +260,8 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
     find ( Str( ihuman->kod, 10 ) )
     Do While ihu->kod == ihuman->kod .and. !Eof()
       If eq_any( Left( ihu->CODE_USL, 1 ), 'A', 'B' )
-        If AScan( amohu, ihu->CODE_USL ) == 0
-          AAdd( amohu, ihu->CODE_USL )
+        If AScan( amohu, AllTrim( ihu->CODE_USL ) ) == 0
+          AAdd( amohu, AllTrim( ihu->CODE_USL ) )
         Endif
         dbSelectArea( lalf )
         find ( PadR( ihu->CODE_USL, 20 ) )
@@ -500,7 +456,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
 
     k006->( dbSeek( typeKSG + PadR( osn_diag, 6 ) ) )   //  find ( typeKSG + PadR( osn_diag, 6 ) )
     Do While Left( k006->shifr, 2 ) == typeKSG .and. k006->ds == PadR( osn_diag, 6 ) .and. ! k006->( Eof() )
-      if Empty( AllTrim( k006->sy ) )
+//      if Empty( AllTrim( k006->sy ) )
         lkoef := k006->kz
         dbSelectArea( lal )
         find ( PadR( k006->shifr, 10 ) )
@@ -513,13 +469,11 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
           sds2 := iif( Empty( k006->ds2 ), sp0, AllTrim( k006->ds2 ) + sp6 ) // диагн.осложнения
         Endif
 
-        // что-то здесь не так
-//        If fl .and. !Empty( k006->sy )
-//          If ( i := AScan( amohu, k006->sy ) ) == 0
-//            fl := .f.
-//          Endif
-//        Endif
-        // конец что-то здесь не так
+        If fl .and. !Empty( k006->sy )
+          If ( i := AScan( amohu, k006->sy ) ) == 0
+            fl := .f.
+          Endif
+        endif
 
         If fl .and. !Empty( k006->age )
           fl := ( k006->age $ lage )
@@ -582,7 +536,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
 //          Endif
           add_KSG_table( ar_ksg, lk_data, lal, osn_diag, j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
         Endif
-      endif
+//      endif
       Select K006
       k006->( dbSkip() )  //  Skip
     Enddo
@@ -631,13 +585,16 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
         If fl
           fl := between_date( k006->DATEBEG, k006->DATEEND, date_usl )
         Endif
+        If fl .and. !Empty( k006->ds )
+          fl := ( AllTrim( k006->ds ) == osn_diag )
+        Endif
         If fl
           sds1 := iif( Empty( k006->ds1 ), sp0, AllTrim( k006->ds1 ) + sp6 ) // соп.диагноз
           sds2 := iif( Empty( k006->ds2 ), sp0, AllTrim( k006->ds2 ) + sp6 ) // диагн.осложнения
         Endif
-        If fl .and. !Empty( k006->ds )
-          fl := ( AllTrim( k006->ds ) == osn_diag )
-        Endif
+//        If fl .and. !Empty( k006->ds )
+//          fl := ( AllTrim( k006->ds ) == osn_diag )
+//        Endif
         If fl .and. !Empty( k006->age )
           fl := ( k006->age $ lage )
         Endif
@@ -737,6 +694,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
 //              AAdd( ar_ksg, AClone( _a1[ icrit ] ) )
 //          endif
         endif
+
 // 13.03.26
 //        if ! Empty( human_2->PC3 )  // проверим чтобы найденные КСГ имели нужный доп. критерий
           for i := len( _a1 ) to 1 step -1

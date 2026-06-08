@@ -3,14 +3,14 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 14.04.26
+// 01.06.26
 function define_vidpom( otd, kod_hum, mdate, usl_ok )
 
   Local tmpselect, lshifr1, mshifr, sVidpoms, lst
   local arrUsluga := {}, mVidPom := 0
   local lAliasHU := .f., lAliasUsl := .f., lAliasPers := .f., lAliasOtd := .f.
   local m_vrPRVS_21, m_vrProfil
-  local arr_v := {}
+  local arr_v := {}, mDS_stac := 0
 
   tmpSelect := Select()
 
@@ -29,6 +29,7 @@ function define_vidpom( otd, kod_hum, mdate, usl_ok )
 //  Enddo
 //  f034->( dbCloseArea() )
 
+  mDS_stac := otd->DS_STAC
   arr_v := get_f034_usl_ok( otd->LPU_1, usl_ok )
 
   if Select( 'P2' ) == 0
@@ -94,6 +95,19 @@ function define_vidpom( otd, kod_hum, mdate, usl_ok )
         mVidPom := 31
       endif
     elseif SubStr( arrUsluga[ 1, 1 ], 1, 2 ) == 'ds'
+      if mDS_stac == 1
+        if ( ascan( arrUsluga[ 1, 8 ], 31 ) > 0 )
+//        if ( ascan( arrUsluga[ 1, 8 ], 31 ) > 0 ) .and. ( ascan( arr_v, { | x | x[ 1 ] == 31 .and. x[ 3 ] == m_vrProfil } ) > 0 )
+          mVidPom := 31
+        endif
+      else
+        if eq_any( m_vrPRVS_21, 76, 49, 39 ) .and. ( ascan( arrUsluga[ 1, 8 ], 12 ) > 0 )  // тераипия, педиатрия, общая врачебная практика
+          mVidPom := 12
+        elseif  ( ascan( arrUsluga[ 1, 8 ], 13 ) > 0 )
+          mVidPom := 13
+        endif
+      endif
+/*
       if ( ascan( arrUsluga[ 1, 8 ], 31 ) > 0 ) //.and. ( ascan( arr_v, { | x | x[ 1 ] == 31 } ) > 0 )
 //      if ( ascan( arrUsluga[ 1, 8 ], 31 ) > 0 ) .and. ( ascan( arr_v, { | x | x[ 1 ] == 31 .and. x[ 3 ] == m_vrProfil } ) > 0 )
         mVidPom := 31
@@ -104,6 +118,7 @@ function define_vidpom( otd, kod_hum, mdate, usl_ok )
 //      elseif ( ascan( arrUsluga[ 1, 8 ], 13 ) > 0 ) .and. ( ascan( arr_v, { | x | x[ 1 ] == 13 .and. x[ 3 ] == m_vrProfil } ) > 0 )
         mVidPom := 13
       endif
+*/
     else
       if eq_any( m_vrPRVS_21, 206, 207 )  // фельдшер, акушер
         if ascan( arrUsluga[ 1, 8 ], 11 ) > 0
@@ -188,6 +203,7 @@ function arr_NO_YES()
 
 // 25.09.25 формирование массива о смерти пациента
 function arr_patient_died_during_treatment( mkod_k, loc_kod )
+
   // mkod_k - код пациента по БД картотеки kartotek.dbf
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
   // должны быть открыты файлы HUMAN.DBF и HUMAN_.DBF и между ними
@@ -490,59 +506,61 @@ Function license_for_dispans( _tip, _n_data, _ta )
     aadd( _ta, 'У МО нет лицензии на ' + mm_tip[ _tip ] )
   endif
   return NIL
-  
+
+/*
 // 25.08.13 если услуга из 1 этапа
-Function is_issled_PerN(ausl, _period, arr, _pol)
+Function is_issled_PerN( ausl, _period, arr, _pol )
 
   // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
-  Local i, s := '', fl := .f., lshifr := alltrim(ausl[1])
+  Local i, s := '', fl := .f., lshifr := alltrim( ausl[ 1 ] )
 
   for i := 1 to Len( nper_arr_issled() )
-    if nper_arr_issled()[i, 1] == lshifr
-      s := '"' + lshifr + '.' + nper_arr_issled()[i, 3] + '"'
+    if nper_arr_issled()[ i, 1 ] == lshifr
+      s := '"' + lshifr + '.' + nper_arr_issled()[ i, 3 ] + '"'
       fl := .t.
       exit
     endif
   next
-  if fl .and. nper_arr_issled()[i, 4] < 2
-    if nper_arr_issled()[i, 5] != ausl[3]
-      aadd(arr, 'Не тот профиль в иссл-ии ' + s)
+  if fl .and. nper_arr_issled()[ i, 4 ] < 2
+    if nper_arr_issled()[ i, 5 ] != ausl[ 3 ]
+      aadd( arr, 'Не тот профиль в иссл-ии ' + s )
     endif
-    /*if ascan(nper_arr_issled()[i, 6],ausl[4]) == 0
-      aadd(arr, 'Не та специальность врача в иссл-ии ' + s)
-      aadd(arr, ' у Вас: '+lstr(ausl[4])+', разрешено: '+print_array(nper_arr_issled()[i, 6]))
-    endif*/
+//    if ascan( nper_arr_issled()[ i, 6 ], ausl[ 4 ]) == 0
+//      aadd( arr, 'Не та специальность врача в иссл-ии ' + s )
+//      aadd( arr, ' у Вас: ' + lstr( ausl[ 4 ]) + ', разрешено: ' + print_array( nper_arr_issled()[ i, 6 ] ) )
+//    endif
   endif
   return fl
-  
-// 19.08.13 если услуга из 1 этапа
-Function is_1_etap_PredN(ausl, _period, _etap)
+*/
 
-  // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
-  Local i, fl := .f., lshifr := alltrim(ausl[1])
+// 19.08.13 если услуга из 1 этапа
+Function is_1_etap_PredN( ausl, _period, _etap )
+
+  // ausl := { lshifr,mdate,hu_->profil,hu_->PRVS }
+  Local i, fl := .f., lshifr := alltrim( ausl[ 1 ] )
 
   for i := 1 to Len( npred_arr_osmotr() )
     if _etap == 1
-      if npred_arr_osmotr()[i, 4] == ausl[3]
-        lshifr := npred_arr_osmotr()[i, 1] // искусственно
+      if npred_arr_osmotr()[ i, 4 ] == ausl[ 3 ]
+        lshifr := npred_arr_osmotr()[ i, 1 ] // искусственно
         fl := .t.
         exit
       endif
     else
-      if npred_arr_osmotr()[i, 1] == lshifr
+      if npred_arr_osmotr()[ i, 1 ] == lshifr
         fl := .t.
         exit
       endif
     endif
   next
   if fl
-    fl := (ascan(npred_arr_1_etap()[_period, 4], lshifr) > 0)
+    fl := ( ascan( npred_arr_1_etap()[ _period, 4 ], lshifr ) > 0 )
   endif
   return fl
   
 // проверка, умер ли пациент
-Function is_death(_rslt)
-  return eq_any(_rslt, 105, 106, 205, 206, 313, 405, 406, 411) // по результату лечения
+Function is_death( _rslt )
+  return eq_any( _rslt, 105, 106, 205, 206, 313, 405, 406, 411 ) // по результату лечения
 
 // 16.09.25
 function message_save_LU()

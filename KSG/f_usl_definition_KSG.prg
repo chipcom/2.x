@@ -98,13 +98,13 @@ Function ret_vozrast_k006( s )
   Endcase
   Return ret
 
-// 01.11.25 определить КСГ для 1 пациента из режима редактирования услуг
+// 02.05.26 определить КСГ для 1 пациента из режима редактирования услуг
 Function f_usl_definition_ksg( lkod, k_data2, lDoubleSluch )
 
   Local arr, buf := save_maxrow(), lshifr, lrec, lu_kod, lcena, not_ksg := .t., ;
     mrec_hu, tmp_rec := 0, tmp_select := Select(), is_usl1 := .f., ;
     ret := {}, lyear := Year( human->K_DATA ), i, s, sdial, fl
-  Local lalias
+  Local lalias, lcena_end := 0, lcena_kslp := 0
 
   Default lDoubleSluch To .f.
   If human_->USL_OK < 3
@@ -117,8 +117,8 @@ Function f_usl_definition_ksg( lkod, k_data2, lDoubleSluch )
         dir_server() + 'uslugi1s' }, 'USL1' )
     Endif
     Select TMP
-    If LastRec() > 0
-      tmp_rec := RecNo()
+    If tmp->( LastRec() ) > 0
+      tmp_rec := tmp->( RecNo() )
     Endif
     Set Relation To
     arr := defenition_ksg( 1, k_data2, lDoubleSluch )
@@ -142,8 +142,8 @@ Function f_usl_definition_ksg( lkod, k_data2, lDoubleSluch )
       Endif
       lrec := lcena := 0
       Select TMP
-      Go Top
-      Do While !Eof()
+      tmp->( dbGoTop() )    //  Go Top
+      Do While !tmp->( Eof() )
         If Empty( lshifr := tmp->shifr1 )
           lshifr := tmp->shifr_u
         Endif
@@ -154,44 +154,38 @@ Function f_usl_definition_ksg( lkod, k_data2, lDoubleSluch )
             tmp->u_cena := lcena
             tmp->stoim_1 := lcena
             Select HU
-            Goto ( tmp->rec_hu )
+            hu->( dbGoto( tmp->rec_hu ) )      //  Goto ( tmp->rec_hu )
             g_rlock( 'forever' )
             hu->u_cena := lcena
             hu->stoim := hu->stoim_1 := lcena
-            Unlock
+            hu->( dbUnlock() )      //  Unlock
           Endif
           Exit
         Endif
 
         lalias := create_name_alias( 'lusl', lyear )
         dbSelectArea( lalias )
-        find ( PadR( lshifr, 10 ) ) // длина lshifr 10 знаков
-        If Found() .and. ( eq_any( Left( lshifr, 5 ), code_services_vmp( lyear ) ) .or. is_ksg( ( lalias )->shifr ) )
+        ( lalias )->( dbSeek( PadR( lshifr, 10 ) ) )          //  find ( PadR( lshifr, 10 ) ) // длина lshifr 10 знаков
+        If ( lalias )->( Found() ) .and. ( eq_any( Left( lshifr, 5 ), code_services_vmp( lyear ) ) .or. is_ksg( ( lalias )->shifr ) )
           lrec := tmp->( RecNo() )
           Exit
         Endif
         Select TMP
-        Skip
+        tmp->( dbSkip() )       //  Skip
       Enddo
       If Empty( arr[ 2 ] )
         If Empty( lcena )
           lu_kod := foundourusluga( arr[ 3 ], human->k_data, human_->profil, human->VZROS_REB, @lcena )
           If lyear >= 2023  // 23 год
-            If Len( arr ) > 4 .and. !Empty( arr[ 5 ] )
-              // if human_->USL_OK == USL_OK_HOSPITAL
-              // if human->k_data < ctod('01/10/2023')  // до 01.10.2023
-              // lcena := round_5(lcena + 25986.7 * ret_koef_kslp_21(arr[5], lyear), 0)
-              // else  // после 01.10.2023
-              // lcena := round_5(lcena + 29995.8 * ret_koef_kslp_21(arr[5], lyear), 0)
-              // endif
-              // elseif human_->USL_OK == USL_OK_DAY_HOSPITAL
-              // lcena := round_5(lcena + 15029.1 * ret_koef_kslp_21(arr[5], lyear), 0)
-              // endif
-              lcena := round_5( lcena + baserate( human->k_data, human_->USL_OK ) * ret_koef_kslp_21( arr[ 5 ], lyear ), 0 )
-            Endif
+            lcena_end := lcena
             If Len( arr ) > 5 .and. !Empty( arr[ 6 ] )
-              lcena := round_5( lcena * arr[ 6, 2 ], 0 )
+              lcena_end := round_5( lcena * arr[ 6, 2 ], 0 )
             Endif
+            If Len( arr ) > 4 .and. !Empty( arr[ 5 ] )
+              lcena_kslp := baserate( human->k_data, human_->USL_OK ) * ret_koef_kslp_21( arr[ 5 ], lyear )
+//              lcena := round_5( lcena_end + baserate( human->k_data, human_->USL_OK ) * ret_koef_kslp_21( arr[ 5 ], lyear ), 0 )
+            Endif
+            lcena := round_5( lcena_end + lcena_kslp, 0 )
           Elseif lyear == 2022  // 22 год
             If Len( arr ) > 4 .and. !Empty( arr[ 5 ] )
               // lcena := round_5(lcena + 24322.6 * ret_koef_kslp_21(arr[5], lyear), 0)
@@ -207,20 +201,6 @@ Function f_usl_definition_ksg( lkod, k_data2, lDoubleSluch )
             If Len( arr ) > 5 .and. !Empty( arr[ 6 ] )
               lcena := round_5( lcena * arr[ 6, 2 ], 0 )
             Endif
-          Elseif lyear > 2018  // округление до рублей с 2019 года
-            If Len( arr ) > 4 .and. !Empty( arr[ 5 ] )
-              lcena := round_5( lcena * ret_koef_kslp( arr[ 5 ] ), 0 )
-            Endif
-            If Len( arr ) > 5 .and. !Empty( arr[ 6 ] )
-              lcena := round_5( lcena * arr[ 6, 2 ], 0 )
-            Endif
-          Else
-            If Len( arr ) > 4 .and. !Empty( arr[ 5 ] )
-              lcena := round_5( lcena * arr[ 5, 2 ], 1 )
-            Endif
-            If Len( arr ) > 5 .and. !Empty( arr[ 6 ] )
-              lcena := round_5( lcena * arr[ 6, 2 ], 1 )
-            Endif
           Endif
           If Round( arr[ 4 ], 2 ) == Round( lcena, 2 ) // цена определена правильно
             usl->( dbGoto( lu_kod ) )
@@ -230,9 +210,9 @@ Function f_usl_definition_ksg( lkod, k_data2, lDoubleSluch )
               hu->kod := human->kod
             Else
               Select TMP
-              Goto ( lrec )
+              tmp->( dbGoto( lrec ) )     //  Goto ( lrec )
               Select HU
-              Goto ( tmp->rec_hu )
+              hu->( dbGoto( tmp->rec_hu ) )            //  Goto ( tmp->rec_hu )
               g_rlock( 'forever' )
             Endif
             mrec_hu := hu->( RecNo() )
@@ -248,9 +228,9 @@ Function f_usl_definition_ksg( lkod, k_data2, lDoubleSluch )
             hu->stoim := hu->stoim_1 := lcena
             Select HU_
             Do While hu_->( LastRec() ) < mrec_hu
-              Append Blank
+              hu_->( dbAppend() )         //  Append Blank
             Enddo
-            Goto ( mrec_hu )
+            hu_->( dbGoto( mrec_hu ) )             //  Goto ( mrec_hu )
             g_rlock( 'forever' )
             If lrec == 0 .or. !valid_guid( hu_->ID_U )
               hu_->ID_U := mo_guid( 3, hu_->( RecNo() ) )
@@ -259,14 +239,14 @@ Function f_usl_definition_ksg( lkod, k_data2, lDoubleSluch )
             hu_->PRVS   := human_->PRVS
             hu_->kod_diag := human->KOD_DIAG
             hu_->zf := ''
-            Unlock
+            hu_->( dbUnlock() )             //  Unlock
             //
             Select TMP
             If lrec == 0
-              Append Blank
+              tmp->( dbAppend() )           //  Append Blank
               hu->kod := human->kod
             Else
-              Goto ( lrec )
+              tmp->( dbGoto( lrec ) )             //  Goto ( lrec )
             Endif
             tmp->KOD     := human->kod
             tmp->DATE_U  := hu->date_u
@@ -298,9 +278,9 @@ Function f_usl_definition_ksg( lkod, k_data2, lDoubleSluch )
         Endif
       Elseif lrec > 0 // не удалось определить КСГ
         Select TMP
-        Goto ( lrec )
+        tmp->( dbGoto( lrec ) )         //  Goto ( lrec )
         Select HU
-        Goto ( tmp->rec_hu )
+        hu->( dbGoto( tmp->rec_hu ) )                //  Goto ( tmp->rec_hu )
         deleterec( .t., .f. )  // очистка записи без пометки на удаление
         Select TMP
         deleterec( .t. )  // с пометкой на удаление
@@ -310,7 +290,7 @@ Function f_usl_definition_ksg( lkod, k_data2, lDoubleSluch )
         Select HUMAN
         g_rlock( 'forever' )
         human->CENA := human->CENA_1 := lcena + sdial // перезапишем стоимость лечения
-        Unlock
+        human->( dbUnlock() )           //  Unlock
       Endif
       put_str_kslp_kiro( arr )
       Commit
@@ -336,7 +316,7 @@ Function f_usl_definition_ksg( lkod, k_data2, lDoubleSluch )
     Select TMP
     Set Relation To FIELD->otd into OTD
     If tmp_rec > 0
-      Goto ( tmp_rec )
+      tmp->( dbGoto( tmp_rec ) )         //  Goto ( tmp_rec )
     Endif
     Select ( tmp_select )
     rest_box( buf )

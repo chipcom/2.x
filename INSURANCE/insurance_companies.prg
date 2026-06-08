@@ -145,6 +145,7 @@ Function getf019()
 
   Return _arr
 
+// 03.06.26
 Function findSMO_in_f019( code )
 
   // возвращает array
@@ -155,7 +156,8 @@ Function findSMO_in_f019( code )
 
   _arr := {}
   db := opensql_db()
-  cmd := 'SELECT tf_okato, orgtype, orgcod, nam_orgp, nam_orgk, tf_kod, smocod FROM f019 where smocod=="' + code + '"'
+  cmd := 'SELECT tf_okato, orgtype, orgcod, nam_orgp, nam_orgk, tf_kod, smocod FROM f019 where smocod=="' + code + '" or orgcod=="' + code + '"'
+  // для новых территорий берем код ТФОМС orgcod как код СМО, разговор с Антоновой 03.06.26
   aTable := sqlite3_get_table( db, cmd )
   If Len( aTable ) > 1
     // берем вторую сторку
@@ -171,7 +173,7 @@ Function findSMO_in_f019( code )
 
   Return _arr
 
-// 28.05.26 вернуть массив справочнику ФФОМС F019.xml
+// 03.06.26 вернуть массив справочнику ФФОМС F019.xml
 Function get_SMO_OKATO_f019( code )
 
   // возвращает массив
@@ -186,12 +188,13 @@ Function get_SMO_OKATO_f019( code )
   db := opensql_db()
 //  cmd := 'SELECT tf_okato, orgtype, orgcod, nam_orgp, nam_orgk, tf_kod, smocod FROM f019 where orgtype=="2" and tf_okato=="' + code + '"'
   cmd := 'SELECT tf_okato, orgtype, orgcod, nam_orgp, nam_orgk, tf_kod, smocod FROM f019 where tf_okato=="' + code + '"'
+  // для новых территорий берем код ТФОМС orgcod как код СМО, разговор с Антоновой 03.06.26
   aTable := sqlite3_get_table( db, cmd )
   If Len( aTable ) > 1
     For nI := 2 To Len( aTable )
       AAdd( _arr, { ;
         Alltrim( aTable[ nI, 5 ] ), ;
-        aTable[ nI, 7 ] } )
+        iif( Empty( aTable[ nI, 7 ] ), aTable[ nI, 3 ], aTable[ nI, 7 ] ) } )
 //      AAdd( _arr, { ;
 //        aTable[ nI, 1 ], ;
 //        aTable[ nI, 2 ], ;
@@ -226,17 +229,40 @@ function smo_volgograd()
   return arr_smo
 
 // 15.09.25 справочник страховых компаний РФ
-function glob_array_srf( dir_spavoch, working_dir )
+//function glob_array_srf( dir_spavoch, working_dir )
+function glob_array_srf()
 
   // dir_spavoch - каталог расположения справочников системы
   // working_dir - рабочий каталог в котором хранятся рабочие файлы пользователя
 
   static arr_srf
-  local sbase, i
+  Local db
+  Local aTable
+  Local nI
+  local cmd
+  local d := Date()
+//  local sbase, i
 
   if HB_ISNIL( arr_srf )
-    sbase := '_mo_smo'
     arr_srf := {}
+
+    Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
+    db := opensql_db()
+    cmd := 'SELECT kod_okato, subname, dateBeg, dateend FROM f010'
+    aTable := sqlite3_get_table( db, cmd )
+    If Len( aTable ) > 1
+      For nI := 2 To Len( aTable )
+        if between_date( CToD( aTable[ nI, 3 ] ), CToD( aTable[ nI, 4 ] ), d )
+          AAdd( arr_srf, { ;
+            Alltrim( aTable[ nI, 2 ] ), ;
+            Alltrim( aTable[ nI, 1 ] ) } )
+        endif
+      Next
+    Endif
+    db := nil
+    Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
+/*
+    sbase := '_mo_smo'
     r_use( dir_spavoch + sbase )
     Index On FIELD->okato to ( working_dir + sbase ) UNIQUE
     dbEval( {|| AAdd( arr_srf, { '', FIELD->okato } ) } )
@@ -268,7 +294,9 @@ function glob_array_srf( dir_spavoch, working_dir )
     OB->( dbCloseArea() )
     RE->( dbCloseArea() )
     TMP->( dbCloseArea() )
+*/
   endif
+
   return arr_srf
 
 // 18.11.25 вернуть иногороднюю СМО

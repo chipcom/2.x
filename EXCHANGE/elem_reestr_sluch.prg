@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 29.05.26
+// 03.06.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -624,6 +624,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         mo_add_xml_stroke( oSL, 'ED_COL', '1' )
         mo_add_xml_stroke( oSL, 'TARIF', lstr( tarif_zak_sl, 10, 2 ) )
       Endif
+
       mo_add_xml_stroke( oSL, 'SUM_M', lstr( human->cena_1, 10, 2 ) )
 
       // проверим лекарственные препараты
