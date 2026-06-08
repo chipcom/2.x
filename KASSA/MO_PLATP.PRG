@@ -2399,7 +2399,7 @@ Function f1_plat_ms( reg )
 
   Return Nil
 
-// 13.05.26
+// 08.06.26
 Function pl_mnog_poisk()
 
   Static mm_g_selo :=  { { "город", 1 }, { "село", 2 } }
@@ -2665,7 +2665,7 @@ aadd(mm_tmp, {"rajon","N",2,0,NIL,;
     nil, ;
     0, nil, ;
     "Сумма лечения (максимальная)" } )
-  AAdd( mm_tmp, { "vid_doc", "N", 5, 0, NIL, ;
+  AAdd( mm_tmp, { "vid_doc", "N", 9, 0, NIL, ;
     {| x| menu_reader( x, arr_doc, A__MENUBIT ) }, ;
     lvid_doc, {| x| inieditspr( A__MENUBIT, arr_doc, x ) }, ;
     "Вид документа", NIL } )
