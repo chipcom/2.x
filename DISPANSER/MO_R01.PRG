@@ -3,6 +3,7 @@
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
+#include 'chip_dispanser.ch'
 
 // 10.03.25 инициализация всех файлов инф.сопровождения по диспансеризации
 Function f_init_r01()
@@ -90,7 +91,7 @@ Function f_create_r05()
   //
   g_use( dir_server() + 'mo_dr05p',, 'R05p' )
   If LastRec() == 1  // правка 02.26
-    g_rlock( .t., forever ) // добавить 2-ую запись
+    g_rlock( .t., 'forever' ) // добавить 2-ую запись
   Endif
   mrec := 2 // пока так
   Goto ( mrec )
@@ -193,7 +194,7 @@ Function f1_create_r05()
         Endif
         g_use( dir_server() + 'mo_dr05p',, 'R05p' )
         Goto ( mrec )
-        g_rlock( forever )
+        g_rlock( 'forever' )
         If Empty( r05p->n_y )
           r05p->N_Y := YEAR_UPLOAD_DISPANSER // год для диспансеризации
         Endif
@@ -479,7 +480,7 @@ Function f2_create_r05()
   If !is_reestr .and. f_esc_enter( 1 )
     g_use( dir_server() + 'mo_dr05p',, 'R05p' )
     Goto ( mrec )
-    g_rlock( forever )
+    g_rlock( 'forever' )
     For i := 1 To 12
       Select TMP1
       Goto ( i )
@@ -1169,7 +1170,7 @@ Function read_xml_file_r06( arr_XML_info, aerr, /*@*/current_i2,lrec_xml)
       addrecn()
     Else
       Goto ( lrec_xml )
-      g_rlock( forever )
+      g_rlock( 'forever' )
     Endif
     mo_xml->KOD := RecNo()
     mo_xml->FNAME := cReadFile
@@ -1201,7 +1202,7 @@ Function read_xml_file_r06( arr_XML_info, aerr, /*@*/current_i2,lrec_xml)
       If tmp2->_N_ZAP > 0
         Select RHUM
         find ( Str( tmp2->_N_ZAP, 6 ) )
-        g_rlock( forever )
+        g_rlock( 'forever' )
         rhum->OPLATA := 1
       Endif
       If tmp2->_error > 0
@@ -1357,14 +1358,14 @@ Function f2_view_r05( nKey, oBrow )
           Copy File ( goal_dir + zip_file ) to ( s + zip_file )
           // if hb_fileExists(hb_OemToAnsi(s)+zip_file)
           If hb_FileExists( s + zip_file )
-            rees->( g_rlock( forever ) )
+            rees->( g_rlock( 'forever' ) )
             rees->DATE_OUT := sys_date
             If rees->NUMB_OUT < 99
               rees->NUMB_OUT++
             Endif
             //
             mo_xml->( rees->KOD_XML )
-            mo_xml->( g_rlock( forever ) )
+            mo_xml->( g_rlock( 'forever' ) )
             mo_xml->DREAD := sys_date
             mo_xml->TREAD := hour_min( Seconds() )
           Else
@@ -2003,7 +2004,7 @@ Function f00_create_r01()  // какая-то заплатка
     If tmp->reestr == 999999
       Select TMP
 
-      g_rlock( forever )
+      g_rlock( 'forever' )
       tmp->reestr := 0
       Unlock
     Endif
@@ -2069,7 +2070,7 @@ Function f1_create_r01()
     rees->NAME_XML := s
     mkod_reestr := rees->KOD
     //
-    rm->( g_rlock( forever ) )
+    rm->( g_rlock( 'forever' ) )
     &( 'rm->reestr' + StrZero( imonth, 2 ) ) := mkod_reestr
     //
     Select MO_XML
@@ -2094,7 +2095,7 @@ Function f1_create_r01()
         ++pkol
         @ MaxRow(), 1 Say lstr( pkol ) Color cColorSt2Msg
         Select TMP
-        g_rlock( forever )
+        g_rlock( 'forever' )
         tmp->reestr := mkod_reestr
         //
         Select RHUM
@@ -2117,7 +2118,7 @@ Function f1_create_r01()
       Skip
     Enddo
     Select REES
-    g_rlock( forever )
+    g_rlock( 'forever' )
     rees->KOL := pkol
     rees->KOL_ERR := 0
     dbUnlockAll()
@@ -2215,7 +2216,7 @@ Function f1_create_r01()
     oXmlDoc:save( AllTrim( mo_xml->FNAME ) + sxml() )
     chip_create_zipxml( AllTrim( mo_xml->FNAME ) + szip(), { AllTrim( mo_xml->FNAME ) + sxml() }, .t. )
   Next imonth
-  rm->( g_rlock( forever ) )
+  rm->( g_rlock( 'forever' ) )
   rm->TWORK2 := hour_min( Seconds() )
   Close databases
   Keyboard Chr( K_TAB ) + Chr( K_ENTER )
@@ -2380,14 +2381,14 @@ Function f2_view_r01( nKey, oBrow )
                     StrFile( hb_eol() + smsg + hb_eol(), cFileProtokol, .t. )
                     smsg := '   количество пациентов - ' + lstr( rees->kol )
                     StrFile( smsg + hb_eol(), cFileProtokol, .t. )
-                    rees->( g_rlock( forever ) )
+                    rees->( g_rlock( 'forever' ) )
                     rees->DATE_OUT := sys_date
                     If rees->NUMB_OUT < 99
                       rees->NUMB_OUT++
                     Endif
                     //
                     mo_xml->( dbGoto( arr[ i, 3 ] ) )
-                    mo_xml->( g_rlock( forever ) )
+                    mo_xml->( g_rlock( 'forever' ) )
                     mo_xml->DREAD := sys_date
                     mo_xml->TREAD := hour_min( Seconds() )
                   Else
@@ -2943,7 +2944,7 @@ Function read_xml_file_r02( arr_XML_info, aerr, /*@*/current_i2,tip_f)
     Use
     g_use( dir_server() + 'mo_dr01',, 'REES' )
     Goto ( mkod_reestr )
-    g_rlock( forever )
+    g_rlock( 'forever' )
     rees->answer := 1
     If ii2 > 0
       rees->kol_err := ii2
@@ -2996,7 +2997,7 @@ Function read_xml_file_r02( arr_XML_info, aerr, /*@*/current_i2,tip_f)
       @ MaxRow(), 0 Say Str( ++i / k * 100, 6, 2 ) + '%' Color cColorWait
       Select RHUM
       find ( Str( tmp2->_N_ZAP, 6 ) )
-      g_rlock( forever )
+      g_rlock( 'forever' )
       rhum->OPLATA := tmp2->_OPLATA
       If !Empty( tmp2->_enp )
         Select KART2
@@ -3005,7 +3006,7 @@ Function read_xml_file_r02( arr_XML_info, aerr, /*@*/current_i2,tip_f)
         Enddo
         Goto ( rhum->kod_k )
         If Len( AllTrim( kart2->kod_mis ) ) != 16
-          g_rlock( forever )
+          g_rlock( 'forever' )
           kart2->kod_mis := tmp2->_enp
           dbUnlock()
         Endif
@@ -3183,14 +3184,14 @@ Function f2_delete_reestr_r02( mkod_reestr, mreestr_sp_tk )
   Index On Str( FIELD->REESTR, 6 ) to ( cur_dir() + 'tmp_rhum' )
   find ( Str( mkod_reestr, 6 ) )
   Do While rhum->reestr == mkod_reestr .and. !Eof()
-    g_rlock( forever )
+    g_rlock( 'forever' )
     rhum->OPLATA := 0 // обнулим поле оплаты
     Unlock
     Skip
   Enddo
   g_use( dir_server() + 'mo_dr01',, 'REES' )
   Goto ( mkod_reestr )
-  g_rlock( forever )
+  g_rlock( 'forever' )
   rees->answer := 0
   rees->kol_err := 0
   g_use( dir_server() + 'mo_xml',, 'MO_XML' )
@@ -3309,7 +3310,7 @@ Function f1_delete_reestr_r01( nKey, oBrow, regim )
             Do While .t.
               find ( Str( mkod_reestr, 6 ) )
               If !Found() ; exit ; Endif
-              g_rlock( forever )
+              g_rlock( 'forever' )
               tmp->n_m := 0
               tmp->n_q := 0
               tmp->reestr := 0
@@ -3327,7 +3328,7 @@ Function f1_delete_reestr_r01( nKey, oBrow, regim )
             Select REES
             deleterec( .t. )
             Select R01m
-            g_rlock( forever )
+            g_rlock( 'forever' )
             &( 'r01m->reestr' + StrZero( ir, 2 ) ) := 0
             dbUnlockAll()
             dbCommitAll()
