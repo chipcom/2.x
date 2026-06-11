@@ -2,19 +2,19 @@
 #include 'chip_mo.ch'
 #include 'hbxlsxwriter.ch'
 
-// 22.05.26
+// 11.06.26
 function writexlsx_inf_children( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
   arr_2510_DDS, arr_2510_DDSOP, hZabol )
 
   Local buf := save_maxrow()
   Local workbook
-  Local ws1, ws2, ws3, ws4, ws5, ws6, ws7
+  Local ws1, ws2, ws3, ws4, ws5, ws6, ws7, ws8, ws9, ws10
   Local cColorTab1, cColorTab2, cColorTab3, cColorTab4, cColorTab5, cColorTab6, cColorTab7
   local error, i
   Local strMO, arr_plan
   Local titul_table_thin, titul_table_bold, titul_table_bold_green, text_thin, header_bold, header_data_bold
   Local titul_bold, block_FIO, block_gray, block_empty, block_Total, note_titul, note_text
-  local t25_10, t25_10_yelow, titul_table_yelow, titul_bold_center, header_bold_sost
+  local t25_10, t25_10_yelow, titul_table_yelow, titul_bold_center, header_bold_sost, titul_center
   local diseases_gray_bold, diseases_center_gray_bold, diseases_normal_gray_bold, diseases_norm_cent_gray_bold
   local diseases_norm_cent_gray, diseases_norm_left_gray, diseases_block_empty
 
@@ -48,6 +48,9 @@ function writexlsx_inf_children( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
   titul_bold := fmt_excel_hl_vc_wrap( workbook )
   format_set_bold( titul_bold )
   format_set_font_size( titul_bold, 14 )
+
+  titul_center := fmt_excel_hc_vc_wrap( workbook )
+  format_set_font_size( titul_center, 14 )
 
   titul_bold_center := fmt_excel_hc_vc_wrap( workbook )
   format_set_bold( titul_bold_center )
@@ -1440,14 +1443,45 @@ function writexlsx_inf_children( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
 
 
 //
-// лист 7 - Заболевание 15-17
+// лист 7 - Заболевание мальчиков 13-14
 //
+  ws7 := workbook_add_worksheet( workbook, 'забол.мальч.13-14' )
+  worksheet_set_tab_color( ws7, cColorTab7 )
+
+  // Установить высоту строки
+  worksheet_set_row( ws7, 0, 69 )
+// Установить ширину колонок
+  worksheet_set_column( ws7, 0, 0, 45 )
+  worksheet_set_column( ws7, 1, 1, 6.33 )
+  worksheet_set_column( ws7, 2, 2, 43 )
+  worksheet_set_column( ws7, 3, 3, 15.67 )
+  worksheet_set_column( ws7, 4, 4, 15.67 )
+
+  worksheet_merge_range( ws7, 0, 0, 0, 4, 'Информация о выявленных заболеваниях репродуктивной системы у мальчиков 13-14 летнего возраста в рамках еженедельного мониторинга результатов профилактических осмотров несовершеннолетних', titul_center )
+
+//
+// лист 8 - Заболевание мальчиков 15-17
+//
+  ws8 := workbook_add_worksheet( workbook, 'забол.мальч.15-17' )
+  worksheet_set_tab_color( ws8, cColorTab7 )
+
+  worksheet_set_row( ws8, 0, 69 )
+// Установить ширину колонок
+  worksheet_set_column( ws8, 0, 0, 45 )
+  worksheet_set_column( ws8, 1, 1, 6.33 )
+  worksheet_set_column( ws8, 2, 2, 43 )
+  worksheet_set_column( ws8, 3, 3, 15.67 )
+  worksheet_set_column( ws8, 4, 4, 15.67 )
+
+  worksheet_merge_range( ws8, 0, 0, 0, 4, 'Информация о выявленных заболеваниях репродуктивной системы у мальчиков 15-17 летнего возраста в рамках еженедельного мониторинга результатов профилактических осмотров несовершеннолетних', titul_center )
+
+/*
   ws7 := workbook_add_worksheet( workbook, 'Заболевание 15-17' )
   worksheet_set_tab_color( ws7, cColorTab7 )
 
-  /* Установить высоту строки */
+  // Установить высоту строки
   worksheet_set_row( ws7, 1, 31.2 )
-  /* Установить ширину колонок */
+// Установить ширину колонок
   worksheet_set_column( ws7, 0, 0, 51.67 )
   worksheet_set_column( ws7, 1, 1, 8.11 )
   worksheet_set_column( ws7, 2, 2, 13 )
@@ -1546,6 +1580,7 @@ function writexlsx_inf_children( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
   worksheet_write_string( ws7, 23, 1, '2.4', diseases_norm_cent_gray_bold )
   worksheet_write_string( ws7, 23, 2, '', diseases_norm_cent_gray )
   worksheet_write_string( ws7, 23, 3, '', diseases_block_empty )
+*/
 
   /* Закрыть книгу, записать файл и освободить память. */
   error = workbook_close( workbook )
