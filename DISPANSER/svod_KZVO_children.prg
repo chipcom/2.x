@@ -2,7 +2,7 @@
 #include 'chip_mo.ch'
 #include 'tfile.ch'
 
-// 14.06.26 Приложение к письму ГБУЗ 'ВОМИАЦ' №1025 от 08.07.2019г.
+// 15.06.26 Приложение к письму ГБУЗ 'ВОМИАЦ' №1025 от 08.07.2019г.
 Function svod_KZVO_children( par )      // f21_inf_dnl
 
   Local arr_m, buf := save_maxrow(), adbf
@@ -22,8 +22,18 @@ Function svod_KZVO_children( par )      // f21_inf_dnl
       'FI' => 0, 'FII' => 0, 'FIII' => 0, 'FIV' => 0, 'FN' => 0, ;
       'E30.0' => 0, 'E30.1' => 0, 'N40_N51' => 0, 'Q55' => 0, ;
       'LOW_WEIGHT' => 0, 'HIGH_WEIGHT' => 0, 'LOW_HIGHT' => 0, 'HIGH_HIGHT' => 0 }
-    hGirl13_14 := { 'I' => 0, 'II' => 0, 'III' => 0, 'IV' => 0, 'V' => 0, 'E30.0' => 0, 'E30.1' => 0, 'N40_N51' => 0, 'Q55' => 0 }
-    hGirl15_17 := { 'I' => 0, 'II' => 0, 'III' => 0, 'IV' => 0, 'V' => 0, 'E30.0' => 0, 'E30.1' => 0, 'N40_N51' => 0, 'Q55' => 0 }
+    hGirl13_14 := { 'I' => 0, 'II' => 0, 'III' => 0, 'IV' => 0, 'V' => 0, 'E30.0' => 0, 'E30.1' => 0, 'N40_N51' => 0, 'Q55' => 0, ;
+      'E22.8' => 0, 'E25' => 0, 'E26' => 0, 'E27.0' => 0, 'E30.1' => 0, 'E30.8' => 0, 'Q78.1' => 0, 'E23.0' => 0, 'E23.1' => 0, 'E28.3' => 0, 'E30.0' => 0, 'E45' => 0, ;
+      'E89.3' => 0, 'E89.4' => 0, 'Q50.0' => 0, 'Q96' => 0, 'N91' => 0, 'N92.2' => 0, 'N92.3' => 0, 'N94.4' => 0, 'N94.5' => 0, 'N94.6' => 0, 'N94.3' => 0, 'N76.0' => 0, ;
+      'N76.1' => 0, 'N76.2' => 0, 'N76.3' => 0, 'N76.8' => 0, 'N90.4' => 0, 'N76.6' => 0, 'N75.0' => 0, 'N75.1' => 0, 'N75.8' => 0, 'N75.9' => 0, 'N90.7' => 0, 'N90.8' => 0, ;
+      'A63.0' => 0, 'C51' => 0, 'C52' => 0, 'N61' => 0, 'N62' => 0, 'N63' => 0, 'N64.4' => 0, 'S30.2' => 0, 'S31.4' => 0, 'S31.5' => 0, 'Q52.0' => 0, 'Q52.1' => 0, 'Q52.3' => 0, ;
+      'Q52.5' => 0, 'Q52.6' => 0, 'L68.0' => 0, 'E40_E46' => 0, 'E66' => 0, 'Z72.1' => 0, 'Z72.2' => 0, 'Z72.0' => 0 }
+    hGirl15_17 := { 'I' => 0, 'II' => 0, 'III' => 0, 'IV' => 0, 'V' => 0, 'E30.0' => 0, 'E30.1' => 0, 'N40_N51' => 0, 'Q55' => 0, ;
+      'E22.8' => 0, 'E25' => 0, 'E26' => 0, 'E27.0' => 0, 'E30.1' => 0, 'E30.8' => 0, 'Q78.1' => 0, 'E23.0' => 0, 'E23.1' => 0, 'E28.3' => 0, 'E30.0' => 0, 'E45' => 0, ;
+      'E89.3' => 0, 'E89.4' => 0, 'Q50.0' => 0, 'Q96' => 0, 'N91' => 0, 'N92.2' => 0, 'N92.3' => 0, 'N94.4' => 0, 'N94.5' => 0, 'N94.6' => 0, 'N94.3' => 0, 'N76.0' => 0, ;
+      'N76.1' => 0, 'N76.2' => 0, 'N76.3' => 0, 'N76.8' => 0, 'N90.4' => 0, 'N76.6' => 0, 'N75.0' => 0, 'N75.1' => 0, 'N75.8' => 0, 'N75.9' => 0, 'N90.7' => 0, 'N90.8' => 0, ;
+      'A63.0' => 0, 'C51' => 0, 'C52' => 0, 'N61' => 0, 'N62' => 0, 'N63' => 0, 'N64.4' => 0, 'S30.2' => 0, 'S31.4' => 0, 'S31.5' => 0, 'Q52.0' => 0, 'Q52.1' => 0, 'Q52.3' => 0, ;
+      'Q52.5' => 0, 'Q52.6' => 0, 'L68.0' => 0, 'E40_E46' => 0, 'E66' => 0, 'Z72.1' => 0, 'Z72.2' => 0, 'Z72.0' => 0 }
 
     Private arr_deti, arr_2510
 
@@ -279,7 +289,7 @@ Function svod_inf_dnl( arr_m, is_schet, is_reg, arr_ishod, is_snils )
 
   Return fl
 
-// 14.06.26
+// 15.06.26
 Function svod_inf_dnl_LU( Loc_kod, hYoungMan13_14, hYoungMan15_17, hGirl13_14, hGirl15_17 ) // сводная информация из листов учета
 
   Local ii, im, i, j, k, s, sumr := 0, ar := { 0 }, ltip_school := -1, ar15[ 26 ], ;
@@ -361,6 +371,7 @@ Function svod_inf_dnl_LU( Loc_kod, hYoungMan13_14, hYoungMan15_17, hGirl13_14, h
       Endif
     Endif
   elseif human->pol == 'Ж' .and. mvozrast >= 13 .and. mvozrast < 18
+
     if mvozrast >= 13 .and. mvozrast < 15
       hTemp := hGirl13_14
     elseif mvozrast >= 15 .and. mvozrast < 18
@@ -506,6 +517,8 @@ Function svod_inf_dnl_LU( Loc_kod, hYoungMan13_14, hYoungMan15_17, hGirl13_14, h
         elseif mvozrast >= 15 .and. mvozrast < 18
           hTemp := hGirl15_17
         endif
+
+        fill_zabol_girl( ad[ i ], hTemp )
       endif
 
       // надо деффицит массы тела
@@ -923,3 +936,124 @@ Function svod_inf_dds_LU( Loc_kod, kod_kartotek, mvozrast )
   Next
 
   Return Nil
+
+// 15.06.26
+function fill_zabol_girl( ad, hTemp )
+
+  If Left( ad[ 1 ], 5 ) == 'E22.8'
+    hTemp[ 'E22.8' ]++
+  elseif Left( ad[ 1 ], 3 ) == 'E25'
+    hTemp[ 'E25' ]++
+  elseif Left( ad[ 1 ], 3 ) == 'E26'
+    hTemp[ 'E26' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'E27.0'
+    hTemp[ 'E27.0' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'E30.1'
+    hTemp[ 'E30.1' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'E30.8'
+    hTemp[ 'E30.8' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Q78.1'
+    hTemp[ 'Q78.1' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Е23.0'
+    hTemp[ 'Е23.0' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Е23.1'
+    hTemp[ 'Е23.1' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Е28.3'
+    hTemp[ 'Е28.3' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Е30.0'
+    hTemp[ 'Е30.0' ]++
+  elseif Left( ad[ 1 ], 3 ) == 'Е45'
+    hTemp[ 'Е45' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Е89.3'
+    hTemp[ 'Е89.3' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Е89.4'
+    hTemp[ 'Е89.4' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Q50.0'
+    hTemp[ 'Q50.0' ]++
+  elseif Left( ad[ 1 ], 3 ) == 'Q96'
+    hTemp[ 'Q96' ]++
+  elseif Left( ad[ 1 ], 3 ) == 'N91'
+    hTemp[ 'N91' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N92.2'
+    hTemp[ 'N92.2' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N92.3'
+    hTemp[ 'N92.3' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N94.4'
+    hTemp[ 'N94.4' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N94.5'
+    hTemp[ 'N94.5' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N94.6'
+    hTemp[ 'N94.6' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N94.3'
+    hTemp[ 'N94.3' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N76.0'
+    hTemp[ 'N76.0' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N76.0'
+    hTemp[ 'N76.0' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N76.2'
+    hTemp[ 'N76.2' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N76.3'
+    hTemp[ 'N76.3' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N76.8'
+    hTemp[ 'N76.8' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N90.4'
+    hTemp[ 'N90.4' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N76.6'
+    hTemp[ 'N76.6' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N75.0'
+    hTemp[ 'N75.0' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N75.1'
+    hTemp[ 'N75.1' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N75.8'
+    hTemp[ 'N75.8' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N75.9'
+    hTemp[ 'N75.9' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N90.7'
+    hTemp[ 'N90.7' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N90.8'
+    hTemp[ 'N90.8' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'A63.0'
+    hTemp[ 'A63.0' ]++
+  elseif Left( ad[ 1 ], 3 ) == 'C51'
+    hTemp[ 'C51' ]++
+  elseif Left( ad[ 1 ], 3 ) == 'C52'
+    hTemp[ 'C52' ]++
+  elseif Left( ad[ 1 ], 3 ) == 'N61'
+    hTemp[ 'N61' ]++
+  elseif Left( ad[ 1 ], 3 ) == 'N62'
+    hTemp[ 'N62' ]++
+  elseif Left( ad[ 1 ], 3 ) == 'N63'
+    hTemp[ 'N63' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N64.4'
+    hTemp[ 'N64.4' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'S30.2'
+    hTemp[ 'S30.2' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'S31.4'
+    hTemp[ 'S31.4' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'S31.5'
+    hTemp[ 'S31.5' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Q52.0'
+    hTemp[ 'Q52.0' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Q52.1'
+    hTemp[ 'Q52.1' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Q52.3'
+    hTemp[ 'Q52.3' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Q52.5'
+    hTemp[ 'Q52.5' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Q52.6'
+    hTemp[ 'Q52.6' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'L68.0'
+    hTemp[ 'L68.0' ]++
+  elseif between_diag( Left( ad[ 1 ], 3 ), 'E40', 'E46' )
+    hTemp[ 'E40_E46' ]++
+  elseif Left( ad[ 1 ], 3 ) == 'E66'
+    hTemp[ 'E66' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Z72.1'
+    hTemp[ 'Z72.1' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Z72.2'
+    hTemp[ 'Z72.2' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Z72.0'
+    hTemp[ 'Z72.0' ]++
+  endif
+
+  return nil
