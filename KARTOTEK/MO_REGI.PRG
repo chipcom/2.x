@@ -1932,7 +1932,7 @@ Function pr_invalid()
 
   Return Nil
 
-// 17.03.20
+// 14.06.26
 Static Function f1_pr_invalid()
 
   Local i, j, k, n, s, arr, fl := .t., god_r, arr1
@@ -1950,7 +1950,7 @@ Static Function f1_pr_invalid()
         fl := Empty( kart2->MO_PR ) .or. kart2->MO_PR == '000000'
       Endif
     Endif
-    If muchast > 0
+    If fl .and. muchast > 0
       fl := ( kart->uchast == muchast )
     Endif
     If fl .and. !Empty( m1pol )
