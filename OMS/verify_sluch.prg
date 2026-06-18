@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 27.05.26 
+// 18.06.26 
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -2883,7 +2883,8 @@ Function verify_sluch( fl_view, ft )
             If ( Left( lshifr, 2 ) == '2.' .or. eq_any( Left( lshifr, 3 ), '60.', '70.', '71.', '72.' ) ) ;
                 .and. !( Left( lshifr, 5 ) == '60.3.' ) ;
                 .and. !( Left( lshifr, 6 ) == '60.10.' ) ;
-                .and. is_2_stomat( lshifr, , .t. ) == 0 // не стоматология
+                .and. is_2_stomat( lshifr, , .t. ) == 0 ;// не стоматология
+                .and. ( lshifr != '60.17.100' ) .and. ( lshifr != '60.17.1' ) .and. ( lshifr != '60.17.2' ) // не дистанционное наблюдение
               otd->( dbGoto( u_other[ i, 8 ] ) )
               AAdd( ta, 'услуга ' + AllTrim( usl->shifr ) + ' от ' + date_8( mdate ) + ' в случае ' + ;
                 date_8( u_other[ i, 6 ] ) + '-' + date_8( u_other[ i, 7 ] ) + ;
