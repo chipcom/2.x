@@ -129,12 +129,15 @@ Function update_data_db( aVersion )
 
 Return Nil
 
-// 17.06.26
+// 18.06.26
 function update_v60602()
 
   local beg_data, end_data, human_rec, human_otd
   local aOtdPN := {}, aOtdDDS := {}, aOtdAdult := {}
-  local deti := 0, detiDDS := 0, adult := 0
+  local iPn, iDDS, countOtkaz := 0, is
+  local deti := 0, detiDDS := 0, adult := 0, otk := 0
+
+  private arr_usl_otkaz := {}
 
   stat_msg( 'Проверка услуг диспансеризации' )
 
@@ -154,42 +157,78 @@ function update_v60602()
   enddo
   otd->( dbCloseArea() )
 
+  r_use( dir_server() + 'uslugi', , 'USL' )
   e_use( dir_server() + 'human_u', dir_server() + 'human_u', 'hu' )
   r_use( dir_server() + 'human', dir_server() + 'humand', 'human' )
 
   human->( dbGoTop() )
   human->( dbSeek( DToS( 0d20250831 ) ) )
   do while ! human->( Eof() )
+    iPn := 0
+    iDDS := 0
     human_rec := human->kod
     beg_data := human->N_DATA
     end_data := human->k_data
     human_otd := human->OTD
     if end_data > 0d20250831
-      if ( AScan( aOtdPN, human_otd ) > 0 )
+      if ( ( iPn := AScan( aOtdPN, human_otd ) ) > 0 ) .or. ( ( iDDS := AScan( aOtdDDS, human_otd ) ) > 0 )
+        if iPn > 0
+          arr_usl_otkaz := {}
+          read_arr_pn( human_rec, .t., end_data ) // читаем переменную 'mperiod'
+          if len( arr_usl_otkaz ) > 0
+            countOtkaz++
+          endif
+          deti++
+        elseif iDDS > 0
+          detiDDS++
+        endif
         hu->( dbSeek( Str( human_rec, 7 ) ) )
         do while hu->kod == human_rec .and. ( ! hu->( Eof() ) )
           if c4tod( hu->date_u ) < beg_data
             hu->usl_repl := 1
-            deti++
           endif
           hu->( dbSkip() )
         enddo
-      elseif ( AScan( aOtdDDS, human_otd ) > 0 )
-        hu->( dbSeek( Str( human_rec, 7 ) ) )
-        do while hu->kod == human_rec .and. ( ! hu->( Eof() ) )
-          if c4tod( hu->date_u ) < beg_data
-            hu->usl_repl := 1
-            detiDDS++
-          endif
-          hu->( dbSkip() )
-        enddo
+//      elseif ( AScan( aOtdDDS, human_otd ) > 0 )
+//        hu->( dbSeek( Str( human_rec, 7 ) ) )
+//        do while hu->kod == human_rec .and. ( ! hu->( Eof() ) )
+//          if c4tod( hu->date_u ) < beg_data
+//            hu->usl_repl := 1
+//            detiDDS++
+//          endif
+//          hu->( dbSkip() )
+//        enddo
       elseif ( AScan( aOtdAdult, human_otd ) > 0 .and. end_data > 0d20251231 )
+        arr_usl_otkaz := {}
+        read_arr_dvn( human_rec, .t. )
+        if len( arr_usl_otkaz ) > 0
+          countOtkaz++
+        endif
         hu->( dbSeek( Str( human_rec, 7 ) ) )
+        if ( is := ascan( arr_usl_otkaz, { | x | AllTrim( x[ 5 ] ) == '7.57.709' } ) ) > 0
+altd()
+        endif
         do while hu->kod == human_rec .and. ( ! hu->( Eof() ) )
-          if c4tod( hu->date_u ) < beg_data
+          if ( c4tod( hu->date_u ) < beg_data )
             hu->usl_repl := 1
             adult++
           endif
+          if len( arr_usl_otkaz ) > 0
+            usl->( dbGoto( hu->u_kod ) )
+            if !usl->( Eof() )
+              tshifr := AllTrim( usl->shifr )
+              if ( is := ascan( arr_usl_otkaz, { | x | AllTrim( x[ 5 ] ) == tshifr } ) ) > 0
+                hu->usl_repl := 1
+                otk++
+              endif
+            endif
+          endif
+
+//          if ( is := ascan( arr_usl_otkaz, { | x | x[ 7 ] == hu->u_kod } ) ) > 0
+//            hu->usl_repl := 1
+//            otk++
+//          endif
+
           hu->( dbSkip() )
         enddo
       endif
