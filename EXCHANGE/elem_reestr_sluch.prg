@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 03.06.26
+// 18.06.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -39,6 +39,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   local tarif_usl, sumvv_usl
   local mNPR_MO, napr_number := ''
   local is_vmp
+  Local oMR_USL_N
 
 //  Local oPAC
 //  Local cSMOname
@@ -946,8 +947,12 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         If between_date( human->n_data, human->k_data, c4tod( mohu->DATE_U ) )
           p2->( dbGoto( mohu->kod_vr ) )
           tag_mr_usl_n( oUsl, _nyear, 1, mohu->PRVS, p2->snils ) // пока ставим 1 исполнитель
-        else
-          tag_mr_usl_n( oUsl, _nyear, 1, mohu->PRVS, '0' ) // пока ставим 1 исполнитель
+        else 
+//          tag_mr_usl_n( oUsl, _nyear, 1, mohu->PRVS, '0' ) // пока ставим 1 исполнитель
+          oMR_USL_N := oUSL:add( hxmlnode():new( 'MR_USL_N' ) )
+          mo_add_xml_stroke( oMR_USL_N, 'MR_N', lstr( 1 ) )   // пока ставим 1 исполнитель
+          mo_add_xml_stroke( oMR_USL_N, 'PRVS', put_prvs_to_reestr( mohu->PRVS, _nyear ) )
+          mo_add_xml_stroke( oMR_USL_N, 'CODE_MD', '0' )
         Endif 
         If !Empty( mohu->zf )
           dbSelectArea( laluslf )
