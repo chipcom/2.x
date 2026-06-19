@@ -129,7 +129,7 @@ Function update_data_db( aVersion )
 
 Return Nil
 
-// 18.06.26
+// 19.06.26
 function update_v60602()
 
   local beg_data, end_data, human_rec, human_otd
@@ -192,10 +192,11 @@ function update_v60602()
     human->( dbSkip() )
   enddo
 
-//  index_base( 'human' )
-//  index_base( 'human_u' )
   dbCloseAll()
-altd()
+//  index_base( 'human' )
+  use_base( 'human_u' )
+  index_base( 'human_u' )
+
   return nil
 
 // 19.04.26
