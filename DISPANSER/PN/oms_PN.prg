@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 04.05.26 ПН - добавление или редактирование случая (листа учета)
+// 19.06.26 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -2056,6 +2056,9 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         hu->otd     := m1otd
         hu->kol := hu->kol_1 := 1
         hu->stoim := hu->stoim_1 := arr_usl_dop[ i, 8 ]
+        if arr_usl_dop[ i, 9 ] < MN_DATA
+          hu->USL_REPL := 1 // будет замена услуги на нулевую
+        endif
         Select HU_
         Do While hu_->( LastRec() ) < mrec_hu
           Append Blank
