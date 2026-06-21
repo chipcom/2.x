@@ -260,6 +260,7 @@ mo_version.prg
 .\DISPANSER\mo_st39.prg
 .\DISPANSER\svod_KZVO_children.prg
 .\DISPANSER\writexlsx_inf_children.prg
+.\DISPANSER\arr_dispanser_new.prg
 
 .\263\mo_263.prg
 .\263\mo_263p.prg
