@@ -5,10 +5,11 @@
 
 function test_init()
 
-//  local aaa
+  local aaa
 
-//  aaa := get_plans_KZVO( 2026, '340169' ) // Фроловская ЦРБ
-//  altd()
+  aaa := load_arr_DVN_etap( 1, 0, 64 )
+  altd()
+  aaa := load_arr_DVN_etap( 1, 'Ж', 40 )
 
   return nil
 
