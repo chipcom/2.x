@@ -4,6 +4,62 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 23.06.26 проверка правильности ввода сроков диспансеризации
+Function control_date_disp( get, k, tip_lu, kod_kartotek )
+
+  // k = 1 - дата начала диспансеризации
+  // k = 2 - дата окончания диспансеризации
+
+  local ret := .t.
+
+  If k == 1 .and. Year( mn_data ) < 2025
+    mn_data := get:original
+    Return func_error( 3, 'В дате начала диспансеризации неверно введен год (ранее 2025 года).' )
+  Endif
+
+  If k == 2 .and. Empty( mk_data )
+    mk_data := get:original
+    Return func_error( 3, 'Не введена дата окончания диспансеризации.' )
+  Endif
+  If k == 2 .and. ;
+      !( Year( mk_data ) == Year( sys_date ) .or. Year( mk_data ) == Year( sys_date ) -1 )
+    mk_data := get:original
+    Return func_error( 3, 'В дате окончания диспансеризации неверно введен год.' )
+  Endif
+  If !Empty( mk_data ) .and. mn_data > mk_data
+    If k == 1
+      mn_data := get:original
+    Else
+      mk_data := get:original
+    Endif
+    Return func_error( 4, 'Дата начала диспансеризации больше даты её окончания. Ошибка!' )
+  Endif
+  If k == 1 .and. Type( 'mdate_r' ) == 'D'
+    fv_date_r( mn_data ) 
+  Endif
+
+  If k == 2
+    r_use( dir_server() + 'human_',, 'HUMAN_' )
+    r_use( dir_server() + 'human', dir_server() + 'humankk', 'HUMAN' )
+    Set Relation To RecNo() into HUMAN_
+    human->( dbSeek( Str( kod_kartotek, 7 ) ) )
+    Do While human->kod_k == kod_kartotek .and. ! human->( Eof() )
+      if eq_any( tip_lu, TIP_LU_DDS, TIP_LU_DDSOP ) .and. eq_any( human->ishod, 101, 102 )
+        If !Empty( mk_data ) .and. human->K_DATA >= AddMonth( mk_data, -12 )
+          mk_data := get:original
+          hb_Alert( 'Уже проведена диспансеризация с ' + DToC( human->N_DATA ) + ' по ' + DToC( human->K_DATA ) + '!', 4 )
+          ret := .f.
+          exit
+        endif
+      endif
+      human->( dbSkip() )
+    Enddo
+    human_->( dbCloseArea() )
+    human->( dbCloseArea() )
+  endif
+
+  Return ret
+
 // 11.04.26
 Function read_arr_dispans( lkod )
 
