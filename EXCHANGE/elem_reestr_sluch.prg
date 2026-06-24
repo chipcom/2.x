@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 18.06.26
+// 24.06.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -192,13 +192,17 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       human_->REES_ZAP := rhum->REES_ZAP
       human_->REES_NUM := 1 //  отправляем 1-й раз
       human_->SCHET_ZAP := rhum->REES_ZAP
-      human_->SCHET_NUM := 1 //  отправляем 1-й раз
+      if human_->KOD_UP == 0
+        human_->SCHET_NUM := 0 //  отправляем 1-й раз
+      else
+        human_->SCHET_NUM := 1 //  повторная отправка
+      endif
       human_->( dbUnlock() )
       if isl == 2
         human_3->( dbRLock() )
         human_3->REES_ZAP := rhum->REES_ZAP
         human_3->( dbUnlock() )
-      endif
+      endif 
       mo_add_xml_stroke( oZAP, 'PR_NOV', iif( human_->SCHET_NUM > 0, '1', '0' ) ) // если попал в счёт 2-й раз и т.д.
 
       // заполним сведения о пациенте для XML-документа
