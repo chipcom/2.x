@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 18.06.26 
+// 24.06.26 
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -3172,7 +3172,7 @@ Function verify_sluch( fl_view, ft )
           AAdd( arr_prvs, au_flu[ i, 4 ] )
         Endif
       Next
-      If Len( arr_prvs ) > 1 .and. !is_gisto
+      If Len( arr_prvs ) > 1 .and. !is_gisto .and. ( AScan( arr_schol_xniz( mk_data ), '2.92.18' ) == 0 )
         AAdd( ta, 'в случае использованы разные специальности врачей' )
       Endif
     Endif
