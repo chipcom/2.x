@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 23.06.26 проверка правильности ввода сроков диспансеризации
+// 24.06.26 проверка правильности ввода сроков диспансеризации
 Function control_date_disp( get, k, tip_lu, kod_kartotek )
 
   // k = 1 - дата начала диспансеризации
@@ -44,7 +44,7 @@ Function control_date_disp( get, k, tip_lu, kod_kartotek )
     Set Relation To RecNo() into HUMAN_
     human->( dbSeek( Str( kod_kartotek, 7 ) ) )
     Do While human->kod_k == kod_kartotek .and. ! human->( Eof() )
-      if eq_any( tip_lu, TIP_LU_DDS, TIP_LU_DDSOP ) .and. eq_any( human->ishod, 101, 102 )
+      if eq_any( tip_lu, TIP_LU_DDS, TIP_LU_DDSOP ) .and. is_sluch_dispanser_deti_siroty( human->ishod )
         If !Empty( mk_data ) .and. human->K_DATA >= AddMonth( mk_data, -12 )
           mk_data := get:original
           hb_Alert( 'Уже проведена диспансеризация с ' + DToC( human->N_DATA ) + ' по ' + DToC( human->K_DATA ) + '!', 4 )
