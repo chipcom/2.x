@@ -2,7 +2,7 @@
 #include 'hbhash.ch'
 #include 'function.ch'
 #include 'chip_mo.ch'
-#include 'chip_disp.ch'
+#include 'chip_dispanser.ch'
 
 #define MAX_AGE_DVN 105
 

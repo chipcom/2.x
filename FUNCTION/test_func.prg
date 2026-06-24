@@ -5,11 +5,11 @@
 
 function test_init()
 
-  local aaa
+//  local aaa
 
-  aaa := load_arr_DVN_etap( 1, 0, 64 )
-  altd()
-  aaa := load_arr_DVN_etap( 1, '†', 40 )
+//  aaa := load_arr_DVN_etap( 1, 0, 64 )
+//  altd()
+//  aaa := load_arr_DVN_etap( 1, '†', 40 )
 
   return nil
 

@@ -226,7 +226,8 @@ mo_version.prg
 # диспансеризация взрослого населения
 .\DISPANSER\DVN\oms_DVN_array.prg
 .\DISPANSER\DVN\oms_DVN_array_early.prg
-.\DISPANSER\DVN\oms_DVN.prg
+#.\DISPANSER\DVN\oms_DVN.prg
+.\DISPANSER\DVN\oms_DVN_new.prg
 .\DISPANSER\DVN\oms_DVN_func.prg
 # диспансеризация репродуктивного здоровья
 .\DISPANSER\DRZ\oms_dvn_drz.prg
