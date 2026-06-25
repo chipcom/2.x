@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 24.06.26 
+// 25.06.26 
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -93,6 +93,8 @@ Function verify_sluch( fl_view, ft )
   a_period_amb := {}
   mIDPC := ''
   rec_human := human->( RecNo() )
+
+//  arrUslugi := collect_uslugi_new( rec_human )   // выберем все коды услуг случая
 
   mo_current := glob_mo()
 
@@ -530,7 +532,7 @@ Function verify_sluch( fl_view, ft )
     Select HUMAN
     Set Order To 3
     find ( DToS( dEnd ) + cuch_doc )
-    Do While human->k_data == dEnd .and. cuch_doc == human->uch_doc .and. !Eof()
+    Do While human->k_data == dEnd .and. cuch_doc == human->uch_doc .and. !human->( Eof() )
       fl := human_->usl_ok == USL_OK_AMBULANCE .and. glob_kartotek == human->kod_k .and. rec_human != human->( RecNo() )
       If fl .and. human->schet > 0 .and. eq_any( human_->oplata, 2, 9 )
         fl := .f. // лист учёта снят по акту или выставлен повторно
@@ -539,14 +541,14 @@ Function verify_sluch( fl_view, ft )
         AAdd( ta, '"' + AllTrim( cuch_doc ) + '" повтор № карты вызова от ' + ;
           date_8( human->k_data ) + ' ' + AllTrim( human->fio ) )
       Endif
-      Skip
+      human->( dbSkip() )
     Enddo
   Endif
   // просмотр других случаев данного больного
   Select HUMAN
   Set Order To 2
   find ( Str( glob_kartotek, 7 ) )
-  Do While human->kod_k == glob_kartotek .and. !Eof()
+  Do While human->kod_k == glob_kartotek .and. !human->( Eof() )
     fl := ( rec_human != human->( RecNo() ) .and. Year( human->k_data ) > 2019 ) // прошлый год не смотрим вообще
     If fl .and. human->schet > 0 .and. eq_any( human_->oplata, 2, 9 )
       fl := .f. // лист учёта снят по акту (и выставлен повторно)
@@ -581,7 +583,7 @@ Function verify_sluch( fl_view, ft )
       If is_alldializ() .and. ( fl1 .or. fl2 ) .and. Year( human->k_data ) > 2018 // прошлый год не смотрим вообще
         Select HU
         find ( Str( human->kod, 7 ) )
-        Do While hu->kod == human->kod .and. !Eof()
+        Do While hu->kod == human->kod .and. !hu->( Eof() )
           lshifr1 := opr_shifr_tfoms( usl->shifr1, usl->kod, human->k_data )
           If is_usluga_tfoms( usl->shifr, lshifr1, human->k_data )
             lshifr := AllTrim( iif( Empty( lshifr1 ), usl->shifr, lshifr1 ) )
@@ -598,7 +600,7 @@ Function verify_sluch( fl_view, ft )
             Endif
           Endif
           Select HU
-          Skip
+          hu->( dbSkip() )
         Enddo
         If k > 1
           AAdd( a_dializ, { human->n_data, human->k_data, human_->USL_OK, human->OTD, k } ) // диализы не в кругл.стационаре
@@ -629,7 +631,7 @@ Function verify_sluch( fl_view, ft )
       Endif
       Select HU
       find ( Str( human->kod, 7 ) )
-      Do While hu->kod == human->kod .and. !Eof()
+      Do While hu->kod == human->kod .and. !hu->( Eof() )
         // если услуга в том же диапазоне лечения
         If Between( hu->date_u, cd1, cd2 )
           AAdd( u_other, { hu->u_kod, hu->date_u, hu->kol_1, hu_->profil, 0, human->n_data, human->k_data, human->OTD } )
@@ -653,7 +655,7 @@ Function verify_sluch( fl_view, ft )
           Endif
         Endif
         Select HU
-        Skip
+        hu->( dbSkip() )
       Enddo
       If is_period_amb
         AAdd( a_period_amb, { human->n_data, human->k_data, human_->profil, human->OTD, human->( RecNo() ), is_2_92_ } )
@@ -661,11 +663,11 @@ Function verify_sluch( fl_view, ft )
       Endif
       Select MOHU
       find ( Str( human->kod, 7 ) )
-      Do While mohu->kod == human->kod .and. !Eof()
+      Do While mohu->kod == human->kod .and. !mohu->( Eof() )
         If Between( mohu->date_u, cd1, cd2 ) // услуга в том же диапазоне лечения
           AAdd( u_other, { mohu->u_kod, mohu->date_u, mohu->kol_1, mohu->profil, 1 } )
         Endif
-        Skip
+        mohu->( dbSkip() )
       Enddo
     Endif
     // диспансеризация/профилактика взрослого населения
@@ -680,7 +682,7 @@ Function verify_sluch( fl_view, ft )
       Endif
     Endif
     Select HUMAN
-    Skip
+    human->( dbSkip() )
   Enddo
   Select HUMAN
   Set Order To 1
@@ -800,7 +802,7 @@ Function verify_sluch( fl_view, ft )
   If human_->USL_OK < USL_OK_AMBULANCE  // не скорая помощь
     Select HU
     find ( Str( human->kod, 7 ) )
-    Do While hu->kod == human->kod .and. !Eof()
+    Do While hu->kod == human->kod .and. !hu->( Eof() )
       lshifr1 := opr_shifr_tfoms( usl->shifr1, usl->kod, human->k_data )
       If is_usluga_tfoms( usl->shifr, lshifr1, human->k_data )
         lshifr := iif( Empty( lshifr1 ), usl->shifr, lshifr1 )
@@ -811,7 +813,7 @@ Function verify_sluch( fl_view, ft )
         Endif
       Endif
       Select HU
-      Skip
+      hu->( dbSkip() )
     Enddo
   Endif
   // проверим не этап ли это углубленной диспансеризации после COVID
@@ -856,7 +858,7 @@ Function verify_sluch( fl_view, ft )
 
   lshifr := ''
   lshifr1 := ''
-  Do While hu->kod == human->kod .and. !Eof()
+  Do While hu->kod == human->kod .and. !hu->( Eof() )
     lshifr1 := opr_shifr_tfoms( usl->shifr1, usl->kod, human->k_data )
     If is_usluga_tfoms( usl->shifr, lshifr1, human->k_data, @auet, @lbukva, @lst, @lidsp, @sVidpom )
       If Empty( hu->kol_1 )
@@ -1520,7 +1522,7 @@ Function verify_sluch( fl_view, ft )
       hu->kol_1 } )         // 5
     Endif
     Select HU
-    Skip
+    hu->( dbSkip() )
   Enddo
 
   if ! valid_date( human_2->NPR_DATE, 0d20000101, 0d20301231, .t. )
@@ -1534,12 +1536,12 @@ Function verify_sluch( fl_view, ft )
     mdiagnoz := diag_to_array(, , , , .t. )
     Select HU
     find ( Str( human->kod, 7 ) )
-    Do While hu->kod == human->kod .and. !Eof()
+    Do While hu->kod == human->kod .and. !hu->( Eof() )
       hu_->( g_rlock( 'forever' ) )
       If l_mdiagnoz_fill .and. eq_any( human_->profil, 6, 34 )
         hu_->kod_diag := mdiagnoz[ 1 ]
       Endif
-      Skip
+      hu->( dbSkip() )
     Enddo
   Elseif is_covid
     If l_mdiagnoz_fill .and. !( PadR( mdiagnoz[ 1 ], 5 ) == 'Z01.7' )
@@ -1661,7 +1663,7 @@ Function verify_sluch( fl_view, ft )
     arr := {}
     Select ONKNA // онконаправления
     find ( Str( human->kod, 7 ) )
-    Do While onkna->kod == human->kod .and. !Eof()
+    Do While onkna->kod == human->kod .and. !onkna->( Eof() )
       ++i
       AAdd( arr, { onkna->NAPR_DATE, ;
         onkna->NAPR_MO, ;
@@ -1704,7 +1706,7 @@ Function verify_sluch( fl_view, ft )
         Endif
       Endif
       Select ONKNA
-      Skip
+      onkna->( dbSkip() )
     Enddo
     If eq_any( human_->RSLT_NEW, 308, 309 )
       If AScan( arr, {| x| eq_any( x[ 3 ], 1, 4 ) } ) == 0
@@ -1731,7 +1733,7 @@ Function verify_sluch( fl_view, ft )
   //
   Select MOHU
   find ( Str( human->kod, 7 ) )
-  Do While mohu->kod == human->kod .and. !Eof()
+  Do While mohu->kod == human->kod .and. !mohu->( Eof() )
     lshifr := mosu->shifr1
     dbSelectArea( lalf )
     find ( PadR( lshifr, 20 ) )
@@ -1920,7 +1922,7 @@ Function verify_sluch( fl_view, ft )
     ltip_onko, ;            // 10 тип онкологического лечения
       .f. } )                  // 11 тип онкологического лечения ставим в услугу
     Select MOHU
-    Skip
+    mohu->( dbSkip() )
   Enddo
   v := 0
   If is_oncology == 2 // онкология
@@ -2036,7 +2038,7 @@ Function verify_sluch( fl_view, ft )
           // //aadd(ta, 'Дата взятия материала ' + date_8(onkdi->DIAG_DATE) + 'г. меньше КРИТИЧЕСКОЙ даты')
           // endif
         Endif
-        Do While onkdi->kod == human->kod .and. !Eof()
+        Do While onkdi->kod == human->kod .and. !onkdi->( Eof() )
           If onkdi->DIAG_TIP == 1
             AAdd( arr_onkdi1, { onkdi->DIAG_DATE, onkdi->DIAG_TIP, onkdi->DIAG_CODE, onkdi->DIAG_RSLT } )
             If onkdi->DIAG_RSLT > 0
@@ -2048,7 +2050,7 @@ Function verify_sluch( fl_view, ft )
               ++nimmun
             Endif
           Endif
-          Skip
+          onkdi->( dbSkip() )
         Enddo
       Endif
       If fl_krit_date // выполнено (до 1 сентября 2018 года)
@@ -2097,21 +2099,21 @@ Function verify_sluch( fl_view, ft )
     //
     Select ONKPR
     find ( Str( human->kod, 7 ) )
-    Do While onkpr->kod == human->kod .and. !Eof()
+    Do While onkpr->kod == human->kod .and. !onkpr->( Eof() )
       If !Between( onkpr->PROT, 0, 8 )  // цифры взяты из справочника N001.xml
         AAdd( ta, 'Некорректно записано противопоказание к проведению (отказ от проведения)' )
       Elseif onkpr->D_PROT > dEnd
         AAdd( ta, AllTrim( Lower( inieditspr( A__MENUVERT, getn001(), n1->prot_name ) ) ) + ' - дата регистрации больше даты окончания лечения' )
       Endif
       Select ONKPR
-      Skip
+      onkpr->( dbSkip() )
     Enddo
     // услуга обязательна для стационара и дневного стационара при проведении противоопухолевого лечения
     If human_->usl_ok < USL_OK_POLYCLINIC // 3
       arr_onk_usl := {}
       Select ONKUS
       find ( Str( human->kod, 7 ) )
-      Do While onkus->kod == human->kod .and. !Eof()
+      Do While onkus->kod == human->kod .and. !onkus->( Eof() )
         If Between( onkus->USL_TIP, 1, 6 )
           AAdd( arr_onk_usl, onkus->USL_TIP )
           k := iif( onkus->USL_TIP == 4, 3, onkus->USL_TIP )
@@ -2144,7 +2146,7 @@ Function verify_sluch( fl_view, ft )
           Endif
         Endif
         Select ONKUS
-        Skip
+        onkus->( dbSkip() )
       Enddo
       If Empty( arr_onk_usl )
         //
@@ -2193,7 +2195,7 @@ Function verify_sluch( fl_view, ft )
         // fl_zolend := .t.
         Select ONKLE
         find ( Str( human->kod, 7 ) )
-        Do While onkle->kod == human->kod .and. !Eof()
+        Do While onkle->kod == human->kod .and. !onkle->( Eof() )
           If Empty( onkle->REGNUM )
             AAdd( ta, 'не введен идентификатор лекарственного препарата - отредактируйте cписок лекарственных препаратов' )
             fl := .f.
@@ -2219,7 +2221,7 @@ Function verify_sluch( fl_view, ft )
             Endif
           Endif
           Select ONKLE
-          Skip
+          onkle->( dbSkip() )
         Enddo
         If fl
           If Empty( arr_lek )
@@ -2865,10 +2867,10 @@ Function verify_sluch( fl_view, ft )
   If Len( a_period_stac ) > 0 // .and. !is_s_dializ .and. !is_dializ .and. !is_perito
     Select HU
     find ( Str( human->kod, 7 ) )
-    Do While hu->kod == human->kod .and. !Eof()
+    Do While hu->kod == human->kod .and. !hu->( Eof() )
       AAdd( u_other, { hu->u_kod, hu->date_u, hu->kol_1, hu_->profil, 0, human->n_data, human->k_data, human->OTD } )
       Select HU
-      Skip
+      hu->( dbSkip() )
     Enddo
     Select HU
     Set Relation To
@@ -3076,9 +3078,9 @@ Function verify_sluch( fl_view, ft )
         s := ''
         Select PRPRK
         find ( Str( human_->profil, 3 ) )
-        Do While prprk->profil == human_->profil .and. !Eof()
+        Do While prprk->profil == human_->profil .and. !prprk->( Eof() )
           s += '"' + inieditspr( A__MENUVERT, getv020(), prprk->profil_k ) + '" '
-          Skip
+          prprk->( dbSkip() )
         Enddo
         If Empty( s )
           AAdd( ta, 'профиль медицинской помощи не оплачивается в ОМС' )
@@ -4963,7 +4965,7 @@ Function verify_sluch( fl_view, ft )
     Select HUMAN
     Set Order To 2
     find ( Str( glob_kartotek, 7 ) )
-    Do While human->kod_k == glob_kartotek .and. !Eof()
+    Do While human->kod_k == glob_kartotek .and. !human->( Eof() )
       If ( fl := ( yearEnd == Year( human->k_data ) .and. rec_human != human->( RecNo() ) ) )
         //
       Endif
@@ -4976,7 +4978,7 @@ Function verify_sluch( fl_view, ft )
       If fl .and. human_->idsp == 4 // лечебно-диагностическая процедура
         Select HU
         find ( Str( human->kod, 7 ) )
-        Do While hu->kod == human->kod .and. !Eof()
+        Do While hu->kod == human->kod .and. !hu->( Eof() )
           lshifr1 := opr_shifr_tfoms( usl->shifr1, usl->kod, human->k_data )
           If is_usluga_tfoms( usl->shifr, lshifr1, human->k_data )
             lshifr := AllTrim( iif( Empty( lshifr1 ), usl->shifr, lshifr1 ) )
@@ -4986,11 +4988,11 @@ Function verify_sluch( fl_view, ft )
             Endif
           Endif
           Select HU
-          Skip
+          hu->( dbSkip() )
         Enddo
       Endif
       Select HUMAN
-      Skip
+      human->( dbSkip() )
     Enddo
     Select HUMAN
     Set Order To 1
@@ -5031,7 +5033,7 @@ Function verify_sluch( fl_view, ft )
         For i := 1 To Len( a_rec_ffoms )
           Select HU
           find ( Str( a_rec_ffoms[ i, 1 ], 7 ) )
-          Do While hu->kod == a_rec_ffoms[ i, 1 ] .and. !Eof()
+          Do While hu->kod == a_rec_ffoms[ i, 1 ] .and. !hu->( Eof() )
             lshifr1 := opr_shifr_tfoms( usl->shifr1, usl->kod, human->k_data )
             If is_usluga_tfoms( usl->shifr, lshifr1, human->k_data )
               lshifr := AllTrim( iif( Empty( lshifr1 ), usl->shifr, lshifr1 ) )
@@ -5066,7 +5068,7 @@ Function verify_sluch( fl_view, ft )
               Exit
             Endif
             Select HU
-            Skip
+            hu->( dbSkip() )
           Enddo
           If fl
             Exit
