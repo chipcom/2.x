@@ -2659,7 +2659,7 @@ Function f1_view_otkrep_pr_nas( oBrow )
   oColumn := TBColumnNew( '  Кол-во;пациентов', {|| Str( krtf->kol, 6 ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
-  oColumn := TBColumnNew( ' Наименование файла', {|| PadR( krtf->FNAME, 20 ) } )
+  oColumn := TBColumnNew( ' ', {|| PadR( krtf->FNAME, 20 ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
   oColumn := TBColumnNew( ' К какому МО прикреплены', {|| PadR( ret_mo( krtf->mo_pr )[ _MO_SHORT_NAME ], 36 ) } )
@@ -3331,7 +3331,7 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
 
   Local i, j, k1, k, s, arr_csv, te := {}, kol1 := 0, kol2 := 0, kol3 := kol4 := 0, ;
     fl_et, au := {}, mmo_pr, md_prik, buf := save_maxrow(), old_mo := {}
-  Local _kod_error_zap := " ",  fl_ZAP := .F.
+  Local _kod_error_zap := ' ',  fl_ZAP := .F.
 
   stat_msg( 'Предварительная обработка' )
   StrFile( Space( 10 ) + 'Протокол обработки для файла ответа на запрос по сверке' + ;
@@ -3355,7 +3355,7 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
   Goto ( nkod_reestr )
    // список организаций 
   r_use( dir_exe() + '_mo_mo', , '_mo_mo' )
-  Index On Padr( FIELD->codem, 6 ) to ( cur_dir() + "tmp_mo" )
+  Index On Padr( FIELD->codem, 6 ) to ( cur_dir() + 'tmp_mo' )
   // Для коррекции HUMAN
   use_base( 'HUMAN' )
   select HUMAN
@@ -3458,9 +3458,9 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
       Select KART_
       g_rlock( forever ) 
       if len(alltrim(arr_csv[ i, CSV_A_ENP ])) > 15
-        if kart_->npolis != arr_csv[ i, CSV_A_ENP ] .or. kart_->spolis != "" .or. kart_->vpolis != 3
+        if kart_->npolis != arr_csv[ i, CSV_A_ENP ] .or. kart_->spolis != '' .or. kart_->vpolis != 3
           kart_->npolis := arr_csv[ i, CSV_A_ENP ]
-          kart_->spolis := ""
+          kart_->spolis := ''
           kart_->vpolis := 3
         endif
       endif  
@@ -3480,7 +3480,7 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
               g_rlock( forever ) 
               if len(alltrim(arr_csv[ i, CSV_A_ENP ])) > 15 
                 human_->npolis := arr_csv[ i, CSV_A_ENP ]
-                //human_->spolis := "" - думаю не надо - устарело
+                //human_->spolis := '' - думаю не надо - устарело
                 human_->vpolis := 3
               endif  
               unlock
@@ -3655,7 +3655,7 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
 
 Return Nil
 
-// 19.04.26 
+// 24.06.26 
 #define CSV_A_NREC     1
 #define CSV_A_PID      2    // Персональный идентификатор записи о ЗЛ в базе данных ТФОМС
 #define CSV_A_AID      3    // Персональный идентификатор записи - Заполняется в случае прикрепления ЗЛ застрахованного не в СМО ВО.
@@ -3671,7 +3671,7 @@ Return Nil
 #define CSV_A_DT_ZAPR  13   // Дата запроса для данного случая
 #define CSV_A_CERR     14   // ошибки     
   
-// 31.05.26 чтение в память и анализ CSV-файла ответа на запрос для НОВОЙ сверки 
+// 25.06.26 чтение в память и анализ CSV-файла ответа на запрос для НОВОЙ сверки 
 Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
 
   Local i, j, k1, k, s, arr_csv, te := {}, kol1 := 0, kol2 := 0, kol3 := kol4 := 0, ;
@@ -3700,7 +3700,7 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
   Goto ( nkod_reestr )
   // список организаций 
   r_use( dir_exe() + '_mo_mo', , '_mo_mo' )
-  Index On Padr( FIELD->mcod, 6 ) to ( cur_dir() + "tmp_mo" )
+  Index On Padr( FIELD->mcod, 6 ) to ( cur_dir() + 'tmp_mo' )
   // Для коррекции HUMAN
   use_base( 'HUMAN' )
   select HUMAN
@@ -3744,6 +3744,13 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
       For j := 1 To NumToken( s, ',', 1 )
         AAdd( arr_csv[ i, CSV_A_CERR ], Int( Val( AllTrim( Token( s, ',', j, 1 ) ) ) ) )
       Next
+    //  mydebug(,'-----------------')
+    //  mydebug(,print_array(arr_csv[ i, CSV_A_CERR ] ))
+    elseif alltrim(arr_csv[ i, CSV_A_SMO ]) == '34000' // пациент еще не определен в СМО      
+      j := 1
+      AAdd(arr_csv[ i, CSV_A_CERR ] , 999 )
+     // mydebug(,i)
+     // mydebug(,print_array(arr_csv[ i, CSV_A_CERR ] ))
     Endif
   Next
   _mo_mo->(dbCloseArea())
@@ -3802,7 +3809,7 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
         g_rlock( forever ) 
         if len( alltrim( arr_csv[ i, CSV_A_ENP ] ) ) > 15
           kart_->npolis := arr_csv[ i, CSV_A_ENP ]
-          kart_->spolis := ""
+          kart_->spolis := ''
           kart_->vpolis := 3
         endif  
         if Len( arr_csv[ i, CSV_A_CERR ] ) < 1 // !!!! уточнить
@@ -3941,7 +3948,8 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
     Next
     ASort( te, , , {| x, y| x[ 1 ] < y[ 1 ] } )
     StrFile( 'Список ошибок:' + hb_eol(), cFileProtokol, .t. )
-    Private mm_err := { { 'Не имеет текущего страхования', 708 }, ; // !!!
+    Private mm_err := { { 'Не имеет тeекущего страхования', 708 }, ; // !!!
+    { 'Пациент пока не закреплен за СМО - счета на МАМОЧКУ', 999 }, ;
     { 'ТФОМС не вернул никакой информации', -99 } } // !!!
     For j1 := 1 To Len( te )
       If AScan( mm_err, {| x| x[ 2 ] == te[ j1, 1 ] } ) > 0

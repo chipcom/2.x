@@ -364,7 +364,7 @@ Function f2_view_r_pr_nas( nKey, oBrow )
 
   Return ret
 
-// 25.02.26
+// 25.06.26
 Function f3_view_r_pr_nas( oBrow )
 
   Static si := 1, snfile := '', sarr_mo, sarr_err, sjmo, sjerr
@@ -377,6 +377,7 @@ Function f3_view_r_pr_nas( oBrow )
     mm_err := { ;
       { 'Не имеет текущего страхования', 708 }, ; // !!!
       { 'Прикрепление к МО отсутствует', 709 }, ; //
+      { 'Пациент пока не закреплен за СМО - счета на МАМОЧКУ', 999 }, ;
       { 'ТФОМС не вернул никакой информации', -99 } } // !!!
   Endif
   If Left( krtr->FNAME, 2 ) == 'MO'
