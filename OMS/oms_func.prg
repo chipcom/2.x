@@ -315,7 +315,41 @@ Function UslugaAccordancePRVS( lshifr, lvzros_reb, lprvs, ta, short_shifr, lvrac
 
   return nil
   
-// 07.06.24 собрать шифры услуг в случае
+// 25.06.26 собрать шифры услуг в случае
+function collect_uslugi_new( rec_number )
+
+  local human_number, human_uslugi, mohu_usluga
+  local tmp_select := select()
+  local arrUslugi := {}
+
+  human_number := hb_DefaultValue( rec_number, human->( recno() ) )
+  human_uslugi := hu->( recno() )
+  mohu_usluga := mohu->( recno() )
+  dbSelectArea( 'HU' )
+
+  hu->( dbSeek( str( human_number, 7 ) ) )
+  do while hu->kod == human_number .and. ! hu->( eof() )
+    aadd( arrUslugi, { alltrim( usl->shifr ), hu->u_kod, c4tod( hu->date_u ), hu->u_cena, ; 
+      hu->u_koef, hu->kod_vr, hu->kod_as, hu->kol, hu->stoim, hu->is_edit, hu->otd, ;
+      hu->kol_1, hu->stoim_1, hu->kol_rcp } )
+    hu->( dbSkip() )
+  enddo
+
+  hu->( dbGoto( human_uslugi ) )
+/*
+  dbSelectArea( 'MOHU' )
+  set relation to FIELD->u_kod into MOSU
+  mohu->( dbSeek( str( human_number, 7 ) ) )
+  do while mohu->kod == human_number .and. ! mohu->( eof() )
+    aadd( arrUslugi, alltrim( iif( empty( mosu->shifr ), mosu->shifr1, mosu->shifr ) ) )
+    mohu->( dbSkip() )
+  enddo
+  mohu->( dbGoto( mohu_usluga ) )
+*/
+  select( tmp_select )
+  return arrUslugi
+
+// 25.06.26 собрать шифры услуг в случае
 function collect_uslugi( rec_number )
 
   local human_number, human_uslugi, mohu_usluga
@@ -327,8 +361,8 @@ function collect_uslugi( rec_number )
   mohu_usluga := mohu->( recno() )
   dbSelectArea( 'HU' )
 
-  find ( str( human_number, 7 ) )
-  do while hu->kod == human_number .and. ! eof()
+  hu->( dbSeek( str( human_number, 7 ) ) )
+  do while hu->kod == human_number .and. ! hu->( eof() )
     aadd( arrUslugi, alltrim( usl->shifr ) )
     hu->( dbSkip() )
   enddo
@@ -337,8 +371,8 @@ function collect_uslugi( rec_number )
 
   dbSelectArea( 'MOHU' )
   set relation to FIELD->u_kod into MOSU
-  find ( str( human_number, 7 ) )
-  do while mohu->kod == human_number .and. ! eof()
+  mohu->( dbSeek( str( human_number, 7 ) ) )
+  do while mohu->kod == human_number .and. ! mohu->( eof() )
     aadd( arrUslugi, alltrim( iif( empty( mosu->shifr ), mosu->shifr1, mosu->shifr ) ) )
     mohu->( dbSkip() )
   enddo
