@@ -34,7 +34,7 @@ Function begin_task_oms()
 // проверка правильности ввода стоматологического статуса больного
 Function f_valid_status_st( get )
 
-  Local i, s := '', fl := .t.
+  Local i, s := '', fl := .t., c
 
   For i := 1 To Len( mstatus_st )
     If !Empty( c := SubStr( mstatus_st, i, 1 ) ) .and. !( c $ yes_d_plus )
@@ -983,21 +983,21 @@ Function oms_smena_otd()
             Set Order To 0
             Goto ( glob_perso )
             k := human->ishod
-            g_rlock( forever )
+            g_rlock( 'forever' )
             human->LPU := glob_uch[ 1 ] // код учреждения
             human->OTD := glob_otd[ 1 ] // код отделения
             If fl1
               use_base( 'mo_hu' )
               find ( Str( glob_perso, 7 ) )
               Do While mohu->kod == glob_perso .and. !Eof()
-                g_rlock( forever )
+                g_rlock( 'forever' )
                 mohu->otd := glob_otd[ 1 ] // код отделения
                 Skip
               Enddo
               use_base( 'human_u' )
               find ( Str( glob_perso, 7 ) )
               Do While hu->kod == glob_perso .and. !Eof()
-                g_rlock( forever )
+                g_rlock( 'forever' )
                 hu->otd := glob_otd[ 1 ] // код отделения
                 Skip
               Enddo
@@ -1042,11 +1042,12 @@ Function oms_smena_otd()
 
   Return Nil
 
-// 16.03.22 Удаление листка учета лечения больного
+// 26.06.26 Удаление листка учета лечения больного
 Function oms_del()
 
   Static sk := 1
-  Local buf, str_sem, j, k := 1, arr_m, fl := .t., lkod_k, lyear
+  Local buf, str_sem, j, k := 1, arr_m, fl := .t., lkod_k, lyear, fl_,  tmp_select, tt_fl := .T.
+  local hum_KOD_UP := 0
 
   If ! currentuser():isadmin()
     Return func_error( 4, err_admin() )
@@ -1077,7 +1078,29 @@ Function oms_del()
           fl := func_error( 10, 'Данный случай - часть двойного случая. Удаление запрещено!' )
         Endif
         If fl .and. human_->KOD_UP > 0
-          fl := func_error( 10, 'Данный случай выставлен повторно (по акту снятия). Удаление запрещено!' )
+          // проверяем на удаленный РАК
+     //     mydebug(,human_->(recno()))
+          hum_KOD_UP := human_->KOD_UP
+          tt_fl := .T.
+          tmp_select := Select()
+          r_use( dir_server() + 'mo_raksh', , 'RAKSH' )
+          select RAKSH
+          Index On Str( FIELD->kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' )
+          find (str(human->kod,7))
+          if found()
+            // запись была - смотрим что там 
+            if reksh->oplata == 2 // снято полностью с возможностью перевыствить
+              // 
+            else
+              tt_fl := .F.  
+            endif   
+          else
+            tt_fl := .F.   
+          endif  
+          Select ( tmp_select )
+          if tt_fl
+            fl := func_error( 10, 'Данный случай выставлен повторно (по акту снятия). Удаление запрещено!' )
+          endif  
         Endif
         If fl .and. human->ishod == 201 // диспансеризация I этап
           lkod_k := human->kod_k
@@ -1099,7 +1122,7 @@ Function oms_del()
           Select PP // приемный покой
           find ( Str( glob_perso, 7 ) )
           If Found() .and. human->kod_k == pp->kod_k // тот же пациент
-            g_rlock( forever )
+            g_rlock( 'forever' )
             pp->K_DATA := CToD( '' )  // дата окончания лечения
             pp->K_TIME := ''        // время выписки
             flag_pp := .t.
@@ -1141,7 +1164,7 @@ Function oms_del()
           deleterec( .t., .f. )
           Select HUMAN
           deleterec( .t., .f. )  // без пометки на удаление
-          g_rlock( forever )
+          g_rlock( 'forever' )
           Replace human->schet With -1  // (вместо нуля)
           // удаляем онкологию
           g_use( dir_server() + 'mo_onkna', dir_server() + 'mo_onkna', 'NAPR' ) // онконаправления
@@ -1213,7 +1236,14 @@ Function oms_del()
             Endif
             deleterec( .t. )
           Enddo
-
+          if !tt_fl //заплатка удаления дублей
+            select human_
+            goto hum_KOD_UP 
+            g_rlock( 'forever' )
+            if human_->oplata == 9
+              human_->oplata := 1  // вместо 9
+            endif  
+          endif
           Close databases
           write_work_oper( glob_task, OPER_USL, 3, j )
           write_work_oper( glob_task, OPER_LIST, 3 )
@@ -1306,7 +1336,7 @@ Function f1oms_zav_lech( k )
         @ Row(), Col() Say full_date( human->k_data ) Color cDataCSay
         @ r + 5, 12 Say 'Сумма лечения '
         @ Row(), Col() Say lstr( human->cena_1, 12, 2 ) Color cDataCSay
-        If f_esc_enter( 1 ) .and. g_rlock( forever )
+        If f_esc_enter( 1 ) .and. g_rlock( 'forever' )
           human->TIP_H := if( k == 3, B_END, B_STANDART )
           stat_msg( if( k == 1, 'Лечение завершено', 'Убрана отметка о завершении лечения' ) + '!' )
           mybell( 0.5, OK )
@@ -1377,7 +1407,7 @@ Function f1oms_zav_lech( k )
                 If g_slock( str_sem ) // если человек не заблокирован
                   Select HUMAN
                   find ( Str( tmp->kod, 7 ) )
-                  If Found() .and. g_rlock( forever )
+                  If Found() .and. g_rlock( 'forever' )
                     human->TIP_H := B_STANDART
                     Unlock
                   Endif
@@ -1491,7 +1521,7 @@ Function f3oms_zav_lech( nKey, oBrow )
           deleterec( .t., .f. )
           Select HUMAN
           deleterec( .t., .f. )  // без пометки на удаление
-          g_rlock( forever )
+          g_rlock( 'forever' )
           Replace human->schet With -1  // (вместо нуля)
           Unlock
         Endif
@@ -1866,7 +1896,7 @@ Function f2ret_oms_human( nkey )
                          1,'W+/N','N+/N',maxrow() - 2, ,'W+/N,N/BG' ) == 2*/
       Go Top
       Do While !Eof()
-        human_->( g_rlock( forever ) )
+        human_->( g_rlock( 'forever' ) )
         human_->OPLATA    := 0 // уберём '2', если отредактировали запись из реестра СП и ТК
         human_->ST_VERIFY := 0 // снова ещё не проверен
         Skip
@@ -1988,7 +2018,7 @@ Function f2ret_oms_human( nkey )
           saveto( cur_dir() + 'rdl_report.xlsx' )
         Else
           Select( tmpSelect )
-          func_error( 4, "Отчет не формировался !" )
+          func_error( 4, 'Отчет не формировался !' )
         Endif
 
       Endif
@@ -2644,29 +2674,29 @@ Function f2ret_oms_human( nkey )
       mas_otchet[ 14, 4 ] += mas_otchet[ 17, 4 ] + mas_otchet[ 18, 4 ] + mas_otchet[ 19, 4 ] + mas_otchet[ 20, 4 ] + mas_otchet[ 21, 4 ] + ;
         mas_otchet[ 22, 4 ] + mas_otchet[ 23, 4 ]
       //
-      add_string("" )
-      add_string(padc("Отказы по план-заказу",100))
+      add_string( '' )
+      add_string( padc( 'Отказы по план-заказу', 100 ) )
       add_string( '                                                          Взрослые   Дети     Итого         Взрослые     Дети    Итого' )
       smm1 := smm2 := smm3 := smm4 := 0
       ii :=0
       for i := 1 to len(arrPZ)
         if arr_sv[i,1] > 0 .or.  arr_sv[i,2] > 0
            ++ii
-           add_string(padl(lstr(ii),3) +" "+ padr(arrPZ[i,3],49)+ ;
-                      PadL( lstr(arr_sv[i,3]),10)+PadL( lstr(arr_sv[i,4]),9)+PadL( lstr(arr_sv[i,3]+arr_sv[i,4]),9)+ "  сумма "+;
-            put_kop(arr_sv[i,1],10)+put_kop(arr_sv[i,2],11)+put_kop(arr_sv[i,1]+arr_sv[i,2],11))
-           smm1 += arr_sv[i,3]
-           smm2 += arr_sv[i,4]
-           smm3 += arr_sv[i,1]
-           smm4 += arr_sv[i,2]
+           add_string( padl( lstr( ii ), 3 ) + ' ' + padr( arrPZ[ i, 3 ], 49 ) + ;
+                      PadL( lstr( arr_sv[ i, 3 ] ), 10 ) + PadL( lstr( arr_sv[ i, 4 ] ), 9 ) + PadL( lstr( arr_sv[ i, 3 ] + arr_sv[ i, 4 ] ), 9 ) + '  сумма ' + ;
+            put_kop( arr_sv[ i, 1 ], 10 ) + put_kop( arr_sv[ i, 2 ], 11 ) + put_kop( arr_sv[ i, 1 ] + arr_sv[ i, 2 ], 11 ) )
+           smm1 += arr_sv[ i, 3 ]
+           smm2 += arr_sv[ i, 4 ]
+           smm3 += arr_sv[ i, 1 ]
+           smm4 += arr_sv[ i, 2 ]
         endif  
       next
-      add_string("-------------------------------------------------------------------------------------------------------------------------" )
-      add_string(padl(" ИТОГО:   ",53)+ ;
-        PadL( lstr(smm1),10)+PadL( lstr(smm2),9)+PadL( lstr(smm1+smm2),9)+ "  сумма "+; 
-        put_kop(smm3,10)+put_kop(smm4,11)+put_kop(smm3+smm4,11))
+      add_string( '-------------------------------------------------------------------------------------------------------------------------' )
+      add_string( padl( ' ИТОГО:   ', 53 ) + ;
+        PadL( lstr( smm1 ), 10 ) + PadL( lstr( smm2 ), 9 ) + PadL( lstr( smm1 + smm2 ), 9 ) + '  сумма ' + ;
+        put_kop( smm3, 10 ) + put_kop( smm4, 11 ) + put_kop( smm3 + smm4, 11 ) )
 
-      add_string("" )
+      add_string( '' )
       //
       add_string( '                                                          Взрослые   Дети     Итого         Взрослые     Дети    Итого' )
       add_string( ' 1 = 3+5+31+37 Всего, в том числе                      ' + prn_novor( mas_otchet, 1 ) )
@@ -2737,19 +2767,19 @@ Function f2ret_oms_human( nkey )
       Select ( tmp_1 )
       Go Top
       Do While !Eof()
-        human_->( g_rlock( forever ) )
+        human_->( g_rlock( 'forever' ) )
         human_->OPLATA    := 0 // уберём '2', если отредактировали запись из реестра СП и ТК
         human_->ST_VERIFY := 0 // снова ещё не проверен
         //
         Select ( 'HU' )
         find ( Str( human->kod, 7 ) )
         if( hu->u_kod == 217 ) // 611
-          hu->( g_rlock( forever ) )
+          hu->( g_rlock( 'forever' ) )
           hu->u_kod := 220  // 614
         Endif
         //
         if( hu->u_kod == 219 )
-          hu->( g_rlock( forever ) )
+          hu->( g_rlock( 'forever' ) )
           hu->u_kod := 220
         Endif
         //
