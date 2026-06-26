@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 25.06.26 
+// 26.06.26 
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -5200,7 +5200,9 @@ Function verify_sluch( fl_view, ft )
   if ( human_->USL_OK == USL_OK_POLYCLINIC ) .and. ( len( arr_povod ) == 1 )
     for counter := 1 to len( arrUslugi )
       mPCEL := getPCEL_usl( arrUslugi[ counter ] )
-      human_->P_CEL := mPCEL
+      if ! Empty( mPCEL )
+        human_->P_CEL := mPCEL
+      endif
     next
   endif
 

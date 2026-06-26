@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 24.06.26
+// 26.06.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -354,7 +354,8 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
               ( ascan( a_usl_name, '2.76.103' ) > 0 ) .or. ( ascan( a_usl_name, '2.76.104' ) > 0 )
           s := '2.7'
         Endif
-        mo_add_xml_stroke( oSL, 'P_CEL', s )
+//        mo_add_xml_stroke( oSL, 'P_CEL', s )
+        mo_add_xml_stroke( oSL, 'P_CEL', human_->P_CEL )
         mo_add_xml_stroke( oSL, 'MOP', lstr( human->MOP ) )
       Endif
     Endif
