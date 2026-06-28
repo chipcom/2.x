@@ -137,7 +137,7 @@ Function monitoring_vid_pom()
               lshifr := iif( Empty( lshifr1 ), usl->shifr, lshifr1 )
               ta := f14tf_nastr( @lshifr,, d2_year )
               lshifr := AllTrim( lshifr )
-              AAdd( au, { lshifr, hu->kol_1, Round( hu->stoim_1 * koef, 2 ), 0, 0, hu->kol_1 } )
+              AAdd( au, { lshifr, hu->kol_1, Round( iif( hu->usl_repl == 1, 0, hu->stoim_1 ) * koef, 2 ), 0, 0, hu->kol_1 } )
               If eq_any( Left( lshifr, 5 ), '2.78.', '2.89.' )
                 kp := 1
                 vid_vp := 2 // обращения с лечебной целью

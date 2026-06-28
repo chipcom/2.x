@@ -1437,7 +1437,7 @@ Function f1pz1statist( arr_otd, par )
         Endif
         tmp->kol += hu->kol_1
         tmp->uet += muet
-        tmp->sum += hu->stoim_1 * koef
+        tmp->sum += iif(hu->usl_repl == 1,0,hu->stoim_1) * koef
         If su == 4  // Наработка по врачам (список услуг)
           Select TMP1
           find ( Str( hu->kod_vr, 4 ) + Str( hu->u_kod, 4 ) )
@@ -1452,7 +1452,7 @@ Function f1pz1statist( arr_otd, par )
           Endif
           tmp1->kol += hu->kol_1
           tmp1->uet += muet
-          tmp1->sum += hu->stoim_1 * koef
+          tmp1->sum += iif(hu->usl_repl == 1,0,hu->stoim_1) * koef
         Endif
         If Empty( lshifr := lshifr1 )
           lshifr := usl->shifr
@@ -1478,7 +1478,7 @@ Function f1pz1statist( arr_otd, par )
               as[ k, 1 ] += hu->kol_1
               as[ k, 2 ] += muet
             Endif
-            as[ k, 3 ] += hu->stoim_1
+            as[ k, 3 ] += iif( hu->usl_repl == 1, 0, hu->stoim_1 )
           Endif
         Next
       Else
@@ -1555,7 +1555,7 @@ Function f1pz1statist( arr_otd, par )
             Elseif eq_any( k, 3, 4, 5 )
               tfoms_pz[ 2 ] += mkol
             Endif
-            msum := hu->stoim_1 * koef
+            msum := iif( hu->usl_repl == 1, 0, hu->stoim_1 ) * koef
             If eq_any( k, 9, 10 )  // УЕТ для стоматологий
               suet += muet
             Elseif i16 > 0

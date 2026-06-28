@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 19.04.26 ä®à¬  14-Œ…„ (ŽŒ‘)
+// 00.06.26 ä®à¬  14-Œ…„ (ŽŒ‘)
 Function forma14_med_oms()
 
   Static group_ini := 'f14_med_oms'
@@ -356,31 +356,55 @@ Function forma14_med_oms()
              
               If PadR( AllTrim( lshifr ), 5 ) == '60.4.'
                 // KT
-                arr_pol3000[ 23, 4 ] += Round( hu->stoim_1 * koef, 2 )
+                if hu->usl_repl == 1 
+                  arr_pol3000[ 23, 4 ] += Round( 0 * koef, 2 )
+                else  
+                  arr_pol3000[ 23, 4 ] += Round( hu->stoim_1 * koef, 2 )
+                endif  
                 arr_pol3000[ 23, 2 ] += 1
                 arr_pol1[ 6, 2 ] += 1
                 If is_inogoro
-                  arr_pol3000[ 23, 5 ] += Round( hu->stoim_1 * koef, 2 )
+                  if hu->usl_repl == 1 
+                    arr_pol3000[ 23, 5 ] += Round( 0 * koef, 2 )
+                  else
+                    arr_pol3000[ 23, 5 ] += Round( hu->stoim_1 * koef, 2 )
+                  endif
                   arr_pol3000[ 23, 3 ] += 1
                   arr_pol1[ 6, 3 ] += 1
                 Endif
               Elseif PadR( AllTrim( lshifr ), 5 ) == '60.5.'
                 // Œ’
-                arr_pol3000[ 24, 4 ] += Round( hu->stoim_1 * koef, 2 )
+                if hu->usl_repl == 1 
+                  arr_pol3000[ 24, 4 ] += Round( 0 * koef, 2 )
+                else
+                  arr_pol3000[ 24, 4 ] += Round( hu->stoim_1 * koef, 2 )
+                endif
                 arr_pol3000[ 24, 2 ] += 1
                 arr_pol1[ 6, 2 ] += 1
                 If is_inogoro
-                  arr_pol3000[ 24, 5 ] += Round( hu->stoim_1 * koef, 2 )
+                  if hu->usl_repl == 1 
+                    arr_pol3000[ 24, 5 ] += Round( 0 * koef, 2 )
+                  else
+                    arr_pol3000[ 24, 5 ] += Round( hu->stoim_1 * koef, 2 )
+                  endif
                   arr_pol3000[ 24, 3 ] += 1
                   arr_pol1[ 6, 3 ] += 1
                 Endif
               Elseif PadR( AllTrim( lshifr ), 5 ) == '60.6.'
                 // “‡ˆ ‘‘‘
-                arr_pol3000[ 25, 4 ] += Round( hu->stoim_1 * koef, 2 )
+                if hu->usl_repl == 1
+                  arr_pol3000[ 25, 4 ] += Round( 0 * koef, 2 )
+                 else
+                  arr_pol3000[ 25, 4 ] += Round( hu->stoim_1 * koef, 2 )
+                endif
                 arr_pol3000[ 25, 2 ] += 1
                 arr_pol1[ 6, 2 ] += 1
                 If is_inogoro
-                  arr_pol3000[ 25, 5 ] += Round( hu->stoim_1 * koef, 2 )
+                  if hu->usl_repl == 1
+                    arr_pol3000[ 25, 5 ] += Round( 0 * koef, 2 )
+                  else
+                    arr_pol3000[ 25, 5 ] += Round( hu->stoim_1 * koef, 2 )
+                  endif
                   arr_pol3000[ 25, 3 ] += 1
                   arr_pol1[ 6, 3 ] += 1
                 Endif
@@ -571,7 +595,11 @@ Function forma14_med_oms()
               AAdd( arr_full_usl, lshifr )
               ta := f14tf_nastr( @lshifr, , d2_year )
               lshifr := AllTrim( lshifr )
-              AAdd( au, { lshifr, hu->kol_1, Round( hu->stoim_1 * koef, 2 ), 0, 0, hu->kol_1 } )
+              if hu->usl_repl == 1
+                AAdd( au, { lshifr, hu->kol_1, Round( 0 * koef, 2 ), 0, 0, hu->kol_1 } )
+              else
+                AAdd( au, { lshifr, hu->kol_1, Round( hu->stoim_1 * koef, 2 ), 0, 0, hu->kol_1 } )
+              endif  
               i16 := 0
               dbSelectArea( lal )
               find ( PadR( lshifr, 10 ) )
@@ -697,7 +725,11 @@ Function forma14_med_oms()
                     mkol1 := hu->kol_1
                   Endif
                   muet := 0
-                  msum := Round( hu->stoim_1 * koef, 2 )
+                  if hu->usl_repl == 1
+                    msum := 0
+                  else  
+                    msum := Round( hu->stoim_1 * koef, 2 )
+                  endif  
                   //
                   ii := 0
                   is_obsh := .f.

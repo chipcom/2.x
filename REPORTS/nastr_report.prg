@@ -2173,7 +2173,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
 
   Return Nil
 
-// 11.05.26
+// 00.06.26
 Static Function s1_mnog_poisk( cv, cf )
 
   Static a_stom_vp := { {}, {}, {} }
@@ -2919,8 +2919,12 @@ Static Function s1_mnog_poisk( cv, cf )
             i := AScan( arr_usl, {| x| x[ 1 ] == hu->u_kod } )
             If ( flu := ( i > 0 ) )
               fl1 := .f.
-              arr_usl[ i, 4 ] += hu->kol_1
-              arr_usl[ i, 5 ] += hu->stoim_1
+              arr_usl[ i, 4 ] += hu->kol_1 
+              if hu->usl_repl == 1
+                // сумма НОЛЬ 
+              else  
+                arr_usl[ i, 5 ] += hu->stoim_1
+              endif  
               arr_usl[ i, 6 ] += mrak_s
             Endif
           Elseif au[ iau, 1 ] == 2 .and. mn->uslugiF > 0
@@ -2933,7 +2937,11 @@ Static Function s1_mnog_poisk( cv, cf )
         Endif
         If flu
           mkol += &lal.->kol_1
-          mstoim += &lal.->stoim_1
+          if &lal.->usl_repl == 1
+            // сумма НОЛЬ 
+          else  
+            mstoim += &lal.->stoim_1
+          endif  
           If mem_trudoem == 2 // подсчитывать трудоёмкость
             If au[ iau, 1 ] == 1
               muet += round_5( hu->kol_1 * opr_uet( human->vzros_reb ), 4 )
