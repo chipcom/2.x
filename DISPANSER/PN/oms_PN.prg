@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 19.06.26 ПН - добавление или редактирование случая (листа учета)
+// 28.06.26 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -820,13 +820,23 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       @ ++j, 1 Say 'Категория учета ребенка' Get mkateg_uch ;
         reader {| x| menu_reader( x, mm_kateg_uch(), A__MENUVERT, , , .f. ) }
       ++j
+/*
       @ ++j, 1 Say 'Сроки профилактики' Get mn_data ;
         valid {| g| f_k_data( g, 1 ), ;
         iif( mvozrast < 18, nil, func_error( 4, 'Это взрослый пациент!' ) ), ;
         msvozrast := PadR( count_ymd( mdate_r, mn_data ), 40 ), ;
         .t. ;
         }
-      @ Row(), Col() + 1 Say '-' Get mk_data valid {| g| f_k_data( g, 2 ) }
+      @ Row(), Col() + 1 Say '-' Get mk_data valid {| g| f_k_data( g, 2 ) } 
+*/
+      @ ++j, 1 Say 'Сроки профилактики' Get mn_data ;
+        valid {| g| control_date_disp( g, 1, TIP_LU_PN, kod_kartotek ), ;
+        iif( mvozrast < 18, nil, func_error( 4, 'Это взрослый пациент!' ) ), ;
+        msvozrast := PadR( count_ymd( mdate_r, mn_data ), 40 ), ;
+        .t. ;
+        }
+      @ Row(), Col() + 1 Say '-' Get mk_data valid {| g| control_date_disp( g, 2, TIP_LU_PN, kod_kartotek ) } 
+
       @ Row(), Col() + 3 Get msvozrast When .f. Color color14
       @ ++j, 1 Say '№ амбулаторной карты' Get much_doc Picture '@!' ;
         When !( is_uchastok == 1 .and. is_task( X_REGIST ) ) ;
