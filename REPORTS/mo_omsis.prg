@@ -334,7 +334,7 @@ Static Function s33_statist( k3, k4 )
   Endif
   Return Nil
 
-//
+// 00.06.26
 Static Function s34_statist( k3, k4 )
 
   Local fl, js, k, p
@@ -383,16 +383,42 @@ Static Function s34_statist( k3, k4 )
         Endif
         If fl
           If !Empty( js )
-            tmp_os->p5 += p * hu->stoim_1 ; arr_uch[ 5 ] += p * hu->stoim_1
-            tmp_os->p6 += p * hu->kol_1   ; arr_uch[ 6 ] += p * hu->kol_1
+            if hu->usl_repl == 1
+              // αγ¬¬  ‹ 
+              tmp_os->p5 += p * 0
+              arr_uch[ 5 ] += p * 0
+            else  
+              tmp_os->p5 += p * hu->stoim_1
+              arr_uch[ 5 ] += p * hu->stoim_1
+            endif
+            tmp_os->p6 += p * hu->kol_1
+            arr_uch[ 6 ] += p * hu->kol_1
           Endif
-          tmp_os->p3 += hu->stoim_1   ; arr_uch[ 3 ] += hu->stoim_1
-          tmp_os->p4 += hu->kol_1     ; arr_uch[ 4 ] += hu->kol_1
+          if hu->usl_repl == 1
+            // αγ¬¬  ‹ 
+            tmp_os->p3 += 0
+            arr_uch[ 3 ] += 0
+          else  
+            tmp_os->p3 += hu->stoim_1
+            arr_uch[ 3 ] += hu->stoim_1
+          endif  
+          tmp_os->p4 += hu->kol_1
+          arr_uch[ 4 ] += hu->kol_1
         Else
           If Empty( js )
-            add_tmp_os( hu->stoim_1, hu->kol_1, 0, 0 )
+            if hu->usl_repl == 1
+              // αγ¬¬  ‹ 
+              add_tmp_os( 0, hu->kol_1, 0, 0 )
+            else  
+              add_tmp_os( hu->stoim_1, hu->kol_1, 0, 0 )
+            endif  
           Else
-            add_tmp_os( hu->stoim_1, hu->kol_1, p * hu->stoim_1, p * hu->kol_1 )
+            if hu->usl_repl == 1
+              // αγ¬¬  ‹ 
+              add_tmp_os( hu->stoim_1, hu->kol_1, 0, p * hu->kol_1 )
+            else  
+              add_tmp_os( hu->stoim_1, hu->kol_1, p * hu->stoim_1, p * hu->kol_1 )
+            endif
           Endif
         Endif
         Select HU
@@ -689,7 +715,7 @@ Function s52statist( nKey, oBrow )
   Endcase
   Return ret
 
-// 02.02.24
+// 00.06.26
 Function s53statist( ltip, arr_m, begin_date, end_date )
 
   Local i, j, k, s, buf := save_maxrow(), ;
@@ -848,8 +874,12 @@ Function s53statist( ltip, arr_m, begin_date, end_date )
                     arr_lp[ i, 2, i1, 2 ] += mkol
                     arr_lp[ i, 2, i1, 3 ] ++
                   Endif
-                  muet := 0
-                  msum := hu->stoim_1 * koef
+                  muet := 0 
+                  if hu->usl_repl == 1
+                    // αγ¬¬  ‹ 
+                  else  
+                    msum := hu->stoim_1 * koef
+                  endif  
                   If Between( k, 9, 10 )  // “…’ ¤«ο αβ®¬ β®«®£¨©
                     muet := round_5( mkol * ret_tfoms_uet( usl->shifr, lshifr1, human->vzros_reb ), 4 )
                   Endif
@@ -878,7 +908,11 @@ Function s53statist( ltip, arr_m, begin_date, end_date )
                     tmp->u_name := lname
                   Endif
                   tmp->kol += hu->kol_1
-                  tmp->sum += hu->stoim_1 * koef
+                  if hu->usl_repl == 1
+                    // αγ¬¬  ‹ 
+                  else  
+                    tmp->sum += hu->stoim_1 * koef
+                  endif  
                 Endif
               Next
             Endif

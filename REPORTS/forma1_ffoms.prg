@@ -700,7 +700,7 @@ Function f1forma1_ffoms(delta, arr_m, arr_smo, fl_month, _summa, _b1, _b2)
   endif
   return NIL
   
-** 24.11.21
+** 00.06.26
 Function f2forma1_ffoms(msmo, fl_month)
   Local tfoms_pz[6, 3], mkol, ta, i, ii, j, k, lshifr, lvidpom := 1, lshifr1, j1, fl, ;
         arr := {}, mkol_k := 0, mkol_1 := 0, mkol_2 := 0, mkol_55 := 0, lenp, ;
@@ -714,9 +714,9 @@ Function f2forma1_ffoms(msmo, fl_month)
     lshifr1 := opr_shifr_TFOMS(usl->shifr1, usl->kod, human->k_data)
     if is_usluga_TFOMS(usl->shifr, lshifr1, human->k_data)
       lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
-      if human_->USL_OK == 3 .and. hu->stoim_1 > 0 .and. ;  // только для п-ки
-                                    (i := ret_vid_pom(1, lshifr, human->k_data)) > 0
-        lvidpom := iif(eq_any(i, 1, 11, 12), 1, 3)
+      if human_->USL_OK == 3 .and. iif( hu->usl_repl == 1, .F., hu->stoim_1 > 0 ) .and. ;  // только для п-ки
+                                    ( i := ret_vid_pom( 1, lshifr, human->k_data ) ) > 0
+        lvidpom := iif( eq_any( i, 1, 11, 12 ), 1, 3 )
       endif
       fl := .f.
       if left(lshifr, 5) == '1.11.'

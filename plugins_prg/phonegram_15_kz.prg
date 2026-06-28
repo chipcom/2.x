@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 23.11.23 Телефонограмма №15 ВО КЗ
+// 00.06.26 Телефонограмма №15 ВО КЗ
 Function phonegram_15_kz()
   Local fl_exit := .f., i, j, k, v, koef, msum, ifin, ldate_r, y, m, buf := save_maxrow(), ;
     mkol, mdni, akslp, begin_date := SToD( '20170101' ), end_date := SToD( '20170630' )
@@ -62,7 +62,7 @@ Function phonegram_15_kz()
               mkol := 0 // диализ не учитываем количественно
             Endif
             If fl
-              akslp := f_cena_kslp( hu->stoim, lshifr, iif( human_->NOVOR == 0, human->date_r, human_->DATE_R2 ), human->n_data, human->k_data )
+              akslp := f_cena_kslp( iif( hu->usl_repl == 1, 0, hu->stoim ), lshifr, iif( human_->NOVOR == 0, human->date_r, human_->DATE_R2 ), human->n_data, human->k_data )
               If !Empty( akslp )
                 fl := .f.
               Endif
