@@ -7,7 +7,18 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 26.06.26 
+// соответствие с возвращаемым массивом из функции collect_uslugi_new()
+#define USL_SHIFR     1   // шифр услуги
+#define USL_U_KOD     2   // код услуги по справочнику uslugi.dbf
+#define USL_DATE      3   // дата выполнения услуги
+#define USL_CENA      4   // цена услуги
+#define USL_KOEF      5   // коэффициент услуги
+#define USL_VR        6   // врач окуазавший услугу
+#define USL_AS        7   // ассистент оказавший услугу
+#define USL_KOLVO     8   // количество услуг
+#define USL_OTD       9   // отделение в котором оказывалась услуга
+
+// 28.06.26 
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -32,7 +43,6 @@ Function verify_sluch( fl_view, ft )
   Local arrImplant
   Local arrLekPreparat, arrGroupPrep, mMNN
   Local flLekPreparat := .f.
-  Local arrUslugi := {} // массив содержаший коды услуг в случае 
   Local lTypeLUMedReab := .f.
   Local aUslMedReab
   Local obyaz_uslugi_med_reab, iUsluga
@@ -76,6 +86,10 @@ Function verify_sluch( fl_view, ft )
   local is_60_17_1 := .f., is_60_17_2 := .f., kol_60_17_100 := 0
   local first_2 // первые два символа МО прикрепления
   local arrOKATO := {}
+  Local arrUslugi := {} // массив содержаший коды услуг в случае 
+  Local arrUslugiHuman_U := {} // массив содержаший коды услуг в случае 
+  local arr_end_disp  // список услуг завершающих диспансеризацию
+  local arr_temp
 //  local cUIDSPMO
 
   Default fl_view To .t.
@@ -94,7 +108,7 @@ Function verify_sluch( fl_view, ft )
   mIDPC := ''
   rec_human := human->( RecNo() )
 
-//  arrUslugi := collect_uslugi_new( rec_human )   // выберем все коды услуг случая
+  arrUslugiHuman_U := collect_uslugi_new( rec_human )   // выберем все коды услуг случая
 
   mo_current := glob_mo()
 
@@ -4744,6 +4758,27 @@ Function verify_sluch( fl_view, ft )
     Endif
 
   Endif
+
+  // проверка последней услуги терапевта или педиатра при диспансеризации
+  if eq_any( lu_type, TIP_LU_DVN, TIP_LU_DDS, TIP_LU_DDSOP, TIP_LU_PN )
+    arr_temp := AClone( arrUslugiHuman_U )
+    if lu_type == TIP_LU_DVN
+      arr_end_disp := { '70.7.63', '70.7.64', '70.7.363', '70.7.364', '70.7.764', '70.7.765', '2.84.11', ;
+        '72.5.17', '72.5.18', '72.5.317', '72.5.318', '72.5.717', '72.5.718' }
+    elseif eq_any( lu_type, TIP_LU_DDS, TIP_LU_DDSOP, TIP_LU_PN )
+      arr_end_disp := { '70.5.100', '70.5.110', '70.6.100', '70.6.110', '2.94.1', '2.94.11' }
+      // отсортируем по дате, т.к. может быть второй этап
+      arr_temp := ASort( arr_temp, , , { | x, y | x[ USL_DATE ] > y[ USL_DATE ] })
+    endif
+    for i := 1 to Len( arr_end_disp )
+      if ( ( ifind := AScan( arr_temp, { | x | x[ USL_SHIFR ] == arr_end_disp[ i ] } ) ) > 0 ) 
+        if arr_temp[ iFind, USL_DATE ] != dEnd
+          AAdd( ta, 'дата приема терапевта/фельдшера/педиатра не равна дате окончания диспансеризации' )
+          exit
+        endif
+      endif
+    next
+  endif
 
   //
   // ПРОВЕРКА УСЛУГ С ИСКУСТВЕННЫМ ИНТЕЛЕКТОМ

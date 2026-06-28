@@ -315,7 +315,7 @@ Function UslugaAccordancePRVS( lshifr, lvzros_reb, lprvs, ta, short_shifr, lvrac
 
   return nil
   
-// 25.06.26 собрать шифры услуг в случае
+// 27.06.26 собрать шифры услуг в случае
 function collect_uslugi_new( rec_number )
 
   local human_number, human_uslugi, mohu_usluga
@@ -330,8 +330,7 @@ function collect_uslugi_new( rec_number )
   hu->( dbSeek( str( human_number, 7 ) ) )
   do while hu->kod == human_number .and. ! hu->( eof() )
     aadd( arrUslugi, { alltrim( usl->shifr ), hu->u_kod, c4tod( hu->date_u ), hu->u_cena, ; 
-      hu->u_koef, hu->kod_vr, hu->kod_as, hu->kol, hu->stoim, hu->is_edit, hu->otd, ;
-      hu->kol_1, hu->stoim_1, hu->kol_rcp } )
+      hu->u_koef, hu->kod_vr, hu->kod_as, hu->kol, hu->otd } )
     hu->( dbSkip() )
   enddo
 

@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 26.06.26
+// 27.06.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -344,6 +344,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         If lTypeLUOnkoDisp
           s := '1.3'
         Endif
+/*
         If ( AScan( a_usl_name, '2.80.67' ) > 0 ) .or. ( AScan( a_usl_name, '2.88.14' ) > 0 )
           s := '1.0'
           If human->K_DATA >= 0d20250401 .and. ( AScan( a_usl_name, '2.80.67' ) > 0 ) // письмо Мызгин А.В. от 14.04.25
@@ -354,6 +355,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
               ( ascan( a_usl_name, '2.76.103' ) > 0 ) .or. ( ascan( a_usl_name, '2.76.104' ) > 0 )
           s := '2.7'
         Endif
+*/
 //        mo_add_xml_stroke( oSL, 'P_CEL', s )
         mo_add_xml_stroke( oSL, 'P_CEL', human_->P_CEL )
         mo_add_xml_stroke( oSL, 'MOP', lstr( human->MOP ) )
