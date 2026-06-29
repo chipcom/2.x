@@ -1006,7 +1006,7 @@ Function f3_ff_uslugi( nKey )
   Set Order To 1
   Return ret
 
-// 31.01.17
+// 29.06.26
 Function f4_ff_uslugi( k, nKey )
 
   Local fl := .t., rec, v1
@@ -1042,8 +1042,12 @@ Function f4_ff_uslugi( k, nKey )
         Set Order To 4
         find ( mshifr1 )
         If Found()
-          fl := func_error( 4, 'Данный шифр ФФОМС уже встречается в справочнике!' )
-          mshifr1 := Space( 20 )
+          if glob_mo[ _MO_KOD_TFOMS ] == '805911'
+           // снят контроль на дубли
+          else  
+            fl := func_error( 4, 'Данный шифр ФФОМС уже встречается в справочнике!' )
+            mshifr1 := Space( 20 )
+          endif 
         Endif
       Endif
       If fl
