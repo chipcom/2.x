@@ -166,106 +166,110 @@ Function f3oms_edit()
           { ;
             'Редактирование листов учёта', ;
             'Создание файла ХОДАТАЙСТВА для отсылки в ТФОМС' ;
-          },,, color5 ) ) > 1
-        Return tfoms_hodatajstvo( arr_m, iRefr, i - 1 )
-      Endif
-      */
-      Private mr1 := T_ROW, regim_vyb := 2, p_del_error := ret_arr
-      kod_REFREASON_menu := iRefr
-      Do While .t.
-        r_use( dir_server() + 'mo_otd',, 'OTD' )
-        g_use( dir_server() + 'human_',, 'HUMAN_' )
-        r_use( dir_server() + 'human',, 'HUMAN' )
-        Set Relation To RecNo() into HUMAN_, To FIELD->otd into OTD
-        Use ( cur_dir() + 'tmp_h' ) new
-        Set Relation To FIELD->kod into HUMAN
-        Index On Upper( human->fio ) to ( cur_dir() + 'tmp_h' ) For FIELD->REFREASON == iRefr
-        If srec == NIL
-          Go Top
-        Else
-          Goto ( srec )
+            },,, color5 ) ) > 1
+          Return tfoms_hodatajstvo( arr_m, iRefr, i - 1 )
         Endif
-        mkod := 0
-        yes_h_otd := 2
-        buf_scr := SaveScreen()
-        box_shadow( MaxRow() -3, 2, MaxRow() -1, 77, color0 )
-        If alpha_browse( T_ROW, 2, MaxRow() -4, 77, 'f1ret_oms_human', color0, ret_arr[ 1 ], 'B/BG',, ;
-            .t.,, 'f21ret_oms_human', 'f2ret_oms_human',, ;
-            { '═', '░', '═', 'N/BG,W+/N,B/BG,BG+/B,R/BG,W+/R' } )
-          If ( glob_perso := tmp_h->kod ) == 0
-            func_error( 4, 'Не найдено нужных записей!' )
-          Elseif eq_any( human->ishod, 88, 89 )
-            func_error( 4, 'Данный случай - часть двойного случая. Редактирование запрещено!' )
-          Else
-            srec := tmp_h->( RecNo() )
-            mkod := glob_perso
-            glob_kartotek := human->kod_k
-            glob_k_fio := fio_plus_novor()
-            glob_otd[ 1 ] := human->otd
-            glob_otd[ 2 ] := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', human->otd )
-            If Len( glob_otd ) == 2
-              AAdd( glob_otd, human_->usl_ok )
+        */
+        Private mr1 := T_ROW, regim_vyb := 2, p_del_error := ret_arr
+        if iRefr == 905 // временно
+          hb_Alert( 'Обратитесь в ЧИП плюс!', 4 )
+        else
+          kod_REFREASON_menu := iRefr
+          Do While .t.
+            r_use( dir_server() + 'mo_otd',, 'OTD' )
+            g_use( dir_server() + 'human_',, 'HUMAN_' )
+            r_use( dir_server() + 'human',, 'HUMAN' )
+            Set Relation To RecNo() into HUMAN_, To FIELD->otd into OTD
+            Use ( cur_dir() + 'tmp_h' ) new
+            Set Relation To FIELD->kod into HUMAN
+            Index On Upper( human->fio ) to ( cur_dir() + 'tmp_h' ) For FIELD->REFREASON == iRefr
+            If srec == NIL
+              Go Top
             Else
-              glob_otd[ 3 ] := human_->usl_ok
+              Goto ( srec )
             Endif
-            k := ret_tip_lu()
-            If Len( glob_otd ) == 3
-              AAdd( glob_otd, k )
-            Else
-              glob_otd[ 4 ] := k
-            Endif
-            glob_uch[ 1 ] := human->LPU
-            glob_uch[ 2 ] := inieditspr( A__POPUPMENU, dir_server() + 'mo_uch', human->LPU )
-            fl_schet := ( human->schet > 0 )
-          Endif
-        Else
-          RestScreen( buf_scr )
-          Exit
-        Endif
-        RestScreen( buf_scr )
-        dbCloseAll()
-        If mkod > 0
-          lek_pr := check_oms_sluch_lek_pr( glob_perso )
-          yes_h_otd := old_yes_h_otd
-          If buf != NIL
-            rest_box( buf )
-          Endif
-          buf := box_shadow( 0, 41, 3, 77, color13 )
-          @ 1, 42 Say PadC( glob_otd[ 2 ], 35 ) Color color14
-          @ 2, 42 Say PadC( glob_k_fio, 35 ) Color color8
-          If lek_pr
-            mas_pmt := { 'Редактирование ~карточки', 'Редактирование ~услуг', 'Использованные ~лекарства' }
-          Else
-            mas_pmt := { 'Редактирование ~карточки', 'Редактирование ~услуг' }
-          Endif
-          If glob_otd[ 3 ] == 4 .or. ;
-              ( glob_otd[ 4 ] > 0 .and. ;
-                glob_otd[ 4 ] != TIP_LU_MED_REAB .and. ;
-                glob_otd[ 4 ] != TIP_LU_H_DIA .and. ;
-                glob_otd[ 4 ] != TIP_LU_P_DIA )
-            si := 1
-            ASize( mas_pmt, 1 )
-            Keyboard Chr( K_ENTER )
-          Endif
-          Do While ( i := popup_prompt( T_ROW, T_COL + 5, si, mas_pmt ) ) > 0
-            si := i
-            str_sem := 'Редактирование человека ' + lstr( glob_perso )
-            If g_slock( str_sem )
-              If i == 1
-                oms_sluch( glob_perso, glob_kartotek )
-              Elseif i == 2
-                oms_usl_sluch( glob_perso, glob_kartotek )
-              Elseif i == 3
-                oms_sluch_lek_pr( glob_perso, glob_kartotek )
+            mkod := 0
+            yes_h_otd := 2
+            buf_scr := SaveScreen()
+            box_shadow( MaxRow() -3, 2, MaxRow() -1, 77, color0 )
+            If alpha_browse( T_ROW, 2, MaxRow() -4, 77, 'f1ret_oms_human', color0, ret_arr[ 1 ], 'B/BG',, ;
+                .t.,, 'f21ret_oms_human', 'f2ret_oms_human',, ;
+                { '═', '░', '═', 'N/BG,W+/N,B/BG,BG+/B,R/BG,W+/R' } )
+              If ( glob_perso := tmp_h->kod ) == 0
+                func_error( 4, 'Не найдено нужных записей!' )
+              Elseif eq_any( human->ishod, 88, 89 )
+                func_error( 4, 'Данный случай - часть двойного случая. Редактирование запрещено!' )
+              Else
+                srec := tmp_h->( RecNo() )
+                mkod := glob_perso
+                glob_kartotek := human->kod_k
+                glob_k_fio := fio_plus_novor()
+                glob_otd[ 1 ] := human->otd
+                glob_otd[ 2 ] := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', human->otd )
+                If Len( glob_otd ) == 2
+                  AAdd( glob_otd, human_->usl_ok )
+                Else
+                  glob_otd[ 3 ] := human_->usl_ok
+                Endif
+                k := ret_tip_lu()
+                If Len( glob_otd ) == 3
+                  AAdd( glob_otd, k )
+                Else
+                  glob_otd[ 4 ] := k
+                Endif
+                glob_uch[ 1 ] := human->LPU
+                glob_uch[ 2 ] := inieditspr( A__POPUPMENU, dir_server() + 'mo_uch', human->LPU )
+                fl_schet := ( human->schet > 0 )
               Endif
-              g_sunlock( str_sem )
             Else
-              func_error( 4, 'В данный момент с карточкой этого пациента работает другой пользователь.' )
+              RestScreen( buf_scr )
               Exit
             Endif
+            RestScreen( buf_scr )
+            dbCloseAll()
+            If mkod > 0
+              lek_pr := check_oms_sluch_lek_pr( glob_perso )
+              yes_h_otd := old_yes_h_otd
+              If buf != NIL
+                rest_box( buf )
+              Endif
+              buf := box_shadow( 0, 41, 3, 77, color13 )
+              @ 1, 42 Say PadC( glob_otd[ 2 ], 35 ) Color color14
+              @ 2, 42 Say PadC( glob_k_fio, 35 ) Color color8
+              If lek_pr
+                mas_pmt := { 'Редактирование ~карточки', 'Редактирование ~услуг', 'Использованные ~лекарства' }
+              Else
+                mas_pmt := { 'Редактирование ~карточки', 'Редактирование ~услуг' }
+              Endif
+              If glob_otd[ 3 ] == 4 .or. ;
+                    ( glob_otd[ 4 ] > 0 .and. ;
+                  glob_otd[ 4 ] != TIP_LU_MED_REAB .and. ;
+                  glob_otd[ 4 ] != TIP_LU_H_DIA .and. ;
+                  glob_otd[ 4 ] != TIP_LU_P_DIA )
+                si := 1
+                ASize( mas_pmt, 1 )
+                Keyboard Chr( K_ENTER )
+              Endif
+              Do While ( i := popup_prompt( T_ROW, T_COL + 5, si, mas_pmt ) ) > 0
+                si := i
+                str_sem := 'Редактирование человека ' + lstr( glob_perso )
+                If g_slock( str_sem )
+                  If i == 1
+                    oms_sluch( glob_perso, glob_kartotek )
+                  Elseif i == 2
+                    oms_usl_sluch( glob_perso, glob_kartotek )
+                  Elseif i == 3
+                    oms_sluch_lek_pr( glob_perso, glob_kartotek )
+                  Endif
+                  g_sunlock( str_sem )
+                Else
+                  func_error( 4, 'В данный момент с карточкой этого пациента работает другой пользователь.' )
+                  Exit
+                Endif
+              Enddo
+            Endif
           Enddo
-        Endif
-      Enddo
+        endif
     Endif
     If buf != NIL
       rest_box( buf )
