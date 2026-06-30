@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 28.06.26 ПН - добавление или редактирование случая (листа учета)
+// 30.06.26 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -835,7 +835,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         msvozrast := PadR( count_ymd( mdate_r, mn_data ), 40 ), ;
         .t. ;
         }
-      @ Row(), Col() + 1 Say '-' Get mk_data valid {| g| control_date_disp( g, 2, TIP_LU_PN, kod_kartotek ) } 
+      @ Row(), Col() + 1 Say '-' Get mk_data valid {| g| control_date_disp( g, 2, TIP_LU_PN, kod_kartotek, mperiod ) } 
 
       @ Row(), Col() + 3 Get msvozrast When .f. Color color14
       @ ++j, 1 Say '№ амбулаторной карты' Get much_doc Picture '@!' ;

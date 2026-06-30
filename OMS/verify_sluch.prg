@@ -8,19 +8,24 @@
 #define BASE_ISHOD_RZD 500  //
 
 // соответствие с возвращаемым массивом из функции collect_uslugi_new()
-#define USL_SHIFR     1   // шифр услуги
-#define USL_U_KOD     2   // код услуги по справочнику uslugi.dbf
-#define USL_DATE      3   // дата выполнения услуги
-#define USL_CENA      4   // цена услуги
-#define USL_KOEF      5   // коэффициент услуги
-#define USL_VR        6   // врач окуазавший услугу
-#define USL_AS        7   // ассистент оказавший услугу
-#define USL_KOLVO     8   // количество услуг
-#define USL_OTD       9   // отделение в котором оказывалась услуга
+#define USL_RECNO     1   // номер записи в human_u.dbf
+#define USL_SHIFR     2   // шифр услуги
+#define USL_U_KOD     3   // код услуги по справочнику uslugi.dbf
+#define USL_DATE      4   // дата выполнения услуги
+#define USL_CENA      5   // цена услуги
+#define USL_KOEF      6   // коэффициент услуги
+#define USL_VR        7   // врач окуазавший услугу
+#define USL_AS        8   // ассистент оказавший услугу
+#define USL_KOLVO     9   // количество услуг
+#define USL_OTD      10   // отделение в котором оказывалась услуга
 
-// 28.06.26 
+// 30.06.26 
 Function verify_sluch( fl_view, ft )
 
+  Local arrUslugi := {} // массив содержаший коды услуг в случае 
+  Local arrUslugiHuman_U := {} // массив содержаший коды услуг в случае 
+  local arr_end_disp  // список услуг завершающих диспансеризацию
+  local arr_temp
   local mIDPC // код цели посещения по справочнику V025
   local arr_IDPC := {}  // массив для кодов целей посещения
   local arrUslugiOver // для проверки услуг пересекающихся случаев поликлиники
@@ -86,10 +91,6 @@ Function verify_sluch( fl_view, ft )
   local is_60_17_1 := .f., is_60_17_2 := .f., kol_60_17_100 := 0
   local first_2 // первые два символа МО прикрепления
   local arrOKATO := {}
-  Local arrUslugi := {} // массив содержаший коды услуг в случае 
-  Local arrUslugiHuman_U := {} // массив содержаший коды услуг в случае 
-  local arr_end_disp  // список услуг завершающих диспансеризацию
-  local arr_temp
 //  local cUIDSPMO
 
   Default fl_view To .t.

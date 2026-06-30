@@ -4,13 +4,15 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 29.06.26 проверка правильности ввода сроков диспансеризации
-Function control_date_disp( get, k, tip_lu, kod_kartotek )
+// 30.06.26 проверка правильности ввода сроков диспансеризации
+Function control_date_disp( get, k, tip_lu, kod_kartotek, period )
 
   // k = 1 - дата начала диспансеризации
   // k = 2 - дата окончания диспансеризации
 
   local ret := .t.
+
+  default period to 0
 
   If k == 1 .and. Year( mn_data ) < 2025
     mn_data := get:original
@@ -45,9 +47,8 @@ Function control_date_disp( get, k, tip_lu, kod_kartotek )
     human->( dbSeek( Str( kod_kartotek, 7 ) ) )
     Do While human->kod_k == kod_kartotek .and. ! human->( Eof() )
       if eq_any( tip_lu, TIP_LU_DDS, TIP_LU_DDSOP, TIP_LU_PN ) .and. ;
-        ( is_sluch_dispanser_deti_siroty( human->ishod ) .or. is_sluch_dispanser_profilaktika_deti( human->ishod ) )
-//        If !Empty( mk_data ) .and. human->K_DATA >= AddMonth( mk_data, -12 )
-        If !Empty( mk_data ) .and. ( Year( human->K_DATA ) == Year( mk_data ) )
+          ( is_sluch_dispanser_deti_siroty( human->ishod ) .or. is_sluch_dispanser_profilaktika_deti( human->ishod ) )
+        If !Empty( mk_data ) .and. ( Year( human->K_DATA ) == Year( mk_data ) ) .and. period > 15 // дети старше 2 лет
           mk_data := get:original
           hb_Alert( 'Уже проведена диспансеризация с ' + DToC( human->N_DATA ) + ' по ' + DToC( human->K_DATA ) + '!', 4 )
           ret := .f.
