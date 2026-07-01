@@ -4,7 +4,7 @@
 #include 'chip_mo.ch'
 #include 'tbox.ch'
 
-// 05.04.26 Редактирование случая с выбором по конкретной ошибке из ТФОМС
+// 01.07.26 Редактирование случая с выбором по конкретной ошибке из ТФОМС
 Function f3oms_edit()
 
   Static si := 1
@@ -171,9 +171,6 @@ Function f3oms_edit()
         Endif
         */
       Private mr1 := T_ROW, regim_vyb := 2, p_del_error := ret_arr
-      if iRefr == 905 // временно
-        hb_Alert( 'Обратитесь в ЧИП плюс!', 4 )
-      endif
       kod_REFREASON_menu := iRefr
       Do While .t.
         r_use( dir_server() + 'mo_otd',, 'OTD' )

@@ -234,6 +234,10 @@ Function verify_sluch( fl_view, ft )
     Next
   Endif
 
+  if ! is_dispanserizaciya( human->ishod )
+    human_->VIDPOM := define_vidpom( human->OTD, human->kod, human->K_DATA, human_->USL_OK )
+  endif
+
   if human_->VIDPOM == 0
 /*
     mm_lpu1 := get_f033_with_address( glob_mo()[ _MO_KOD_FFOMS ] )
@@ -5233,7 +5237,7 @@ Function verify_sluch( fl_view, ft )
     human_->POVOD := arr_povod[ 1, 1 ]
   Endif
 
-  if ( human_->USL_OK == USL_OK_POLYCLINIC ) .and. ( ( len( arr_povod ) == 1 ) .or. glob_mo()[ _MO_KOD_TFOMS ] == '805965' )
+  if ( human_->USL_OK == USL_OK_POLYCLINIC ) // .and. ( ( len( arr_povod ) == 1 ) .or. glob_mo()[ _MO_KOD_TFOMS ] == '805965' )
     for counter := 1 to len( arrUslugi )
       mPCEL := getPCEL_usl( arrUslugi[ counter ] )
       if ! Empty( mPCEL )
