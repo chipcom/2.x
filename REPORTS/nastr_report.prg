@@ -2937,11 +2937,15 @@ Static Function s1_mnog_poisk( cv, cf )
         Endif
         If flu
           mkol += &lal.->kol_1
-          if &lal.->usl_repl == 1
-            // сумма НОЛЬ 
-          else  
-            mstoim += &lal.->stoim_1
-          endif  
+          if au[ iau, 1 ] == 1
+            if (&lal.->usl_repl) == 1
+              // сумма НОЛЬ 
+            else  
+              mstoim += &lal.->stoim_1
+            endif  
+          else
+              mstoim += &lal.->stoim_1
+          endif    
           If mem_trudoem == 2 // подсчитывать трудоёмкость
             If au[ iau, 1 ] == 1
               muet += round_5( hu->kol_1 * opr_uet( human->vzros_reb ), 4 )
