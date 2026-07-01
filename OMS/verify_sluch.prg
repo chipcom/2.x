@@ -19,7 +19,7 @@
 #define USL_KOLVO     9   // количество услуг
 #define USL_OTD      10   // отделение в котором оказывалась услуга
 
-// 30.06.26 
+// 01.07.26 
 Function verify_sluch( fl_view, ft )
 
   Local arrUslugi := {} // массив содержаший коды услуг в случае 
@@ -5233,7 +5233,7 @@ Function verify_sluch( fl_view, ft )
     human_->POVOD := arr_povod[ 1, 1 ]
   Endif
 
-  if ( human_->USL_OK == USL_OK_POLYCLINIC ) .and. ( len( arr_povod ) == 1 )
+  if ( human_->USL_OK == USL_OK_POLYCLINIC ) .and. ( ( len( arr_povod ) == 1 ) .or. glob_mo()[ _MO_KOD_TFOMS ] == '805965' )
     for counter := 1 to len( arrUslugi )
       mPCEL := getPCEL_usl( arrUslugi[ counter ] )
       if ! Empty( mPCEL )
