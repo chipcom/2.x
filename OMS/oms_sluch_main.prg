@@ -735,6 +735,39 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       @ j, Col() + 1 Say 'МО прикрепления' Get mMO_PR ;
         reader {| x| menu_reader( x, get_f032_prik(), A__MENUVERT_SPACE, , , .f., , , .t. ) } // с возможностью очистки по SPACE
       //
+// перенес
+      ++j
+      rpp := j
+      @ j, 1 Say 'Условия оказания' Get MUSL_OK ;
+        reader {| x| menu_reader( x, tmp_V006, A__MENUVERT, , , .f. ) } ;
+        When diag_screen( 2 ) ;
+        valid {| g, o| iif( eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL ), ;
+        ( mMOP := Space( 25 ), m1MOP := 0, SetPos( rpp, 40 ),  DispOut( 'признак', cDataCGet ) ), ;
+        ( mp_per := Space( 25 ), m1p_per := 0, SetPos( rpp, 40 ),  DispOut( 'посещение', cDataCGet )  ) ), ;
+        update_get( 'mMOP' ), update_get( 'mp_per' ), f_valid_usl_ok( g, o )  }
+      If m1usl_ok == USL_OK_POLYCLINIC
+        @ j, 40 Say 'посещение'
+        @ j, 50 Get mMOP ;
+          reader {| x| menu_reader( x, tmp_V040, A__MENUVERT, , , .f., , , , 29 ) } ;
+          When m1usl_ok == USL_OK_POLYCLINIC
+      Endif
+
+      If eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
+        @ j, 40 Say 'признак'
+        @ j, 48 Get mp_per ;
+          reader {| x| menu_reader( x, mm_p_per, A__MENUVERT, , , .f. ) } ;
+          valid { | g, o | update_get( 'MF14_EKST' ), update_get( 'MF14_SKOR' ) } ;
+          When eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
+      Endif
+
+      @ ++j, 1 Say 'Госпитализирован' Get MF14_EKST ; 
+        reader {| x| menu_reader( x, mm_ekst(), A__MENUVERT, , , .f. ) } ;
+        valid {| g, o| f_valid_f14_ekst( g, o, m1p_per ) }
+      @ Row(), Col() + 3 Say 'Доставлен скорой помощью' Get MF14_SKOR ;
+        reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+        When M1F14_EKST == 1
+// конец переноса
+
       @ ++j, 1 Say 'Направление: дата' Get mNPR_DATE
       @ j, Col() + 1 Say 'из МО' Get mNPR_MO PICTURE '@S20';
         reader {| x| menu_reader( x, { {| k, r, c| f_get_mo( k, r, c ) } }, A__FUNCTION, , , .f. ) } ;
@@ -835,9 +868,9 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         When m1komu == 0 ;
         Valid func_valid_polis( m1vidpolis, mspolis, mnpolis )
       //
+/*
       ++j
       rpp := j
-//        reader {| x| menu_reader( x, tmp_V006, A__MENUVERT, , , .f., , , , 17 ) } ;
       @ j, 1 Say 'Мед.помощь: условия' Get MUSL_OK ;
         reader {| x| menu_reader( x, tmp_V006, A__MENUVERT, , , .f. ) } ;
         When diag_screen( 2 ) ;
@@ -860,12 +893,13 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
           When eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
       Endif
 
+*/
       If is_dop_ob_em()
         @ ++j, 3 Say 'вид объёмов специализированной медицинской помощи' Get mreg_lech ;
           reader {| x| menu_reader( x, mm_reg_lech, A__MENUVERT, , , .f. ) } ;
           When eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
       Endif
-//        reader {| x| menu_reader( x, tmp_V002, A__MENUVERT, , , .f. ) } ;
+
       @ ++j, 3 Say 'профиль мед.помощи' Get MPROFIL ;
         reader {| x| menu_reader( x, tmp_V002, A__MENUVERT, , , .f., , , , 27 ) } ;
         Valid f_valid2ad_cr( MK_DATA )
@@ -894,12 +928,14 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         Color colget_menu
 
       //
+/*
       @ ++j, 1 Say 'Госпитализирован' Get MF14_EKST ; 
         reader {| x| menu_reader( x, mm_ekst(), A__MENUVERT, , , .f. ) } ;
         valid {| g, o| f_valid_f14_ekst( g, o, m1p_per ) }
       @ Row(), Col() + 3 Say 'Доставлен скорой помощью' Get MF14_SKOR ;
         reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
         When M1F14_EKST == 1
+*/
       @ ++j, 3 Say 'вскрытие' Get MF14_VSKR ;
         reader {| x| menu_reader( x, mm_vskrytie, A__MENUVERT, , , .f. ) } ;
         When is_death( m1RSLT )
