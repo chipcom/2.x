@@ -234,11 +234,11 @@ Function verify_sluch( fl_view, ft )
     Next
   Endif
 
-  if ! is_dispanserizaciya( human->ishod )
-    human_->( g_rlock( 'forever' ) )
-    human_->VIDPOM := define_vidpom( human->OTD, human->kod, human->K_DATA, human_->USL_OK )
-    human_->( dbUnlock() )
-  endif
+//  if ! is_dispanserizaciya( human->ishod )
+//    human_->( g_rlock( 'forever' ) )
+//    human_->VIDPOM := define_vidpom( human->OTD, human->kod, human->K_DATA, human_->USL_OK )
+//    human_->( dbUnlock() )
+//  endif
 
   if human_->VIDPOM == 0
 /*
