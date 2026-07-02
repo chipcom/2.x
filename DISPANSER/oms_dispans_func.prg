@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 30.06.26 проверка правильности ввода сроков диспансеризации
+// 02.07.26 проверка правильности ввода сроков диспансеризации
 Function control_date_disp( get, k, tip_lu, kod_kartotek, period )
 
   // k = 1 - дата начала диспансеризации
@@ -41,24 +41,26 @@ Function control_date_disp( get, k, tip_lu, kod_kartotek, period )
   Endif
 
   If k == 2
-    r_use( dir_server() + 'human_',, 'HUMAN_' )
-    r_use( dir_server() + 'human', dir_server() + 'humankk', 'HUMAN' )
-    Set Relation To RecNo() into HUMAN_
-    human->( dbSeek( Str( kod_kartotek, 7 ) ) )
-    Do While human->kod_k == kod_kartotek .and. ! human->( Eof() )
-      if eq_any( tip_lu, TIP_LU_DDS, TIP_LU_DDSOP, TIP_LU_PN ) .and. ;
-          ( is_sluch_dispanser_deti_siroty( human->ishod ) .or. is_sluch_dispanser_profilaktika_deti( human->ishod ) )
-        If !Empty( mk_data ) .and. ( Year( human->K_DATA ) == Year( mk_data ) ) .and. period > 15 // дети старше 2 лет
-          mk_data := get:original
-          hb_Alert( 'Уже проведена диспансеризация с ' + DToC( human->N_DATA ) + ' по ' + DToC( human->K_DATA ) + '!', 4 )
-          ret := .f.
-          exit
+    if Empty( mkod ) // для новых листов учета
+      r_use( dir_server() + 'human_',, 'HUMAN_' )
+      r_use( dir_server() + 'human', dir_server() + 'humankk', 'HUMAN' )
+      Set Relation To RecNo() into HUMAN_
+      human->( dbSeek( Str( kod_kartotek, 7 ) ) )
+      Do While human->kod_k == kod_kartotek .and. ! human->( Eof() )
+        if eq_any( tip_lu, TIP_LU_DDS, TIP_LU_DDSOP, TIP_LU_PN ) .and. ;
+            ( is_sluch_dispanser_deti_siroty( human->ishod ) .or. is_sluch_dispanser_profilaktika_deti( human->ishod ) )
+          If !Empty( mk_data ) .and. ( Year( human->K_DATA ) == Year( mk_data ) ) .and. period > 15 // дети старше 2 лет
+              mk_data := get:original
+              hb_Alert( 'Уже проведена диспансеризация с ' + DToC( human->N_DATA ) + ' по ' + DToC( human->K_DATA ) + '!', 4 )
+              ret := .f.
+              exit
+            endif
         endif
-      endif
-      human->( dbSkip() )
-    Enddo
-    human_->( dbCloseArea() )
-    human->( dbCloseArea() )
+        human->( dbSkip() )
+      Enddo
+      human_->( dbCloseArea() )
+      human->( dbCloseArea() )
+    endif
   endif
 
   Return ret
