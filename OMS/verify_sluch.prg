@@ -19,7 +19,7 @@
 #define USL_KOLVO     9   // количество услуг
 #define USL_OTD      10   // отделение в котором оказывалась услуга
 
-// 01.07.26 
+// 02.07.26 
 Function verify_sluch( fl_view, ft )
 
   Local arrUslugi := {} // массив содержаший коды услуг в случае 
@@ -235,7 +235,9 @@ Function verify_sluch( fl_view, ft )
   Endif
 
   if ! is_dispanserizaciya( human->ishod )
+    human_->( g_rlock( 'forever' ) )
     human_->VIDPOM := define_vidpom( human->OTD, human->kod, human->K_DATA, human_->USL_OK )
+    human_->( dbUnlock() )
   endif
 
   if human_->VIDPOM == 0
