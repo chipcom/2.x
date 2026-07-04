@@ -3671,7 +3671,7 @@ Return Nil
 #define CSV_A_DT_ZAPR  13   // Дата запроса для данного случая
 #define CSV_A_CERR     14   // ошибки     
   
-// 25.06.26 чтение в память и анализ CSV-файла ответа на запрос для НОВОЙ сверки 
+// 04.07.26 чтение в память и анализ CSV-файла ответа на запрос для НОВОЙ сверки 
 Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
 
   Local i, j, k1, k, s, arr_csv, te := {}, kol1 := 0, kol2 := 0, kol3 := kol4 := 0, ;
@@ -3741,9 +3741,15 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
     s := arr_csv[ i, CSV_A_CERR ]
     arr_csv[ i, CSV_A_CERR ] := {}
     If !Empty( s )
-      For j := 1 To NumToken( s, ',', 1 )
-        AAdd( arr_csv[ i, CSV_A_CERR ], Int( Val( AllTrim( Token( s, ',', j, 1 ) ) ) ) )
-      Next
+      // коррекция массива ну умерших позднее
+      if 706 == Int( Val( AllTrim( Token( s, ',', 1, 1 ) ) ) ) .and. ;
+        arr_csv[ i, CSV_A_SMO_E ] >  arr_csv[ i, CSV_A_DT_ZAPR ] 
+         // массив не создаем
+      else 
+        For j := 1 To NumToken( s, ',', 1 )
+          AAdd( arr_csv[ i, CSV_A_CERR ], Int( Val( AllTrim( Token( s, ',', j, 1 ) ) ) ) )
+        Next
+      endif  
     //  mydebug(,'-----------------')
     //  mydebug(,print_array(arr_csv[ i, CSV_A_CERR ] ))
     elseif alltrim(arr_csv[ i, CSV_A_SMO ]) == '34000' // пациент еще не определен в СМО      
