@@ -5,16 +5,18 @@
 #require 'hbsqlit3'
 
 // 03.07.26
-function getPCEL_usl( shifr, kod, data ) 
+function getPCEL_usl( shifr ) //, kod, data ) 
 
   local ret := ''
-  local lshifr := alltrim( shifr ), lshifr1
+  local lshifr := alltrim( shifr )  //  , lshifr1
   local aHash := loadUsl_pcel()
 
-  lshifr1 := alltrim( opr_shifr_tfoms( shifr, kod, data ) )
+//  lshifr1 := alltrim( opr_shifr_tfoms( shifr, kod, data ) )
   
-  if hb_hHaskey( aHash, lshifr1 )
-    ret := aHash[ lshifr1 ]
+//  if hb_hHaskey( aHash, lshifr1 )
+//    ret := aHash[ lshifr1 ]
+  if hb_hHaskey( aHash, lshifr )
+    ret := aHash[ lshifr ]
   endif
   return ret
 

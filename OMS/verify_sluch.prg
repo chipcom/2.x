@@ -9,7 +9,7 @@
 
 // соответствие с возвращаемым массивом из функции collect_uslugi_new()
 #define USL_RECNO     1   // номер записи в human_u.dbf
-#define USL_SHIFR     2   // шифр услуги
+#define USL_SHIFR     2   // шифр услуги (реальный, после замены если есть)
 #define USL_U_KOD     3   // код услуги по справочнику uslugi.dbf
 #define USL_DATE      4   // дата выполнения услуги
 #define USL_CENA      5   // цена услуги
@@ -19,7 +19,7 @@
 #define USL_KOLVO     9   // количество услуг
 #define USL_OTD      10   // отделение в котором оказывалась услуга
 
-// 03.07.26 
+// 04.07.26 
 Function verify_sluch( fl_view, ft )
 
   Local arrUslugi := {} // массив содержаший коды услуг в случае 
@@ -109,7 +109,7 @@ Function verify_sluch( fl_view, ft )
   mIDPC := ''
   rec_human := human->( RecNo() )
 
-  arrUslugiHuman_U := collect_uslugi_new( rec_human )   // выберем все коды услуг случая
+  arrUslugiHuman_U := collect_uslugi_new( rec_human, human->k_data )   // выберем все коды услуг случая
 
   mo_current := glob_mo()
 
@@ -234,27 +234,6 @@ Function verify_sluch( fl_view, ft )
     Next
   Endif
 
-//  if ! is_dispanserizaciya( human->ishod )
-//    human_->( g_rlock( 'forever' ) )
-//    human_->VIDPOM := define_vidpom( human->OTD, human->kod, human->K_DATA, human_->USL_OK )
-//    human_->( dbUnlock() )
-//  endif
-
-  if human_->VIDPOM == 0
-/*
-    mm_lpu1 := get_f033_with_address( glob_mo()[ _MO_KOD_FFOMS ] )
-    cUIDSPMO := otd->LPU_1
-    str_lpu1 := ''
-    if ( ic := ascan( mm_lpu1, { | x | x[ 2 ] == cUIDSPMO } ) ) > 0
-      str_lpu1 := mm_lpu1[ ic, 1 ]
-    endif
-
-    AAdd( ta, 'не определен вид помощи по справочнику услуг ТФОМС [ вероятно неверно указано в справочнике для отделения <' ;
-      + AllTrim( otd->name ) + ' (' + AllTrim( otd->short_name ) + ')' ;
-      + '> "Структурное подразделение по ГИС ОМС" = <' + AllTrim( str_lpu1 ) + '> ]' )
-*/
-    AAdd( ta, 'не определен вид помощи по справочнику услуг ТФОМС' )
-  endif
   //
   // ПРОВЕРЯЕМ ДИАГНОЗЫ
   //
@@ -5239,15 +5218,43 @@ Function verify_sluch( fl_view, ft )
     human_->POVOD := arr_povod[ 1, 1 ]
   Endif
 
+  // определяем цель посещения для поликлиники
   if ( human_->USL_OK == USL_OK_POLYCLINIC ) // .and. ( ( len( arr_povod ) == 1 ) .or. glob_mo()[ _MO_KOD_TFOMS ] == '805965' )
 //    for counter := 1 to len( arrUslugi )
 //      mPCEL := getPCEL_usl( arrUslugi[ counter ] )
     for counter := 1 to len( arrUslugiHuman_U )
-      mPCEL := getPCEL_usl( arrUslugiHuman_U[ counter, USL_SHIFR ], arrUslugiHuman_U[ counter, USL_U_KOD ], human->k_data )
+//      mPCEL := getPCEL_usl( arrUslugiHuman_U[ counter, USL_SHIFR ], arrUslugiHuman_U[ counter, USL_U_KOD ], human->k_data )
+      mPCEL := getPCEL_usl( arrUslugiHuman_U[ counter, USL_SHIFR ] )
       if ! Empty( mPCEL )
         human_->P_CEL := mPCEL
       endif
     next
+    if Empty( human_->P_CEL )
+      AAdd( ta, 'не удалось определить цель посещения (P_CEL)' )
+    endif
+  endif
+
+  // проверяем вид помощи
+//  if ! is_dispanserizaciya( human->ishod )
+//    human_->( g_rlock( 'forever' ) )
+//    human_->VIDPOM := define_vidpom( human->OTD, human->kod, human->K_DATA, human_->USL_OK )
+//    human_->( dbUnlock() )
+//  endif
+
+  if human_->VIDPOM == 0
+/*
+    mm_lpu1 := get_f033_with_address( glob_mo()[ _MO_KOD_FFOMS ] )
+    cUIDSPMO := otd->LPU_1
+    str_lpu1 := ''
+    if ( ic := ascan( mm_lpu1, { | x | x[ 2 ] == cUIDSPMO } ) ) > 0
+      str_lpu1 := mm_lpu1[ ic, 1 ]
+    endif
+
+    AAdd( ta, 'не определен вид помощи по справочнику услуг ТФОМС [ вероятно неверно указано в справочнике для отделения <' ;
+      + AllTrim( otd->name ) + ' (' + AllTrim( otd->short_name ) + ')' ;
+      + '> "Структурное подразделение по ГИС ОМС" = <' + AllTrim( str_lpu1 ) + '> ]' )
+*/
+    AAdd( ta, 'не определен вид помощи по справочнику услуг ТФОМС' )
   endif
 
   If !valid_guid( human_->ID_PAC )
