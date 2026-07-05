@@ -315,13 +315,14 @@ Function UslugaAccordancePRVS( lshifr, lvzros_reb, lprvs, ta, short_shifr, lvrac
 
   return nil
   
-// 30.06.26 собрать шифры услуг в случае
-function collect_uslugi_new( rec_number )
+// 03.07.26 собрать шифры услуг в случае
+function collect_uslugi_new( rec_number, data )
 
   local human_number, human_uslugi, mohu_usluga
   local tmp_select := select()
   local arrUslugi := {}
-
+  local lshifr := ''
+ 
   human_number := hb_DefaultValue( rec_number, human->( recno() ) )
   human_uslugi := hu->( recno() )
   mohu_usluga := mohu->( recno() )
@@ -329,7 +330,9 @@ function collect_uslugi_new( rec_number )
 
   hu->( dbSeek( str( human_number, 7 ) ) )
   do while hu->kod == human_number .and. ! hu->( eof() )
-    aadd( arrUslugi, { hu->( RecNo() ), alltrim( usl->shifr ), hu->u_kod, c4tod( hu->date_u ), hu->u_cena, ; 
+    lshifr := alltrim( opr_shifr_tfoms( alltrim( usl->shifr ), hu->u_kod, data ) )
+//    aadd( arrUslugi, { hu->( RecNo() ), alltrim( usl->shifr ), hu->u_kod, c4tod( hu->date_u ), hu->u_cena, ; 
+    aadd( arrUslugi, { hu->( RecNo() ), lshifr, hu->u_kod, c4tod( hu->date_u ), hu->u_cena, ; 
       hu->u_koef, hu->kod_vr, hu->kod_as, hu->kol, hu->otd } )
     hu->( dbSkip() )
   enddo
