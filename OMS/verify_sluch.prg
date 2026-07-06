@@ -15,9 +15,13 @@
 #define USL_CENA      5   // цена услуги
 #define USL_KOEF      6   // коэффициент услуги
 #define USL_VR        7   // врач окуазавший услугу
-#define USL_AS        8   // ассистент оказавший услугу
-#define USL_KOLVO     9   // количество услуг
-#define USL_OTD      10   // отделение в котором оказывалась услуга
+#define USL_VR_PRVS21 8   // специальность врача окуазавшего услугу по справочнику V021
+#define USL_VR_PROF   9   // профиль врача окуазавшего услугу
+#define USL_AS       10   // ассистент оказавший услугу
+#define USL_KOLVO    11   // количество услуг
+#define USL_OTD      12   // отделение в котором оказывалась услуга
+#define USL_ZAK_SL   13   // признак оплаты по законченному случаю
+#define USL_SVIDPOM  14   // виды оказываемой медицинской помощи
 
 // 04.07.26 
 Function verify_sluch( fl_view, ft )
@@ -5271,7 +5275,7 @@ altd()
 
   Return ( _ocenka >= 5 )
 
-// 04.07.26
+// 06.07.26
 function define_vidpom_new( arr_HU, otd, kod_hum, mdate, usl_ok )
 
   Local tmpselect, i, lshifr1, mshifr, sVidpoms, lst

@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 01.06.26
+// 06.07.26
 function define_vidpom( otd, kod_hum, mdate, usl_ok )
 
   Local tmpselect, lshifr1, mshifr, sVidpoms, lst
@@ -321,8 +321,16 @@ function collect_uslugi_new( rec_number, data )
   local human_number, human_uslugi, mohu_usluga
   local tmp_select := select()
   local arrUslugi := {}
-  local lshifr := ''
- 
+  local lshifr := '', mshifr := ''
+  local lAliasPers := .f.
+  local m_vrPRVS_21 := 0, m_vrProfil := 0
+  local lst, sVidpoms
+
+  if Select( 'P2' ) == 0
+    r_use( dir_server() + 'mo_pers', , 'P2' )
+    lAliasPers := .t.
+  endif
+  
   human_number := hb_DefaultValue( rec_number, human->( recno() ) )
   human_uslugi := hu->( recno() )
   mohu_usluga := mohu->( recno() )
@@ -330,10 +338,23 @@ function collect_uslugi_new( rec_number, data )
 
   hu->( dbSeek( str( human_number, 7 ) ) )
   do while hu->kod == human_number .and. ! hu->( eof() )
+
+    m_vrPRVS_21 := 0
+    m_vrProfil  := 0
+    p2->( dbGoto( hu->kod_vr ) )
+    if ! p2->( Eof() ) .and. ! p2->( Bof() )
+      m_vrPRVS_21 := p2->PRVS_021
+      m_vrProfil  := p2->PROFIL
+    endif
+
+    mshifr := ''
     lshifr := alltrim( opr_shifr_tfoms( alltrim( usl->shifr ), hu->u_kod, data ) )
+    If is_usluga_tfoms( usl->shifr, lshifr, human->k_data, , , @lst, , @sVidpoms )
+      mshifr := AllTrim( iif( Empty( lshifr ), usl->shifr, lshifr ) )
+    endif
 //    aadd( arrUslugi, { hu->( RecNo() ), alltrim( usl->shifr ), hu->u_kod, c4tod( hu->date_u ), hu->u_cena, ; 
-    aadd( arrUslugi, { hu->( RecNo() ), lshifr, hu->u_kod, c4tod( hu->date_u ), hu->u_cena, ; 
-      hu->u_koef, hu->kod_vr, hu->kod_as, hu->kol, hu->otd } )
+    aadd( arrUslugi, { hu->( RecNo() ), mshifr, hu->u_kod, c4tod( hu->date_u ), hu->u_cena, ; 
+      hu->u_koef, hu->kod_vr, m_vrPRVS_21, m_vrProfil, hu->kod_as, hu->kol, hu->otd, lst, sVidpoms } )
     hu->( dbSkip() )
   enddo
 
@@ -348,6 +369,9 @@ function collect_uslugi_new( rec_number, data )
   enddo
   mohu->( dbGoto( mohu_usluga ) )
 */
+  If lAliasPers
+    p2->( dbCloseArea() )
+  endif
   select( tmp_select )
   return arrUslugi
 
