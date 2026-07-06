@@ -20,8 +20,8 @@
 #define USL_AS       10   // ассистент оказавший услугу
 #define USL_KOLVO    11   // количество услуг
 #define USL_OTD      12   // отделение в котором оказывалась услуга
-#define USL_ZAK_SL   13   // признак оплаты по законченному случаю
-#define USL_SVIDPOM  14   // виды оказываемой медицинской помощи
+#define USL_SVIDPOM  13   // виды оказываемой медицинской помощи
+#define USL_ZAK_SL   14   // признак оплаты по законченному случаю
 
 // 04.07.26 
 Function verify_sluch( fl_view, ft )
@@ -5239,9 +5239,8 @@ Function verify_sluch( fl_view, ft )
   endif
 /*
   // проверяем вид помощи
-  if ! is_dispanserizaciya( human->ishod )
+  if ! is_dispanserizaciya( human->ishod ) .and. ( lu_type != TIP_LU_SMP )
     human_->( g_rlock( 'forever' ) )
-altd()
     human_->VIDPOM := define_vidpom_new( arrUslugiHuman_U, human->OTD, human->kod, human->K_DATA, human_->USL_OK )
     human_->( dbUnlock() )
   endif
@@ -5262,6 +5261,7 @@ altd()
     AAdd( ta, 'не определен вид помощи по справочнику услуг ТФОМС' )
   endif
 
+  human_->( g_rlock( 'forever' ) )
   If !valid_guid( human_->ID_PAC )
     human_->ID_PAC := mo_guid( 1, human_->( RecNo() ) )
   Endif
@@ -5269,6 +5269,7 @@ altd()
     human_->ID_C := mo_guid( 2, human_->( RecNo() ) )
   Endif
   human_->ST_VERIFY := _ocenka // проверен
+  human_->( dbUnlock() )
   If fl_view
     // dbUnLockAll()
   Endif
@@ -5302,113 +5303,60 @@ function define_vidpom_new( arr_HU, otd, kod_hum, mdate, usl_ok )
 //  f034->( dbCloseArea() )
 
   mDS_stac := otd->DS_STAC
-  arr_v := get_f034_usl_ok( otd->LPU_1, usl_ok )
+//  arr_v := get_f034_usl_ok( otd->LPU_1, usl_ok )
 
-  if Select( 'P2' ) == 0
-    r_use( dir_server() + 'mo_pers', , 'P2' )
-    lAliasPers := .t.
-  endif
-
-//  if Select( 'USL' ) == 0
-//    r_use( dir_server() + 'uslugi', , 'USL' )
-//    lAliasUsl := .t.
-//  endif
-//  if Select( 'HU' ) == 0
-//    r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
-//    lAliasHU := .t.
-//  endif
-//  dbSelectArea( 'HU' )
-//  Set Relation To FIELD->u_kod into USL
-
-//  hu->( dbSeek( Str( kod_hum, 7 ) ) )
-//  Do While hu->kod == human->kod .and. ! hu->( Eof() )
   for i := 1 to Len( arr_HU )
-//    if hu->u_cena != 0
     if arr_HU[ i, USL_CENA ] != 0
-      m_vrPRVS_21 := 0
-      m_vrProfil := 0
-//      lshifr1 := ''
-//      mshifr := ''
-//      usl->( dbGoto( hu->u_kod ) )
-//      lshifr1 := opr_shifr_tfoms( usl->shifr1, usl->kod, human->k_data )
-//      If is_usluga_tfoms( usl->shifr, lshifr1, human->k_data, , , @lst, , @sVidpoms )
-//        mshifr := AllTrim( iif( Empty( lshifr1 ), usl->shifr, lshifr1 ) )
-//      endif
-//      p2->( dbGoto( hu->kod_vr ) )
-      p2->( dbGoto( arr_HU[ i, USL_VR ] ) )
-      if ! p2->( Eof() ) .and. ! p2->( Bof() )
-        m_vrPRVS_21 := p2->PRVS_021
-        m_vrProfil  := p2->PROFIL
-      endif
-
-//      AAdd( arrUsluga, { mshifr, c4tod( hu->date_u ), hu->u_cena, hu->otd, ;
-//        hu->kod_vr, m_vrPRVS_21, m_vrProfil, list2arr( sVidpoms ), lst } )
-      AAdd( arrUsluga, { arr_HU[ i, USL_SHIFR ], arr_HU[ i, USL_DATE ], arr_HU[ i, USL_CENA ], ;
+      AAdd( arrUsluga, { ;
+        arr_HU[ i, USL_SHIFR ], ;
+        arr_HU[ i, USL_DATE ], ;
+        arr_HU[ i, USL_CENA ], ;
         arr_HU[ i, USL_OTD ], ;
-        arr_HU[ i, USL_VR ], m_vrPRVS_21, m_vrProfil } )
+        arr_HU[ i, USL_VR ], ;
+        arr_HU[ i, USL_VR_PRVS21 ], ;
+        arr_HU[ i, USL_VR_PROF ], ;
+        arr_HU[ i, USL_SVIDPOM ], ;
+        arr_HU[ i, USL_ZAK_SL ] ;
+      } )
     endif
   next
-//    hu->( dbSkip() )
-//  Enddo
 
   If lAliasOtd
     otd->( dbCloseArea() )
   endif
-  If lAliasPers
-    p2->( dbCloseArea() )
-  endif
-//  If lAliasUsl
-//    usl->( dbCloseArea() )
-//  endif
-//  If lAliasHU
-//    hu->( dbCloseArea() )
-//  endif
+
   if Len( arrUsluga ) > 0   // == 1
-    if len( arrUsluga[ 1, 8 ] ) == 1
-      mVidPom := arrUsluga[ 1, 8 ][ 1 ]
-//    elseif SubStr( arrUsluga[ 1, 1 ], 1, 5 ) == code_services_VMP( Year( mdate ) )
-    elseif isServiceVMP( arrUsluga[ 1, 1 ], mdate )
+    if isServiceVMP( arrUsluga[ 1, 1 ], mdate )
       mVidPom := 32
     elseif SubStr( arrUsluga[ 1, 1 ], 1, 2 ) == 'st'
-      if ascan( arrUsluga[ 1, 8 ], 31 ) > 0
+      if hb_At( '31', arrUsluga[ 1, 8 ] ) > 0
         mVidPom := 31
       endif
     elseif SubStr( arrUsluga[ 1, 1 ], 1, 2 ) == 'ds'
       if mDS_stac == 1
-        if ( ascan( arrUsluga[ 1, 8 ], 31 ) > 0 )
-//        if ( ascan( arrUsluga[ 1, 8 ], 31 ) > 0 ) .and. ( ascan( arr_v, { | x | x[ 1 ] == 31 .and. x[ 3 ] == m_vrProfil } ) > 0 )
+        if hb_At( '31', arrUsluga[ 1, 8 ] ) > 0
           mVidPom := 31
         endif
       else
-        if eq_any( m_vrPRVS_21, 76, 49, 39 ) .and. ( ascan( arrUsluga[ 1, 8 ], 12 ) > 0 )  // тераипия, педиатрия, общая врачебная практика
+        if eq_any( arrUsluga[ 1, 6 ], 76, 49, 39 ) .and. ( hb_At( '12', arrUsluga[ 1, 8 ] ) > 0 )  // тераипия, педиатрия, общая врачебная практика
           mVidPom := 12
-        elseif  ( ascan( arrUsluga[ 1, 8 ], 13 ) > 0 )
+        elseif  ( hb_At( '13', arrUsluga[ 1, 8 ] ) > 0 )
           mVidPom := 13
         endif
       endif
-/*
-      if ( ascan( arrUsluga[ 1, 8 ], 31 ) > 0 ) //.and. ( ascan( arr_v, { | x | x[ 1 ] == 31 } ) > 0 )
-//      if ( ascan( arrUsluga[ 1, 8 ], 31 ) > 0 ) .and. ( ascan( arr_v, { | x | x[ 1 ] == 31 .and. x[ 3 ] == m_vrProfil } ) > 0 )
-        mVidPom := 31
-      elseif ( ascan( arrUsluga[ 1, 8 ], 12 ) > 0 ) //.and. ( ascan( arr_v, { | x | x[ 1 ] == 12 } ) > 0 )
-//      elseif ( ascan( arrUsluga[ 1, 8 ], 12 ) > 0 ) .and. ( ascan( arr_v, { | x | x[ 1 ] == 12 .and. x[ 3 ] == m_vrProfil } ) > 0 )
-        mVidPom := 12
-      elseif ( ascan( arrUsluga[ 1, 8 ], 13 ) > 0 ) //.and. ( ascan( arr_v, { | x | x[ 1 ] == 13 } ) > 0 )
-//      elseif ( ascan( arrUsluga[ 1, 8 ], 13 ) > 0 ) .and. ( ascan( arr_v, { | x | x[ 1 ] == 13 .and. x[ 3 ] == m_vrProfil } ) > 0 )
-        mVidPom := 13
-      endif
-*/
+    elseif hb_At( ',', arrUsluga[ 1, 8 ] ) == 0
+      mVidPom := Val( arrUsluga[ 1, 8 ] )
     else
-      if eq_any( m_vrPRVS_21, 206, 207 )  // фельдшер, акушер
-        if ascan( arrUsluga[ 1, 8 ], 11 ) > 0
+      if eq_any( arrUsluga[ 1, 6 ], 206, 207 )  // фельдшер, акушер
+        if hb_At( '11', arrUsluga[ 1, 8 ] ) > 0
           mVidPom := 11
         endif
-      elseif eq_any( m_vrPRVS_21, 76, 49, 39 )  // тераипия, педиатрия, общая врачебная практика
-        if ascan( arrUsluga[ 1, 8 ], 12 ) > 0
+      elseif eq_any( arrUsluga[ 1, 6 ], 76, 49, 39 )  // терапия, педиатрия, общая врачебная практика
+        if hb_At( '12', arrUsluga[ 1, 8 ] ) > 0
           mVidPom := 12
         endif
       else  // узкие специалисты
-        if ascan( arrUsluga[ 1, 8 ], 13 ) > 0
+        if hb_At( '13', arrUsluga[ 1, 8 ] ) > 0
           mVidPom := 13
         endif
       endif

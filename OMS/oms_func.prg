@@ -354,7 +354,7 @@ function collect_uslugi_new( rec_number, data )
     endif
 //    aadd( arrUslugi, { hu->( RecNo() ), alltrim( usl->shifr ), hu->u_kod, c4tod( hu->date_u ), hu->u_cena, ; 
     aadd( arrUslugi, { hu->( RecNo() ), mshifr, hu->u_kod, c4tod( hu->date_u ), hu->u_cena, ; 
-      hu->u_koef, hu->kod_vr, m_vrPRVS_21, m_vrProfil, hu->kod_as, hu->kol, hu->otd, lst, sVidpoms } )
+      hu->u_koef, hu->kod_vr, m_vrPRVS_21, m_vrProfil, hu->kod_as, hu->kol, hu->otd, sVidpoms, lst } )
     hu->( dbSkip() )
   enddo
 
