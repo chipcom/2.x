@@ -23,7 +23,7 @@
 #define USL_SVIDPOM  13   // виды оказываемой медицинской помощи
 #define USL_ZAK_SL   14   // признак оплаты по законченному случаю
 
-// 04.07.26 
+// 07.07.26 
 Function verify_sluch( fl_view, ft )
 
   Local arrUslugi := {} // массив содержаший коды услуг в случае 
@@ -5239,7 +5239,7 @@ Function verify_sluch( fl_view, ft )
   endif
 /*
   // проверяем вид помощи
-  if ! is_dispanserizaciya( human->ishod ) .and. ( lu_type != TIP_LU_SMP )
+  if ! is_dispanserizaciya( human->ishod ) .and. ! ( lu_type == TIP_LU_SMP .or. glob_otd[ 3 ] == 4 )
     human_->( g_rlock( 'forever' ) )
     human_->VIDPOM := define_vidpom_new( arrUslugiHuman_U, human->OTD, human->kod, human->K_DATA, human_->USL_OK )
     human_->( dbUnlock() )
@@ -5276,14 +5276,14 @@ Function verify_sluch( fl_view, ft )
 
   Return ( _ocenka >= 5 )
 
-// 06.07.26
+// 07.07.26
 function define_vidpom_new( arr_HU, otd, kod_hum, mdate, usl_ok )
 
   Local tmpselect, i, lshifr1, mshifr, sVidpoms, lst
   local arrUsluga := {}, mVidPom := 0
   local lAliasHU := .f., lAliasUsl := .f., lAliasPers := .f., lAliasOtd := .f.
   local m_vrPRVS_21, m_vrProfil
-  local arr_v := {}, mDS_stac := 0
+  local arr_v := {}, mDS_stac := 0, row
 
   tmpSelect := Select()
 
@@ -5305,63 +5305,54 @@ function define_vidpom_new( arr_HU, otd, kod_hum, mdate, usl_ok )
   mDS_stac := otd->DS_STAC
 //  arr_v := get_f034_usl_ok( otd->LPU_1, usl_ok )
 
-  for i := 1 to Len( arr_HU )
-    if arr_HU[ i, USL_CENA ] != 0
-      AAdd( arrUsluga, { ;
-        arr_HU[ i, USL_SHIFR ], ;
-        arr_HU[ i, USL_DATE ], ;
-        arr_HU[ i, USL_CENA ], ;
-        arr_HU[ i, USL_OTD ], ;
-        arr_HU[ i, USL_VR ], ;
-        arr_HU[ i, USL_VR_PRVS21 ], ;
-        arr_HU[ i, USL_VR_PROF ], ;
-        arr_HU[ i, USL_SVIDPOM ], ;
-        arr_HU[ i, USL_ZAK_SL ] ;
-      } )
-    endif
-  next
-
   If lAliasOtd
     otd->( dbCloseArea() )
   endif
 
+  for each row in arr_HU
+    if row[ USL_CENA ] != 0
+      AAdd( arrUsluga, row )
+    endif
+  next
+
   if Len( arrUsluga ) > 0   // == 1
-    if isServiceVMP( arrUsluga[ 1, 1 ], mdate )
+    if isServiceVMP( arrUsluga[ 1, USL_SHIFR ], mdate )
       mVidPom := 32
-    elseif SubStr( arrUsluga[ 1, 1 ], 1, 2 ) == 'st'
-      if hb_At( '31', arrUsluga[ 1, 8 ] ) > 0
+    elseif SubStr( arrUsluga[ 1, USL_SHIFR ], 1, 2 ) == 'st'
+      if hb_At( '31', arrUsluga[ 1, USL_SVIDPOM ] ) > 0
         mVidPom := 31
       endif
-    elseif SubStr( arrUsluga[ 1, 1 ], 1, 2 ) == 'ds'
+    elseif SubStr( arrUsluga[ 1, USL_SHIFR ], 1, 2 ) == 'ds'
       if mDS_stac == 1
-        if hb_At( '31', arrUsluga[ 1, 8 ] ) > 0
+        if hb_At( '31', arrUsluga[ 1, USL_SVIDPOM ] ) > 0
           mVidPom := 31
         endif
       else
-        if eq_any( arrUsluga[ 1, 6 ], 76, 49, 39 ) .and. ( hb_At( '12', arrUsluga[ 1, 8 ] ) > 0 )  // тераипия, педиатрия, общая врачебная практика
+        if eq_any( arrUsluga[ 1, USL_VR_PRVS21 ], 76, 49, 39 ) .and. ( hb_At( '12', arrUsluga[ 1, USL_SVIDPOM ] ) > 0 )  // тераипия, педиатрия, общая врачебная практика
           mVidPom := 12
-        elseif  ( hb_At( '13', arrUsluga[ 1, 8 ] ) > 0 )
+        elseif  ( hb_At( '13', arrUsluga[ 1, USL_SVIDPOM ] ) > 0 )
           mVidPom := 13
         endif
       endif
-    elseif hb_At( ',', arrUsluga[ 1, 8 ] ) == 0
-      mVidPom := Val( arrUsluga[ 1, 8 ] )
+    elseif hb_At( ',', arrUsluga[ 1, USL_SVIDPOM ] ) == 0
+      mVidPom := Val( arrUsluga[ 1, USL_SVIDPOM ] )
     else
-      if eq_any( arrUsluga[ 1, 6 ], 206, 207 )  // фельдшер, акушер
-        if hb_At( '11', arrUsluga[ 1, 8 ] ) > 0
+      if eq_any( arrUsluga[ 1, USL_VR_PRVS21 ], 206, 207 )  // фельдшер, акушер
+        if hb_At( '11', arrUsluga[ 1, USL_SVIDPOM ] ) > 0
           mVidPom := 11
         endif
-      elseif eq_any( arrUsluga[ 1, 6 ], 76, 49, 39 )  // терапия, педиатрия, общая врачебная практика
-        if hb_At( '12', arrUsluga[ 1, 8 ] ) > 0
+      elseif eq_any( arrUsluga[ 1, USL_VR_PRVS21 ], 76, 49, 39 )  // терапия, педиатрия, общая врачебная практика
+        if hb_At( '12', arrUsluga[ 1, USL_SVIDPOM ] ) > 0
           mVidPom := 12
         endif
       else  // узкие специалисты
-        if hb_At( '13', arrUsluga[ 1, 8 ] ) > 0
+        if hb_At( '13', arrUsluga[ 1, USL_SVIDPOM ] ) > 0
           mVidPom := 13
         endif
       endif
     endif
   endif
+
   Select( tmpSelect )
 
   return mVidPom
