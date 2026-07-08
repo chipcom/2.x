@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 07.04.26 добавление или редактирование случая (листа учета)
+// 08.07.26 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -760,21 +760,24 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
           When eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
       Endif
 
-      @ ++j, 1 Say 'Госпитализирован' Get MF14_EKST ; 
-        reader {| x| menu_reader( x, mm_ekst(), A__MENUVERT, , , .f. ) } ;
+      @ ++j, 1 Say 'Госпитализирован' Get MF14_EKST ;
+        reader {| x| menu_reader( x, mm_ekst( m1USL_OK ), A__MENUVERT, , , .f. ) } ;
         valid {| g, o| f_valid_f14_ekst( g, o, m1p_per ) }
       @ Row(), Col() + 3 Say 'Доставлен скорой помощью' Get MF14_SKOR ;
         reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
         When M1F14_EKST == 1
 // конец переноса
-
-      @ ++j, 1 Say 'Направление: дата' Get mNPR_DATE
+// TODO: РАЗОБРАТЬСЯ С ПОЛИКЛИНИКОЙ
+      @ ++j, 1 Say 'Направление: дата' Get mNPR_DATE ;
+        When ( m1USL_OK == USL_OK_HOSPITAL .and. M1F14_EKST == 0 ) .or. ( m1USL_OK == USL_OK_DAY_HOSPITAL )
       @ j, Col() + 1 Say 'из МО' Get mNPR_MO PICTURE '@S20';
         reader {| x| menu_reader( x, { {| k, r, c| f_get_mo( k, r, c ) } }, A__FUNCTION, , , .f. ) } ;
-        Color colget_menu
+        Color colget_menu ;
+        When ( m1USL_OK == USL_OK_HOSPITAL .and. M1F14_EKST == 0 ) .or. ( m1USL_OK == USL_OK_DAY_HOSPITAL )
 
       @ j, Col() + 1 Say '№' Get mNAPR_NUM PICTURE '@S20' ;
-        Color colget_menu When m1NAPR_MO != 0
+        Color colget_menu ;
+        When ( m1USL_OK == USL_OK_HOSPITAL .and. M1F14_EKST == 0 ) .or. ( m1USL_OK == USL_OK_DAY_HOSPITAL )  //  m1NAPR_MO != 0
       //        reader {| x| menu_reader( x, { {| k, r, c| f_get_mo( k, r, c ) } }, A__FUNCTION, , , .f. ) } ;
       //
       @ ++j, 1 Say 'Новорожденный?' Get mnovor ;

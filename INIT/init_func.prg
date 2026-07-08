@@ -348,13 +348,21 @@ function kod_LIS()
 function mm_danet()
   return { { 'нет', 0 }, { 'да ', 1 } }
 
-// 27.01.26
-function mm_ekst()
-  return { ;
+// 08.07.26
+function mm_ekst( usl_ok )
+
+  local aRet := { ;
     { 'в плановом порядке', 0 }, ;
     { 'по экст.показаниям', 1 }, ;
     { 'неотложная помощь ', 2 } ;
   }
+
+  if !HB_ISNIL( usl_ok )
+    if eq_any( usl_ok, USL_OK_POLYCLINIC, USL_OK_DAY_HOSPITAL )
+      hb_ADel( aRet, 2, .t. )
+    endif
+  endif
+  return aRet
 
 // 25.09.25
 function glob_arr_usl_LIS()
