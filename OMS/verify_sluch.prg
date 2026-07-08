@@ -23,7 +23,7 @@
 #define USL_SVIDPOM  13   // виды оказываемой медицинской помощи
 #define USL_ZAK_SL   14   // признак оплаты по законченному случаю
 
-// 07.07.26 
+// 08.07.26 
 Function verify_sluch( fl_view, ft )
 
   Local arrUslugi := {} // массив содержаший коды услуг в случае 
@@ -95,6 +95,7 @@ Function verify_sluch( fl_view, ft )
   local is_60_17_1 := .f., is_60_17_2 := .f., kol_60_17_100 := 0
   local first_2 // первые два символа МО прикрепления
   local arrOKATO := {}
+  local mDS_stac := 0     // дневной стационар при стационаре - 1 иначе - 0
 //  local cUIDSPMO
 
   Default fl_view To .t.
@@ -112,6 +113,12 @@ Function verify_sluch( fl_view, ft )
   a_period_amb := {}
   mIDPC := ''
   rec_human := human->( RecNo() )
+
+  // установим курсор на нужное учреждение и отделение
+  uch->( dbGoto( human->LPU ) )
+  otd->( dbGoto( human->OTD ) )
+  lu_type := otd->TIPLU
+  mDS_stac := otd->DS_STAC
 
   arrUslugiHuman_U := collect_uslugi_new( rec_human, human->k_data )   // выберем все коды услуг случая
 
@@ -133,11 +140,6 @@ Function verify_sluch( fl_view, ft )
 
   // определяем возраст, если 0 то возраст до года
   vozrast := count_years( iif( human_->NOVOR == 0, human->DATE_R, human_->DATE_R2 ), human->N_DATA )
-
-  // установим курсор на нужное учреждение и отделение
-  uch->( dbGoto( human->LPU ) )
-  otd->( dbGoto( human->OTD ) )
-  lu_type := otd->TIPLU
 
   if Empty( otd->LPU_1 )
     aValidProf := {}
@@ -5239,9 +5241,9 @@ Function verify_sluch( fl_view, ft )
   endif
 /*
   // проверяем вид помощи
-  if ! is_dispanserizaciya( human->ishod ) .and. ! ( lu_type == TIP_LU_SMP .or. glob_otd[ 3 ] == 4 )
+  if ! is_dispanserizaciya( human->ishod ) .and. ! ( lu_type == TIP_LU_SMP .or. human_->USL_OK == USL_OK_AMBULANCE )
     human_->( g_rlock( 'forever' ) )
-    human_->VIDPOM := define_vidpom_new( arrUslugiHuman_U, human->OTD, human->kod, human->K_DATA, human_->USL_OK )
+    human_->VIDPOM := define_vidpom_new( arrUslugiHuman_U, mDS_stac, human->kod, human->K_DATA, human_->USL_OK )
     human_->( dbUnlock() )
   endif
 */
@@ -5276,38 +5278,38 @@ Function verify_sluch( fl_view, ft )
 
   Return ( _ocenka >= 5 )
 
-// 07.07.26
-function define_vidpom_new( arr_HU, otd, kod_hum, mdate, usl_ok )
+// 08.07.26
+function define_vidpom_new( arr_HU, mDS_stac, kod_hum, mdate, usl_ok )
 
   Local tmpselect, i, lshifr1, mshifr, sVidpoms, lst
   local arrUsluga := {}, mVidPom := 0
   local lAliasHU := .f., lAliasUsl := .f., lAliasPers := .f., lAliasOtd := .f.
   local m_vrPRVS_21, m_vrProfil
-  local arr_v := {}, mDS_stac := 0, row
+  local arr_v := {}, row    // , mDS_stac := 0
 
   tmpSelect := Select()
 
-  if Select( 'OTD' ) == 0
-    r_use( dir_server() + 'mo_otd', , 'OTD' )
-    lAliasOtd := .t.
-  endif
-  otd->( dbGoto( otd ) )
-//  r_use( dir_exe() + '_mo_f034', cur_dir() + '_mo_f034', 'F034' )
-//  f034->( dbSeek( otd->LPU_1 ) )
-//  Do While ( f034->uidspmo == otd->LPU_1 ) .and. ! f034->( Eof() )
-//    if ( f034->MPUSL == usl_ok )
-//      AAdd( arr_v, { f034->MPVID, f034->MPUSL, f034->MPROF } )
-//    endif
-//    f034->( dbSkip() )
-//  Enddo
-//  f034->( dbCloseArea() )
+//  if Select( 'OTD' ) == 0
+//    r_use( dir_server() + 'mo_otd', , 'OTD' )
+//    lAliasOtd := .t.
+//  endif
+//  otd->( dbGoto( otd ) )
+////  r_use( dir_exe() + '_mo_f034', cur_dir() + '_mo_f034', 'F034' )
+////  f034->( dbSeek( otd->LPU_1 ) )
+////  Do While ( f034->uidspmo == otd->LPU_1 ) .and. ! f034->( Eof() )
+////    if ( f034->MPUSL == usl_ok )
+////      AAdd( arr_v, { f034->MPVID, f034->MPUSL, f034->MPROF } )
+////    endif
+////    f034->( dbSkip() )
+////  Enddo
+////  f034->( dbCloseArea() )
 
-  mDS_stac := otd->DS_STAC
-//  arr_v := get_f034_usl_ok( otd->LPU_1, usl_ok )
+//  mDS_stac := otd->DS_STAC
+////  arr_v := get_f034_usl_ok( otd->LPU_1, usl_ok )
 
-  If lAliasOtd
-    otd->( dbCloseArea() )
-  endif
+//  If lAliasOtd
+//    otd->( dbCloseArea() )
+//  endif
 
   for each row in arr_HU
     if row[ USL_CENA ] != 0
