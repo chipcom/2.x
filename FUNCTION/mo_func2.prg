@@ -70,9 +70,6 @@ Function ret_actual_smo( r, c )
   Local i, arr := {}, ret, ret_arr
 
   Default r To T_ROW, c To T_COL -5
-//  For i := 1 To Len( glob_arr_smo )
-//    If glob_arr_smo[ i, 3 ] == 1
-//      AAdd( arr, glob_arr_smo[ i ] )
   For i := 1 To Len( smo_volgograd() )
     If smo_volgograd()[ i, 3 ] == 1
       AAdd( arr, smo_volgograd()[ i ] )

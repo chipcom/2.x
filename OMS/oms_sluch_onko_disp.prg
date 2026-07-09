@@ -318,12 +318,12 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
 
   Close databases
   MFIO_KART := _f_fio_kart()
-  mvzros_reb := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
+  mvzros_reb := inieditspr( A__MENUVERT, menu_vzros(), m1vzros_reb )
   If Empty( m1USL_OK )
     m1USL_OK := USL_OK_POLYCLINIC
   Endif // на всякий случай
   mishod    := inieditspr( A__MENUVERT, getv012(), m1ishod )
-  mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
+  mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis(), m1vidpolis )
   motd      := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd',  m1otd )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
   mkomu     := inieditspr( A__MENUVERT, mm_komu(), m1komu )
@@ -394,7 +394,7 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
     @ ++j, 1 Say 'Полис ОМС: серия' Get mspolis When m1komu == 0
     @ Row(), Col() + 3 Say 'номер' Get mnpolis When m1komu == 0
     @ Row(), Col() + 3 Say 'вид'   Get mvidpolis ;
-      reader {| x| menu_reader( x, mm_vid_polis, A__MENUVERT, , , .f. ) } ;
+      reader {| x| menu_reader( x, mm_vid_polis(), A__MENUVERT, , , .f. ) } ;
       When m1komu == 0 ;
       Valid func_valid_polis( m1vidpolis, mspolis, mnpolis )
 

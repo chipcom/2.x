@@ -372,15 +372,15 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
   mwhere_kart := inieditspr( A__MENUVERT, mm_where_kart, m1where_kart )
   mokato := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
   mismo := init_ismo( m1ismo )
-  mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
-  mgorod_selo := inieditspr( A__MENUVERT, mm_gorod_selo, m1gorod_selo )
+  mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis(), m1vidpolis )
+  mgorod_selo := inieditspr( A__MENUVERT, mm_gorod_selo(), m1gorod_selo )
   m1gragd := iif( Empty( mSTRANA := getcountry( m1strana ) ), 1, 0 )
   mgragd := inieditspr( A__MENUVERT, mm_danet, m1gragd )
   manonim := inieditspr( A__MENUVERT, mm_danet, m1anonim )
   mPENSIONER := inieditspr( A__MENUVERT, mm_danet, m1PENSIONER )
   mvid_ud  := inieditspr( A__MENUVERT, getvidud(), m1vid_ud )
   MKEMVYD := inieditspr( A__POPUPMENU, dir_server() + 's_kemvyd', M1KEMVYD )
-  mvzros_reb := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
+  mvzros_reb := inieditspr( A__MENUVERT, menu_vzros(), m1vzros_reb )
   mrab_nerab := inieditspr( A__MENUVERT, menu_rab(), m1rab_nerab )
   mvz        := inieditspr( A__MENUVERT, getv039(), m1vz )
   mkategor   := inieditspr( A__MENUVERT, stm_kategor(), m1kategor )
@@ -394,10 +394,8 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
   madres_reg := ini_adres( 1 )
   madres_pre := ini_adres( 2 )
   If Empty( m1namesmo := Int( Val( msmo ) ) )
-//    m1namesmo := glob_arr_smo[ 1, 2 ] // по умолчанию = КапиталЪ Медстрах
     m1namesmo := smo_volgograd()[ 1, 2 ] // по умолчанию = КапиталЪ Медстрах
   Endif
-//  mnamesmo := inieditspr( A__MENUVERT, glob_arr_smo, m1namesmo )
   mnamesmo := inieditspr( A__MENUVERT, smo_volgograd(), m1namesmo )
   If m1namesmo == 34
     If !Empty( mismo )
@@ -524,7 +522,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
     @ ++ix, 1 Say 'Отчество' Get mot valid {| g| m1anonim == 1 .or. valfamimot( 3, mot ) }
     If mem_pol == 1
       @ Row(), 70 Say 'Пол' Get mpol ;
-        reader {| x| menu_reader( x, menupol, A__MENUVERT, , , .f. ) }
+        reader {| x| menu_reader( x, menupol(), A__MENUVERT, , , .f. ) }
     Else
       @ Row(), 70 Say 'Пол' Get mpol Pict '@!' valid {| g| mpol $ 'МЖ' }
     Endif
@@ -553,12 +551,9 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
     @ ++ix, 1 Say 'Полис ОМС: серия' Get mspolis
     @ Row(), Col() + 3 Say 'номер' Get mnpolis valid {|| findkartoteka( 2, @mkod ) }
     @ Row(), Col() + 3 Say 'вид' Get mvidpolis ;
-      reader {| x| menu_reader( x, mm_vid_polis, A__MENUVERT, , , .f. ) } ;
+      reader {| x| menu_reader( x, mm_vid_polis(), A__MENUVERT, , , .f. ) } ;
       Valid func_valid_polis( m1vidpolis, mspolis, mnpolis )
 
-//    @ ++ix, 1 Say 'СМО' Get mnamesmo ;
-//      reader {| x| menu_reader( x, glob_arr_smo, A__MENUVERT, , , .f. ) } ;
-//      valid {| g| func_valid_ismo( g, 0, 41, 'namesmo' ) }
     @ ++ix, 1 Say 'СМО' Get mnamesmo ;
       reader {| x| menu_reader( x, smo_volgograd(), A__MENUVERT, , , .f. ) } ;
       valid {| g| func_valid_ismo( g, 0, 41, 'namesmo' ) }
@@ -617,7 +612,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
         reader {| x| menu_reader( x, getdlo_lgota(), A__MENUVERT, , , .f. ) }
     Endif
     @ ++ix, 1 Say 'Житель:' Get mgorod_selo ;
-      reader {| x| menu_reader( x, mm_gorod_selo, A__MENUVERT, , , .f. ) }
+      reader {| x| menu_reader( x, mm_gorod_selo(), A__MENUVERT, , , .f. ) }
     @ ix, 19 Say 'Участник СВО?' get mUchastSVO ;
       reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
     @ ix, Col() + 3 Say 'Гражданин РФ?' Get mgragd ;
@@ -1240,7 +1235,7 @@ Function findkartoteka( k, /*@*/lkod_k)
         m1ismo := msmo
         msmo := '34'
       Endif
-      mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
+      mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis(), m1vidpolis )
       mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
       mkomu     := inieditspr( A__MENUVERT, mm_komu(), m1komu )
       mismo     := init_ismo( m1ismo )
@@ -2846,7 +2841,7 @@ Function f1dubl_zap()
             ++j1
             s := iif( j1 == 1, PadR( lstr( k ) + '.', 5 ), Space( 5 ) )
             add_string( s + Left( mkod_mis, 16 ) + ' ' + PadR( amb_kartan( .t. ), 10 ) + ;
-              PadR( AllTrim( kart->fio ) + ' (' + AllTrim( inieditspr( A__MENUVERT, mm_vid_polis, kart_->VPOLIS ) ) + ;
+              PadR( AllTrim( kart->fio ) + ' (' + AllTrim( inieditspr( A__MENUVERT, mm_vid_polis(), kart_->VPOLIS ) ) + ;
               ' полис)', 50 ) + ' ' + date_8( kart->date_r ) )
             Select TMPITG
             Append Blank
@@ -3255,7 +3250,7 @@ Function kartotek_to_screen( r1, r2 )
   s := 'Ф.И.О.: ' + kart->fio + Space( 7 ) + iif( kart->pol == 'М', 'мужчина', 'женщина' )
   AAdd( arr, s )
   s := 'Дата рождения: ' + full_date( kart->date_r ) + Space( 5 ) + ;
-    '(' + AllTrim( inieditspr( A__MENUVERT, menu_vzros, kart->vzros_reb ) ) + ')'
+    '(' + AllTrim( inieditspr( A__MENUVERT, menu_vzros(), kart->vzros_reb ) ) + ')'
   If !Empty( kart->snils )
 //    s += Space( 5 ) + 'СНИЛС: ' + Transform( kart->SNILS, picture_pf )
     s += Space( 5 ) + 'СНИЛС: ' + Transform_SNILS( kart->SNILS )
@@ -3299,7 +3294,7 @@ Function kartotek_to_screen( r1, r2 )
     s += AllTrim( kart_->SPOLIS ) + ' '
   Endif
   s += AllTrim( kart_->NPOLIS ) + ' (' + ;
-    AllTrim( inieditspr( A__MENUVERT, mm_vid_polis, kart_->VPOLIS ) ) + ') ' + ;
+    AllTrim( inieditspr( A__MENUVERT, mm_vid_polis(), kart_->VPOLIS ) ) + ') ' + ;
     smo_to_screen( 1 )
   AAdd( arr, s )
   If eq_any( glob_task, X_REGIST, X_OMS, X_PLATN, X_ORTO, X_KASSA, X_PPOKOJ, X_MO )

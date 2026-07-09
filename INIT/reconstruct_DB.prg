@@ -61,8 +61,8 @@ Function reconstruct_security( is_local_version )
       // реконструкция файлов доступа к системе и обновлений БД
       If !is_local_version .or. hb_FileExists( path_DB + 'base1' + sdbf() )
         reconstruct( path_DB + 'base1', base1, , , .t. )
-        reconstruct( path_DB + 'mo_oper', mo_oper, 'index_base("mo_oper")', , .t. )
-        reconstruct( path_DB + 'mo_opern', mo_opern, 'index_base("mo_opern")', , .t. )
+        reconstruct( path_DB + 'mo_oper', mo_oper, 'index_base( "mo_oper" )', , .t. )
+        reconstruct( path_DB + 'mo_opern', mo_opern, 'index_base( "mo_opern" )', , .t. )
         reconstruct( path_DB + 'roles', roles, , , .t. )
         reconstruct( path_DB + 'ver_updateDB', mo_updateDB, , , .t. )
       Endif
@@ -71,9 +71,10 @@ Function reconstruct_security( is_local_version )
   Endif
   Return Nil
 
-// 17.06.26 реконстукция баз данных
+// 09.07.26 реконстукция баз данных
 Function reconstruct_db( is_local_version )
 
+/*
   Local base1 := { ;
     { 'P1',         'C',  20, 0 }, ; // Ф.И.О.
     { 'P2',         'N',   1, 0 }, ; // тип доступа
@@ -116,6 +117,8 @@ Function reconstruct_db( is_local_version )
     { 'KK',         'C',   3, 0 }, ; // кол-во (карточек, л/у или услуг)
     { 'KP',         'C',   3, 0 } ;  // количество введённых полей
   }
+*/
+
   //
   Local kartotek := { ;
     { 'KOD',        'N',   7, 0 }, ;
@@ -1689,15 +1692,17 @@ Function reconstruct_db( is_local_version )
   path_DB := dir_server()
 
   f_init_r01() // инициализация всех файлов инф.сопровождения по диспансеризации
+/*
   If !is_local_version .or. hb_FileExists( path_DB + 'base1' + sdbf() )
     reconstruct( path_DB + 'base1', base1, , , .t. )
-    reconstruct( path_DB + 'mo_oper', mo_oper, 'index_base("mo_oper")', , .t. )
-    reconstruct( path_DB + 'mo_opern', mo_opern, 'index_base("mo_opern")', , .t. )
+    reconstruct( path_DB + 'mo_oper', mo_oper, 'index_base( "mo_oper" )', , .t. )
+    reconstruct( path_DB + 'mo_opern', mo_opern, 'index_base( "mo_opern" )', , .t. )
     reconstruct( path_DB + 'roles', roles, , , .t. )
   Endif
+*/
   // простые справочники
-  reconstruct( path_DB + 's_adres', { { 'name', 'C', 40, 0 } }, 'index_base("s_adres")', , .t. )
-  reconstruct( path_DB + 's_kemvyd', { { 'name', 'C', 150, 0 } }, 'index_base("s_kemvyd")', , .t. )
+  reconstruct( path_DB + 's_adres', { { 'name', 'C', 40, 0 } }, 'index_base( "s_adres" )', , .t. )
+  reconstruct( path_DB + 's_kemvyd', { { 'name', 'C', 150, 0 } }, 'index_base( "s_kemvyd" )', , .t. )
   reconstruct( path_DB + 's_mr', { { 'name', 'C', 50, 0 } }, , , .t. )
   reconstruct( path_DB + 'mo_kfio', mo_kfio, , , .t. )
   reconstruct( path_DB + 'mo_kismo', inog_smo, , , .t. )
@@ -1705,39 +1710,39 @@ Function reconstruct_db( is_local_version )
   reconstruct( path_DB + 'mo_stdds', stacDDS, , , .t. )
   reconstruct( path_DB + 'mo_schoo', school, , , .t. )
   // услуги
-  reconstruct( path_DB + 'slugba', slugba, 'index_base("slugba")', , .t. )
-  reconstruct( path_DB + 'mo_su', mo_su, 'index_base("mo_su")', , .t. )
-  reconstruct( path_DB + 'uslugi', uslugi, 'index_base("uslugi")', , .t. )
-  reconstruct( path_DB + 'uslugi1', uslugi1, 'index_base("uslugi1")', , .t. )
-  reconstruct( path_DB + 'uch_usl', uch_usl, 'index_base("uch_usl")', , .t. )
-  reconstruct( path_DB + 'uch_usl1', uch_usl1, 'index_base("uch_usl1")', , .t. )
-  reconstruct( path_DB + 'uch_pers', uch_pers, 'index_base("uch_pers")', , .t. )
-  reconstruct( path_DB + 'uslugi_k', uslugi_k, 'index_base("uslugi_k")', , .t. )
-  reconstruct( path_DB + 'uslugi1k', uslugi1k, 'index_base("uslugi1k")', , .t. )
+  reconstruct( path_DB + 'slugba', slugba, 'index_base( "slugba" )', , .t. )
+  reconstruct( path_DB + 'mo_su', mo_su, 'index_base( "mo_su" )', , .t. )
+  reconstruct( path_DB + 'uslugi', uslugi, 'index_base( "uslugi" )', , .t. )
+  reconstruct( path_DB + 'uslugi1', uslugi1, 'index_base( "uslugi1" )', , .t. )
+  reconstruct( path_DB + 'uch_usl', uch_usl, 'index_base( "uch_usl" )', , .t. )
+  reconstruct( path_DB + 'uch_usl1', uch_usl1, 'index_base( "uch_usl1" )', , .t. )
+  reconstruct( path_DB + 'uch_pers', uch_pers, 'index_base( "uch_pers" )', , .t. )
+  reconstruct( path_DB + 'uslugi_k', uslugi_k, 'index_base( "uslugi_k" )', , .t. )
+  reconstruct( path_DB + 'uslugi1k', uslugi1k, 'index_base( "uslugi1k" )', , .t. )
   reconstruct( path_DB + 'ns_usl', ns_usl, , , .t. )
-  reconstruct( path_DB + 'ns_usl_k', ns_usl_k, 'index_base("ns_usl_k")', , .t. )
-  reconstruct( path_DB + 'usl_uva', usl_uva, 'index_base("usl_uva")', , .t. )
-  reconstruct( path_DB + 'usl_otd', usl_otd, 'index_base("usl_otd")', , .t. )
+  reconstruct( path_DB + 'ns_usl_k', ns_usl_k, 'index_base( "ns_usl_k" )', , .t. )
+  reconstruct( path_DB + 'usl_uva', usl_uva, 'index_base( "usl_uva" )', , .t. )
+  reconstruct( path_DB + 'usl_otd', usl_otd, 'index_base( "usl_otd" )', , .t. )
   reconstruct( path_DB + 'u_usl_5', u_usl_5, , , .t. )
   reconstruct( path_DB + 'u_usl_7', u_usl_7, , , .t. )
   // для стоматологий
-  reconstruct( path_DB + 'kartdelz', kart_delz, 'index_base("kartdelz")', , .t. )
-  reconstruct( path_DB + 'kart_st', kart_st, 'index_base("kart_st")', , .t. )
-  reconstruct( path_DB + 'humanst', humanst, 'index_base("humanst")', , .t. )
+  reconstruct( path_DB + 'kartdelz', kart_delz, 'index_base( "kartdelz" )', , .t. )
+  reconstruct( path_DB + 'kart_st', kart_st, 'index_base( "kart_st" )', , .t. )
+  reconstruct( path_DB + 'humanst', humanst, 'index_base( "humanst" )', , .t. )
   //
-  reconstruct( path_DB + 'kartotek', kartotek, 'index_base("kartotek")', 'картотеке', .t. )
+  reconstruct( path_DB + 'kartotek', kartotek, 'index_base( "kartotek" )', 'картотеке', .t. )
   reconstruct( path_DB + 'kartote_', kartotek_, , 'картотеке1', .t. )
   reconstruct( path_DB + 'kartote2', kartotek2, , 'картотеке2', .t. )
   reconstruct( path_DB + 'kart_et', _kart_et, , 'картотеке', .t. )
   reconstruct( path_DB + 'kart_inv', _kart_inv, , 'картотеке', .t. )
   reconstruct( path_DB + 'kart_etk', _kart_etk, , 'картотеке', .t. )
-  reconstruct( path_DB + 'k_prim1', k_prim1, 'index_base("k_prim1")', 'картотеке', .t. )
-  reconstruct( path_DB + 'mo_regi', mo_regi, 'index_base("mo_regi")', 'регистрации', .t. )
-  reconstruct( path_DB + 'mo_kpred', mo_kpred, 'index_base("mo_kpred")', , .t. )
-  reconstruct( path_DB + 'mo_kinos', mo_kinos, 'index_base("mo_kinos")', , .t. )
-  reconstruct( path_DB + 'msek', msek, 'index_base("msek")', 'МСЭК', .t. )
+  reconstruct( path_DB + 'k_prim1', k_prim1, 'index_base( "k_prim1" )', 'картотеке', .t. )
+  reconstruct( path_DB + 'mo_regi', mo_regi, 'index_base( "mo_regi" )', 'регистрации', .t. )
+  reconstruct( path_DB + 'mo_kpred', mo_kpred, 'index_base( "mo_kpred" )', , .t. )
+  reconstruct( path_DB + 'mo_kinos', mo_kinos, 'index_base( "mo_kinos" )', , .t. )
+  reconstruct( path_DB + 'msek', msek, 'index_base( "msek" )', 'МСЭК', .t. )
   reconstruct( path_DB + 'p_priem', { { 'NAME', 'C', 25, 0 } }, , , .t. )
-  reconstruct( path_DB + 'mo_kartp', mo_kartp, 'index_base("mo_kartp")', , .t. )
+  reconstruct( path_DB + 'mo_kartp', mo_kartp, 'index_base( "mo_kartp" )', , .t. )
   reconstruct( path_DB + 'mo_krtp', mo_krtp, , , .t. )
   reconstruct( path_DB + 'mo_krte', mo_krte, , , .t. )
   reconstruct( path_DB + 'mo_krtr', mo_krtr, , , .t. )
@@ -1745,18 +1750,18 @@ Function reconstruct_db( is_local_version )
   reconstruct( path_DB + 'mo_krtf', mo_krtf, , , .t. )
   //
   reconstruct( path_DB + 'mo_sprav', spr_OMS, , , .t. )
-  reconstruct( path_DB + 'human', human, 'index_base("human")', 'пролеченным больным', .t. )
+  reconstruct( path_DB + 'human', human, 'index_base( "human" )', 'пролеченным больным', .t. )
   reconstruct( path_DB + 'human_', human_, , 'пролеченным больным1', .t. )
   reconstruct( path_DB + 'human_2', human_2, , 'пролеченным больным2', .t. )
-  reconstruct( path_DB + 'human_im', mo_implant, 'index_base("human_im")', 'установленным имплантам', .t. )
-  reconstruct( path_DB + 'human_lek_pr', mo_lek_pr, 'index_base("human_lek_pr")', 'введенным лекарственным препратам', .t. )
-  reconstruct( path_DB + 'human_ser_num', mo_ser_num, 'index_base("human_ser_num")', 'введенным лекарственным препратам', .t. )
+  reconstruct( path_DB + 'human_im', mo_implant, 'index_base( "human_im" )', 'установленным имплантам', .t. )
+  reconstruct( path_DB + 'human_lek_pr', mo_lek_pr, 'index_base( "human_lek_pr" )', 'введенным лекарственным препратам', .t. )
+  reconstruct( path_DB + 'human_ser_num', mo_ser_num, 'index_base( "human_ser_num" )', 'введенным лекарственным препратам', .t. )
   reconstruct_double_sl()
   reconstruct( path_DB + 'mo_rhum', mo_rhum, , 'реестру случаев', .t. )
-  reconstruct( path_DB + 'mo_refr', mo_refr, 'index_base("mo_refr")', 'списку отказов', .t. )
+  reconstruct( path_DB + 'mo_refr', mo_refr, 'index_base( "mo_refr" )', 'списку отказов', .t. )
   reconstruct( path_DB + 'mo_os', mo_os, , 'оплате и санкциям', .t. )
-  reconstruct( path_DB + 'mo_hu', mo_hu, 'index_base("mo_hu")', 'пролеченным больным5', .t. )
-  reconstruct( path_DB + 'human_u', human_u, 'index_base("human_u")', 'пролеченным больным3', .t. )
+  reconstruct( path_DB + 'mo_hu', mo_hu, 'index_base( "mo_hu" )', 'пролеченным больным5', .t. )
+  reconstruct( path_DB + 'human_u', human_u, 'index_base( "human_u" )', 'пролеченным больным3', .t. )
   reconstruct( path_DB + 'human_u_', human_u_, , 'пролеченным больным4', .t. )
   reconstruct( path_DB + 'mo_hdisp', mo_hdisp, , 'диспансеризациям', .t. )
   reconstruct( path_DB + 'mo_hod', mo_hod, , 'ходатайствам', .t. )
@@ -1769,82 +1774,85 @@ Function reconstruct_db( is_local_version )
   reconstruct( path_DB + 'mo_rpd', mo_rpd, , 'платёжным документам', .t. )
   reconstruct( path_DB + 'mo_rpds', mo_rpds, , 'платёжным документам2', .t. )
   reconstruct( path_DB + 'mo_rpdsh', mo_rpdsh, , 'платёжным документам3', .t. )
-  reconstruct( path_DB + 'mo_onkna', mo_onkna, 'index_base("mo_onkna")', 'онкологии1', .t. )
-  reconstruct( path_DB + 'mo_onksl', mo_onksl, 'index_base("mo_onksl")', 'онкологии2', .t. )
-  reconstruct( path_DB + 'mo_onkdi', mo_onkdi, 'index_base("mo_onkdi")', 'онкологии3', .t. )
-  reconstruct( path_DB + 'mo_onkpr', mo_onkpr, 'index_base("mo_onkpr")', 'онкологии4', .t. )
-  reconstruct( path_DB + 'mo_onkus', mo_onkus, 'index_base("mo_onkus")', 'онкологии5', .t. )
-  reconstruct( path_DB + 'mo_onkco', mo_onkco, 'index_base("mo_onkko")', 'онкологии5', .t. )
-  reconstruct( path_DB + 'mo_onkle', mo_onkle, 'index_base("mo_onkle")', 'онкологии5', .t. )
+  reconstruct( path_DB + 'mo_onkna', mo_onkna, 'index_base( "mo_onkna" )', 'онкологии1', .t. )
+  reconstruct( path_DB + 'mo_onksl', mo_onksl, 'index_base( "mo_onksl" )', 'онкологии2', .t. )
+  reconstruct( path_DB + 'mo_onkdi', mo_onkdi, 'index_base( "mo_onkdi" )', 'онкологии3', .t. )
+  reconstruct( path_DB + 'mo_onkpr', mo_onkpr, 'index_base( "mo_onkpr" )', 'онкологии4', .t. )
+  reconstruct( path_DB + 'mo_onkus', mo_onkus, 'index_base( "mo_onkus" )', 'онкологии5', .t. )
+  reconstruct( path_DB + 'mo_onkco', mo_onkco, 'index_base( "mo_onkko" )', 'онкологии5', .t. )
+  reconstruct( path_DB + 'mo_onkle', mo_onkle, 'index_base( "mo_onkle" )', 'онкологии5', .t. )
   //
   reconstruct( path_DB + 'mo_rees', mo_rees, , 'реестрам случаев', .t. )
   reconstruct( path_DB + 'mo_xml', mo_xml, , 'принятым файлам', .t. )
-  reconstruct( path_DB + 'schet', schet, 'index_base("schet")', 'счетам', .t. )
+  reconstruct( path_DB + 'schet', schet, 'index_base( "schet" )', 'счетам', .t. )
   reconstruct( path_DB + 'schet_', schet_, , 'счетам', .t. )
   reconstruct( path_DB + 'schetd', schetd, , , .t. )
   //
   reconstruct( path_DB + 'mo_uch', mo_uch, , 'учреждениям', .t. )
   reconstruct( path_DB + 'mo_otd', mo_otd, , 'отделениям', .t. )
   reconstruct( path_DB + 'mo_uchvr', mo_uchvr, , 'участковым врачам', .t. )
-  reconstruct( path_DB + 'mo_pers', mo_pers, 'index_base("mo_pers")', 'персоналу', .t. )
+  reconstruct( path_DB + 'mo_pers', mo_pers, 'index_base( "mo_pers" )', 'персоналу', .t. )
   //
   reconstruct( path_DB + 'mo_ppst', mo_ppst, , , .t. )
-  reconstruct( path_DB + 'mo_pp', mo_pp, 'index_base("mo_pp")', 'приемному покою', .t. )
-  reconstruct( path_DB + 'mo_ppdia', mo_ppdia, 'index_base("mo_ppdia")', , .t. )
-  reconstruct( path_DB + 'mo_ppper', mo_ppper, 'index_base("mo_ppper")', , .t. )
+  reconstruct( path_DB + 'mo_pp', mo_pp, 'index_base( "mo_pp" )', 'приемному покою', .t. )
+  reconstruct( path_DB + 'mo_ppdia', mo_ppdia, 'index_base( "mo_ppdia" )', , .t. )
+  reconstruct( path_DB + 'mo_ppper', mo_ppper, 'index_base( "mo_ppper" )', , .t. )
   reconstruct( path_DB + 'mo_ppadd', mo_ppadd, , , .t. )
   //
-  reconstruct( path_DB + 'hum_p', hum_p, 'index_base("hum_p")', 'пролеченным больным6', .t. )
-  reconstruct( path_DB + 'hum_p_u', hum_p_u, 'index_base("hum_p_u")', 'пролеченным больным7', .t. )
-  reconstruct( path_DB + 'plat_ms', plat_ms, 'index_base("plat_ms")', , .t. )
-  reconstruct( path_DB + 'plat_vz', plat_vz, 'index_base("plat_vz")', , .t. )
-  reconstruct( path_DB + 'hum_plat', hum_plat, 'index_base("hum_plat")', 'плательщикам', .t. )
-  reconstruct( path_DB + 'pu_cena', pu_cena, 'index_base("pu_cena")', , .t. )
-  reconstruct( path_DB + 'pu_date', { { 'data', 'D', 8, 0 } }, 'index_base("pu_date")', , .t. )
+  reconstruct( path_DB + 'hum_p', hum_p, 'index_base( "hum_p" )', 'пролеченным больным6', .t. )
+  reconstruct( path_DB + 'hum_p_u', hum_p_u, 'index_base( "hum_p_u" )', 'пролеченным больным7', .t. )
+  reconstruct( path_DB + 'plat_ms', plat_ms, 'index_base( "plat_ms" )', , .t. )
+  reconstruct( path_DB + 'plat_vz', plat_vz, 'index_base( "plat_vz" )', , .t. )
+  reconstruct( path_DB + 'hum_plat', hum_plat, 'index_base( "hum_plat" )', 'плательщикам', .t. )
+  reconstruct( path_DB + 'pu_cena', pu_cena, 'index_base( "pu_cena" )', , .t. )
+  reconstruct( path_DB + 'pu_date', { { 'data', 'D', 8, 0 } }, 'index_base( "pu_date" )', , .t. )
   init_base( path_DB + 'p_pr_vz', , get_dms(), 0, , .t. )
   init_base( path_DB + 'p_d_smo', , get_dms(), 0, , .t. )
   //
-  reconstruct( path_DB + 'ortoped', { { 'NAME',     'C', 80, 0 }, ;
-                                         { 'kod',      'N',  1, 0 }, ;
-                                         { 'kod1',     'N',  1, 0 } }, , , .t. )
-  reconstruct( path_DB + 'ortoped1', { { 'kod_ort',  'N', 4, 0 }, ;
-                                          { 'kod_menu', 'N', 4, 0 }, ;
-                                          { 'massa',    'N', 7, 3 } }, , , .t. )
-  reconstruct( path_DB + 'ortoped2', { { 'kod_tip', 'N', 4, 0 }, ;
-                                          { 'kod_usl', 'N', 4, 0 } }, ;
-            'index_base("ortoped2")', 'материалам', .t. )
-  reconstruct( path_DB + 'diag_ort', diag_ort, 'index_base("diag_ort")', 'диагнозам', .t. )
+  reconstruct( path_DB + 'ortoped', { ;
+                                      { 'NAME',     'C', 80, 0 }, ;
+                                      { 'kod',      'N',  1, 0 }, ;
+                                      { 'kod1',     'N',  1, 0 } }, , , .t. )
+  reconstruct( path_DB + 'ortoped1', { ;
+                                      { 'kod_ort',  'N', 4, 0 }, ;
+                                      { 'kod_menu', 'N', 4, 0 }, ;
+                                      { 'massa',    'N', 7, 3 } }, , , .t. )
+  reconstruct( path_DB + 'ortoped2', { ;
+                                      { 'kod_tip', 'N', 4, 0 }, ;
+                                      { 'kod_usl', 'N', 4, 0 } }, ;
+            'index_base( "ortoped2" )', 'материалам', .t. )
+  reconstruct( path_DB + 'diag_ort', diag_ort, 'index_base( "diag_ort" )', 'диагнозам', .t. )
   reconstruct( path_DB + 'ort_brk', { { 'NAME', 'C', 40, 0 } }, , , .t. )
-  reconstruct( path_DB + 'orto_uva', orto_uva, 'index_base("orto_uva")', , .t. )
-  reconstruct( path_DB + 'hum_ort', hum_o, 'index_base("hum_ort")', 'пролеченным больным8', .t. )
-  reconstruct( path_DB + 'hum_oro', hum_o_o, 'index_base("hum_oro")', 'пролеченным больным9', .t. )
-  reconstruct( path_DB + 'hum_oru', hum_o_u, 'index_base("hum_oru")', 'пролеченным больным10', .t. )
-  reconstruct( path_DB + 'hum_orpl', hum_orpl, 'index_base("hum_orpl")', 'плательщикам', .t. )
+  reconstruct( path_DB + 'orto_uva', orto_uva, 'index_base( "orto_uva" )', , .t. )
+  reconstruct( path_DB + 'hum_ort', hum_o, 'index_base( "hum_ort" )', 'пролеченным больным8', .t. )
+  reconstruct( path_DB + 'hum_oro', hum_o_o, 'index_base( "hum_oro" )', 'пролеченным больным9', .t. )
+  reconstruct( path_DB + 'hum_oru', hum_o_u, 'index_base( "hum_oru" )', 'пролеченным больным10', .t. )
+  reconstruct( path_DB + 'hum_orpl', hum_orpl, 'index_base( "hum_orpl" )', 'плательщикам', .t. )
   init_base( path_DB + 'tip_orto', , gmenutorto(), 0, , .t. )
   //
-  reconstruct( path_DB + 'kas_pl', kas_pl, 'index_base("kas_pl")', 'кассе-1', .t. )
-  reconstruct( path_DB + 'kas_pl_u', kas_pl_u, 'index_base("kas_pl_u")', 'кассе-2', .t. )
-  reconstruct( path_DB + 'kas_ort', kas_ort, 'index_base("kas_ort")', 'кассе-3', .t. )
-  reconstruct( path_DB + 'kas_ortu', kas_ortu, 'index_base("kas_ortu")', 'кассе-4', .t. )
+  reconstruct( path_DB + 'kas_pl', kas_pl, 'index_base( "kas_pl" )', 'кассе-1', .t. )
+  reconstruct( path_DB + 'kas_pl_u', kas_pl_u, 'index_base( "kas_pl_u" )', 'кассе-2', .t. )
+  reconstruct( path_DB + 'kas_ort', kas_ort, 'index_base( "kas_ort" )', 'кассе-3', .t. )
+  reconstruct( path_DB + 'kas_ortu', kas_ortu, 'index_base( "kas_ortu" )', 'кассе-4', .t. )
   reconstruct( path_DB + 'kas_usl', kas_usl, , 'кассе-5', .t. )
   reconstruct( path_DB + 'kas_usld', kas_usl, , 'кассе-6', .t. )
   //
   reconstruct( path_DB + 'register_fns', mo_register_fns, 'index_base( "register_fns" )', 'журнал ФНС', .t. )
   reconstruct( path_DB + 'reg_link_fns', mo_reg_fns_link, 'index_base( "reg_link_fns" )', 'ссылки для справок ФНС', .t. )
   reconstruct( path_DB + 'reg_xml_fns', mo_xml_fns, 'index_base( "reg_xml_fns" )', 'файлы XML для ФНС', .t. )
-  // reconstruct( path_DB + 'payer', fns_payer, 'index_base("payer")', , .t. )
-  reconstruct( path_DB + 'reg_people_fns', people_fns, 'index_base("reg_people_fns")', , .t. )
+  // reconstruct( path_DB + 'payer', fns_payer, 'index_base( "payer" )', , .t. )
+  reconstruct( path_DB + 'reg_people_fns', people_fns, 'index_base( "reg_people_fns" )', , .t. )
   //
-  // reconstruct(path_DB + 'mo_kekez', kek_eksz, 'index_base("mo_kekez")', 'экспертизам', .t.)
-  // reconstruct(path_DB + 'mo_kekh', kek_h, 'index_base("mo_kekh")', 'экспертизам2', .t.)
-  // reconstruct(path_DB + 'mo_keke', kek_eks, 'index_base("mo_keke")', 'экспертизам3', .t.)
+  // reconstruct(path_DB + 'mo_kekez', kek_eksz, 'index_base( "mo_kekez" )', 'экспертизам', .t.)
+  // reconstruct(path_DB + 'mo_kekh', kek_h, 'index_base( "mo_kekh" )', 'экспертизам2', .t.)
+  // reconstruct(path_DB + 'mo_keke', kek_eks, 'index_base( "mo_keke" )', 'экспертизам3', .t.)
   //
-  reconstruct( path_DB + 'mo_napr_num', mo_napr, 'index_base("mo_napr")', , .t. )
+  reconstruct( path_DB + 'mo_napr_num', mo_napr, 'index_base( "mo_napr" )', , .t. )
   // 
   init_base( path_DB + 'komitet', , get_komitet(), 2, , .t. )
   init_base( path_DB + 'str_komp', , get_strah(), 2, , .t. )
   init_base( path_DB + 'organiz', , get_struct_organiz(), 0, , .t. )
-  use_base( "organiz" )
+  use_base( 'organiz' )
   If LastRec() == 0
     addrecn()
     org->kod_tfoms := glob_mo()[ _MO_KOD_TFOMS ]
@@ -1952,7 +1960,7 @@ Function reconstruct_double_sl()
   local path_DB // путь к БД приложения
 
   path_DB := dir_server()
-  reconstruct( path_DB + 'human_3', human_3, 'index_base("human_3")', 'пролеченным больным3', .t. )
+  reconstruct( path_DB + 'human_3', human_3, 'index_base( "human_3" )', 'пролеченным больным3', .t. )
   Return Nil
 
 // 10.03.25 инициализация файлов БД, относящихся к направлениям на госп-ию
@@ -2180,7 +2188,7 @@ Function reconstruct_d01()
   }
   Local mo_d01e := { ; // список ошибок в реестрах будущих диспансеризаций
     { 'REESTR',   'N', 6, 0 }, ; // код реестра;по файлу "mo_d01"
-    { 'D01_ZAP',  'N', 6, 0 }, ; // номер позиции записи в реестре;"ZAP") в D01
+    { 'D01_ZAP',  'N', 6, 0 }, ; // номер позиции записи в реестре;"ZAP" ) в D01
     { 'KOD_ERR',  'N', 3, 0 }, ; // код ошибки ТК
     { 'MESTO',    'N', 1, 0 } ;  // место проведения диспансерного наблюдения: 0 - в МО или 1 - на дому
   }
@@ -2191,172 +2199,172 @@ Function reconstruct_d01()
   reconstruct( path_DB + 'mo_d01k', mo_d01k, , , .t. )
   reconstruct( path_DB + 'mo_d01d', mo_d01d, , , .t. )
   reconstruct( path_DB + 'mo_d01e', mo_d01e, , , .t. )
-  reconstruct( path_DB + 'mo_dnab', mo_dnab, "index_base('mo_dnab')", , .t. )
+  reconstruct( path_DB + 'mo_dnab', mo_dnab, 'index_base( "mo_dnab" )', , .t. )
   Return Nil
 
 // 18.12.25 инициализация всех файлов инф.сопровождения по диспансеризации
 Function reconstruct_dr()
 
   Local mo_dr00 := { ; // пул пациентов, подлежащих диспансеризации/профосмотрам взрослого населения
-    { "kod",        "N", 7, 0 }, ; // код по картотеке
-    { "tip",        "N", 1, 0 }, ; // 1-диспансеризация, 2-профосмотр
-    { "tip1",       "N", 1, 0 }, ; // 1-пенсионер,2-65 лет,3-66 лет и старше
-    { "voz",        "N", 1, 0 }, ; // 1-65 лет, 2-66 лет и старше, 3-пенсионер, 4-остальные
-    { "n_m",        "N", 2, 0 }, ; // месяц для диспансеризации (1-12)
-    { "n_q",        "N", 1, 0 }, ;
-    { "enp",        "C", 16, 0 }, ; // ЕНП
-    { "smo",        "N", 1, 0 }, ; // оповещён ли СМО
-    { "REESTR",     "N", 6, 0 }, ;  // код реестра по файлу "mo_dr01"
-    { "January",    "N", 1, 0 };
+    { 'kod',        'N', 7, 0 }, ; // код по картотеке
+    { 'tip',        'N', 1, 0 }, ; // 1-диспансеризация, 2-профосмотр
+    { 'tip1',       'N', 1, 0 }, ; // 1-пенсионер,2-65 лет,3-66 лет и старше
+    { 'voz',        'N', 1, 0 }, ; // 1-65 лет, 2-66 лет и старше, 3-пенсионер, 4-остальные
+    { 'n_m',        'N', 2, 0 }, ; // месяц для диспансеризации (1-12)
+    { 'n_q',        'N', 1, 0 }, ;
+    { 'enp',        'C', 16, 0 }, ; // ЕНП
+    { 'smo',        'N', 1, 0 }, ; // оповещён ли СМО
+    { 'REESTR',     'N', 6, 0 }, ;  // код реестра по файлу "mo_dr01"
+    { 'January',    'N', 1, 0 };
   }
   Local mo_dr01m := { ; // пакеты по 12 реестра за год (по месяцам)
-    { "REESTR01",    "N", 6, 0 }, ; // код реестра по файлу "mo_dr01"
-    { "REESTR02",    "N", 6, 0 }, ; //
-    { "REESTR03",    "N", 6, 0 }, ; //
-    { "REESTR04",    "N", 6, 0 }, ; //
-    { "REESTR05",    "N", 6, 0 }, ; //
-    { "REESTR06",    "N", 6, 0 }, ; //
-    { "REESTR07",    "N", 6, 0 }, ; //
-    { "REESTR08",    "N", 6, 0 }, ; //
-    { "REESTR09",    "N", 6, 0 }, ; //
-    { "REESTR10",    "N", 6, 0 }, ; //
-    { "REESTR11",    "N", 6, 0 }, ; //
-    { "REESTR12",    "N", 6, 0 }, ; //
-    { "DWORK",       "D", 8, 0 }, ; // дата обработки файла;
-    { "TWORK1",      "C", 5, 0 }, ; // время начала обработки;
-    { "TWORK2",      "C", 5, 0 };  // время окончания обработки;
+    { 'REESTR01',    'N', 6, 0 }, ; // код реестра по файлу "mo_dr01"
+    { 'REESTR02',    'N', 6, 0 }, ; //
+    { 'REESTR03',    'N', 6, 0 }, ; //
+    { 'REESTR04',    'N', 6, 0 }, ; //
+    { 'REESTR05',    'N', 6, 0 }, ; //
+    { 'REESTR06',    'N', 6, 0 }, ; //
+    { 'REESTR07',    'N', 6, 0 }, ; //
+    { 'REESTR08',    'N', 6, 0 }, ; //
+    { 'REESTR09',    'N', 6, 0 }, ; //
+    { 'REESTR10',    'N', 6, 0 }, ; //
+    { 'REESTR11',    'N', 6, 0 }, ; //
+    { 'REESTR12',    'N', 6, 0 }, ; //
+    { 'DWORK',       'D', 8, 0 }, ; // дата обработки файла;
+    { 'TWORK1',      'C', 5, 0 }, ; // время начала обработки;
+    { 'TWORK2',      'C', 5, 0 };  // время окончания обработки;
   }
   Local mo_dr01 := { ; // отсылаемые файлы о будущих диспансеризациях взрослого населения
-    { "KOD",         "N", 6, 0 }, ; // код реестра (номер записи)
-    { "tip",         "N", 1, 0 }, ; // 0-R01, 1-R11
-    { "DSCHET",      "D", 8, 0 }, ; // дата файла
-    { "NYEAR",       "N", 4, 0 }, ; // отчетный год
-    { "NMONTH",      "N", 2, 0 }, ; // отчетный месяц
-    { "NN",          "N", 3, 0 }, ; // порядковый номер пакета;номер по порядку пакета в данном отчетном периоде (3 знака с лидирующим нулем);
-    { "NAME_XML",    "C", 26, 0 }, ; // имя XML-файла без расширения (и ZIP-архива)
-    { "KOD_XML",     "N", 6, 0 }, ; // ссылка на файл "mo_xml"
-    { "DATE_OUT",    "D", 8, 0 }, ; // дата отправки в ТФОМС
-    { "NUMB_OUT",    "N", 2, 0 }, ; // сколько раз всего записывали файл на носитель;
-    { "ANSWER",      "N", 1, 0 }, ; // 0-не было ответа, 1-получен ответ (R02)
-    { "KOL",         "N", 6, 0 }, ; // количество пациентов в реестре/файле
-    { "KOL_ERR",     "N", 6, 0 };  // количество пациентов с ошибками в реестре
+    { 'KOD',         'N', 6, 0 }, ; // код реестра (номер записи)
+    { 'tip',         'N', 1, 0 }, ; // 0-R01, 1-R11
+    { 'DSCHET',      'D', 8, 0 }, ; // дата файла
+    { 'NYEAR',       'N', 4, 0 }, ; // отчетный год
+    { 'NMONTH',      'N', 2, 0 }, ; // отчетный месяц
+    { 'NN',          'N', 3, 0 }, ; // порядковый номер пакета;номер по порядку пакета в данном отчетном периоде (3 знака с лидирующим нулем);
+    { 'NAME_XML',    'C', 26, 0 }, ; // имя XML-файла без расширения (и ZIP-архива)
+    { 'KOD_XML',     'N', 6, 0 }, ; // ссылка на файл "mo_xml"
+    { 'DATE_OUT',    'D', 8, 0 }, ; // дата отправки в ТФОМС
+    { 'NUMB_OUT',    'N', 2, 0 }, ; // сколько раз всего записывали файл на носитель;
+    { 'ANSWER',      'N', 1, 0 }, ; // 0-не было ответа, 1-получен ответ (R02)
+    { 'KOL',         'N', 6, 0 }, ; // количество пациентов в реестре/файле
+    { 'KOL_ERR',     'N', 6, 0 };  // количество пациентов с ошибками в реестре
   }
   Local mo_dr01k := { ; // список пациентов в реестрах будущих диспансеризаций
-    { "REESTR",   "N", 6, 0 }, ; // код реестра по файлу "mo_dr01"
-    { "KOD_K",    "N", 7, 0 }, ; // код по картотеке
-    { "R01_ZAP",  "N", 6, 0 }, ; // номер позиции записи в реестре;"ZAP" в R01
-    { "tip",      "N", 1, 0 }, ; // 1-диспансеризация 1 этап, 2-профосмотр
-    { "tip1",     "N", 1, 0 }, ; // 1-пенсионер,2-65 лет,3-66 лет и старше
-    { "voz",      "N", 1, 0 }, ; // 1-65 лет, 2-66 лет и старше, 3-пенсионер, 4-прочие
-    { "N_M",      "N", 2, 0 }, ; // месяц для диспансеризации (1-12)
-    { "ID_PAC",   "C", 36, 0 }, ; // GUID пациента в R01 (создается при добавлении записи)
-    { "OPLATA",   "N", 1, 0 };  // тип оплаты: сначала 0, затем из ТФОМС 1,2,3,4
+    { 'REESTR',   'N', 6, 0 }, ; // код реестра по файлу "mo_dr01"
+    { 'KOD_K',    'N', 7, 0 }, ; // код по картотеке
+    { 'R01_ZAP',  'N', 6, 0 }, ; // номер позиции записи в реестре;"ZAP" в R01
+    { 'tip',      'N', 1, 0 }, ; // 1-диспансеризация 1 этап, 2-профосмотр
+    { 'tip1',     'N', 1, 0 }, ; // 1-пенсионер,2-65 лет,3-66 лет и старше
+    { 'voz',      'N', 1, 0 }, ; // 1-65 лет, 2-66 лет и старше, 3-пенсионер, 4-прочие
+    { 'N_M',      'N', 2, 0 }, ; // месяц для диспансеризации (1-12)
+    { 'ID_PAC',   'C', 36, 0 }, ; // GUID пациента в R01 (создается при добавлении записи)
+    { 'OPLATA',   'N', 1, 0 };  // тип оплаты: сначала 0, затем из ТФОМС 1,2,3,4
   }
   Local mo_dr01e := { ; // список ошибок в реестрах будущих диспансеризаций
-    { "REESTR",   "N", 6, 0 }, ; // код реестра;по файлу "mo_dr01"
-    { "R01_ZAP",  "N", 6, 0 }, ; // номер позиции записи в реестре;"ZAP") в R01
-    { "KOD_ERR",  "N", 3, 0 };  // код ошибки ТК
+    { 'REESTR',   'N', 6, 0 }, ; // код реестра;по файлу "mo_dr01"
+    { 'R01_ZAP',  'N', 6, 0 }, ; // номер позиции записи в реестре;"ZAP" ) в R01
+    { 'KOD_ERR',  'N', 3, 0 };  // код ошибки ТК
   }
   //
   Local mo_dr05 := { ; // отсылаемые файлы о будущих диспансеризациях взрослого населения
-    { "KOD",         "N", 6, 0 }, ; // код реестра (номер записи)
-    { "REC_5P",      "N", 3, 0 }, ; // номер записи в файле mo_dr05p
-    { "DSCHET",      "D", 8, 0 }, ; // дата файла
-    { "NYEAR",       "N", 4, 0 }, ; // отчетный год
-    { "NN",          "N", 3, 0 }, ; // порядковый номер пакета в данном отчетном периоде (3 знака с лидирующим нулем)
-    { "NAME_XML",    "C", 26, 0 }, ; // имя XML-файла без расширения (и ZIP-архива)
-    { "KOD_XML",     "N", 6, 0 }, ; // ссылка на файл "mo_xml"
-    { "DATE_OUT",    "D", 8, 0 }, ; // дата отправки в ТФОМС;;
-    { "NUMB_OUT",    "N", 2, 0 }, ; // номер отправки в ТФОМС;сколько раз всего записывали файл на носитель;
-    { "KOL",         "N", 6, 0 }; // количество пациентов в реестре/файле
+    { 'KOD',         'N', 6, 0 }, ; // код реестра (номер записи)
+    { 'REC_5P',      'N', 3, 0 }, ; // номер записи в файле mo_dr05p
+    { 'DSCHET',      'D', 8, 0 }, ; // дата файла
+    { 'NYEAR',       'N', 4, 0 }, ; // отчетный год
+    { 'NN',          'N', 3, 0 }, ; // порядковый номер пакета в данном отчетном периоде (3 знака с лидирующим нулем)
+    { 'NAME_XML',    'C', 26, 0 }, ; // имя XML-файла без расширения (и ZIP-архива)
+    { 'KOD_XML',     'N', 6, 0 }, ; // ссылка на файл "mo_xml"
+    { 'DATE_OUT',    'D', 8, 0 }, ; // дата отправки в ТФОМС;;
+    { 'NUMB_OUT',    'N', 2, 0 }, ; // номер отправки в ТФОМС;сколько раз всего записывали файл на носитель;
+    { 'KOL',         'N', 6, 0 }; // количество пациентов в реестре/файле
   }
   Local mo_dr05k := { ; // кол-во пациентов в реестрах будущих диспансеризаций
-    { "REESTR",   "N", 6, 0 }, ; // код реестра по файлу "mo_dr05"
-    { "tip",      "N", 1, 0 }, ; // 1-диспансеризация 1 этап, 2-профосмотр
-    { "voz",      "N", 1, 0 }, ; // 1-65 лет, 2-66 лет и старше, 3-пенсионер, 4-прочие
-    { "N_Y",      "N", 4, 0 }, ; // год для диспансеризации
-    { "N_M",      "N", 2, 0 }, ; // месяц для диспансеризации (1-12)
-    { "UCH",      "N", 2, 0 }, ; // номер участка (для отсылки в ТФОМС)
-    { "REC_5P",   "N", 3, 0 }, ; // номер записи в файле mo_dr05p
-    { "R05_ZAP",  "N", 6, 0 }, ; // номер позиции записи в реестре;"CODE_R" в R05
-    { "KOL",      "N", 6, 0 }, ; // количество пациентов в реестре/файле
-    { "OPLATA",   "N", 1, 0 };  // тип оплаты: сначала 0, 1 - пришла ошибка
+    { 'REESTR',   'N', 6, 0 }, ; // код реестра по файлу "mo_dr05"
+    { 'tip',      'N', 1, 0 }, ; // 1-диспансеризация 1 этап, 2-профосмотр
+    { 'voz',      'N', 1, 0 }, ; // 1-65 лет, 2-66 лет и старше, 3-пенсионер, 4-прочие
+    { 'N_Y',      'N', 4, 0 }, ; // год для диспансеризации
+    { 'N_M',      'N', 2, 0 }, ; // месяц для диспансеризации (1-12)
+    { 'UCH',      'N', 2, 0 }, ; // номер участка (для отсылки в ТФОМС)
+    { 'REC_5P',   'N', 3, 0 }, ; // номер записи в файле mo_dr05p
+    { 'R05_ZAP',  'N', 6, 0 }, ; // номер позиции записи в реестре;"CODE_R" в R05
+    { 'KOL',      'N', 6, 0 }, ; // количество пациентов в реестре/файле
+    { 'OPLATA',   'N', 1, 0 };  // тип оплаты: сначала 0, 1 - пришла ошибка
   }
   Local mo_dr05p := { ; // план-график
-    { "N_Y",      "N", 4, 0 }, ; // год для диспансеризации
-    { "TYPEOFREC", "N", 1, 0 }, ; // 0-первично представленная запись, 1-актуализированная запись
-    { "KOL1",     "N", 6, 0 }, ; // количество пациентов для диспансеризации на год
-    { "KOL2",     "N", 6, 0 }, ; // количество пациентов для профосмотров на год
-    { "KOL11",     "N", 6, 0 }, ; // количество пациентов для диспансеризации на год
-    { "KOL12",     "N", 6, 0 }, ; // количество пациентов для диспансеризации на год
-    { "KOL13",     "N", 6, 0 }, ; // количество пациентов для диспансеризации на год
-    { "KOL1_01",  "N", 6, 0 }, ; // количество пациентов для диспансеризации на 1 месяц
-    { "KOL1_02",  "N", 6, 0 }, ; // количество пациентов для диспансеризации на 2 месяц
-    { "KOL1_03",  "N", 6, 0 }, ; // количество пациентов для диспансеризации на 3 месяц
-    { "KOL1_04",  "N", 6, 0 }, ; // количество пациентов для диспансеризации на 4 месяц
-    { "KOL1_05",  "N", 6, 0 }, ; // количество пациентов для диспансеризации на 5 месяц
-    { "KOL1_06",  "N", 6, 0 }, ; // количество пациентов для диспансеризации на 6 месяц
-    { "KOL1_07",  "N", 6, 0 }, ; // количество пациентов для диспансеризации на 7 месяц
-    { "KOL1_08",  "N", 6, 0 }, ; // количество пациентов для диспансеризации на 8 месяц
-    { "KOL1_09",  "N", 6, 0 }, ; // количество пациентов для диспансеризации на 9 месяц
-    { "KOL1_10",  "N", 6, 0 }, ; // количество пациентов для диспансеризации на 10 месяц
-    { "KOL1_11",  "N", 6, 0 }, ; // количество пациентов для диспансеризации на 11 месяц
-    { "KOL1_12",  "N", 6, 0 }, ; // количество пациентов для диспансеризации на 12 месяц
-    { "KOL2_01",  "N", 6, 0 }, ; // количество пациентов для профосмотров на 1 месяц
-    { "KOL2_02",  "N", 6, 0 }, ; // количество пациентов для профосмотров на 2 месяц
-    { "KOL2_03",  "N", 6, 0 }, ; // количество пациентов для профосмотров на 3 месяц
-    { "KOL2_04",  "N", 6, 0 }, ; // количество пациентов для профосмотров на 4 месяц
-    { "KOL2_05",  "N", 6, 0 }, ; // количество пациентов для профосмотров на 5 месяц
-    { "KOL2_06",  "N", 6, 0 }, ; // количество пациентов для профосмотров на 6 месяц
-    { "KOL2_07",  "N", 6, 0 }, ; // количество пациентов для профосмотров на 7 месяц
-    { "KOL2_08",  "N", 6, 0 }, ; // количество пациентов для профосмотров на 8 месяц
-    { "KOL2_09",  "N", 6, 0 }, ; // количество пациентов для профосмотров на 9 месяц
-    { "KOL2_10",  "N", 6, 0 }, ; // количество пациентов для профосмотров на 10 месяц
-    { "KOL2_11",  "N", 6, 0 }, ; // количество пациентов для профосмотров на 11 месяц
-    { "KOL2_12",  "N", 6, 0 }, ; // количество пациентов для профосмотров на 12 месяц
-    { "KOL11_01",  "N", 6, 0 }, ; //
-    { "KOL11_02",  "N", 6, 0 }, ; //
-    { "KOL11_03",  "N", 6, 0 }, ; //
-    { "KOL11_04",  "N", 6, 0 }, ; //
-    { "KOL11_05",  "N", 6, 0 }, ; //
-    { "KOL11_06",  "N", 6, 0 }, ; //
-    { "KOL11_07",  "N", 6, 0 }, ; //
-    { "KOL11_08",  "N", 6, 0 }, ; //
-    { "KOL11_09",  "N", 6, 0 }, ; //
-    { "KOL11_10",  "N", 6, 0 }, ; //
-    { "KOL11_11",  "N", 6, 0 }, ; //
-    { "KOL11_12",  "N", 6, 0 }, ; //
-    { "KOL12_01",  "N", 6, 0 }, ; //
-    { "KOL12_02",  "N", 6, 0 }, ; //
-    { "KOL12_03",  "N", 6, 0 }, ; //
-    { "KOL12_04",  "N", 6, 0 }, ; //
-    { "KOL12_05",  "N", 6, 0 }, ; //
-    { "KOL12_06",  "N", 6, 0 }, ; //
-    { "KOL12_07",  "N", 6, 0 }, ; //
-    { "KOL12_08",  "N", 6, 0 }, ; //
-    { "KOL12_09",  "N", 6, 0 }, ; //
-    { "KOL12_10",  "N", 6, 0 }, ; //
-    { "KOL12_11",  "N", 6, 0 }, ; //
-    { "KOL12_12",  "N", 6, 0 }, ; //
-    { "KOL13_01",  "N", 6, 0 }, ; //
-    { "KOL13_02",  "N", 6, 0 }, ; //
-    { "KOL13_03",  "N", 6, 0 }, ; //
-    { "KOL13_04",  "N", 6, 0 }, ; //
-    { "KOL13_05",  "N", 6, 0 }, ; //
-    { "KOL13_06",  "N", 6, 0 }, ; //
-    { "KOL13_07",  "N", 6, 0 }, ; //
-    { "KOL13_08",  "N", 6, 0 }, ; //
-    { "KOL13_09",  "N", 6, 0 }, ; //
-    { "KOL13_10",  "N", 6, 0 }, ; //
-    { "KOL13_11",  "N", 6, 0 }, ; //
-    { "KOL13_12",  "N", 6, 0 }, ; //
-    { "D_KZ",     "D", 8, 0 }, ; // дата приказа КЗ ВО
-    { "priz",     "N", 1, 0 };
+    { 'N_Y',      'N', 4, 0 }, ; // год для диспансеризации
+    { 'TYPEOFREC', 'N', 1, 0 }, ; // 0-первично представленная запись, 1-актуализированная запись
+    { 'KOL1',     'N', 6, 0 }, ; // количество пациентов для диспансеризации на год
+    { 'KOL2',     'N', 6, 0 }, ; // количество пациентов для профосмотров на год
+    { 'KOL11',     'N', 6, 0 }, ; // количество пациентов для диспансеризации на год
+    { 'KOL12',     'N', 6, 0 }, ; // количество пациентов для диспансеризации на год
+    { 'KOL13',     'N', 6, 0 }, ; // количество пациентов для диспансеризации на год
+    { 'KOL1_01',  'N', 6, 0 }, ; // количество пациентов для диспансеризации на 1 месяц
+    { 'KOL1_02',  'N', 6, 0 }, ; // количество пациентов для диспансеризации на 2 месяц
+    { 'KOL1_03',  'N', 6, 0 }, ; // количество пациентов для диспансеризации на 3 месяц
+    { 'KOL1_04',  'N', 6, 0 }, ; // количество пациентов для диспансеризации на 4 месяц
+    { 'KOL1_05',  'N', 6, 0 }, ; // количество пациентов для диспансеризации на 5 месяц
+    { 'KOL1_06',  'N', 6, 0 }, ; // количество пациентов для диспансеризации на 6 месяц
+    { 'KOL1_07',  'N', 6, 0 }, ; // количество пациентов для диспансеризации на 7 месяц
+    { 'KOL1_08',  'N', 6, 0 }, ; // количество пациентов для диспансеризации на 8 месяц
+    { 'KOL1_09',  'N', 6, 0 }, ; // количество пациентов для диспансеризации на 9 месяц
+    { 'KOL1_10',  'N', 6, 0 }, ; // количество пациентов для диспансеризации на 10 месяц
+    { 'KOL1_11',  'N', 6, 0 }, ; // количество пациентов для диспансеризации на 11 месяц
+    { 'KOL1_12',  'N', 6, 0 }, ; // количество пациентов для диспансеризации на 12 месяц
+    { 'KOL2_01',  'N', 6, 0 }, ; // количество пациентов для профосмотров на 1 месяц
+    { 'KOL2_02',  'N', 6, 0 }, ; // количество пациентов для профосмотров на 2 месяц
+    { 'KOL2_03',  'N', 6, 0 }, ; // количество пациентов для профосмотров на 3 месяц
+    { 'KOL2_04',  'N', 6, 0 }, ; // количество пациентов для профосмотров на 4 месяц
+    { 'KOL2_05',  'N', 6, 0 }, ; // количество пациентов для профосмотров на 5 месяц
+    { 'KOL2_06',  'N', 6, 0 }, ; // количество пациентов для профосмотров на 6 месяц
+    { 'KOL2_07',  'N', 6, 0 }, ; // количество пациентов для профосмотров на 7 месяц
+    { 'KOL2_08',  'N', 6, 0 }, ; // количество пациентов для профосмотров на 8 месяц
+    { 'KOL2_09',  'N', 6, 0 }, ; // количество пациентов для профосмотров на 9 месяц
+    { 'KOL2_10',  'N', 6, 0 }, ; // количество пациентов для профосмотров на 10 месяц
+    { 'KOL2_11',  'N', 6, 0 }, ; // количество пациентов для профосмотров на 11 месяц
+    { 'KOL2_12',  'N', 6, 0 }, ; // количество пациентов для профосмотров на 12 месяц
+    { 'KOL11_01',  'N', 6, 0 }, ; //
+    { 'KOL11_02',  'N', 6, 0 }, ; //
+    { 'KOL11_03',  'N', 6, 0 }, ; //
+    { 'KOL11_04',  'N', 6, 0 }, ; //
+    { 'KOL11_05',  'N', 6, 0 }, ; //
+    { 'KOL11_06',  'N', 6, 0 }, ; //
+    { 'KOL11_07',  'N', 6, 0 }, ; //
+    { 'KOL11_08',  'N', 6, 0 }, ; //
+    { 'KOL11_09',  'N', 6, 0 }, ; //
+    { 'KOL11_10',  'N', 6, 0 }, ; //
+    { 'KOL11_11',  'N', 6, 0 }, ; //
+    { 'KOL11_12',  'N', 6, 0 }, ; //
+    { 'KOL12_01',  'N', 6, 0 }, ; //
+    { 'KOL12_02',  'N', 6, 0 }, ; //
+    { 'KOL12_03',  'N', 6, 0 }, ; //
+    { 'KOL12_04',  'N', 6, 0 }, ; //
+    { 'KOL12_05',  'N', 6, 0 }, ; //
+    { 'KOL12_06',  'N', 6, 0 }, ; //
+    { 'KOL12_07',  'N', 6, 0 }, ; //
+    { 'KOL12_08',  'N', 6, 0 }, ; //
+    { 'KOL12_09',  'N', 6, 0 }, ; //
+    { 'KOL12_10',  'N', 6, 0 }, ; //
+    { 'KOL12_11',  'N', 6, 0 }, ; //
+    { 'KOL12_12',  'N', 6, 0 }, ; //
+    { 'KOL13_01',  'N', 6, 0 }, ; //
+    { 'KOL13_02',  'N', 6, 0 }, ; //
+    { 'KOL13_03',  'N', 6, 0 }, ; //
+    { 'KOL13_04',  'N', 6, 0 }, ; //
+    { 'KOL13_05',  'N', 6, 0 }, ; //
+    { 'KOL13_06',  'N', 6, 0 }, ; //
+    { 'KOL13_07',  'N', 6, 0 }, ; //
+    { 'KOL13_08',  'N', 6, 0 }, ; //
+    { 'KOL13_09',  'N', 6, 0 }, ; //
+    { 'KOL13_10',  'N', 6, 0 }, ; //
+    { 'KOL13_11',  'N', 6, 0 }, ; //
+    { 'KOL13_12',  'N', 6, 0 }, ; //
+    { 'D_KZ',     'D', 8, 0 }, ; // дата приказа КЗ ВО
+    { 'priz',     'N', 1, 0 };
   }
   Local mo_dr05e := { ; // список ошибок в реестрах будущих диспансеризаций
-    { "REESTR",   "N", 6, 0 }, ; // код реестра;по файлу "mo_dr05"
-    { "R05_ZAP",  "N", 6, 0 }, ; // номер позиции записи в реестре;"ZAP") в R05
-    { "KOD_ERR",  "N", 3, 0 };  // код ошибки ТК
+    { 'REESTR',   'N', 6, 0 }, ; // код реестра;по файлу "mo_dr05"
+    { 'R05_ZAP',  'N', 6, 0 }, ; // номер позиции записи в реестре;"ZAP" ) в R05
+    { 'KOD_ERR',  'N', 3, 0 };  // код ошибки ТК
   }
   Local path_DB
 

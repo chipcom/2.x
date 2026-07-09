@@ -608,7 +608,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   Endif
   Close databases
   MFIO_KART := SubStr( _f_fio_kart(), 1, 35 )
-  mvzros_reb := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
+  mvzros_reb := inieditspr( A__MENUVERT, menu_vzros(), m1vzros_reb )
   If Empty( m1USL_OK )
     m1USL_OK := USL_OK_HOSPITAL
   Endif // на всякий случай
@@ -640,7 +640,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   MF14_RASH := inieditspr( A__MENUVERT, mm_danet, M1F14_RASH )
   mrslt     := inieditspr( A__MENUVERT, getv009(), m1rslt )
   mishod    := inieditspr( A__MENUVERT, getv012(), m1ishod )
-  mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
+  mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis(), m1vidpolis )
   mbolnich  := inieditspr( A__MENUVERT, menu_bolnich, m1bolnich )
   mNMSE     := inieditspr( A__MENUVERT, arr_NO_YES(), m1NMSE )
   // mpovod    := inieditspr(A__MENUVERT, stm_povod, m1povod)
@@ -789,7 +789,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       @ Row(), Col() + 3 Say 'Д.р. ребёнка' Get mdate_r2 when ( m1novor == 1 )
       If mem_pol == 1
         @ Row(), Col() + 3 Say 'Пол ребёнка' Get mpol2 ;
-          reader {| x| menu_reader( x, menupol, A__MENUVERT, , , .f. ) } ;
+          reader {| x| menu_reader( x, menupol(), A__MENUVERT, , , .f. ) } ;
           when ( m1novor == 1 )
       Else
         @ Row(), Col() + 3 Say 'Пол ребёнка' Get mpol2 Pict '@!' ;
@@ -867,7 +867,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       @ ++j, 1 Say 'Полис ОМС: серия' Get mspolis When m1komu == 0
       @ Row(), Col() + 3 Say 'номер' Get mnpolis When m1komu == 0
       @ Row(), Col() + 3 Say 'вид'   Get mvidpolis ;
-        reader {| x| menu_reader( x, mm_vid_polis, A__MENUVERT, , , .f. ) } ;
+        reader {| x| menu_reader( x, mm_vid_polis(), A__MENUVERT, , , .f. ) } ;
         When m1komu == 0 ;
         Valid func_valid_polis( m1vidpolis, mspolis, mnpolis )
       //
@@ -1029,7 +1029,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       @ Row(),  Col() + 1 Say 'Д.р.родителя' Get mrodit_dr When m1bolnich == 2
       If mem_pol == 1
         @ Row(),  Col() + 1 Say 'Пол' Get mrodit_pol ;
-          reader {| x| menu_reader( x, menupol, A__MENUVERT, , , .f. ) } ;
+          reader {| x| menu_reader( x, menupol(), A__MENUVERT, , , .f. ) } ;
           When m1bolnich == 2
       Else
         @ Row(), Col() + 1 Say 'Пол' Get mrodit_pol Pict '@!' ;

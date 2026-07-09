@@ -365,7 +365,7 @@ Function s_mnog_poisk()
     ' ', NIL, ;
     'Пол', {|| mpol $ ' МЖ' } } )
   AAdd( mm_tmp, { 'vzros_reb', 'N', 2, 0, NIL, ;
-    {| x| menu_reader( x, menu_vzros, A__MENUVERT ) }, ;
+    {| x| menu_reader( x, menu_vzros(), A__MENUVERT ) }, ;
     -1, {|| Space( 10 ) }, ;
     'Возрастная принадлежность' } )
   AAdd( mm_tmp, { 'god_r_min', 'D', 8, 0, , ;
@@ -1313,7 +1313,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
         Endif
       Endif
       If mn->vzros_reb >= 0
-        sOutput := 'Возрастная принадлежность: ' + inieditspr( A__MENUVERT, menu_vzros, mn->vzros_reb )
+        sOutput := 'Возрастная принадлежность: ' + inieditspr( A__MENUVERT, menu_vzros(), mn->vzros_reb )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
       Endif
       If !Empty( mn->god_r_min ) .or. !Empty( mn->god_r_max )

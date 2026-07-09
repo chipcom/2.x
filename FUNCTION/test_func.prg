@@ -5,10 +5,10 @@
 
 function test_init()
 
-//  local aaa
+  local aaa
 
-//  aaa := get_plans_KZVO( 2026, '340169' ) // Фроловская ЦРБ
-//  altd()
+  aaa := mm_gorod_selo()
+  altd()
 
   return nil
 

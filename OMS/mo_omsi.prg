@@ -600,7 +600,6 @@ Function vosst_ob_em_rak()
   Local nameArr
 
   If arr_smo == NIL
-//    arr_smo := mo_cut_menu( glob_arr_smo )
     arr_smo := mo_cut_menu( smo_volgograd() )
     For i := 1 To Len( arr_smo )
       arr_smo[ i, 3 ] := PadR( lstr( arr_smo[ i, 2 ] ), 5 )

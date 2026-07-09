@@ -3571,7 +3571,6 @@ Function read_xml_file_d02( arr_XML_info, aerr, /*@*/current_i2,lrec_xml)
     @ MaxRow(), 0 Say Str( ++i / k * 100, 6, 2 ) + '%' Color cColorWait
     If tmp2->_OPLATA == 1
       ++ii1
-      // If !Empty( tmp2->_SMO ) .and. AScan( glob_arr_smo, {| x| x[ 2 ] == Int( Val( tmp2->_SMO ) ) } ) == 0
       If !Empty( tmp2->_SMO ) .and. AScan( smo_volgograd(), {| x| x[ 2 ] == Int( Val( tmp2->_SMO ) ) } ) == 0
         AAdd( aerr, 'Некорректное значение атрибута SMO: ' + tmp2->_SMO )
       Endif
