@@ -492,7 +492,7 @@ Function kassa_r_list_uch( par, name_func )
   mmr_dol := kart->mr_dol
   mtime := hour_min( Seconds() )
   msrok_polis := full_date( c4tod( kart->srok_polis ) )
-  mvzros_reb := Upper( inieditspr( A__MENUVERT, menu_vzros, kart->vzros_reb ) )
+  mvzros_reb := Upper( inieditspr( A__MENUVERT, menu_vzros(), kart->vzros_reb ) )
   mmi_git    := okato_mi_git( kart_->okatog )
   mrajon_git := okato_rajon( kart_->okatog )
   mmest_inog := mrajon_fin := ""
@@ -502,7 +502,6 @@ Function kassa_r_list_uch( par, name_func )
     mkomu += iif( Empty( s ), "ТФОМС (иногородние)", s )
     mmest_inog := inieditspr( A__MENUVERT, glob_array_srf(), kart_->KVARTAL_D ) // ОКАТО субъекта РФ территории страхования
   Elseif Left( kart_->SMO, 2 ) == '34'
-//    mkomu += AllTrim( inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( kart_->smo ) ) ) )
     mkomu += AllTrim( inieditspr( A__MENUVERT, smo_volgograd(), Int( Val( kart_->smo ) ) ) )
     mmest_inog := 'Волгоградская область'
   Elseif !Empty( kart_->SMO )

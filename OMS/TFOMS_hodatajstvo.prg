@@ -575,10 +575,9 @@ Function create_file_hodatajstvo( arr_m )
             Endif
             frd->okatog := kart_->okatog
             frd->adresg := ret_okato_ulica( kart->adres, kart_->okatog, 1, 2 )
-            frd->vidpolis := lstr( human_->VPOLIS ) + '-' + inieditspr( A__MENUVERT, mm_vid_polis, human_->VPOLIS )
+            frd->vidpolis := lstr( human_->VPOLIS ) + '-' + inieditspr( A__MENUVERT, mm_vid_polis(), human_->VPOLIS )
             frd->polis := AllTrim( AllTrim( human_->SPOLIS ) + ' ' + human_->NPOLIS )
             frd->smo := human_->smo
-//            frd->name_smo := inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( human_->smo ) ) )
             frd->name_smo := inieditspr( A__MENUVERT, smo_volgograd(), Int( Val( human_->smo ) ) )
             arrSMO := findSMO_in_f019( human_->smo )
             If Empty( frd->name_smo )

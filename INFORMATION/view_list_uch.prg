@@ -110,7 +110,7 @@ Function print_l_uch( mkod, par, regim, lnomer )
     endif
   endif
   mpolis := alltrim(rtrim(human_->SPOLIS) + ' ' +human_->NPOLIS) + ' (' +;
-          alltrim(inieditspr(A__MENUVERT, mm_vid_polis, human_->VPOLIS)) + ')'
+          alltrim(inieditspr(A__MENUVERT, mm_vid_polis(), human_->VPOLIS)) + ')'
   madres := iif(emptyall(kart_->okatog,kart->adres), '', ret_okato_ulica(kart->adres,kart_->okatog))
   madresp := iif(emptyall(kart_->okatop,kart_->adresp), '', ret_okato_ulica(kart_->adresp,kart_->okatop))
   //
@@ -184,7 +184,7 @@ Function print_l_uch( mkod, par, regim, lnomer )
   nTipLu := otd->tiplu
   lTypeLUMedReab := ( otd->tiplu == TIP_LU_MED_REAB )
 
-  mvzros_reb := inieditspr(A__MENUVERT, menu_vzros, human->vzros_reb)
+  mvzros_reb := inieditspr(A__MENUVERT, menu_vzros(), human->vzros_reb)
   mrab_nerab := inieditspr(A__MENUVERT, menu_rab(), kart->rab_nerab)
   mkomu := f4_view_list_schet(human->komu, cut_code_smo(human_->smo), human->str_crb)
   mnum_lu := alltrim(human->uch_doc)
@@ -1238,7 +1238,7 @@ Function print_al_uch(arr_h, arr_m)
   set relation to recno() into HUMAN_
   goto (atail(arr_h)[2])
   mpolis := alltrim(rtrim(human_->SPOLIS) + ' ' +human_->NPOLIS) + ' (' + ;
-            alltrim(inieditspr(A__MENUVERT, mm_vid_polis, human_->VPOLIS)) + ')'
+            alltrim(inieditspr(A__MENUVERT, mm_vid_polis(), human_->VPOLIS)) + ')'
   R_Use(dir_server() + 'kartote_', , 'KART_')
   R_Use(dir_server() + 'kartotek', , 'KART')
   set relation to recno() into KART_
@@ -1258,7 +1258,7 @@ Function print_al_uch(arr_h, arr_m)
     endif
   endif
   //
-  mvzros_reb := inieditspr(A__MENUVERT, menu_vzros, human->vzros_reb)
+  mvzros_reb := inieditspr(A__MENUVERT, menu_vzros(), human->vzros_reb)
   mrab_nerab := inieditspr(A__MENUVERT, menu_rab(), human->rab_nerab)
   mkomu := f4_view_list_schet(human->komu, cut_code_smo(human_->smo), human->str_crb)
   mnum_lu := alltrim(human->uch_doc)

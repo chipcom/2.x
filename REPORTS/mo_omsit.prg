@@ -681,7 +681,7 @@ Function f1_rule_3( nKey, oBrow, regim )
       @ k + 2, pc1 + 3 Say "         по" Get mdiag2 Pict "@!" ;
         reader {| o| mygetreader( o, bg ) } Valid val2_10diag()
       If mem_pol == 1
-        @ k + 3, pc1 + 3 Say "Пол" Get mpol reader {| x| menu_reader( x, menupol, A__MENUVERT,,, .f. ) }
+        @ k + 3, pc1 + 3 Say "Пол" Get mpol reader {| x| menu_reader( x, menupol(), A__MENUVERT,,, .f. ) }
       Else
         @ k + 3, pc1 + 3 Say "Пол" Get mpol Pict "@!" valid {| g| mpol $ "МЖ" }
       Endif

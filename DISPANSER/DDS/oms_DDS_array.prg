@@ -775,14 +775,6 @@ function mm_prich_vyb()
   endif
   return prich_vyb
 
-// 03.10.25
-function menu_vzros()
-  return { { 'взрослый ', 0 }, { 'ребёнок  ', 1 }, { 'подросток', 2 } }
-
-// 03.10.25
-function mm_vid_polis()
-  return { { 'старый', 1 }, { 'врем. ', 2 }, { 'новый ', 3 } }
-
 // 16.02.26
 function DDS_usl_replace( mdata )
 

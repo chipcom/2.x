@@ -155,7 +155,7 @@ Function f2_e_boln( nkey )
       @ Row(), Col() + 1 Say "Д.р.родителя" Get mrodit_dr When m1bolnich == 2
       If mem_pol == 1
         @ Row(), Col() + 1 Say "Пол" Get mrodit_pol ;
-          reader {| x| menu_reader( x, menupol, A__MENUVERT,,, .f. ) } ;
+          reader {| x| menu_reader( x, menupol(), A__MENUVERT,,, .f. ) } ;
           When m1bolnich == 2
       Else
         @ Row(), Col() + 1 Say "Пол" Get mrodit_pol Pict "@!" ;

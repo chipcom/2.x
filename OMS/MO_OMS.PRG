@@ -78,7 +78,6 @@ Function f_valid_komu( get, old )
     mcompany := Space( 30 )
     mm_company := {}
     If m1komu == 0 // ОМС
-//      mm_company := AClone( glob_arr_smo )
       mm_company := AClone( smo_volgograd() )
     Elseif m1komu == 1 // Прочие компании
       r_use( dir_server() + 'str_komp' )
@@ -2894,7 +2893,7 @@ Function f21ret_oms_human()
 
   s := 'Полис ОМС: ' + ;
     AllTrim( RTrim( human_->SPOLIS ) + ' ' + human_->NPOLIS ) + ' (' + ;
-    AllTrim( inieditspr( A__MENUVERT, mm_vid_polis, human_->VPOLIS ) ) + ')'
+    AllTrim( inieditspr( A__MENUVERT, mm_vid_polis(), human_->VPOLIS ) ) + ')'
   @ MaxRow() -2, 3 Say PadC( s, 74 ) Color color0
   SetPos( r, c )
 

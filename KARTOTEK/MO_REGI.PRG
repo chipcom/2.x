@@ -657,7 +657,7 @@ Function r_list_uch( par, name_func )
   mtime := hour_min( Seconds() )
   mbeg_polis := full_date( c4tod( kart_->beg_polis ) )
   msrok_polis := full_date( c4tod( kart->srok_polis ) )
-  mvzros_reb := Upper( inieditspr( A__MENUVERT, menu_vzros, kart->vzros_reb ) )
+  mvzros_reb := Upper( inieditspr( A__MENUVERT, menu_vzros(), kart->vzros_reb ) )
   mmi_git    := okato_mi_git( kart_->okatog )
   mrajon_git := okato_rajon( kart_->okatog )
   If !emptyall( kart_->PHONE_H, kart_->PHONE_M, kart_->PHONE_W )
@@ -682,7 +682,6 @@ Function r_list_uch( par, name_func )
       mkomu += iif( Empty( s ), 'ТФОМС (иногородние)', s )
       mmest_inog := inieditspr( A__MENUVERT, glob_array_srf(), kart_->KVARTAL_D ) // ОКАТО субъекта РФ территории страхования
     Elseif Left( kart_->SMO, 2 ) == '34'
-//      mkomu += AllTrim( inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( kart_->smo ) ) ) )
       mkomu += AllTrim( inieditspr( A__MENUVERT, smo_volgograd(), Int( Val( kart_->smo ) ) ) )
       mmest_inog := 'Волгоградская область'
     Elseif !Empty( kart_->SMO )
@@ -702,7 +701,7 @@ Function r_list_uch( par, name_func )
   m1vid_ud := kart_->vid_ud
   mnom     := kart_->nom_ud
   mser     := kart_->ser_ud
-  mvidpolis := ' (' + AllTrim( inieditspr( A__MENUVERT, mm_vid_polis, kart_->vpolis ) ) + ')'
+  mvidpolis := ' (' + AllTrim( inieditspr( A__MENUVERT, mm_vid_polis(), kart_->vpolis ) ) + ')'
   mmesto_rog := AllTrim( kart_->mesto_r )
   If Empty( stm_kategor2 )
     m1kategor := kart_->kategor
@@ -984,7 +983,6 @@ Function new_list_uch( par, name_func )
     Endif
     frt->smo := '(' + AllTrim( kart_->KVARTAL_D ) + ') ' + s
   Elseif Left( kart_->SMO, 2 ) == '34'
-//    frt->smo := AllTrim( inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( kart_->smo ) ) ) )
     frt->smo := AllTrim( inieditspr( A__MENUVERT, smo_volgograd(), Int( Val( kart_->smo ) ) ) )
   Elseif !Empty( kart_->SMO )
     frt->smo := '(' + AllTrim( kart_->KVARTAL_D ) + ') ' + init_ismo( kart_->SMO )
@@ -1057,7 +1055,6 @@ Function new_list_uch( par, name_func )
     m1company := m1str_crb
   Endif
   If m1komu == 0 // ОМС
-//    mm_company := AClone( glob_arr_smo )
     mm_company := AClone( smo_volgograd() )
   Elseif m1komu == 1 // Прочие компании
     r_use( dir_server() + 'str_komp' )
@@ -2187,7 +2184,7 @@ Function f0_prn_kartotek( par, nuch, nsmo )
         tmp->DATE_R     := full_date( kart->date_r ) // дата рождения больного
         mdate_r := kart->date_r
         fv_date_r(, .f. )
-        tmp->VZROS_REB  := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
+        tmp->VZROS_REB  := inieditspr( A__MENUVERT, menu_vzros(), m1vzros_reb )
         tmp->mesto_r    := kart_->mesto_r // место рождения;;
         tmp->OKATOR     := kart_->okatog
         tmp->ADRESR     := ret_okato_ulica( kart->adres, kart_->okatog ) // адрес больного
@@ -2199,7 +2196,7 @@ Function f0_prn_kartotek( par, nuch, nsmo )
         tmp->END_POLIS  := full_date( c4tod( kart->SROK_POLIS ) ) // срок действия полиса
         tmp->KOD_SMO    := kart_->smo
         tmp->SMO        := smo_to_screen( 1 )
-        tmp->vpolis     := inieditspr( A__MENUVERT, mm_vid_polis, kart_->vpolis )
+        tmp->vpolis     := inieditspr( A__MENUVERT, mm_vid_polis(), kart_->vpolis )
         tmp->polis      := LTrim( kart_->NPOLIS )
 //        tmp->SNILS      := iif( Empty( kart->SNILS ), '', Transform( kart->SNILS, picture_pf ) )
         tmp->SNILS      := iif( Empty( kart->SNILS ), '', Transform_SNILS( kart->SNILS ) )
@@ -2266,7 +2263,7 @@ Function f0_prn_kartotek( par, nuch, nsmo )
         tmp->DATE_R     := full_date( kart->date_r ) // дата рождения больного
         mdate_r := kart->date_r
         fv_date_r(, .f. )
-        tmp->VZROS_REB  := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
+        tmp->VZROS_REB  := inieditspr( A__MENUVERT, menu_vzros(), m1vzros_reb )
         tmp->mesto_r    := kart_->mesto_r // место рождения;;
         tmp->OKATOR     := kart_->okatog
         tmp->ADRESR     := ret_okato_ulica( kart->adres, kart_->okatog ) // адрес больного
@@ -2278,7 +2275,7 @@ Function f0_prn_kartotek( par, nuch, nsmo )
         tmp->END_POLIS  := full_date( c4tod( kart->SROK_POLIS ) ) // срок действия полиса
         tmp->KOD_SMO    := kart_->smo
         tmp->SMO        := smo_to_screen( 1 )
-        tmp->vpolis     := inieditspr( A__MENUVERT, mm_vid_polis, kart_->vpolis )
+        tmp->vpolis     := inieditspr( A__MENUVERT, mm_vid_polis(), kart_->vpolis )
         tmp->polis      := LTrim( kart_->NPOLIS )
 //        tmp->SNILS      := iif( Empty( kart->SNILS ), '', Transform( kart->SNILS, picture_pf ) )
         tmp->SNILS      := iif( Empty( kart->SNILS ), '', Transform_SNILS( kart->SNILS ) )

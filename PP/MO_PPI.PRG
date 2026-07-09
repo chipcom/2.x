@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 29.03.23
+// 09.07.26
 Function pr_gurnal_pp()
 
   Static spar := 1, spar2 := 1
@@ -137,7 +137,7 @@ Function pr_gurnal_pp()
         s += AllTrim( f4_view_list_schet( hu->komu, cut_code_smo( kart_->smo ), hu->str_crb ) )
         k05 := perenos( a05, s, sh05 )
         // 6 - адрес
-        s := RTrim( inieditspr( A__MENUVERT, mm_gorod_selo, kart_->gorod_selo ) ) + ', '
+        s := RTrim( inieditspr( A__MENUVERT, mm_gorod_selo(), kart_->gorod_selo ) ) + ', '
         s += iif( emptyall( kart_->okatog, kart->adres ), '', ;
           ret_okato_ulica( kart->adres, kart_->okatog ) )
         If !Empty( kart->mr_dol )
@@ -151,10 +151,10 @@ Function pr_gurnal_pp()
         Endif
         If glob_mo[ _MO_KOD_TFOMS ] == '711001' // РЖД
           s += iif( Empty( s ), '', ', ' ) + ;
-            AllTrim( inieditspr( A__MENUVERT, mmpp_kem1dost, hu->KEM_DOST ) )
+            AllTrim( inieditspr( A__MENUVERT, mmpp_kem1dost(), hu->KEM_DOST ) )
         Else
           s += iif( Empty( s ), '', ', ' ) + ;
-            AllTrim( inieditspr( A__MENUVERT, mmpp_kem_dost, hu->KEM_DOST ) )
+            AllTrim( inieditspr( A__MENUVERT, mmpp_kem_dost(), hu->KEM_DOST ) )
         Endif
         k07 := perenos( a07, s, sh07 )
         // 8 - отделение, в которое помещен больной
@@ -228,7 +228,7 @@ Function pr_gurnal_pp()
             s += Space( 11 )
             s1 := ''
             If hu->is_gospit == 1 .and. hu->pr_gospit > 0
-              s1 := inieditspr( A__MENUVERT, mmpp_pr_gospit, hu->pr_gospit )
+              s1 := inieditspr( A__MENUVERT, mmpp_pr_gospit(), hu->pr_gospit )
             Endif
             s += PadR( s1, 12 + 1 + 10 + 1 )
             If hu->ishod2 == 6  // умер
@@ -569,7 +569,6 @@ Function pr_ob_svod_pp()
   If !Empty( arr_prin )
     For i := 1 To Len( arr_prin )
       If arr_prin[ i, 1 ] == 0
-//        arr_prin[ i, 4 ] := AllTrim( inieditspr( A__MENUVERT, glob_arr_smo, arr_prin[ i, 2 ] ) )
         arr_prin[ i, 4 ] := AllTrim( inieditspr( A__MENUVERT, smo_volgograd(), arr_prin[ i, 2 ] ) )
       Else
         arr_prin[ i, 4 ] := ''
@@ -1890,7 +1889,7 @@ Function pr_otd_tek_pp()
   RestScreen( buf )
   Return Nil
 
-// 13.05.26 Просмотр/печать журнала регистрации стационарных больных по запросу
+// 09.07.26 Просмотр/печать журнала регистрации стационарных больных по запросу
 Function z_gurnal_pp()
 
   Static mm_forma := { ;
@@ -1981,12 +1980,12 @@ Function z_gurnal_pp()
     '  ==>',, {|| eq_any( m1komu, 0, 1, 3 ) } } )
   If glob_mo[ _MO_KOD_TFOMS ] == '711001' // РЖД
     AAdd( mm_tmp, { 'kem_dost', 'N', 2, 0, NIL, ;
-      {| x| menu_reader( x, mmpp_kem_dost, A__MENUVERT ) }, ;
+      {| x| menu_reader( x, mmpp_kem_dost(), A__MENUVERT ) }, ;
       -1, {|| Space( 10 ) }, ;
       'Кем направлен?' } )
   Else
     AAdd( mm_tmp, { 'kem_dost', 'N', 2, 0, NIL, ;
-      {| x| menu_reader( x, mmpp_kem_dost, A__MENUVERT ) }, ;
+      {| x| menu_reader( x, mmpp_kem_dost(), A__MENUVERT ) }, ;
       -1, {|| Space( 10 ) }, ;
       'Кем доставлен?' } )
   Endif
@@ -1995,7 +1994,7 @@ Function z_gurnal_pp()
     -1, {|| Space( 3 ) }, ;
     'Полис введен?' } )
   AAdd( mm_tmp, { 'reg_lech', 'N', 1, 0, NIL, ;
-    {| x| menu_reader( x, mmpp_regim, A__MENUVERT ) }, ;
+    {| x| menu_reader( x, mmpp_regim(), A__MENUVERT ) }, ;
     0, {|| Space( 10 ) }, ;
     'Режим лечения?' } )
   AAdd( mm_tmp, { 'uch_doc', 'C', 10, 0, '@!', ;
@@ -2135,16 +2134,16 @@ Function z_gurnal_pp()
     Endif
     If mn->kem_dost >= 0
       If glob_mo[ _MO_KOD_TFOMS ] == '711001' // РЖД
-        add_string( '- кем направлен: ' + inieditspr( A__MENUVERT, mmpp_kem1dost, mn->kem_dost ) )
+        add_string( '- кем направлен: ' + inieditspr( A__MENUVERT, mmpp_kem1dost(), mn->kem_dost ) )
       Else
-        add_string( '- кем доставлен: ' + inieditspr( A__MENUVERT, mmpp_kem_dost, mn->kem_dost ) )
+        add_string( '- кем доставлен: ' + inieditspr( A__MENUVERT, mmpp_kem_dost(), mn->kem_dost ) )
       Endif
     Endif
     If mn->polis >= 0
       add_string( '- полис ' + iif( mn->polis == 1, 'ВВЕДЕН', 'НЕ ВВЕДЕН' ) )
     Endif
     If mn->reg_lech > 0
-      add_string( '- режим лечения: ' + inieditspr( A__MENUVERT, mmpp_regim, mn->reg_lech ) )
+      add_string( '- режим лечения: ' + inieditspr( A__MENUVERT, mmpp_regim(), mn->reg_lech ) )
     Endif
     If !Empty( mn->uch_doc )
       much_doc := AllTrim( mn->uch_doc )
@@ -2259,7 +2258,7 @@ Function z_gurnal_pp()
           s += AllTrim( f4_view_list_schet( hu->komu, cut_code_smo( kart_->smo ), hu->str_crb ) )
           k05 := perenos( a05, s, sh05 )
           // 6 - адрес
-          s := RTrim( inieditspr( A__MENUVERT, mm_gorod_selo, kart_->gorod_selo ) ) + ', '
+          s := RTrim( inieditspr( A__MENUVERT, mm_gorod_selo(), kart_->gorod_selo ) ) + ', '
           s += iif( emptyall( kart_->okatog, kart->adres ), '', ;
             ret_okato_ulica( kart->adres, kart_->okatog ) )
           If !Empty( kart->mr_dol )
@@ -2273,10 +2272,10 @@ Function z_gurnal_pp()
           Endif
           If glob_mo[ _MO_KOD_TFOMS ] == '711001' // РЖД
             s += iif( Empty( s ), '', ', ' ) + ;
-              AllTrim( inieditspr( A__MENUVERT, mmpp_kem1dost, hu->KEM_DOST ) )
+              AllTrim( inieditspr( A__MENUVERT, mmpp_kem1dost(), hu->KEM_DOST ) )
           Else
             s += iif( Empty( s ), '', ', ' ) + ;
-              AllTrim( inieditspr( A__MENUVERT, mmpp_kem_dost, hu->KEM_DOST ) )
+              AllTrim( inieditspr( A__MENUVERT, mmpp_kem_dost(), hu->KEM_DOST ) )
           Endif
           k07 := perenos( a07, s, sh07 )
           // 8 - отделение, в которое помещен больной
@@ -2350,7 +2349,7 @@ Function z_gurnal_pp()
               s += Space( 11 )
               s1 := ''
               If hu->is_gospit == 1 .and. hu->pr_gospit > 0
-                s1 := inieditspr( A__MENUVERT, mmpp_pr_gospit, hu->pr_gospit )
+                s1 := inieditspr( A__MENUVERT, mmpp_pr_gospit(), hu->pr_gospit )
               Endif
               s += PadR( s1, 12 + 1 + 10 + 1 )
               If hu->ishod2 == 6  // умер
