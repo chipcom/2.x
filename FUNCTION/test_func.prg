@@ -5,10 +5,10 @@
 
 function test_init()
 
-  local aaa
+//  local aaa
 
-  aaa := mm_gorod_selo()
-  altd()
+//  aaa := mm_gorod_selo()
+//  altd()
 
   return nil
 
