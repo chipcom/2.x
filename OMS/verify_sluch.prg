@@ -23,7 +23,7 @@
 #define USL_SVIDPOM  13   // виды оказываемой медицинской помощи
 #define USL_ZAK_SL   14   // признак оплаты по законченному случаю
 
-// 08.07.26 
+// 09.07.26 
 Function verify_sluch( fl_view, ft )
 
   Local arrUslugi := {} // массив содержаший коды услуг в случае 
@@ -179,7 +179,7 @@ Function verify_sluch( fl_view, ft )
   cuch_doc := human->uch_doc
 
   // проверка отделения
-  if Empty( otd->LPU_1 )
+  if ! glob_mo()[_MO_KOD_TFOMS] == '804501' .and. Empty( otd->LPU_1 ) // без РУСАЛа
     AAdd( ta, 'для отделения ' + AllTrim( otd->short_name ) + ' не выбрано "Структурное подразделение по ГИС ОМС"' )
   endif
 
@@ -898,7 +898,7 @@ Function verify_sluch( fl_view, ft )
       Endif
       otd->( dbGoto( hu->OTD ) )
       // проверка отделения для услуги
-      if Empty( otd->LPU_1 )
+      if ! glob_mo()[_MO_KOD_TFOMS] == '804501' .and. Empty( otd->LPU_1 ) // без РУСАЛа
         AAdd( ta, 'для отделения ' + AllTrim( otd->short_name ) + ', где оказана услуга ' + AllTrim( lshifr ) + ' не выбрано "Структурное подразделение по ГИС ОМС"' )
       endif
       hu->( g_rlock( 'forever' ) )
@@ -1765,7 +1765,7 @@ Function verify_sluch( fl_view, ft )
     Endif
     otd->( dbGoto( mohu->OTD ) )
     // проверка отделения для услуги
-    if Empty( otd->LPU_1 )
+    if ! glob_mo()[_MO_KOD_TFOMS] == '804501' .and. Empty( otd->LPU_1 ) // без РУСАЛа
       AAdd( ta, 'для отделения ' + AllTrim( otd->short_name ) + ', где оказана услуга ' + AllTrim( lshifr ) + ' не выбрано "Структурное подразделение по ГИС ОМС"' )
     endif
     mohu->( g_rlock( 'forever' ) )
@@ -5162,6 +5162,72 @@ Function verify_sluch( fl_view, ft )
       ( Between( dEnd, 0d20200320, 0d20200906 ) .or. Between( dBegin, 0d20200320, 0d20200906 ) )
     AAdd( ta, 'случай не может быть начат ранее 7 сентября' )
   Endif
+
+  If ( human_->USL_OK == USL_OK_HOSPITAL .and. SubStr( human_->FORMA14, 1, 1 ) == '0' ) .or. ;
+      ( human_->USL_OK == USL_OK_DAY_HOSPITAL )
+
+    s := 'при плановой госпитализации в стационар или при работе дневного стационара '
+    if Empty( human_2->NPR_DATE )
+      AAdd( ta, s + 'должно быть заполнено поле "Дата направления на госпитализацию"' )
+    else
+      if human_2->NPR_DATE > dBegin
+        AAdd( ta, s + '"Дата направления на госпитализацию" не может быть больше "Даты начала лечения"' )
+      Elseif human_2->NPR_DATE + 60 < dBegin
+        AAdd( ta, s + 'направлению на госпитализацию не может быть больше двух месяцев' )
+      Endif
+    endif
+
+    If Empty( human_->NPR_MO )
+      AAdd( ta, s + 'должно быть заполнено поле "Направившая МО"' )
+    Endif
+
+    // проверка номера направления на госпитализацию
+    napr_number := AllTrim( get_NAPR_MO( human->kod, _NPR_LECH ) ) 
+    if Empty( napr_number )
+        AAdd( ta, s + 'должно быть заполнено поле "Номер направления на госпитализацию"' )
+    endif
+    s := ''
+  endif
+
+  // определяем цель посещения для поликлиники
+  if ( human_->USL_OK == USL_OK_POLYCLINIC ) // .and. ( ( len( arr_povod ) == 1 ) .or. glob_mo()[ _MO_KOD_TFOMS ] == '805965' )
+//    for counter := 1 to len( arrUslugi )
+//      mPCEL := getPCEL_usl( arrUslugi[ counter ] )
+    for counter := 1 to len( arrUslugiHuman_U )
+//      mPCEL := getPCEL_usl( arrUslugiHuman_U[ counter, USL_SHIFR ], arrUslugiHuman_U[ counter, USL_U_KOD ], human->k_data )
+      mPCEL := getPCEL_usl( arrUslugiHuman_U[ counter, USL_SHIFR ] )
+      if ! Empty( mPCEL )
+        human_->P_CEL := mPCEL
+      endif
+    next
+    if Empty( human_->P_CEL )
+      AAdd( ta, 'не удалось определить цель посещения (P_CEL)' )
+    endif
+  endif
+/*
+  // проверяем вид помощи
+  if ! is_dispanserizaciya( human->ishod ) .and. ! ( lu_type == TIP_LU_SMP .or. human_->USL_OK == USL_OK_AMBULANCE )
+    human_->( g_rlock( 'forever' ) )
+    human_->VIDPOM := define_vidpom_new( arrUslugiHuman_U, mDS_stac, human->kod, human->K_DATA, human_->USL_OK )
+    human_->( dbUnlock() )
+  endif
+*/
+  if human_->VIDPOM == 0
+/*
+    mm_lpu1 := get_f033_with_address( glob_mo()[ _MO_KOD_FFOMS ] )
+    cUIDSPMO := otd->LPU_1
+    str_lpu1 := ''
+    if ( ic := ascan( mm_lpu1, { | x | x[ 2 ] == cUIDSPMO } ) ) > 0
+      str_lpu1 := mm_lpu1[ ic, 1 ]
+    endif
+
+    AAdd( ta, 'не определен вид помощи по справочнику услуг ТФОМС [ вероятно неверно указано в справочнике для отделения <' ;
+      + AllTrim( otd->name ) + ' (' + AllTrim( otd->short_name ) + ')' ;
+      + '> "Структурное подразделение по ГИС ОМС" = <' + AllTrim( str_lpu1 ) + '> ]' )
+*/
+    AAdd( ta, 'не определен вид помощи по справочнику услуг ТФОМС' )
+  endif
+
   If Len( ta ) > 0
     _ocenka := 0
     If AScan( kod_LIS(), mo_current[ _MO_KOD_TFOMS ] ) > 0 .and. Type( 'old_npr_mo' ) == 'C'
@@ -5224,44 +5290,6 @@ Function verify_sluch( fl_view, ft )
     human_->POVOD := arr_povod[ 1, 1 ]
   Endif
 
-  // определяем цель посещения для поликлиники
-  if ( human_->USL_OK == USL_OK_POLYCLINIC ) // .and. ( ( len( arr_povod ) == 1 ) .or. glob_mo()[ _MO_KOD_TFOMS ] == '805965' )
-//    for counter := 1 to len( arrUslugi )
-//      mPCEL := getPCEL_usl( arrUslugi[ counter ] )
-    for counter := 1 to len( arrUslugiHuman_U )
-//      mPCEL := getPCEL_usl( arrUslugiHuman_U[ counter, USL_SHIFR ], arrUslugiHuman_U[ counter, USL_U_KOD ], human->k_data )
-      mPCEL := getPCEL_usl( arrUslugiHuman_U[ counter, USL_SHIFR ] )
-      if ! Empty( mPCEL )
-        human_->P_CEL := mPCEL
-      endif
-    next
-    if Empty( human_->P_CEL )
-      AAdd( ta, 'не удалось определить цель посещения (P_CEL)' )
-    endif
-  endif
-/*
-  // проверяем вид помощи
-  if ! is_dispanserizaciya( human->ishod ) .and. ! ( lu_type == TIP_LU_SMP .or. human_->USL_OK == USL_OK_AMBULANCE )
-    human_->( g_rlock( 'forever' ) )
-    human_->VIDPOM := define_vidpom_new( arrUslugiHuman_U, mDS_stac, human->kod, human->K_DATA, human_->USL_OK )
-    human_->( dbUnlock() )
-  endif
-*/
-  if human_->VIDPOM == 0
-/*
-    mm_lpu1 := get_f033_with_address( glob_mo()[ _MO_KOD_FFOMS ] )
-    cUIDSPMO := otd->LPU_1
-    str_lpu1 := ''
-    if ( ic := ascan( mm_lpu1, { | x | x[ 2 ] == cUIDSPMO } ) ) > 0
-      str_lpu1 := mm_lpu1[ ic, 1 ]
-    endif
-
-    AAdd( ta, 'не определен вид помощи по справочнику услуг ТФОМС [ вероятно неверно указано в справочнике для отделения <' ;
-      + AllTrim( otd->name ) + ' (' + AllTrim( otd->short_name ) + ')' ;
-      + '> "Структурное подразделение по ГИС ОМС" = <' + AllTrim( str_lpu1 ) + '> ]' )
-*/
-    AAdd( ta, 'не определен вид помощи по справочнику услуг ТФОМС' )
-  endif
 
   human_->( g_rlock( 'forever' ) )
   If !valid_guid( human_->ID_PAC )
