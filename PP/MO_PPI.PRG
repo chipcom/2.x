@@ -1966,8 +1966,8 @@ Function z_gurnal_pp()
     Space( 20 ), nil, ;
     'Улица (подстрока или шаблон)' } )
   AAdd( mm_tmp, { 'vid_opl', 'N', 2, 0, NIL, ;
-    {| x| menu_reader( x, menu_vid_opl, A__MENUBIT ) }, ;
-    0, {| x| inieditspr( A__MENUBIT, menu_vid_opl, x ) }, ;
+    {| x| menu_reader( x, menu_vid_opl(), A__MENUBIT ) }, ;
+    0, {| x| inieditspr( A__MENUBIT, menu_vid_opl(), x ) }, ;
     'Вид оплаты' } )
   AAdd( mm_tmp, { 'komu', 'N', 2, 0, NIL, ;
     {| x| menu_reader( x, mm_komu(), A__MENUVERT ) }, ;
@@ -1990,7 +1990,7 @@ Function z_gurnal_pp()
       'Кем доставлен?' } )
   Endif
   AAdd( mm_tmp, { 'polis', 'N', 2, 0, NIL, ;
-    {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
+    {| x| menu_reader( x, mm_danet(), A__MENUVERT ) }, ;
     -1, {|| Space( 3 ) }, ;
     'Полис введен?' } )
   AAdd( mm_tmp, { 'reg_lech', 'N', 1, 0, NIL, ;
@@ -2121,7 +2121,7 @@ Function z_gurnal_pp()
       add_string( '- место работы: ' + mmr_dol )
     Endif
     If !Empty( mn->vid_opl )
-      add_string( '- вид оплаты: ' + inieditspr( A__MENUBIT, menu_vid_opl, mn->vid_opl ) )
+      add_string( '- вид оплаты: ' + inieditspr( A__MENUBIT, menu_vid_opl(), mn->vid_opl ) )
     Endif
     If mn->komu >= 0
       add_string( '- принадлежность счёта: ' + ;
@@ -2447,8 +2447,8 @@ Static Function pp_mnog_poisk()
   Endif
   If fl .and. mn->vid_opl > 0
     fl := .f.
-    For i := 1 To Len( menu_vid_opl )
-      j := menu_vid_opl[ i, 2 ]
+    For i := 1 To Len( menu_vid_opl() )
+      j := menu_vid_opl()[ i, 2 ]
       If IsBit( mn->vid_opl, j ) .and. IsBit( hu->vid_opl, j )
         fl := .t. ; Exit
       Endif

@@ -335,7 +335,7 @@ Function oms_sluch_predn( Loc_kod, kod_kartotek, f_print )
   Endif
   mschool := inieditspr( A__POPUPMENU, dir_server() + 'mo_schoo', m1school )
   mtip_school := inieditspr( A__MENUVERT, mm_tip_school(), m1tip_school )
-  mstep2  := inieditspr( A__MENUVERT, mm_danet, m1step2 )
+  mstep2  := inieditspr( A__MENUVERT, mm_danet(), m1step2 )
   mgr_fiz := inieditspr( A__MENUVERT, mm_gr_fiz, m1gr_fiz )
   //
   If !Empty( f_print )
@@ -516,7 +516,7 @@ Function oms_sluch_predn( Loc_kod, kod_kartotek, f_print )
       status_key( '^<Esc>^ выход без записи ^<PgUp>^ на 1-ю страницу ^<PgDn>^ на 3-ю страницу' )
     Elseif num_screen == 3 //
       @ ++j, 1 Say 'Присутствуют врачебные осмотры II этапа ?' Get mstep2 ;
-        reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+        reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
       ++j
       ar := npred_arr_1_etap()[ mperiod ]
       @ ++j, 1 Say 'II этап наименований осмотров          Врач Ассис.  Дата     Диагноз' Color 'RB+/B'

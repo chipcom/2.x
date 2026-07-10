@@ -968,7 +968,7 @@ Function oms_smena_otd()
                 fl1 := .t.
             else  
               If input_value( MaxRow() -4, 10, MaxRow() -2, 69, color1, ;
-                  '   Перезаписывать новое отделение в каждой услуге', 0, mm_danet ) == 1
+                  '   Перезаписывать новое отделение в каждой услуге', 0, mm_danet() ) == 1
                 fl1 := .t.
               Endif
             endif  

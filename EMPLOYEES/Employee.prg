@@ -232,7 +232,7 @@ function editEmployee( oBrowse, aObjects, oEmployee, nKey )
 		mkateg    := inieditspr_bay( A__MENUVERT, TEmployee():aMenuCategory, m1kateg )
 		mvid      := inieditspr_bay( A__MENUVERT, TEmployee():aMenuTypeJob, m1vid )
 		mvr_kateg := inieditspr_bay( A__MENUVERT, TEmployee():aMenuDoctorCat, m1vr_kateg )
-		msertif   := inieditspr_bay( A__MENUVERT, mm_danet, m1sertif )
+		msertif   := inieditspr_bay( A__MENUVERT, mm_danet(), m1sertif )
 		m1prvs    := iif( empty( m1prvs ), space( 4 ), padr( lstr( m1prvs ), 4 ) )
 		mprvs     := ret_tmp_prvs( 0, m1prvs )
 		
@@ -273,7 +273,7 @@ function editEmployee( oBrowse, aObjects, oEmployee, nKey )
 		@ ++r, 2 say 'Наименование должности по мед.категории' get mDOLJKAT
 		@ ++r, 2 say 'Дата подтверждения мед.категории' get mD_KATEG
 		@ ++r, 2 say 'Наличие сертификата' get mSERTIF ;
-				reader { | x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+				reader { | x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
 		@ ++r, 2 say 'Дата подтверждения сертификата' get mD_SERTIF
 		@ ++r, 2 say 'Код врача для выписки рецептов по ДЛО' get mKOD_DLO pict '99999'
 		@ ++r, 2 say 'Дата начала работы в должности' get mDBEGIN

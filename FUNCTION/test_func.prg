@@ -5,13 +5,13 @@
 
 function test_init()
 
-//  local aaa
+  local aaa
 
-//  aaa := mm_gorod_selo()
-//  altd()
+  aaa := glob_MGI()
+  altd()
 
   return nil
-
+/*
 // 12.07.24
 function convert_P_CEL()
 
@@ -40,3 +40,4 @@ function convert_P_CEL()
   endif
 
   return hPCEL
+*/

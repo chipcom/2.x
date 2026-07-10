@@ -281,7 +281,7 @@ Function f_valid_diag_oms_sluch_dvn( get, k )
       &pole_d_dispans := CToD( '' )
     Else
       &pole_pervich := inieditspr( A__MENUVERT, mm_pervich, &pole_1pervich )
-      &pole_dispans := inieditspr( A__MENUVERT, mm_danet, &pole_1dispans )
+      &pole_dispans := inieditspr( A__MENUVERT, mm_danet(), &pole_1dispans )
     Endif
   Endif
   If emptyall( m1dispans1, m1dispans2, m1dispans3, m1dispans4, m1dispans5 )
@@ -447,7 +447,7 @@ Function f_valid_vyav_diag_dispanser( get, k )
       &pole_d_dispans := CToD( "" )
     Else
       &pole_pervich := inieditspr( A__MENUVERT, mm_pervich, &pole_1pervich )
-      &pole_dispans := inieditspr( A__MENUVERT, mm_danet, &pole_1dispans )
+      &pole_dispans := inieditspr( A__MENUVERT, mm_danet(), &pole_1dispans )
     Endif
   Endif
   If emptyall( m1dispans1, m1dispans2, m1dispans3, m1dispans4, m1dispans5 )
@@ -493,7 +493,7 @@ function dispans_vyav_diag( /*@*/j, mndisp )
   @ j, 35 Get m1stadia1 Pict '9' Range 1, 4 ;
     When !Empty( mdiag1 )
   @ j, 44 Get mdispans1 ;
-    reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) } ;
+    reader {| x| menu_reader( x, mm_danet(), A__MENUVERT,,, .f. ) } ;
     When !Empty( mdiag1 )
   @ j, 54 Get mddispans1 When m1dispans1 == 1
   @ j, 67 Get mdndispans1 When m1dispans1 == 1
@@ -510,7 +510,7 @@ function dispans_vyav_diag( /*@*/j, mndisp )
   @ j, 35 Get m1stadia2 Pict '9' Range 1, 4 ;
     When !Empty( mdiag2 )
   @ j, 44 Get mdispans2 ;
-    reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) } ;
+    reader {| x| menu_reader( x, mm_danet(), A__MENUVERT,,, .f. ) } ;
     When !Empty( mdiag2 )
   @ j, 54 Get mddispans2 When m1dispans2 == 1
   @ j, 67 Get mdndispans2 When m1dispans2 == 1
@@ -527,7 +527,7 @@ function dispans_vyav_diag( /*@*/j, mndisp )
   @ j, 35 Get m1stadia3 Pict '9' Range 1, 4 ;
     When !Empty( mdiag3 )
   @ j, 44 Get mdispans3 ;
-    reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) } ;
+    reader {| x| menu_reader( x, mm_danet(), A__MENUVERT,,, .f. ) } ;
     When !Empty( mdiag3 )
   @ j, 54 Get mddispans3 When m1dispans3 == 1
   @ j, 67 Get mdndispans3 When m1dispans3 == 1
@@ -544,7 +544,7 @@ function dispans_vyav_diag( /*@*/j, mndisp )
   @ j, 35 Get m1stadia4 Pict '9' Range 1, 4 ;
     When !Empty( mdiag4 )
   @ j, 44 Get mdispans4 ;
-    reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) } ;
+    reader {| x| menu_reader( x, mm_danet(), A__MENUVERT,,, .f. ) } ;
     When !Empty( mdiag4 )
   @ j, 54 Get mddispans4 When m1dispans4 == 1
   @ j, 67 Get mdndispans4 When m1dispans4 == 1
@@ -561,7 +561,7 @@ function dispans_vyav_diag( /*@*/j, mndisp )
   @ j, 35 Get m1stadia5 Pict '9' Range 1, 4 ;
     When !Empty( mdiag5 )
   @ j, 44 Get mdispans5 ;
-    reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) } ;
+    reader {| x| menu_reader( x, mm_danet(), A__MENUVERT,,, .f. ) } ;
     When !Empty( mdiag5 )
   @ j, 54 Get mddispans5 When m1dispans5 == 1
   @ j, 67 Get mdndispans5 When m1dispans5 == 1

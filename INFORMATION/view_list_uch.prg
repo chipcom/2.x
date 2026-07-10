@@ -911,7 +911,7 @@ Function print_luch_onk( dk,  diag, sh )
       + ', Tumor: ' + alltrim( inieditspr( A__MENUVERT, mm_N003, onksl->ONK_T ) ) ;
       + ', Nodus: ' + alltrim( inieditspr( A__MENUVERT, mm_N004, onksl->ONK_N ) ) ;
       + ', Metastasis: ' + alltrim( inieditspr( A__MENUVERT, mm_N005, onksl->ONK_M ) ) )
-    add_string( '   Наличие отдаленных метастазов (при рецидиве или прогрессировании): ' + alltrim( inieditspr( A__MENUVERT, mm_danet, onksl->MTSTZ ) ) )
+    add_string( '   Наличие отдаленных метастазов (при рецидиве или прогрессировании): ' + alltrim( inieditspr( A__MENUVERT, mm_danet(), onksl->MTSTZ ) ) )
     add_string( '' )
     tstr := space( 3 ) + 'Консилиум: ' + inieditspr( A__MENUVERT, getn019(), m1PR_CONS )
     if m1PR_CONS != 0
@@ -979,7 +979,7 @@ Function print_luch_onk( dk,  diag, sh )
           add_string( space( 3 ) + ret_str_onc( 7, 1 ) + ': ' + inieditspr( A__MENUVERT, mm_shema_usl, m1crit ) )
           add_string( space( 3 ) + ret_str_onc( 8, 1 ) + ': ' + init_lek_pr() )
           add_string( space( 3 ) + ret_str_onc( 9, 1 ) + ': ' + ;
-            inieditspr( A__MENUVERT, mm_danet, ONKUS->pptr ) )
+            inieditspr( A__MENUVERT, mm_danet(), ONKUS->pptr ) )
         Endif
       Endif
       select ONKUS

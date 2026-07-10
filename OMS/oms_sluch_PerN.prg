@@ -295,7 +295,7 @@ Function oms_sluch_pern( Loc_kod, kod_kartotek, f_print )
   Endif
   mschool := inieditspr( A__POPUPMENU, dir_server() + 'mo_schoo', m1school )
   mtip_school := inieditspr( A__MENUVERT, mm_tip_school(), m1tip_school )
-  mprotivo := inieditspr( A__MENUVERT, mm_danet, m1protivo )
+  mprotivo := inieditspr( A__MENUVERT, mm_danet(), m1protivo )
   //
   If !Empty( f_print )
     return &( f_print + '(' + lstr( Loc_kod ) + ',' + lstr( kod_kartotek ) + ',' + lstr( mvozrast ) + ')' )
@@ -433,7 +433,7 @@ Function oms_sluch_pern( Loc_kod, kod_kartotek, f_print )
       reader {| o| mygetreader( o, bg ) } Valid val1_10diag( .t., .f., .f., mn_data, mpol )
     @ ++j, 1 To j, 78
     @ ++j, 1 Say 'Обнаружены медицинские противопоказания к продолжению учёбы?' Get mprotivo ;
-      reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+      reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
     status_key( '^<Esc>^ - выход без записи; ^<PgDn>^ - запись' )
     If !Empty( a_smert )
       n_message( a_smert, , 'GR+/R', 'W+/R', , , 'G+/R' )

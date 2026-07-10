@@ -2015,8 +2015,8 @@ Function verify_sluch( fl_view, ft )
         Next
       Endif
       If is_mgi
-        If ( i := AScan( glob_MGI, {| x| x[ 1 ] == shifr_mgi } ) ) > 0 // услуга входит в список ТФОМС
-          If ( j := AScan( ar_N012, {| x| x[ 2 ] == glob_MGI[ i, 2 ] } ) ) > 0 // по данному диагнозу присутствует необходимый маркер
+        If ( i := AScan( glob_MGI(), {| x| x[ 1 ] == shifr_mgi } ) ) > 0 // услуга входит в список ТФОМС
+          If ( j := AScan( ar_N012, {| x| x[ 2 ] == glob_MGI()[ i, 2 ] } ) ) > 0 // по данному диагнозу присутствует необходимый маркер
             tmp_arr := {}
             AAdd( tmp_arr, AClone( ar_N012[ j ] ) )
             ar_N012 := AClone( tmp_arr ) // оставим в массиве только один нужный нам маркер
