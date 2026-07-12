@@ -643,8 +643,8 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis(), m1vidpolis )
   mbolnich  := inieditspr( A__MENUVERT, menu_bolnich, m1bolnich )
   mNMSE     := inieditspr( A__MENUVERT, arr_NO_YES(), m1NMSE )
-  // mpovod    := inieditspr(A__MENUVERT, stm_povod, m1povod)
-  // mtravma   := inieditspr(A__MENUVERT, stm_travma, m1travma)
+  // mpovod    := inieditspr(A__MENUVERT, stm_povod(), m1povod)
+  // mtravma   := inieditspr(A__MENUVERT, stm_travma(), m1travma)
   motd      := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd',  m1otd )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
   mkomu     := inieditspr( A__MENUVERT, mm_komu(), m1komu )
@@ -910,7 +910,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       if is_talon
         if mem_st_pov == 1
           @ j, 1 say 'Повод обращения' get mpovod ;
-              reader {|x|menu_reader(x,stm_povod, A__MENUVERT, , , .f.)} ;
+              reader {|x|menu_reader(x,stm_povod(), A__MENUVERT, , , .f.)} ;
               color colget_menu
         else
           @ j, 1 say 'Повод обращения' get m1povod pict '9' ;
@@ -920,7 +920,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         if .t.//is_travma // если в настройке для отделения - работа с травмой
           if mem_st_trav == 1
             @ j, 43 say 'Вид травмы' get mtravma ;
-                reader {|x|menu_reader(x,stm_travma, A__MENUVERT, , , .f.)} ;
+                reader {|x|menu_reader(x,stm_travma(), A__MENUVERT, , , .f.)} ;
                 color colget_menu
           else
             @ j, 43 say 'Вид травмы' get m1travma pict '99' ;

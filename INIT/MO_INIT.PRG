@@ -6,7 +6,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 09.07.26 начальная инициализация программы (до входа в Reconstruct_BD)
+// 11.07.26 начальная инициализация программы (до входа в Reconstruct_BD)
 Function init_first()
 
   Local buf := save_maxrow()
@@ -44,6 +44,7 @@ Function init_first()
 
   Public mm_danet := { { 'нет', 0 }, { 'да ', 1 } }
 
+/*
   Public stm_povod := { ;
     { 'Лечебно-диагностический', 1 }, ;
     { 'Консультативный', 2 }, ;
@@ -67,6 +68,7 @@ Function init_first()
     { 'Школьная', 9 }, ;
     { 'Спортивная', 10 }, ;
     { 'Прочая, не связанная с пр-вом', 11 } }
+*/
 
   r_use( dir_server() + 'organiz', , 'ORG' )
   fl := ( FieldNum( 'name_xml' ) == 0 )

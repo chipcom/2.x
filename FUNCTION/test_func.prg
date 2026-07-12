@@ -5,10 +5,10 @@
 
 function test_init()
 
-  local aaa
+//  local aaa
 
-  aaa := glob_MGI()
-  altd()
+//  aaa := glob_MGI()
+//  altd()
 
   return nil
 /*

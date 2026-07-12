@@ -261,8 +261,8 @@ Function val_st_pov( get )
 
   Local i, fl := .t.
 
-  If ( i := AScan( stm_povod, {| x| x[ 2 ] == m1povod } ) ) > 0
-    mpovod := PadR( stm_povod[ i, 1 ], 23 )
+  If ( i := AScan( stm_povod(), {| x| x[ 2 ] == m1povod } ) ) > 0
+    mpovod := PadR( stm_povod()[ i, 1 ], 23 )
     update_get( 'mpovod' )
   Else
     fl := func_error( 4, 'Недопустимый шифр повода обращения' )
@@ -276,8 +276,8 @@ Function val_st_trav( get )
 
   Local i, fl := .t.
 
-  If ( i := AScan( stm_travma, {| x| x[ 2 ] == m1travma } ) ) > 0
-    mtravma := PadR( stm_travma[ i, 1 ], 34 )
+  If ( i := AScan( stm_travma(), {| x| x[ 2 ] == m1travma } ) ) > 0
+    mtravma := PadR( stm_travma()[ i, 1 ], 34 )
     update_get( 'mtravma' )
   Else
     fl := func_error( 4, 'Недопустимый шифр вида травмы' )
