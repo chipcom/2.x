@@ -46,46 +46,6 @@ Function run_my_hrb( name_hrb, name_func )
 
   Return Nil
 
-// записать объём работы операторов
-Function write_work_oper( _pt, _tp, _ae, _kk, _kp, _open )
-
-  // {"PD",      'C',   4,   0}, ; // дата ввода c4tod(pd)
-  // {"PO",      'C',   1,   0}, ; // код оператора asc(po)
-  // {"PT",      'C',   1,   0}, ; // код задачи
-  // {"TP",      'C',   1,   0}, ; // тип (1-карточка, 2-л/у, 3-услуги)
-  // {"AE",      'C',   1,   0}, ; // 1-добавление, 2-редактирование, 3-удаление
-  // {"KK",      'C',   3,   0}, ; // кол-во (карточек, л/у или услуг)
-  // {"KP",      'C',   3,   0};  // количество введённых полей
-  Static llen := 6
-
-  Default _kk To 1, _kp To 0, _open To .t.
-  If yes_parol .and. hb_FileExists( dir_server() + 'mo_opern' + sdbf() ) .and. ;
-      iif( _open, g_use( dir_server() + 'mo_opern', dir_server() + 'mo_opern', 'OP' ), .t. )
-    _pt := Chr( _pt )
-    _tp := Chr( _tp )
-    _ae := Chr( _ae )
-    find ( c4sys_date + kod_polzovat + _pt + _tp + _ae )
-    If Found()
-      g_rlock( forever )
-      op->kk := ft_Sqzn( _kk + ft_Unsqzn( op->kk, llen ), llen )
-      op->kp := ft_Sqzn( _kp + ft_Unsqzn( op->kp, llen ), llen )
-    Else
-      g_rlock( .t., forever )
-      op->PD := c4sys_date
-      op->PO := kod_polzovat
-      op->pt := _pt
-      op->tp := _tp
-      op->ae := _ae
-      op->kk := ft_Sqzn( _kk, llen )
-      op->kp := ft_Sqzn( _kp, llen )
-    Endif
-    If _open
-      op->( dbCloseArea() )
-    Endif
-  Endif
-
-  Return Nil
-
 // проверить, более одного ли слова отдельно в фамилии, имени и отчестве
 Function twowordfamimot( s )
 
