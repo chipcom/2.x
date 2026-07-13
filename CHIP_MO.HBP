@@ -61,6 +61,7 @@ mo_version.prg
 .\SECURITY\Users.prg
 .\SECURITY\Roles.prg
 .\SECURITY\security.prg
+.\SECURITY\operators.prg
 
 .\CALENDAR\calendar.prg
 .\CALENDAR\calendar_func.prg
