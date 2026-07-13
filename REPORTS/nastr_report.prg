@@ -423,11 +423,11 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
     {|| m1usl_ok > 0 } } )
   /*if is_talon
     aadd(mm_tmp, {'povod', 'N', 2, 0, NIL, ;
-                {|x| menu_reader(x, stm_povod, A__MENUVERT)}, ;
+                {|x| menu_reader(x, stm_povod(), A__MENUVERT)}, ;
                 0, {|| space(10) }, ;
                 'Повод обращения'})
     aadd(mm_tmp, {'travma', 'N', 2, 0, NIL, ;
-                {|x| menu_reader(x, stm_travma, A__MENUVERT)}, ;
+                {|x| menu_reader(x, stm_travma(), A__MENUVERT)}, ;
                 -1, {|| space(10) }, ;
                 'Вид травмы'})
   endif*/
@@ -1378,11 +1378,11 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
       Endif
       /*if is_talon .and. mn->povod > 0
         add_string('Повод обращения: '+;
-                 inieditspr(A__MENUVERT, stm_povod, mn->povod))
+                 inieditspr(A__MENUVERT, stm_povod(), mn->povod))
       endif
       if is_talon .and. mn->travma > 0
         add_string('Вид травмы: '+;
-                 inieditspr(A__MENUVERT, stm_travma, mn->travma))
+                 inieditspr(A__MENUVERT, stm_travma(), mn->travma))
       endif*/
       If mn->bolnich1 > 0
         sOutput := 'Больничный: ' + inieditspr( A__MENUVERT, menu_bolnich, mn->bolnich1 )

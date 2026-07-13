@@ -523,7 +523,7 @@ Function e_statist( k )
     i := 0
     Do While i < Len( mas_pmt )
       i := i + 1
-      AAdd( mas_msg, 'Правило ' + iif( prs == 1, 'КОМ-', 'ЛПУ-' ) + Str( i, 1 ) + ': ' + rule_section[ i ] )
+      AAdd( mas_msg, 'Правило ' + iif( prs == 1, 'КОМ-', 'ЛПУ-' ) + Str( i, 1 ) + ': ' + rule_section()[ i ] )
     Enddo
     popup_prompt( T_ROW, T_COL -5, si9, mas_pmt, mas_msg, mas_fun )
   Case k == 71
@@ -2470,7 +2470,7 @@ Function pril_5_6_62()
       { 'по счетам отч.периода (без учёта РАК)', 0 }, ;
       { 'с учётом РАК (как в форме 14-МЕД/ОМС)', 1 } }
   Private mdate := arr_m[ 4 ], m1date := arr_m[ 1 ], muslov := mm_uslov[ 2, 1 ], m1uslov := mm_uslov[ 2, 2 ], ;
-    mdializ := mm_danet[ 1, 1 ], m1dializ := mm_danet[ 1, 2 ]
+    mdializ := mm_danet()[ 1, 1 ], m1dializ := mm_danet()[ 1, 2 ]
   r1 := 17
   box_shadow( r1, 2, 22, 77, color1, ' Отчёт по КСГ ', color8 )
   tmp_solor := SetColor( cDataCGet )
@@ -2482,7 +2482,7 @@ Function pril_5_6_62()
   @ r1 + 3, 4 Say 'Условия отбора' Get muslov ;
     reader {| x| menu_reader( x, mm_uslov, A__MENUVERT, , , .f. ) }
   // @ r1+ 4, 4 say 'Учитывать стоимость процедур диализа (вместе с КСГ)?' get mdializ ;
-  // reader {|x|menu_reader(x,mm_danet,A__MENUVERT, , ,.f.)}
+  // reader {|x|menu_reader(x,mm_danet(),A__MENUVERT, , ,.f.)}
   status_key( '^<Esc>^ - выход;  ^<PgDn>^ - создание отчёта' )
   myread()
   RestScreen( buf )

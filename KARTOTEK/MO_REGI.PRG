@@ -1571,7 +1571,7 @@ Function p4_travma( r, c )
   mnomer := snomer
   mdate_obr := sd_obr
   mdate_travm := sd_travm
-  mtravma := inieditspr( A__MENUVERT, stm_travma, stravma )
+  mtravma := inieditspr( A__MENUVERT, stm_travma(), stravma )
   mvrach := svrach
   mdost := sdost
   mtitul := AllTrim( kart->fio )
@@ -1586,7 +1586,7 @@ Function p4_travma( r, c )
   @ ++k, 4 Say 'Дата обращения' Get mdate_obr
   @ ++k, 4 Say 'Дата получения травмы' Get mdate_travm
   @ ++k, 4 Say 'Вид травмы' Get mtravma ;
-    reader {| x| menu_reader( x, stm_travma, A__MENUVERT, , , .f. ) }
+    reader {| x| menu_reader( x, stm_travma(), A__MENUVERT, , , .f. ) }
   If fl_dost
     @ ++k, 4 Say 'Как доставлен' Get mdost ;
       reader {| x| menu_reader( x, arr_dost, A__MENUVERT, , , .f. ) }

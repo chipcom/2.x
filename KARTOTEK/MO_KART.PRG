@@ -375,9 +375,9 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
   mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis(), m1vidpolis )
   mgorod_selo := inieditspr( A__MENUVERT, mm_gorod_selo(), m1gorod_selo )
   m1gragd := iif( Empty( mSTRANA := getcountry( m1strana ) ), 1, 0 )
-  mgragd := inieditspr( A__MENUVERT, mm_danet, m1gragd )
-  manonim := inieditspr( A__MENUVERT, mm_danet, m1anonim )
-  mPENSIONER := inieditspr( A__MENUVERT, mm_danet, m1PENSIONER )
+  mgragd := inieditspr( A__MENUVERT, mm_danet(), m1gragd )
+  manonim := inieditspr( A__MENUVERT, mm_danet(), m1anonim )
+  mPENSIONER := inieditspr( A__MENUVERT, mm_danet(), m1PENSIONER )
   mvid_ud  := inieditspr( A__MENUVERT, getvidud(), m1vid_ud )
   MKEMVYD := inieditspr( A__POPUPMENU, dir_server() + 's_kemvyd', M1KEMVYD )
   mvzros_reb := inieditspr( A__MENUVERT, menu_vzros(), m1vzros_reb )
@@ -389,7 +389,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
   mkomu      := inieditspr( A__MENUVERT, mm_komu(), m1komu )
   minvalid   := inieditspr( A__MENUVERT, mm_invalid, m1invalid )
   mosn_preb  := inieditspr( A__MENUVERT, get_osn_preb_rf(), m1osn_preb )
-  mUchastSVO := inieditspr( A__MENUVERT, mm_danet, m1UchastSVO )
+  mUchastSVO := inieditspr( A__MENUVERT, mm_danet(), m1UchastSVO )
   mSCO := inieditspr( A__MENUVERT, mm_SOC(), m1SCO )
   madres_reg := ini_adres( 1 )
   madres_pre := ini_adres( 2 )
@@ -485,7 +485,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
     ix := _top_r
     If eq_any( glob_task, X_PLATN, X_KASSA ) .and. mem_anonim == 1
       @ ++ix, 50 Say 'Аноним?' Get manonim ;
-        reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+        reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
       Keyboard Chr( K_TAB )
     Endif
     If !is_append .and. currentuser():isadmin() .and. mem_kart_error == 1
@@ -591,7 +591,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
       @ Row(), Col() + 5 Say 'Работающий?' Get mrab_nerab ;
         reader {| x| menu_reader( x, menu_rab(), A__MENUVERT, , , .f. ) }
       @ Row(), Col() + 5 Say 'Пенсионер?' Get mpensioner ;
-        reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+        reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
     Endif
     If eq_any( glob_task, X_REGIST, X_PLATN, X_ORTO, X_KASSA, X_PPOKOJ, X_MO )
       fl_mr_dol := .t.
@@ -614,9 +614,9 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
     @ ++ix, 1 Say 'Житель:' Get mgorod_selo ;
       reader {| x| menu_reader( x, mm_gorod_selo(), A__MENUVERT, , , .f. ) }
     @ ix, 19 Say 'Участник СВО?' get mUchastSVO ;
-      reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+      reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
     @ ix, Col() + 3 Say 'Гражданин РФ?' Get mgragd ;
-      reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+      reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
       valid {|| iif( m1gragd == 1, .t., get_oksm( ix ) ) }
     @ ix, Col() + 5 Get mstrana When .f. Color color14
     If eq_any( glob_task, X_PPOKOJ )
@@ -1452,8 +1452,8 @@ Function f_kart_valid_pred( r )
   If mkol_pred == 0
     Return .t.
   Endif
-  Private MIS_UHOD_PR1 := inieditspr( A__MENUVERT, mm_danet, M1IS_UHOD_PR1 ), ;
-    MIS_FOOD_PR1 := inieditspr( A__MENUVERT, mm_danet, M1IS_FOOD_PR1 ), ;
+  Private MIS_UHOD_PR1 := inieditspr( A__MENUVERT, mm_danet(), M1IS_UHOD_PR1 ), ;
+    MIS_FOOD_PR1 := inieditspr( A__MENUVERT, mm_danet(), M1IS_FOOD_PR1 ), ;
     mstatus_PR1 := inieditspr( A__MENUVERT, menu_predst(), m1status_PR1 ), ;
     mstatus_pr2 := inieditspr( A__MENUVERT, menu_predst(), m1status_pr2 ), ;
     gl_area := { 1, 0, MaxRow() -1, 79, 0 }
@@ -1487,11 +1487,11 @@ Function f_kart_valid_pred( r )
   @ r1 + 3, c + 3 Say 'Статус' Get MSTATUS_PR1 ;
     reader {| x| menu_reader( x, menu_predst(), A__MENUVERT, , , .f. ) }
   @ Row(), 23 Say 'Госпитализирован?' Get MIS_UHOD_PR1 ;
-    reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+    reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
     valid {|| iif( M1IS_UHOD_PR1 == 0, ( MIS_FOOD_PR1 := 'нет', M1IS_FOOD_PR1 := 0 ), nil ), ;
     update_get( 'MIS_FOOD_PR1' ) }
   @ Row(), 48 Say 'С питанием?' Get MIS_FOOD_PR1 ;
-    reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+    reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
     When M1IS_UHOD_PR1 == 1
   @ r1 + 4, c + 3 Say 'Адрес' Get MADRES_PR1
   @ r1 + 5, c + 3 Say 'Место работы' Get MMR_DOL_PR1

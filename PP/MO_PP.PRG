@@ -158,8 +158,8 @@ Function pp_nastr_ist_bol()
     Close databases
     Delete file tmp.dbf
     AAdd( mm_tmp, { 'NOVOR', 'N', 1, 0, NIL, ;
-      {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
-      0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
+      {| x| menu_reader( x, mm_danet(), A__MENUVERT ) }, ;
+      0, {| x| inieditspr( A__MENUVERT, mm_danet(), x ) }, ;
       'Вводить новорожденного' } )
     AAdd( mm_tmp, { 'e_01', 'C', 1, 0, NIL, ;
       NIL, ;
@@ -171,20 +171,20 @@ Function pp_nastr_ist_bol()
       '', {| x| ini_ed_mo( x ) }, ;
       '==>' } )
     AAdd( mm_tmp, { 'POB_D_LEK', 'N', 1, 0, NIL, ;
-      {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
-      0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
+      {| x| menu_reader( x, mm_danet(), A__MENUVERT ) }, ;
+      0, {| x| inieditspr( A__MENUVERT, mm_danet(), x ) }, ;
       'Вводить побочное действие лекарств' } )
     AAdd( mm_tmp, { 'KOD_VR', 'N', 1, 0, NIL, ;
-      {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
-      0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
+      {| x| menu_reader( x, mm_danet(), A__MENUVERT ) }, ;
+      0, {| x| inieditspr( A__MENUVERT, mm_danet(), x ) }, ;
       'Вводить табельный номер врача приёмного отделения' } )
     AAdd( mm_tmp, { 'TRAVMA', 'N', 1, 0, NIL, ;
-      {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
-      0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
+      {| x| menu_reader( x, mm_danet(), A__MENUVERT ) }, ;
+      0, {| x| inieditspr( A__MENUVERT, mm_danet(), x ) }, ;
       'Вводить вид травмы' } )
     AAdd( mm_tmp, { 'NE_ZAK', 'N', 1, 0, NIL, ;
-      {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
-      0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
+      {| x| menu_reader( x, mm_danet(), A__MENUVERT ) }, ;
+      0, {| x| inieditspr( A__MENUVERT, mm_danet(), x ) }, ;
       'Запрещать ввод, если не закончено лечение по предыдущему случаю' } )
     init_base( cur_dir() + 'tmp',, mm_tmp, 0 )
     Use ( cur_dir() + 'tmp' ) new
@@ -822,12 +822,12 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
   Endif
   Close databases
   Private gl_arr := { ;  // для битовых полей
-  { 'vid_opl', 'N', 3, 0,,,, {| x| inieditspr( A__MENUBIT, menu_vid_opl, x ) } }, ;
+  { 'vid_opl', 'N', 3, 0,,,, {| x| inieditspr( A__MENUBIT, menu_vid_opl(), x ) } }, ;
     { 'pprab_nerab', 'N', 10, 0,,,, {| x| inieditspr( A__MENUBIT, mmpp_rab(), x ) } };
     }
   much := inieditspr( A__POPUPMENU, dir_server() + 'mo_uch', m1uch )
   motd := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', m1otd )
-  MNOVOR := inieditspr( A__MENUVERT, mm_danet, M1NOVOR )
+  MNOVOR := inieditspr( A__MENUVERT, mm_danet(), M1NOVOR )
   If !Empty( M1KEM_NAPR )
     mKEM_NAPR := ret_mo( M1KEM_NAPR )[ _MO_SHORT_NAME ]
   Endif
@@ -835,7 +835,7 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
     m1pr_gospit := 0
   Endif
   Private OLD_IS_GOSPIT := M1IS_GOSPIT
-  mvid_opl   := inieditspr( A__MENUBIT, menu_vid_opl, m1vid_opl )
+  mvid_opl   := inieditspr( A__MENUBIT, menu_vid_opl(), m1vid_opl )
   mpprab_nerab := inieditspr( A__MENUBIT, mmpp_rab(), m1pprab_nerab )
   mreg_lech  := inieditspr( A__MENUVERT, mmpp_regim(), m1reg_lech )
   mkategor   := inieditspr( A__MENUVERT, mmpp_kategor(), m1kategor )
@@ -895,7 +895,7 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
     ++j
     If pp_NOVOR == 1
       @ j, 1 Say 'Новорожденный?' Get mnovor ;
-        reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) } ;
+        reader {| x| menu_reader( x, mm_danet(), A__MENUVERT,,, .f. ) } ;
         valid {| g, o| f_valid_novor( g, o ) }
       @ j, Col() + 3 Say '№/пп ребёнка' Get mcount_reb Pict '99' Range 1, 99 ;
         when ( m1novor == 1 )
@@ -924,7 +924,7 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
       reader {| x| menu_reader( x, mmpp_kategor(), A__MENUVERT,,, .f. ) }
     //
     ++j ; @ j, 1 Say 'Вид оплаты' Get mvid_opl ;
-      reader {| x| menu_reader( x, menu_vid_opl, A__MENUBIT,,, .f. ) }
+      reader {| x| menu_reader( x, menu_vid_opl(), A__MENUBIT,,, .f. ) }
     @ j, 40 Say 'Статус' Get mpprab_nerab ;
       reader {| x| menu_reader( x, mmpp_rab(), A__MENUBIT,,, .f. ) }
     //
@@ -2445,8 +2445,8 @@ Function f2_v_human_pp( nkey, oBrow )
     If !Empty( hu->travma )
       frd->travma := inieditspr( A__MENUVERT, mmpp_travma(), hu->travma )
     Endif
-    frd->vid_opl    := inieditspr( 2, menu_vid_opl, hu->vid_opl )
-    frd->vid_opl1    := inieditspr( 2, menu_vid_opl, hu->vid_opl )
+    frd->vid_opl    := inieditspr( 2, menu_vid_opl(), hu->vid_opl )
+    frd->vid_opl1    := inieditspr( 2, menu_vid_opl(), hu->vid_opl )
     If hu->vid_opl == 1
       frd->vid_opl1 := 'обязательного'
       ss := sb1 + 'обязательное   медицинское   страхование - 1' + sb2 + ' ,   средства    бюджета  (всех    уровней) - 2, '

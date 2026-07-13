@@ -1726,7 +1726,7 @@ Function _263_s_svob_kojki()
     Keyboard ''
     If ( k := input_value( MaxRow() -5, 2, MaxRow() -3, 77, color1, ;
         Space( 4 ) + 'Редактирование завершено и данные готовы к отправке в ТФОМС?', ;
-        d7->END_EDIT, mm_danet ) ) == NIL
+        d7->END_EDIT, mm_danet() ) ) == NIL
       k := 0
     Endif
   Endif

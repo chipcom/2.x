@@ -294,9 +294,10 @@ Function f1_prover_rule( blk_usl, ab, n_forma )
       endif*/
       Next
       If !Empty( lbukva )
-        AAdd( ab, { human->n_data, ;   // D_RULE_N_DATA
-        human->k_data, ;   // D_RULE_K_DATA
-        lbukva } )          // D_RULE_BUKVA
+        AAdd( ab, ;
+          { human->n_data, ;   // D_RULE_N_DATA
+          human->k_data, ;   // D_RULE_K_DATA
+          lbukva } )          // D_RULE_BUKVA
       Endif
     Endif
     Select HUMAN
@@ -310,7 +311,7 @@ Function f1_prover_rule( blk_usl, ab, n_forma )
 //
 Function st_rule_1()
 
-  Local arr, i, s, adbf, t_arr[ BR_LEN ], mtitle := rule_section[ 1 ]
+  Local arr, i, s, adbf, t_arr[ BR_LEN ], mtitle := rule_section()[ 1 ]
 
   adbf := { { "diag1", "C", 5, 0 }, ;
     { "diag2", "C", 5, 0 }, ;
@@ -319,7 +320,7 @@ Function st_rule_1()
   dbCreate( cur_dir() + "tmp", adbf )
   Use ( cur_dir() + "tmp" ) New Alias TMP
   Index On diag1 + diag2 to ( cur_dir() + "tmp" )
-  arr := getinisect( file_stat, rule_section[ 1 ] )
+  arr := getinisect( file_stat, rule_section()[ 1 ] )
   If Empty( arr )
     If !dostup_stat
       Use
@@ -368,7 +369,7 @@ Function st_rule_1()
       Endif
       Skip
     Enddo
-    setinisect( file_stat, rule_section[ 1 ], arr )
+    setinisect( file_stat, rule_section()[ 1 ], arr )
     stat_msg( "Запись завершена!" ) ; mybell( 2, OK )
   Endif
   Close databases
@@ -452,14 +453,14 @@ Function f1_rule_1( nKey, oBrow, regim )
 //
 Function st_rule_2()
 
-  Local arr, i, s, adbf, t_arr[ BR_LEN ], mtitle := rule_section[ 2 ]
+  Local arr, i, s, adbf, t_arr[ BR_LEN ], mtitle := rule_section()[ 2 ]
 
   adbf := { { "diag1", "C", 5, 0 }, ;
     { "diag2", "C", 5, 0 } }
   dbCreate( cur_dir() + "tmp", adbf )
   Use ( cur_dir() + "tmp" ) New Alias TMP
   Index On diag1 + diag2 to ( cur_dir() + "tmp" )
-  arr := getinisect( file_stat, rule_section[ 2 ] )
+  arr := getinisect( file_stat, rule_section()[ 2 ] )
   If Empty( arr )
     If !dostup_stat
       Use
@@ -504,7 +505,7 @@ Function st_rule_2()
       Endif
       Skip
     Enddo
-    setinisect( file_stat, rule_section[ 2 ], arr )
+    setinisect( file_stat, rule_section()[ 2 ], arr )
     stat_msg( "Запись завершена!" ) ; mybell( 2, OK )
   Endif
   Close databases
@@ -581,7 +582,7 @@ Function f1_rule_2( nKey, oBrow, regim )
 //
 Function st_rule_3()
 
-  Local arr, i, s, adbf, t_arr[ BR_LEN ], mtitle := rule_section[ 3 ]
+  Local arr, i, s, adbf, t_arr[ BR_LEN ], mtitle := rule_section()[ 3 ]
 
   adbf := { { "diag1", "C", 5, 0 }, ;
     { "diag2", "C", 5, 0 }, ;
@@ -589,7 +590,7 @@ Function st_rule_3()
   dbCreate( cur_dir() + "tmp", adbf )
   Use ( cur_dir() + "tmp" ) New Alias TMP
   Index On diag1 + diag2 to ( cur_dir() + "tmp" )
-  arr := getinisect( file_stat, rule_section[ 3 ] )
+  arr := getinisect( file_stat, rule_section()[ 3 ] )
   If Empty( arr )
     If !dostup_stat
       Use
@@ -636,7 +637,7 @@ Function st_rule_3()
       Endif
       Skip
     Enddo
-    setinisect( file_stat, rule_section[ 3 ], arr )
+    setinisect( file_stat, rule_section()[ 3 ], arr )
     stat_msg( "Запись завершена!" ) ; mybell( 2, OK )
   Endif
   Close databases
@@ -720,14 +721,14 @@ Function f1_rule_3( nKey, oBrow, regim )
 //
 Function st_rule_4()
 
-  Local arr, i, s, adbf, t_arr[ BR_LEN ], mtitle := rule_section[ 4 ]
+  Local arr, i, s, adbf, t_arr[ BR_LEN ], mtitle := rule_section()[ 4 ]
 
   adbf := { { "diag1", "C", 5, 0 }, ;
     { "diag2", "C", 5, 0 } }
   dbCreate( cur_dir() + "tmp", adbf )
   Use ( cur_dir() + "tmp" ) New Alias TMP
   Index On diag1 + diag2 to ( cur_dir() + "tmp" )
-  arr := getinisect( file_stat, rule_section[ 4 ] )
+  arr := getinisect( file_stat, rule_section()[ 4 ] )
   If Empty( arr )
     If !dostup_stat
       Use
@@ -772,7 +773,7 @@ Function st_rule_4()
       Endif
       Skip
     Enddo
-    setinisect( file_stat, rule_section[ 4 ], arr )
+    setinisect( file_stat, rule_section()[ 4 ], arr )
     stat_msg( "Запись завершена!" ) ; mybell( 2, OK )
   Endif
   Close databases
@@ -851,7 +852,7 @@ Function st_rule_5()
 
   Local arr, mbukva := ""
 
-  arr := getinisect( file_stat, rule_section[ 5 ] )
+  arr := getinisect( file_stat, rule_section()[ 5 ] )
   If Empty( arr )
     If !dostup_stat
       Use
@@ -869,7 +870,7 @@ Function st_rule_5()
     If !Empty( mbukva )
       arr := { { "bukva", mbukva } }
     Endif
-    setinisect( file_stat, rule_section[ 5 ], arr )
+    setinisect( file_stat, rule_section()[ 5 ], arr )
     stat_msg( "Запись завершена!" ) ; mybell( 2, OK )
   Endif
   // help_code := -1
@@ -878,7 +879,7 @@ Function st_rule_5()
 //
 Function st_rule_6()
 
-  Local arr, i, s, adbf, t_arr[ BR_LEN ], mtitle := rule_section[ 6 ]
+  Local arr, i, s, adbf, t_arr[ BR_LEN ], mtitle := rule_section()[ 6 ]
 
   adbf := { { "bukva1", "C", 1, 0 }, ;
     { "bukva2", "C", 1, 0 }, ;
@@ -886,7 +887,7 @@ Function st_rule_6()
   dbCreate( cur_dir() + "tmp", adbf )
   Use ( cur_dir() + "tmp" ) New Alias TMP
   Index On bukva1 + bukva2 to ( cur_dir() + "tmp" )
-  arr := getinisect( file_stat, rule_section[ 6 ] )
+  arr := getinisect( file_stat, rule_section()[ 6 ] )
   If Empty( arr )
     If !dostup_stat
       Use
@@ -930,7 +931,7 @@ Function st_rule_6()
       Endif
       Skip
     Enddo
-    setinisect( file_stat, rule_section[ 6 ], arr )
+    setinisect( file_stat, rule_section()[ 6 ], arr )
     stat_msg( "Запись завершена!" ) ; mybell( 2, OK )
   Endif
   Close databases
@@ -1014,7 +1015,7 @@ Function print_rule( n )
   fp := FCreate( n_file ) ; n_list := 1 ; tek_stroke := 0
   add_string( Center( { "Комитет по здравоохранению", "ЛПУ" }[ prs ], sh ) )
   add_string( Center( Expand( "СТАТИСТИКА: ПРАВИЛО НОМЕР " + lstr( n ) ), sh ) )
-  add_string( Center( rule_section[ n ], sh ) )
+  add_string( Center( rule_section()[ n ], sh ) )
   add_string( "" )
   Select TMP
   Go Top
@@ -1308,7 +1309,7 @@ Function read_rule( regim )
     For j := 1 To 6    // номер правила
       s := lstr( j1 ) + lstr( j )
       If s $ val_stroke
-        arr := getinisect( file_stat, rule_section[ j ] )
+        arr := getinisect( file_stat, rule_section()[ j ] )
         If !Empty( arr )
           For i := 1 To Len( arr )
             ret := .t.

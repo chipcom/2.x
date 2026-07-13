@@ -567,7 +567,7 @@ Function dispans_napr( mk_data, /*@*/j, lAdult, lFull, nType_lu )
 
   // направлен на реабилитацию
   @ ++j, 1 Say 'Направлен на реабилитацию' Get mnapr_reab ;
-    reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+    reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
     valid {|| iif( m1napr_reab == 0, ( m1profil_kojki := 0, mtab_v_reab := 0, mprofil_kojki := Space( 30 ) ), ), update_get( 'mprofil_kojki' ) }  //  when m1DS_ONK == 0
   mprofil_kojki := iif( Len( mprofil_kojki ) > 0, SubStr( mprofil_kojki, 1, 25 ), '' )
   @ j, Col() + 1 Say ', профиль койки' Get mprofil_kojki ;
@@ -580,7 +580,7 @@ Function dispans_napr( mk_data, /*@*/j, lAdult, lFull, nType_lu )
     // направлен на санаторно-курортное лечение
     If lAdult
       @ ++j, 1 Say 'Направлен на санаторно-курортное лечение' Get msank_na ;
-        reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+        reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
         valid {|| iif( m1sank_na == 0, mtab_v_sanat := 0, ), update_get( 'mtab_v_sank' ) } when m1DS_ONK == 0
       @ j, 73 Get mtab_v_sanat Pict '99999' ;
         valid {| g| iif( ( mtab_v_sanat == 0 ) .and. v_kart_vrach( g ), func_error( 4, strNeedTabNumber ), .t. ) } ;
@@ -610,14 +610,14 @@ Function dispans_napr( mk_data, /*@*/j, lAdult, lFull, nType_lu )
       reader {| x| menu_reader( x, getv002(), A__MENUVERT, , , .f. ) } ;
       When m1napr_stac > 0
     @ ++j, 1 Say 'Направлен на реабилитацию' Get mnapr_reab ;
-      reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+      reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
       valid {|| iif( m1napr_reab == 0, ( m1profil_kojki := 0, mprofil_kojki := Space( 30 ) ), ), update_get( 'mprofil_kojki' ) }
     @ j, Col() + 1 Say ', профиль койки' Get mprofil_kojki ;
       reader {| x| menu_reader( x, getv020(), A__MENUVERT, , , .f. ) } ;
       When m1napr_reab > 0
     If lAdult
       @ ++j, 1 Say 'Направлен на санаторно-курортное лечение' Get msank_na ;
-        reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+        reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
     Endif
   Endif
 */

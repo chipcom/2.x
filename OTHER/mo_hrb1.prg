@@ -1347,8 +1347,8 @@ Function monitoring_vid_pom()
     "По какую дату (включительно) зарегистрирован счёт", ;
     {|| f_valid_mon() }, {|| m1schet == 3 } } )
   AAdd( mm_tmp, { "rak", "N", 1, 0, NIL, ;
-    {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
-    0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
+    {| x| menu_reader( x, mm_danet(), A__MENUVERT ) }, ;
+    0, {| x| inieditspr( A__MENUVERT, mm_danet(), x ) }, ;
     "Учитывать случаи, полностью снятые по актам контроля", ;
     {|| f_valid_mon() } } )
   AAdd( mm_tmp, { "date_rak", "D", 8, 0,,, CToD( "" ),, ;
