@@ -23,7 +23,7 @@
 #define USL_SVIDPOM  13   // виды оказываемой медицинской помощи
 #define USL_ZAK_SL   14   // признак оплаты по законченному случаю
 
-// 09.07.26 
+// 14.07.26 
 Function verify_sluch( fl_view, ft )
 
   Local arrUslugi := {} // массив содержаший коды услуг в случае 
@@ -5045,15 +5045,16 @@ Function verify_sluch( fl_view, ft )
     AAdd( ta, 'для исхода заболевания "306/Осмотр" некорректный результат обращения "' + ;
       inieditspr( A__MENUVERT, getv009(), human_->RSLT_NEW ) + '"' )
   Endif
+//  If ( is_disp_DDS .or. is_disp_DVN .or. is_prof_PN ) .and. ;
+//      ( Between( dEnd, 0d20200320, 0d20200906 ) .or. Between( dBegin, 0d20200320, 0d20200906 ) )
+//    AAdd( ta, 'случай не может быть начат ранее 7 сентября' )
+//  Endif
+
+  // ПРОВЕРКА НАПРАВЛЕНИЯ ДЛЯ СЛУЧАЕВ ОТЛИЧНЫХ ОТ ДИСПАНСЕРИЗАЦИИ
   If !emptyany( human_->NPR_MO, human_2->NPR_DATE ) .and. !Empty( s := verify_dend_mo( human_->NPR_MO, human_2->NPR_DATE, .t. ) )
     AAdd( ta, 'направившая МО: ' + s )
   Endif
-  If ( is_disp_DDS .or. is_disp_DVN .or. is_prof_PN ) .and. ;
-      ( Between( dEnd, 0d20200320, 0d20200906 ) .or. Between( dBegin, 0d20200320, 0d20200906 ) )
-    AAdd( ta, 'случай не может быть начат ранее 7 сентября' )
-  Endif
-
-  If ( human_->USL_OK == USL_OK_HOSPITAL .and. SubStr( human_->FORMA14, 1, 1 ) == '0' ) .or. ;
+  If ( human_->USL_OK == USL_OK_HOSPITAL .and. SubStr( human_->FORMA14, 1, 1 ) == '0' .and. human_2->p_per != 4 ) .or. ;
       ( human_->USL_OK == USL_OK_DAY_HOSPITAL )
 
     s := 'при плановой госпитализации в стационар или при работе дневного стационара '
