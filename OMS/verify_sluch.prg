@@ -5078,7 +5078,11 @@ Function verify_sluch( fl_view, ft )
         AAdd( ta, s + 'должно быть заполнено поле "Номер направления на госпитализацию"' )
     endif
     s := ''
+  elseIf human_->USL_OK == USL_OK_POLYCLINIC
+
   endif
+
+  human_->( g_rlock( 'forever' ) )  // заблокируем для последующего использования
 
   // определяем цель посещения для поликлиники
   if ( human_->USL_OK == USL_OK_POLYCLINIC ) // .and. ( ( len( arr_povod ) == 1 ) .or. glob_mo()[ _MO_KOD_TFOMS ] == '805965' )
@@ -5095,14 +5099,14 @@ Function verify_sluch( fl_view, ft )
       AAdd( ta, 'не удалось определить цель посещения (P_CEL)' )
     endif
   endif
-/*
+
   // проверяем вид помощи
   if ! is_dispanserizaciya( human->ishod ) .and. ! ( lu_type == TIP_LU_SMP .or. human_->USL_OK == USL_OK_AMBULANCE )
-    human_->( g_rlock( 'forever' ) )
+//    human_->( g_rlock( 'forever' ) )
     human_->VIDPOM := define_vidpom_new( arrUslugiHuman_U, mDS_stac, human->kod, human->K_DATA, human_->USL_OK )
-    human_->( dbUnlock() )
+//    human_->( dbUnlock() )
   endif
-*/
+
   if human_->VIDPOM == 0
 /*
     mm_lpu1 := get_f033_with_address( glob_mo()[ _MO_KOD_FFOMS ] )
@@ -5178,7 +5182,7 @@ Function verify_sluch( fl_view, ft )
     Endif
     human_->POVOD := arr_povod[ 1, 1 ]
   Endif
-  human_->( g_rlock( 'forever' ) )
+//  human_->( g_rlock( 'forever' ) )
 
   If !valid_guid( human_->ID_PAC )
     human_->ID_PAC := mo_guid( 1, human_->( RecNo() ) )
