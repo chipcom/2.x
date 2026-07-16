@@ -8,22 +8,23 @@
 #define BASE_ISHOD_RZD 500  //
 
 // соответствие с возвращаемым массивом из функции collect_uslugi_new()
-#define USL_RECNO     1   // номер записи в human_u.dbf
-#define USL_SHIFR     2   // шифр услуги (реальный, после замены если есть)
-#define USL_U_KOD     3   // код услуги по справочнику uslugi.dbf
-#define USL_DATE      4   // дата выполнения услуги
-#define USL_CENA      5   // цена услуги
-#define USL_KOEF      6   // коэффициент услуги
-#define USL_VR        7   // врач окуазавший услугу
-#define USL_VR_PRVS21 8   // специальность врача окуазавшего услугу по справочнику V021
-#define USL_VR_PROF   9   // профиль врача окуазавшего услугу
-#define USL_AS       10   // ассистент оказавший услугу
-#define USL_KOLVO    11   // количество услуг
-#define USL_OTD      12   // отделение в котором оказывалась услуга
-#define USL_SVIDPOM  13   // виды оказываемой медицинской помощи
-#define USL_ZAK_SL   14   // признак оплаты по законченному случаю
+#define USL_TYPEF     1   // тип используемого файла 0 - human_u.dbf, 1 - mo_hu.dbf (федеральные услуги)
+#define USL_RECNO     2   // номер записи в human_u.dbf
+#define USL_SHIFR     3   // шифр услуги (реальный, после замены если есть)
+#define USL_U_KOD     4   // код услуги по справочнику uslugi.dbf
+#define USL_DATE      5   // дата выполнения услуги
+#define USL_CENA      6   // цена услуги
+#define USL_KOEF      7   // коэффициент услуги
+#define USL_VR        8   // врач окуазавший услугу
+#define USL_VR_PRVS21 9   // специальность врача окуазавшего услугу по справочнику V021
+#define USL_VR_PROF  10   // профиль врача окуазавшего услугу
+#define USL_AS       11   // ассистент оказавший услугу
+#define USL_KOLVO    12   // количество услуг
+#define USL_OTD      13   // отделение в котором оказывалась услуга
+#define USL_SVIDPOM  14   // виды оказываемой медицинской помощи
+#define USL_ZAK_SL   15   // признак оплаты по законченному случаю
 
-// 14.07.26 
+// 16.07.26 
 Function verify_sluch( fl_view, ft )
 
   Local arrUslugi := {} // массив содержаший коды услуг в случае 
@@ -5089,10 +5090,12 @@ Function verify_sluch( fl_view, ft )
 //    for counter := 1 to len( arrUslugi )
 //      mPCEL := getPCEL_usl( arrUslugi[ counter ] )
     for counter := 1 to len( arrUslugiHuman_U )
-//      mPCEL := getPCEL_usl( arrUslugiHuman_U[ counter, USL_SHIFR ], arrUslugiHuman_U[ counter, USL_U_KOD ], human->k_data )
-      mPCEL := getPCEL_usl( arrUslugiHuman_U[ counter, USL_SHIFR ] )
-      if ! Empty( mPCEL )
-        human_->P_CEL := mPCEL
+      if arrUslugiHuman_U[ counter, USL_TYPEF ] == 0  // услуга из human_u.dbf
+//        mPCEL := getPCEL_usl( arrUslugiHuman_U[ counter, USL_SHIFR ], arrUslugiHuman_U[ counter, USL_U_KOD ], human->k_data )
+        mPCEL := getPCEL_usl( arrUslugiHuman_U[ counter, USL_SHIFR ] )
+        if ! Empty( mPCEL )
+          human_->P_CEL := mPCEL
+        endif
       endif
     next
     if Empty( human_->P_CEL )
@@ -5198,7 +5201,7 @@ Function verify_sluch( fl_view, ft )
 
   Return ( _ocenka >= 5 )
 
-// 08.07.26
+// 16.07.26
 function define_vidpom_new( arr_HU, mDS_stac, kod_hum, mdate, usl_ok )
 
   Local tmpselect, i, lshifr1, mshifr, sVidpoms, lst
@@ -5232,7 +5235,7 @@ function define_vidpom_new( arr_HU, mDS_stac, kod_hum, mdate, usl_ok )
 //  endif
 
   for each row in arr_HU
-    if row[ USL_CENA ] != 0
+    if row[ USL_TYPEF ] == 0 .and. row[ USL_CENA ] != 0  // услуга из human_u.dbf
       AAdd( arrUsluga, row )
     endif
   next

@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 08.04.26
+// 16.07.26
 Function print_l_uch( mkod, par, regim, lnomer )
   
   // mkod - код больного по БД human
@@ -427,6 +427,10 @@ Function print_l_uch( mkod, par, regim, lnomer )
     add_string('  Пациент направлен на МСЭ в бюро медико-социальной экспертизы')
   endif
 
+  add_string( '  Вид помощи: ' + AllTrim( inieditspr( A__MENUVERT, getv008(), human_->VIDPOM ) ) )
+  if human_->USL_OK == USL_OK_POLYCLINIC
+    add_string( '  Цель посещения: ' + get_npc_from_v025_by_idpc( human_->P_CEL ) )// inieditspr( A__MENUVERT, getv008(), human_->VIDPOM ) ) )
+  endif
   if ! between( human_->RSLT_NEW, 316, 393 ) // если не диспансеризация и т.п.
     if !empty(mlech_vr)
       add_string('  Лечащий врач : ' + mlech_vr)

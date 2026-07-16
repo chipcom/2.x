@@ -315,7 +315,7 @@ Function UslugaAccordancePRVS( lshifr, lvzros_reb, lprvs, ta, short_shifr, lvrac
 
   return nil
   
-// 03.07.26 собрать шифры услуг в случае
+// 16.07.26 собрать шифры услуг в случае
 function collect_uslugi_new( rec_number, data )
 
   local human_number, human_uslugi, mohu_usluga
@@ -352,23 +352,32 @@ function collect_uslugi_new( rec_number, data )
     If is_usluga_tfoms( usl->shifr, lshifr, human->k_data, , , @lst, , @sVidpoms )
       mshifr := AllTrim( iif( Empty( lshifr ), usl->shifr, lshifr ) )
     endif
-//    aadd( arrUslugi, { hu->( RecNo() ), alltrim( usl->shifr ), hu->u_kod, c4tod( hu->date_u ), hu->u_cena, ; 
-    aadd( arrUslugi, { hu->( RecNo() ), mshifr, hu->u_kod, c4tod( hu->date_u ), hu->u_cena, ; 
+    aadd( arrUslugi, { 0, hu->( RecNo() ), mshifr, hu->u_kod, c4tod( hu->date_u ), hu->u_cena, ; 
       hu->u_koef, hu->kod_vr, m_vrPRVS_21, m_vrProfil, hu->kod_as, hu->kol, hu->otd, sVidpoms, lst } )
     hu->( dbSkip() )
   enddo
 
   hu->( dbGoto( human_uslugi ) )
-/*
+
   dbSelectArea( 'MOHU' )
   set relation to FIELD->u_kod into MOSU
   mohu->( dbSeek( str( human_number, 7 ) ) )
   do while mohu->kod == human_number .and. ! mohu->( eof() )
-    aadd( arrUslugi, alltrim( iif( empty( mosu->shifr ), mosu->shifr1, mosu->shifr ) ) )
+
+    m_vrPRVS_21 := 0
+    m_vrProfil  := 0
+    p2->( dbGoto( mohu->kod_vr ) )
+    if ! p2->( Eof() ) .and. ! p2->( Bof() )
+      m_vrPRVS_21 := p2->PRVS_021
+      m_vrProfil  := p2->PROFIL
+    endif
+
+    aadd( arrUslugi, { 1, mohu->( RecNo() ), alltrim( iif( empty( mosu->shifr ), mosu->shifr1, mosu->shifr ) ), mohu->u_kod, c4tod( mohu->date_u ), mohu->u_cena, ;
+      1, mohu->kod_vr, m_vrPRVS_21, m_vrProfil, mohu->kod_as, mohu->kol_1, mohu->otd, '', 0 } )
     mohu->( dbSkip() )
   enddo
   mohu->( dbGoto( mohu_usluga ) )
-*/
+
   If lAliasPers
     p2->( dbCloseArea() )
   endif
