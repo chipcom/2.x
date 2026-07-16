@@ -8,22 +8,23 @@
 #define BASE_ISHOD_RZD 500  //
 
 // соответствие с возвращаемым массивом из функции collect_uslugi_new()
-#define USL_RECNO     1   // номер записи в human_u.dbf
-#define USL_SHIFR     2   // шифр услуги (реальный, после замены если есть)
-#define USL_U_KOD     3   // код услуги по справочнику uslugi.dbf
-#define USL_DATE      4   // дата выполнения услуги
-#define USL_CENA      5   // цена услуги
-#define USL_KOEF      6   // коэффициент услуги
-#define USL_VR        7   // врач окуазавший услугу
-#define USL_VR_PRVS21 8   // специальность врача окуазавшего услугу по справочнику V021
-#define USL_VR_PROF   9   // профиль врача окуазавшего услугу
-#define USL_AS       10   // ассистент оказавший услугу
-#define USL_KOLVO    11   // количество услуг
-#define USL_OTD      12   // отделение в котором оказывалась услуга
-#define USL_SVIDPOM  13   // виды оказываемой медицинской помощи
-#define USL_ZAK_SL   14   // признак оплаты по законченному случаю
+#define USL_TYPEF     1   // тип используемого файла 0 - human_u.dbf, 1 - mo_hu.dbf (федеральные услуги)
+#define USL_RECNO     2   // номер записи в human_u.dbf
+#define USL_SHIFR     3   // шифр услуги (реальный, после замены если есть)
+#define USL_U_KOD     4   // код услуги по справочнику uslugi.dbf
+#define USL_DATE      5   // дата выполнения услуги
+#define USL_CENA      6   // цена услуги
+#define USL_KOEF      7   // коэффициент услуги
+#define USL_VR        8   // врач окуазавший услугу
+#define USL_VR_PRVS21 9   // специальность врача окуазавшего услугу по справочнику V021
+#define USL_VR_PROF  10   // профиль врача окуазавшего услугу
+#define USL_AS       11   // ассистент оказавший услугу
+#define USL_KOLVO    12   // количество услуг
+#define USL_OTD      13   // отделение в котором оказывалась услуга
+#define USL_SVIDPOM  14   // виды оказываемой медицинской помощи
+#define USL_ZAK_SL   15   // признак оплаты по законченному случаю
 
-// 09.07.26 
+// 16.07.26 
 Function verify_sluch( fl_view, ft )
 
   Local arrUslugi := {} // массив содержаший коды услуг в случае 
@@ -5045,15 +5046,16 @@ Function verify_sluch( fl_view, ft )
     AAdd( ta, 'для исхода заболевания "306/Осмотр" некорректный результат обращения "' + ;
       inieditspr( A__MENUVERT, getv009(), human_->RSLT_NEW ) + '"' )
   Endif
+//  If ( is_disp_DDS .or. is_disp_DVN .or. is_prof_PN ) .and. ;
+//      ( Between( dEnd, 0d20200320, 0d20200906 ) .or. Between( dBegin, 0d20200320, 0d20200906 ) )
+//    AAdd( ta, 'случай не может быть начат ранее 7 сентября' )
+//  Endif
+
+  // ПРОВЕРКА НАПРАВЛЕНИЯ ДЛЯ СЛУЧАЕВ ОТЛИЧНЫХ ОТ ДИСПАНСЕРИЗАЦИИ
   If !emptyany( human_->NPR_MO, human_2->NPR_DATE ) .and. !Empty( s := verify_dend_mo( human_->NPR_MO, human_2->NPR_DATE, .t. ) )
     AAdd( ta, 'направившая МО: ' + s )
   Endif
-  If ( is_disp_DDS .or. is_disp_DVN .or. is_prof_PN ) .and. ;
-      ( Between( dEnd, 0d20200320, 0d20200906 ) .or. Between( dBegin, 0d20200320, 0d20200906 ) )
-    AAdd( ta, 'случай не может быть начат ранее 7 сентября' )
-  Endif
-
-  If ( human_->USL_OK == USL_OK_HOSPITAL .and. SubStr( human_->FORMA14, 1, 1 ) == '0' ) .or. ;
+  If ( human_->USL_OK == USL_OK_HOSPITAL .and. SubStr( human_->FORMA14, 1, 1 ) == '0' .and. human_2->p_per != 4 ) .or. ;
       ( human_->USL_OK == USL_OK_DAY_HOSPITAL )
 
     s := 'при плановой госпитализации в стационар или при работе дневного стационара '
@@ -5077,31 +5079,37 @@ Function verify_sluch( fl_view, ft )
         AAdd( ta, s + 'должно быть заполнено поле "Номер направления на госпитализацию"' )
     endif
     s := ''
+  elseIf human_->USL_OK == USL_OK_POLYCLINIC
+
   endif
+
+  human_->( g_rlock( 'forever' ) )  // заблокируем для последующего использования
 
   // определяем цель посещения для поликлиники
   if ( human_->USL_OK == USL_OK_POLYCLINIC ) // .and. ( ( len( arr_povod ) == 1 ) .or. glob_mo()[ _MO_KOD_TFOMS ] == '805965' )
 //    for counter := 1 to len( arrUslugi )
 //      mPCEL := getPCEL_usl( arrUslugi[ counter ] )
     for counter := 1 to len( arrUslugiHuman_U )
-//      mPCEL := getPCEL_usl( arrUslugiHuman_U[ counter, USL_SHIFR ], arrUslugiHuman_U[ counter, USL_U_KOD ], human->k_data )
-      mPCEL := getPCEL_usl( arrUslugiHuman_U[ counter, USL_SHIFR ] )
-      if ! Empty( mPCEL )
-        human_->P_CEL := mPCEL
+      if arrUslugiHuman_U[ counter, USL_TYPEF ] == 0  // услуга из human_u.dbf
+//        mPCEL := getPCEL_usl( arrUslugiHuman_U[ counter, USL_SHIFR ], arrUslugiHuman_U[ counter, USL_U_KOD ], human->k_data )
+        mPCEL := getPCEL_usl( arrUslugiHuman_U[ counter, USL_SHIFR ] )
+        if ! Empty( mPCEL )
+          human_->P_CEL := mPCEL
+        endif
       endif
     next
     if Empty( human_->P_CEL )
       AAdd( ta, 'не удалось определить цель посещения (P_CEL)' )
     endif
   endif
-/*
+
   // проверяем вид помощи
   if ! is_dispanserizaciya( human->ishod ) .and. ! ( lu_type == TIP_LU_SMP .or. human_->USL_OK == USL_OK_AMBULANCE )
-    human_->( g_rlock( 'forever' ) )
+//    human_->( g_rlock( 'forever' ) )
     human_->VIDPOM := define_vidpom_new( arrUslugiHuman_U, mDS_stac, human->kod, human->K_DATA, human_->USL_OK )
-    human_->( dbUnlock() )
+//    human_->( dbUnlock() )
   endif
-*/
+
   if human_->VIDPOM == 0
 /*
     mm_lpu1 := get_f033_with_address( glob_mo()[ _MO_KOD_FFOMS ] )
@@ -5177,7 +5185,7 @@ Function verify_sluch( fl_view, ft )
     Endif
     human_->POVOD := arr_povod[ 1, 1 ]
   Endif
-  human_->( g_rlock( 'forever' ) )
+//  human_->( g_rlock( 'forever' ) )
 
   If !valid_guid( human_->ID_PAC )
     human_->ID_PAC := mo_guid( 1, human_->( RecNo() ) )
@@ -5193,7 +5201,7 @@ Function verify_sluch( fl_view, ft )
 
   Return ( _ocenka >= 5 )
 
-// 08.07.26
+// 16.07.26
 function define_vidpom_new( arr_HU, mDS_stac, kod_hum, mdate, usl_ok )
 
   Local tmpselect, i, lshifr1, mshifr, sVidpoms, lst
@@ -5227,7 +5235,7 @@ function define_vidpom_new( arr_HU, mDS_stac, kod_hum, mdate, usl_ok )
 //  endif
 
   for each row in arr_HU
-    if row[ USL_CENA ] != 0
+    if row[ USL_TYPEF ] == 0 .and. row[ USL_CENA ] != 0  // услуга из human_u.dbf
       AAdd( arrUsluga, row )
     endif
   next

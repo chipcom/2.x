@@ -321,6 +321,7 @@ mo_version.prg
 .\FUNC_LIB\reconstr.prg
 .\FUNC_LIB\print1.prg
 .\FUNC_LIB\print2.prg
+.\FUNC_LIB\initbase.prg
 
 .\exchange\create_reestr_main.prg
 .\exchange\rak_XML.prg
