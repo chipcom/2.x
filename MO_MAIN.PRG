@@ -6,6 +6,15 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+#include "simpleio.ch"
+#include 'dbinfo.ch'
+
+#require "rddsql"
+#require "sddodbc"
+
+
+REQUEST SQLMIX, SDDODBC
+
 // External ust_printer, ErrorSys, ReadModal, like, flstr, prover_dbf, net_monitor, pr_view, ne_real
 External ust_printer, ReadModal, like, flstr, prover_dbf
 // старые (редко используемые) отчёты запускаем из hrb-файлов (для уменьшения задачи)
@@ -172,6 +181,14 @@ Procedure Main( ... )
       f_end( .f. )
     Endif
   Endif
+
+  tmp := rddInfo( RDDI_CONNECT, { 'SQLITE3', dir_exe() + 'chip_mo.db' } )
+  dbCloseAll()
+  tmp := hb_Translate( '[Лист1$]', 'UTF8', 'RU1251' )
+  tmp := hb_UTF8ToStr( '[Лист1$]', 'RU1251' )
+
+// altd()
+
   f_main( r, is_local_version, a_parol )
   f_end()
   Return
