@@ -35,6 +35,7 @@ Procedure Main( ... )
   Local cVar, i
   Local sPass, chPass
   Local nameTask := strippath( hb_argv( 0 ) ) // имя запущенной задачи
+  Local tmp
 
   For Each s IN hb_AParams() // анализ входных параметров
     s := Lower( s )
@@ -187,7 +188,7 @@ Procedure Main( ... )
   tmp := HB_DTOT( Date() )
   tmp := HB_TTOD( tmp )
 
- altd()
+// altd()
 
   f_main( r, is_local_version, a_parol )
   f_end()

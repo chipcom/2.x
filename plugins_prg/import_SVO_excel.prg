@@ -11,34 +11,35 @@
 
 #require 'hbodbc'
 
-REQUEST SDDODBC, SQLMIX 
-REQUEST HB_CODEPAGE_RU1251
+//REQUEST SDDODBC, SQLMIX 
+//REQUEST HB_CODEPAGE_RU1251
 
 // 20.07.26
-function import_SVO_excel()
+function import_SVO_excel( oEdit )
 
   local cFile, page, tmp, iCount := 0
-  local connect_string, cAlias, tmpRec
-  local mLPU, mPost, mFam, mIm, mOt, mDOB, mSNILS, mENP, mReg, mGit, mTel, mNaim
+  local connect_string, cAlias
+  local buf := save_maxrow()
+  local mLPU, mENP  //, mPost, mFam, mIm, mOt, mDOB, mSNILS, mReg, mGit, mTel, mNaim
 
   cFile := manager( T_ROW, T_COL + 5, MaxRow() -2, , .t., 1, , , , '*.xlsx' )
   SetKey( K_CTRL_ENTER, nil )
   If ! Empty( cFile )
 
-    r_use( dir_server() + 'kartotek', , 'kart' )
+    mywait()
+    g_use( dir_server() + 'kartotek', , 'kart' )
     r_use( dir_server() + 'kartote2', , 'kart2' )
     index on FIELD->kod_mis to ( cur_dir() + 'tmp_enp' )
-//    fl := r_use( dir_exe() + '_mo_usld', cur_dir() + '_mo_usld', sBase )
 
     cAlias := 'XLS_'
     rddSetDefault( 'SQLMIX' ) 
     connect_string := 'Driver={Microsoft Excel Driver (*.xls, *.xlsx, *.xlsm, *.xlsb)};Dbq=' + cfile + ';HDR=YES;IMEX=1;'
 
-    tmp := rddInfo( RDDI_CONNECT, { 'ODBC', connect_string } )
+    rddInfo( RDDI_CONNECT, { 'ODBC', connect_string } )
 
     page := '[Лист1$]'
-    dbUseArea( .T., , 'select * from ' + page, cAlias )
 
+    dbUseArea( .T., , 'select * from ' + page, cAlias )
     do while ! ( cAlias )->( Eof() )
 
 
@@ -51,7 +52,7 @@ function import_SVO_excel()
       endif
 
       if mLPU == glob_mo()[ _MO_KOD_TFOMS ]
-        iCount++
+/*
         if HB_ISNIL( mFam := ( cAlias )->( fieldget( 3 ) ) )
           mFam := ''
         else
@@ -72,7 +73,6 @@ function import_SVO_excel()
         else
           mSNILS := AllTrim( mSNILS )
         endif
-/*
         if HB_ISNIL( mReg := ( cAlias )->( fieldget( 8 ) ) )
           mReg := ''
         else
@@ -88,17 +88,12 @@ function import_SVO_excel()
         else
           mTel := AllTrim( mTel )
         endif
-*/
-        if HB_ISNIL( mENP := ( cAlias )->( fieldget( 11 ) ) )
-          mENP := ''
+
+        if HB_ISNIL( mNaim := ( cAlias )->( fieldget( 13 ) ) )
+          mNaim := ''
         else
-          mENP := AllTrim( mENP )
+          mNaim := AllTrim( mNaim )
         endif
-//        if HB_ISNIL( mNaim := ( cAlias )->( fieldget( 13 ) ) )
-//          mNaim := ''
-//        else
-//          mNaim := AllTrim( mNaim )
-//        endif
 
         if HB_ISNIL( ( cAlias )->( fieldget( 2 ) ) )
           mPost := CToD( '' )
@@ -110,20 +105,36 @@ function import_SVO_excel()
         else
           mDOB := HB_TTOD( ( cAlias )->( fieldget( 6 ) ) )
         endif
-
-      endif
-      if ! empty( mENP )
-        kart2->( dbSeek( mENP ) )
-        do while AllTrim( kart2->kod_mis ) == mEnp .and. ! kart2->( Eof() )
-//          hb_Alert( Str( kart2->( RecNo() ) ) )
-          kart->( dbGoto( kart2->( RecNo() ) ) )
-          kart2->( dbSkip() )
-        enddo
+*/
+        if HB_ISNIL( mENP := ( cAlias )->( fieldget( 11 ) ) )
+          mENP := ''
+        else
+          mENP := AllTrim( mENP )
+        endif
+        if ! empty( mENP )
+          kart2->( dbSeek( mENP ) )
+          do while AllTrim( kart2->kod_mis ) == mEnp .and. ! kart2->( Eof() )
+            kart->( dbGoto( kart2->( RecNo() ) ) )
+            if ! kart->( Eof() )
+              if kart->pc3 != '035' .and. kart->pc3 != '813'
+                iCount++
+                kart->( dbRLock() )
+                kart->pc3 := '035'
+                kart->( dbUnlock() )
+              endif
+            endif
+            kart2->( dbSkip() )
+          enddo
+        endif
       endif
       ( cAlias )->( dbSkip() )
     enddo
     hb_Alert( 'Обработано - ' + Str( iCount, 3 ) + ' записей.' )
     ( cAlias )->( dbCloseArea() )
+    
     kart2->( dbCloseArea() )
+    kart->( dbCloseArea() )
+    rddSetDefault( 'DBFNTX' )   // востановим умолчание для БД
   endif
+  rest_box( buf )
   return nil

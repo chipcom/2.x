@@ -1,11 +1,11 @@
-rem harbour i_new_boln.prg -n -gh -q -Ic:\harbour\include;..\..\include
-rem harbour i_del_zub.prg -n -gh -q -Ic:\harbour\include;..\..\include
-rem harbour phonegram_15_kz.prg -n -gh -q -Ic:\harbour\include;..\..\include
-rem harbour forma_792_MIAC.prg -n -gh -q -Ic:\harbour\include;..\..\include
-rem harbour monitoring_vid_pom.prg -n -gh -q -Ic:\harbour\include;..\..\include
-rem harbour b_25_perinat_2.prg -n -gh -q -Ic:\harbour\include;..\..\include
-rem harbour pr_inog_inostr_new.prg -n -gh -q -Ic:\harbour\include;..\..\include
-rem harbour correct_vidpom.prg -n -gh -q -Ic:\harbour\include;..\..\include
+harbour i_new_boln.prg -n -gh -q -Ic:\harbour\include;..\..\include
+harbour i_del_zub.prg -n -gh -q -Ic:\harbour\include;..\..\include
+harbour phonegram_15_kz.prg -n -gh -q -Ic:\harbour\include;..\..\include
+harbour forma_792_MIAC.prg -n -gh -q -Ic:\harbour\include;..\..\include
+harbour monitoring_vid_pom.prg -n -gh -q -Ic:\harbour\include;..\..\include
+harbour b_25_perinat_2.prg -n -gh -q -Ic:\harbour\include;..\..\include
+harbour pr_inog_inostr_new.prg -n -gh -q -Ic:\harbour\include;..\..\include
+harbour correct_vidpom.prg -n -gh -q -Ic:\harbour\include;..\..\include
 harbour import_SVO_excel.prg -b -n -gh -q -Ic:\harbour\include;..\..\include
 
 copy *.hrb d:\_mo\chip\exe\plugins
