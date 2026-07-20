@@ -184,10 +184,10 @@ Procedure Main( ... )
 
   tmp := rddInfo( RDDI_CONNECT, { 'SQLITE3', dir_exe() + 'chip_mo.db' } )
   dbCloseAll()
-  tmp := hb_Translate( '[‹¨αβ1$]', 'UTF8', 'RU1251' )
-  tmp := hb_UTF8ToStr( '[‹¨αβ1$]', 'RU1251' )
+  tmp := HB_DTOT( Date() )
+  tmp := HB_TTOD( tmp )
 
-// altd()
+ altd()
 
   f_main( r, is_local_version, a_parol )
   f_end()
