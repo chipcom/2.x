@@ -6,6 +6,15 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+#include "simpleio.ch"
+#include 'dbinfo.ch'
+
+#require "rddsql"
+#require "sddodbc"
+
+
+REQUEST SQLMIX, SDDODBC
+
 // External ust_printer, ErrorSys, ReadModal, like, flstr, prover_dbf, net_monitor, pr_view, ne_real
 External ust_printer, ReadModal, like, flstr, prover_dbf
 // старые (редко используемые) отчёты запускаем из hrb-файлов (для уменьшения задачи)
@@ -26,6 +35,7 @@ Procedure Main( ... )
   Local cVar, i
   Local sPass, chPass
   Local nameTask := strippath( hb_argv( 0 ) ) // имя запущенной задачи
+  Local tmp
 
   For Each s IN hb_AParams() // анализ входных параметров
     s := Lower( s )
@@ -172,6 +182,14 @@ Procedure Main( ... )
       f_end( .f. )
     Endif
   Endif
+
+  tmp := rddInfo( RDDI_CONNECT, { 'SQLITE3', dir_exe() + 'chip_mo.db' } )
+  dbCloseAll()
+  tmp := HB_DTOT( Date() )
+  tmp := HB_TTOD( tmp )
+
+// altd()
+
   f_main( r, is_local_version, a_parol )
   f_end()
   Return
