@@ -1986,8 +1986,8 @@ Function inf_disp_nabl()
     mkod_diag := PadR( sdiag, 5 ), ;
     mkod_diag1 := '   ', mkod_diag2 := '   ', ;
     m1spisok := 0, mspisok := mm_spisok[ 1, 1 ], ;
-    m1adres := 0, madres := mm_danet[ 1, 1 ], ;
-    m1umer := mm_danet[ 1, 2 ], mumer := mm_danet[ 1, 1 ], ;
+    m1adres := 0, madres := mm_danet()[ 1, 1 ], ;
+    m1umer := mm_danet()[ 1, 2 ], mumer := mm_danet()[ 1, 1 ], ;
     m1period := 0, mperiod := Space( 10 ), parr_m, ;
     gl_area := { r, 0, MaxRow() -1, MaxCol(), 0 }
   status_key( '^<Esc>^ - выход;  ^<PgDn>^ - составление документа' )
@@ -2010,9 +2010,9 @@ Function inf_disp_nabl()
     if( k == nil, nil, ( parr_m := AClone( k ), k := { k[ 1 ], k[ 4 ] } ) ), ;
     k } }, A__FUNCTION,,, .f. ) }
   @ r + 7, 2 Say 'Выводить адреса пациентов' Get madres ;
-    reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) }
+    reader {| x| menu_reader( x, mm_danet(), A__MENUVERT,,, .f. ) }
   @ r + 8, 2 Say 'Выводить Умерших пациентов' Get mumer ;
-    reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) }
+    reader {| x| menu_reader( x, mm_danet(), A__MENUVERT,,, .f. ) }
   myread()
   If LastKey() != K_ESC
     If !( ValType( parr_m ) == 'A' )
@@ -3571,7 +3571,6 @@ Function read_xml_file_d02( arr_XML_info, aerr, /*@*/current_i2,lrec_xml)
     @ MaxRow(), 0 Say Str( ++i / k * 100, 6, 2 ) + '%' Color cColorWait
     If tmp2->_OPLATA == 1
       ++ii1
-      // If !Empty( tmp2->_SMO ) .and. AScan( glob_arr_smo, {| x| x[ 2 ] == Int( Val( tmp2->_SMO ) ) } ) == 0
       If !Empty( tmp2->_SMO ) .and. AScan( smo_volgograd(), {| x| x[ 2 ] == Int( Val( tmp2->_SMO ) ) } ) == 0
         AAdd( aerr, 'Некорректное значение атрибута SMO: ' + tmp2->_SMO )
       Endif

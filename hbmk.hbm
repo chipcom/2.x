@@ -21,6 +21,7 @@ hbsqlit3.hbc
 sddsqlite3.hbc
 hbhpdf.hbc
 hbct.hbc
+sddodbc.hbc
 
 -mt
 

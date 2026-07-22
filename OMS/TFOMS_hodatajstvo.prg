@@ -183,13 +183,13 @@ Function tfoms_hodatajstvo( arr_m, iRefr, par )
 
   Return Nil
 
-// 11.05.26 оформление ходатайства
+// 28.06.26 оформление ходатайства
 Function tfoms_hodatajstvo_new( )
   // Функция отрабатывает 
   // arr_m - временной массив
 
-  Local buf24 := save_maxrow(), t_arr[ BR_LEN ], blk
-  local a_mo_prik, i, arr_m := {}
+  Local buf24 := save_maxrow(), t_arr[ BR_LEN ]
+  local arr_m := {} 
 
   If !myfiledeleted( cur_dir() + 'tmp_k' + sdbf() )
     Return Nil
@@ -216,7 +216,7 @@ Function tfoms_hodatajstvo_new( )
       select human_
       goto (human->kod)
       flag_zap := .F.
-      If human_->reestr == 0 .and. human_->schet_zap == 0
+      If human_->reestr == 0 //.and. human_->schet_zap == 0 - не всегда очищаются
        // начало контроля
        // надо добавить контроль через QA2-RA2 
        if human_->smo == '00000'
@@ -575,10 +575,9 @@ Function create_file_hodatajstvo( arr_m )
             Endif
             frd->okatog := kart_->okatog
             frd->adresg := ret_okato_ulica( kart->adres, kart_->okatog, 1, 2 )
-            frd->vidpolis := lstr( human_->VPOLIS ) + '-' + inieditspr( A__MENUVERT, mm_vid_polis, human_->VPOLIS )
+            frd->vidpolis := lstr( human_->VPOLIS ) + '-' + inieditspr( A__MENUVERT, mm_vid_polis(), human_->VPOLIS )
             frd->polis := AllTrim( AllTrim( human_->SPOLIS ) + ' ' + human_->NPOLIS )
             frd->smo := human_->smo
-//            frd->name_smo := inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( human_->smo ) ) )
             frd->name_smo := inieditspr( A__MENUVERT, smo_volgograd(), Int( Val( human_->smo ) ) )
             arrSMO := findSMO_in_f019( human_->smo )
             If Empty( frd->name_smo )
@@ -769,7 +768,7 @@ Function f2_view_list_hodatajstvo( nKey, oBrow )
             Copy File ( goal_dir + zip_file ) to ( s + zip_file )
             // if hb_fileExists(hb_OemToAnsi(s)+zip_file)
             If hb_FileExists( s + zip_file )
-              hod->( g_rlock( forever ) )
+              hod->( g_rlock( 'forever' ) )
               hod->DATE_OUT := sys_date
               If hod->NUMB_OUT < 99
                 hod->NUMB_OUT++

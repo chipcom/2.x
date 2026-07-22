@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 08.04.26
+// 16.07.26
 Function print_l_uch( mkod, par, regim, lnomer )
   
   // mkod - код больного по БД human
@@ -110,7 +110,7 @@ Function print_l_uch( mkod, par, regim, lnomer )
     endif
   endif
   mpolis := alltrim(rtrim(human_->SPOLIS) + ' ' +human_->NPOLIS) + ' (' +;
-          alltrim(inieditspr(A__MENUVERT, mm_vid_polis, human_->VPOLIS)) + ')'
+          alltrim(inieditspr(A__MENUVERT, mm_vid_polis(), human_->VPOLIS)) + ')'
   madres := iif(emptyall(kart_->okatog,kart->adres), '', ret_okato_ulica(kart->adres,kart_->okatog))
   madresp := iif(emptyall(kart_->okatop,kart_->adresp), '', ret_okato_ulica(kart_->adresp,kart_->okatop))
   //
@@ -184,7 +184,7 @@ Function print_l_uch( mkod, par, regim, lnomer )
   nTipLu := otd->tiplu
   lTypeLUMedReab := ( otd->tiplu == TIP_LU_MED_REAB )
 
-  mvzros_reb := inieditspr(A__MENUVERT, menu_vzros, human->vzros_reb)
+  mvzros_reb := inieditspr(A__MENUVERT, menu_vzros(), human->vzros_reb)
   mrab_nerab := inieditspr(A__MENUVERT, menu_rab(), kart->rab_nerab)
   mkomu := f4_view_list_schet(human->komu, cut_code_smo(human_->smo), human->str_crb)
   mnum_lu := alltrim(human->uch_doc)
@@ -427,6 +427,10 @@ Function print_l_uch( mkod, par, regim, lnomer )
     add_string('  Пациент направлен на МСЭ в бюро медико-социальной экспертизы')
   endif
 
+  add_string( '  Вид помощи: ' + AllTrim( inieditspr( A__MENUVERT, getv008(), human_->VIDPOM ) ) )
+  if human_->USL_OK == USL_OK_POLYCLINIC
+    add_string( '  Цель посещения: ' + get_npc_from_v025_by_idpc( human_->P_CEL ) )// inieditspr( A__MENUVERT, getv008(), human_->VIDPOM ) ) )
+  endif
   if ! between( human_->RSLT_NEW, 316, 393 ) // если не диспансеризация и т.п.
     if !empty(mlech_vr)
       add_string('  Лечащий врач : ' + mlech_vr)
@@ -911,7 +915,7 @@ Function print_luch_onk( dk,  diag, sh )
       + ', Tumor: ' + alltrim( inieditspr( A__MENUVERT, mm_N003, onksl->ONK_T ) ) ;
       + ', Nodus: ' + alltrim( inieditspr( A__MENUVERT, mm_N004, onksl->ONK_N ) ) ;
       + ', Metastasis: ' + alltrim( inieditspr( A__MENUVERT, mm_N005, onksl->ONK_M ) ) )
-    add_string( '   Наличие отдаленных метастазов (при рецидиве или прогрессировании): ' + alltrim( inieditspr( A__MENUVERT, mm_danet, onksl->MTSTZ ) ) )
+    add_string( '   Наличие отдаленных метастазов (при рецидиве или прогрессировании): ' + alltrim( inieditspr( A__MENUVERT, mm_danet(), onksl->MTSTZ ) ) )
     add_string( '' )
     tstr := space( 3 ) + 'Консилиум: ' + inieditspr( A__MENUVERT, getn019(), m1PR_CONS )
     if m1PR_CONS != 0
@@ -979,7 +983,7 @@ Function print_luch_onk( dk,  diag, sh )
           add_string( space( 3 ) + ret_str_onc( 7, 1 ) + ': ' + inieditspr( A__MENUVERT, mm_shema_usl, m1crit ) )
           add_string( space( 3 ) + ret_str_onc( 8, 1 ) + ': ' + init_lek_pr() )
           add_string( space( 3 ) + ret_str_onc( 9, 1 ) + ': ' + ;
-            inieditspr( A__MENUVERT, mm_danet, ONKUS->pptr ) )
+            inieditspr( A__MENUVERT, mm_danet(), ONKUS->pptr ) )
         Endif
       Endif
       select ONKUS
@@ -1238,7 +1242,7 @@ Function print_al_uch(arr_h, arr_m)
   set relation to recno() into HUMAN_
   goto (atail(arr_h)[2])
   mpolis := alltrim(rtrim(human_->SPOLIS) + ' ' +human_->NPOLIS) + ' (' + ;
-            alltrim(inieditspr(A__MENUVERT, mm_vid_polis, human_->VPOLIS)) + ')'
+            alltrim(inieditspr(A__MENUVERT, mm_vid_polis(), human_->VPOLIS)) + ')'
   R_Use(dir_server() + 'kartote_', , 'KART_')
   R_Use(dir_server() + 'kartotek', , 'KART')
   set relation to recno() into KART_
@@ -1258,7 +1262,7 @@ Function print_al_uch(arr_h, arr_m)
     endif
   endif
   //
-  mvzros_reb := inieditspr(A__MENUVERT, menu_vzros, human->vzros_reb)
+  mvzros_reb := inieditspr(A__MENUVERT, menu_vzros(), human->vzros_reb)
   mrab_nerab := inieditspr(A__MENUVERT, menu_rab(), human->rab_nerab)
   mkomu := f4_view_list_schet(human->komu, cut_code_smo(human_->smo), human->str_crb)
   mnum_lu := alltrim(human->uch_doc)

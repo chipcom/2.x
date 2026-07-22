@@ -2,27 +2,46 @@
 #include 'chip_mo.ch'
 #include 'tfile.ch'
 
-// 21.05.26 Приложение к письму ГБУЗ 'ВОМИАЦ' №1025 от 08.07.2019г.
+// 15.06.26 Приложение к письму ГБУЗ 'ВОМИАЦ' №1025 от 08.07.2019г.
 Function svod_KZVO_children( par )      // f21_inf_dnl
 
   Local arr_m, buf := save_maxrow(), adbf
   Local name_file_full
   local arr_PO := {}, arr_15_17 := {}, arr_NP := {}
   local arr_2510_DDS, arr_2510_DDSOP
-//  Local hZabol
+  local hYoungMan13_14, hYoungMan15_17
+  local hGirl13_14, hGirl15_17
 
   If ( arr_m := year_month(,,, 5 ) ) != NIL
 
+    hYoungMan13_14 := { 'I' => 0, 'II' => 0, 'III' => 0, 'IV' => 0, 'V' => 0, ;
+      'FI' => 0, 'FII' => 0, 'FIII' => 0, 'FIV' => 0, 'FN' => 0, ;
+      'E30.0' => 0, 'E30.1' => 0, 'N40_N51' => 0, 'Q55' => 0, ;
+      'LOW_WEIGHT' => 0, 'HIGH_WEIGHT' => 0, 'LOW_HIGHT' => 0, 'HIGH_HIGHT' => 0 }
+    hYoungMan15_17 := { 'I' => 0, 'II' => 0, 'III' => 0, 'IV' => 0, 'V' => 0, ;
+      'FI' => 0, 'FII' => 0, 'FIII' => 0, 'FIV' => 0, 'FN' => 0, ;
+      'E30.0' => 0, 'E30.1' => 0, 'N40_N51' => 0, 'Q55' => 0, ;
+      'LOW_WEIGHT' => 0, 'HIGH_WEIGHT' => 0, 'LOW_HIGHT' => 0, 'HIGH_HIGHT' => 0 }
+    hGirl13_14 := { 'I' => 0, 'II' => 0, 'III' => 0, 'IV' => 0, 'V' => 0, 'E30.0' => 0, 'E30.1' => 0, 'N40_N51' => 0, 'Q55' => 0, ;
+      'E22.8' => 0, 'E25' => 0, 'E26' => 0, 'E27.0' => 0, 'E30.1' => 0, 'E30.8' => 0, 'Q78.1' => 0, 'E23.0' => 0, 'E23.1' => 0, 'E28.3' => 0, 'E30.0' => 0, 'E45' => 0, ;
+      'E89.3' => 0, 'E89.4' => 0, 'Q50.0' => 0, 'Q96' => 0, 'N91' => 0, 'N92.2' => 0, 'N92.3' => 0, 'N94.4' => 0, 'N94.5' => 0, 'N94.6' => 0, 'N94.3' => 0, 'N76.0' => 0, ;
+      'N76.1' => 0, 'N76.2' => 0, 'N76.3' => 0, 'N76.8' => 0, 'N90.4' => 0, 'N76.6' => 0, 'N75.0' => 0, 'N75.1' => 0, 'N75.8' => 0, 'N75.9' => 0, 'N90.7' => 0, 'N90.8' => 0, ;
+      'A63.0' => 0, 'C51' => 0, 'C52' => 0, 'N61' => 0, 'N62' => 0, 'N63' => 0, 'N64.4' => 0, 'S30.2' => 0, 'S31.4' => 0, 'S31.5' => 0, 'Q52.0' => 0, 'Q52.1' => 0, 'Q52.3' => 0, ;
+      'Q52.5' => 0, 'Q52.6' => 0, 'L68.0' => 0, 'E40_E46' => 0, 'E66' => 0, 'Z72.1' => 0, 'Z72.2' => 0, 'Z72.0' => 0 }
+    hGirl15_17 := { 'I' => 0, 'II' => 0, 'III' => 0, 'IV' => 0, 'V' => 0, 'E30.0' => 0, 'E30.1' => 0, 'N40_N51' => 0, 'Q55' => 0, ;
+      'E22.8' => 0, 'E25' => 0, 'E26' => 0, 'E27.0' => 0, 'E30.1' => 0, 'E30.8' => 0, 'Q78.1' => 0, 'E23.0' => 0, 'E23.1' => 0, 'E28.3' => 0, 'E30.0' => 0, 'E45' => 0, ;
+      'E89.3' => 0, 'E89.4' => 0, 'Q50.0' => 0, 'Q96' => 0, 'N91' => 0, 'N92.2' => 0, 'N92.3' => 0, 'N94.4' => 0, 'N94.5' => 0, 'N94.6' => 0, 'N94.3' => 0, 'N76.0' => 0, ;
+      'N76.1' => 0, 'N76.2' => 0, 'N76.3' => 0, 'N76.8' => 0, 'N90.4' => 0, 'N76.6' => 0, 'N75.0' => 0, 'N75.1' => 0, 'N75.8' => 0, 'N75.9' => 0, 'N90.7' => 0, 'N90.8' => 0, ;
+      'A63.0' => 0, 'C51' => 0, 'C52' => 0, 'N61' => 0, 'N62' => 0, 'N63' => 0, 'N64.4' => 0, 'S30.2' => 0, 'S31.4' => 0, 'S31.5' => 0, 'Q52.0' => 0, 'Q52.1' => 0, 'Q52.3' => 0, ;
+      'Q52.5' => 0, 'Q52.6' => 0, 'L68.0' => 0, 'E40_E46' => 0, 'E66' => 0, 'Z72.1' => 0, 'Z72.2' => 0, 'Z72.0' => 0 }
+
     Private arr_deti, arr_2510
-    Private hZabol
 
     If arr_m[ 1 ] < 2020
       Return func_error( 4, 'Данная форма утверждена с 2020 года' )
     Endif
 
     mywait()  // 'подождите, работаю'
-    hZabol := { 'I86.1' => 0, 'N40_N51' => 0, 'N44' => 0, 'N45.9' => 0, 'N47.0' => 0, 'N48.0' => 0, 'N60_N64m' => 0, 'N62m' => 0, 'oth_m' => 0, ;
-      'N60_N64g' => 0, 'N60' => 0, 'N70_N77' => 0, 'N70' => 0, 'N71' => 0, 'N72' => 0, 'N80_N98' => 0, 'N80' => 0, 'N83' => 0, 'N91' => 0, 'oth_g' => 0 }
 
     name_file_full := 'ПО дети с репродуктивкой 15-17_' + ;
       StrZero( Day( arr_m[ 6 ] ), 2 ) + '_' + StrZero( Month( arr_m[ 6 ] ), 2 ) + '_' + Str( Year( arr_m[ 6 ] ), 4 ) + '.xlsx'
@@ -128,7 +147,7 @@ Function svod_KZVO_children( par )      // f21_inf_dnl
     mywait( '' )  // очистим информационную строку
     Do While !tmp->( Eof() )
       @ MaxRow(), 0 Say 'Профосмотры несовершеннолетних: ' + Str( RecNo() / LastRec() * 100, 6, 2 ) + '%' Color cColorWait
-      svod_inf_dnl_LU( tmp->kod, hZabol )
+      svod_inf_dnl_LU( tmp->kod, hYoungMan13_14, hYoungMan15_17, hGirl13_14, hGirl15_17 )
       Select TMP
       tmp->( dbSkip() )
     Enddo
@@ -168,7 +187,7 @@ Function svod_KZVO_children( par )      // f21_inf_dnl
     arr_2510_DDSOP := collect_arr2510( arr_m, TIP_LU_DDSOP, par, 'Диспансеризация детей-сирот под опекой: ' )
 
     writexlsx_inf_children( hb_OEMToANSI( name_file_full ), arr_m, arr_PO, arr_15_17, arr_NP, ;
-      arr_2510_DDS, arr_2510_DDSOP, hZabol )
+      arr_2510_DDS, arr_2510_DDSOP, hYoungMan13_14, hYoungMan15_17, hGirl13_14, hGirl15_17 )
     work_with_excel_file( name_file_full )
   Endif
   dbCloseAll()
@@ -270,16 +289,17 @@ Function svod_inf_dnl( arr_m, is_schet, is_reg, arr_ishod, is_snils )
 
   Return fl
 
-// 20.05.26
-Function svod_inf_dnl_LU( Loc_kod, hZabol ) // сводная информация из листов учета
+// 15.06.26
+Function svod_inf_dnl_LU( Loc_kod, hYoungMan13_14, hYoungMan15_17, hGirl13_14, hGirl15_17 ) // сводная информация из листов учета
 
   Local ii, im, i, j, k, s, sumr := 0, ar := { 0 }, ltip_school := -1, ar15[ 26 ], ;
     is_2 := .f., ad := {}, arr, a3 := {}, fl_ves := .t.
   local fl, is_selo, mvar, m1var, lshifr, pole, flPol
+  local hTemp
 
   Private m1tip_school := -1, m1school := 0, mvozrast, mdvozrast, mgruppa := 0, m1GR_FIZ := 1, m1invalid1 := 0
 //  Private mvar, m1var, 
-  Private m1FIZ_RAZV1, m1napr_stac := 0
+  Private m1FIZ_RAZV1, m1FIZ_RAZV2, m1napr_stac := 0
 
   AFill( ar15, 0 )
   flPol := ( human->pol == 'М' )
@@ -301,14 +321,74 @@ Function svod_inf_dnl_LU( Loc_kod, hZabol ) // сводная информация из листов учет
   ii := 1
   is_2 := ( human->ishod == 302 ) // это второй этап
   read_arr_pn( Loc_kod, .t., human->K_DATA )
-  If human->pol == 'М'
+  mGRUPPA := human_->RSLT_NEW - 331// L_BEGIN_RSLT
+
+//  If human->pol == 'М'
+  if human->pol == 'М' .and. mvozrast >= 13 .and. mvozrast < 18
+    if mvozrast >= 13 .and. mvozrast < 15
+      hTemp := hYoungMan13_14
+    elseif mvozrast >= 15 .and. mvozrast < 18
+      hTemp := hYoungMan15_17
+    endif
+
+    if mgruppa == 1
+      hTemp[ 'I' ]++
+    elseif  mgruppa == 2
+      hTemp[ 'II' ]++
+    elseif  mgruppa == 3
+      hTemp[ 'III' ]++
+    elseif  mgruppa == 4
+      hTemp[ 'IV' ]++
+    elseif  mgruppa == 5
+      hTemp[ 'V' ]++
+    Endif
+    if m1gr_fiz == 1
+      hTemp[ 'FI' ]++
+    elseif  m1gr_fiz == 2
+      hTemp[ 'FII' ]++
+    elseif  m1gr_fiz == 3
+      hTemp[ 'FIII' ]++
+    elseif  m1gr_fiz == 4
+      hTemp[ 'FIV' ]++
+    elseif  m1gr_fiz == 0
+      hTemp[ 'FN' ]++
+    Endif
+    if m1FIZ_RAZV1 == 1
+      hTemp[ 'LOW_WEIGHT' ]++
+    elseif m1FIZ_RAZV1 == 2
+      hTemp[ 'HIGH_WEIGHT' ]++
+    endif
+    if m1FIZ_RAZV2 == 1
+      hTemp[ 'LOW_HIGHT' ]++
+    elseif m1FIZ_RAZV2 == 2
+      hTemp[ 'HIGH_HIGHT' ]++
+    endif
+
     If m1napr_stac > 0
       ar15[ 23 ] ++
       If f_is_selo()
         ar15[ 24 ] ++
       Endif
     Endif
-  Else
+  elseif human->pol == 'Ж' .and. mvozrast >= 13 .and. mvozrast < 18
+
+    if mvozrast >= 13 .and. mvozrast < 15
+      hTemp := hGirl13_14
+    elseif mvozrast >= 15 .and. mvozrast < 18
+      hTemp := hGirl15_17
+    endif
+    if mgruppa == 1
+      hTemp[ 'I' ]++
+    elseif  mgruppa == 2
+      hTemp[ 'II' ]++
+    elseif  mgruppa == 3
+      hTemp[ 'III' ]++
+    elseif  mgruppa == 4
+      hTemp[ 'IV' ]++
+    elseif  mgruppa == 5
+      hTemp[ 'V' ]++
+    Endif
+
     If m1napr_stac > 0
       ar15[ 25 ] ++
       If f_is_selo()
@@ -344,11 +424,14 @@ Function svod_inf_dnl_LU( Loc_kod, hZabol ) // сводная информация из листов учет
       mvar := 'm' + s
       If k == 1
         If !Empty( &mvar )
-          arr := Array( 16 ) ; AFill( arr, 0 ) ; arr[ 1 ] := AllTrim( &mvar )
+          arr := Array( 16 )
+          AFill( arr, 0 )
+          arr[ 1 ] := AllTrim( &mvar )
           If Len( arr[ 1 ] ) > 5
             arr[ 1 ] := Left( arr[ 1 ], 5 )
           Endif
-          AAdd( ad, arr ) ; j := Len( ad )
+          AAdd( ad, arr )
+          j := Len( ad )
         Endif
       Elseif j > 0
         m1var := 'm1' + s
@@ -413,6 +496,31 @@ Function svod_inf_dnl_LU( Loc_kod, hZabol ) // сводная информация из листов учет
         fl_ves := .f.
       Endif
 
+      If human->pol == 'М' .and. mvozrast >= 13 .and. mvozrast < 18
+        if mvozrast >= 13 .and. mvozrast < 15
+          hTemp := hYoungMan13_14
+        elseif mvozrast >= 15 .and. mvozrast < 18
+          hTemp := hYoungMan15_17
+        endif
+        If Left( ad[ i, 1 ], 5 ) == 'E30.0'
+          hTemp[ 'E30.0' ]++
+        elseif Left( ad[ i, 1 ], 5 ) == 'E30.1'
+          hTemp[ 'E30.1' ]++
+        elseif Left( ad[ i, 1 ], 3 ) == 'Q55'
+          hTemp[ 'Q55' ]++
+        elseif between_diag( Left( ad[ i, 1 ], 3 ), 'N40', 'N51' )
+          hTemp[ 'N40_N51' ]++
+        endif
+      elseif human->pol == 'Ж' .and. mvozrast >= 13 .and. mvozrast < 18
+        if mvozrast >= 13 .and. mvozrast < 15
+          hTemp := hGirl13_14
+        elseif mvozrast >= 15 .and. mvozrast < 18
+          hTemp := hGirl15_17
+        endif
+
+        fill_zabol_girl( ad[ i ], hTemp )
+      endif
+
       // надо деффицит массы тела
       If Left( ad[ i, 1 ], 1 ) == 'C' .or. Between( Left( ad[ i, 1 ], 3 ), 'D00', 'D09' ) // ЗНО может быть добавить  .or. between(left(ad[i, 1], 3),'D45','D47')
         arr[ 9 ] ++
@@ -429,9 +537,6 @@ Function svod_inf_dnl_LU( Loc_kod, hZabol ) // сводная информация из листов учет
       Endif
     Endif
 
-    if mdvozrast >= 15 .and. mdvozrast <= 17
-      fill_diag_zabol( flPol, ad, hZabol )
-    endif
   Next
   AAdd( a3, AClone( arr ) )
   If Between( mdvozrast, 15, 17 )
@@ -601,53 +706,6 @@ Function svod_inf_dnl_LU( Loc_kod, hZabol ) // сводная информация из листов учет
   Next
 
   Return Nil
-
-// 21.05.26
-function fill_diag_zabol( flPol, ad, hZabol )
-
-  // flPol - .t. - мужчина, .f. - женщина
-
-  local i, sDiag, sDiag3
-
-  if len( ad ) > 0
-    for i := 1 to len( ad )
-      sDiag := AllTrim( ad[ i, 1 ] )
-      sDiag3 := SubStr( sDiag, 1, 3 )
-      if hb_HHasKey( hZabol, sDiag )
-        hZabol[ sDiag ]++
-      endif
-
-      if between_diag( sDiag, 'N40', 'N51' )
-        hZabol[ 'N40_N51' ]++
-      endif
-      if flPol  // для юношей
-        if between_diag( sDiag, 'N60', 'N64' )
-          hZabol[ 'N60_N64m' ]++
-        endif
-        if sDiag3 == 'N62'
-          hZabol[ 'N62m' ]++
-        endif
-        if sDiag3 == 'N44'
-          hZabol[ 'N44' ]++
-        endif
-      else  // для девушек
-        if between_diag( sDiag, 'N60', 'N64' )
-          hZabol[ 'N60_N64g' ]++
-        endif
-        if eq_any( sDiag3, 'N60', 'N70', 'N71', 'N72', 'N80', 'N83', 'N91' )
-          hZabol[ sDiag3 ]++
-        endif
-        if between_diag( sDiag, 'N70', 'N77' )
-          hZabol[ 'N70_N77' ]++
-        endif
-        if between_diag( sDiag, 'N80', 'N98' )
-          hZabol[ 'N80_N98' ]++
-        endif
-      endif
-    next
-  endif
-
-  return NIL
 
 // 11.03.19
 Function svod_inf_dds( arr_m, tip_lu, is_schet, is_reg, is_snils )
@@ -823,10 +881,6 @@ Function svod_inf_dds_LU( Loc_kod, kod_kartotek, mvozrast )
     ar2[ 20 ] := 1
   Endif
 
-  if mvozrast >= 15 .and. mvozrast <= 17
-    fill_diag_zabol( kart->POL == 'М', ad, hZabol )
-  endif
-
   For j := 1 To 2
     k := ar[ j ]
     arr_deti[ k, 3 ] ++
@@ -882,3 +936,124 @@ Function svod_inf_dds_LU( Loc_kod, kod_kartotek, mvozrast )
   Next
 
   Return Nil
+
+// 15.06.26
+function fill_zabol_girl( ad, hTemp )
+
+  If Left( ad[ 1 ], 5 ) == 'E22.8'
+    hTemp[ 'E22.8' ]++
+  elseif Left( ad[ 1 ], 3 ) == 'E25'
+    hTemp[ 'E25' ]++
+  elseif Left( ad[ 1 ], 3 ) == 'E26'
+    hTemp[ 'E26' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'E27.0'
+    hTemp[ 'E27.0' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'E30.1'
+    hTemp[ 'E30.1' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'E30.8'
+    hTemp[ 'E30.8' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Q78.1'
+    hTemp[ 'Q78.1' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Е23.0'
+    hTemp[ 'Е23.0' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Е23.1'
+    hTemp[ 'Е23.1' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Е28.3'
+    hTemp[ 'Е28.3' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Е30.0'
+    hTemp[ 'Е30.0' ]++
+  elseif Left( ad[ 1 ], 3 ) == 'Е45'
+    hTemp[ 'Е45' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Е89.3'
+    hTemp[ 'Е89.3' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Е89.4'
+    hTemp[ 'Е89.4' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Q50.0'
+    hTemp[ 'Q50.0' ]++
+  elseif Left( ad[ 1 ], 3 ) == 'Q96'
+    hTemp[ 'Q96' ]++
+  elseif Left( ad[ 1 ], 3 ) == 'N91'
+    hTemp[ 'N91' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N92.2'
+    hTemp[ 'N92.2' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N92.3'
+    hTemp[ 'N92.3' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N94.4'
+    hTemp[ 'N94.4' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N94.5'
+    hTemp[ 'N94.5' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N94.6'
+    hTemp[ 'N94.6' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N94.3'
+    hTemp[ 'N94.3' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N76.0'
+    hTemp[ 'N76.0' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N76.0'
+    hTemp[ 'N76.0' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N76.2'
+    hTemp[ 'N76.2' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N76.3'
+    hTemp[ 'N76.3' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N76.8'
+    hTemp[ 'N76.8' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N90.4'
+    hTemp[ 'N90.4' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N76.6'
+    hTemp[ 'N76.6' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N75.0'
+    hTemp[ 'N75.0' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N75.1'
+    hTemp[ 'N75.1' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N75.8'
+    hTemp[ 'N75.8' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N75.9'
+    hTemp[ 'N75.9' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N90.7'
+    hTemp[ 'N90.7' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N90.8'
+    hTemp[ 'N90.8' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'A63.0'
+    hTemp[ 'A63.0' ]++
+  elseif Left( ad[ 1 ], 3 ) == 'C51'
+    hTemp[ 'C51' ]++
+  elseif Left( ad[ 1 ], 3 ) == 'C52'
+    hTemp[ 'C52' ]++
+  elseif Left( ad[ 1 ], 3 ) == 'N61'
+    hTemp[ 'N61' ]++
+  elseif Left( ad[ 1 ], 3 ) == 'N62'
+    hTemp[ 'N62' ]++
+  elseif Left( ad[ 1 ], 3 ) == 'N63'
+    hTemp[ 'N63' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N64.4'
+    hTemp[ 'N64.4' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'S30.2'
+    hTemp[ 'S30.2' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'S31.4'
+    hTemp[ 'S31.4' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'S31.5'
+    hTemp[ 'S31.5' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Q52.0'
+    hTemp[ 'Q52.0' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Q52.1'
+    hTemp[ 'Q52.1' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Q52.3'
+    hTemp[ 'Q52.3' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Q52.5'
+    hTemp[ 'Q52.5' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Q52.6'
+    hTemp[ 'Q52.6' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'L68.0'
+    hTemp[ 'L68.0' ]++
+  elseif between_diag( Left( ad[ 1 ], 3 ), 'E40', 'E46' )
+    hTemp[ 'E40_E46' ]++
+  elseif Left( ad[ 1 ], 3 ) == 'E66'
+    hTemp[ 'E66' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Z72.1'
+    hTemp[ 'Z72.1' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Z72.2'
+    hTemp[ 'Z72.2' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Z72.0'
+    hTemp[ 'Z72.0' ]++
+  endif
+
+  return nil

@@ -334,7 +334,7 @@ Static Function s33_statist( k3, k4 )
   Endif
   Return Nil
 
-//
+// 00.06.26
 Static Function s34_statist( k3, k4 )
 
   Local fl, js, k, p
@@ -383,16 +383,42 @@ Static Function s34_statist( k3, k4 )
         Endif
         If fl
           If !Empty( js )
-            tmp_os->p5 += p * hu->stoim_1 ; arr_uch[ 5 ] += p * hu->stoim_1
-            tmp_os->p6 += p * hu->kol_1   ; arr_uch[ 6 ] += p * hu->kol_1
+            if hu->usl_repl == 1
+              // áã¬¬  ‹œ 
+              tmp_os->p5 += p * 0
+              arr_uch[ 5 ] += p * 0
+            else  
+              tmp_os->p5 += p * hu->stoim_1
+              arr_uch[ 5 ] += p * hu->stoim_1
+            endif
+            tmp_os->p6 += p * hu->kol_1
+            arr_uch[ 6 ] += p * hu->kol_1
           Endif
-          tmp_os->p3 += hu->stoim_1   ; arr_uch[ 3 ] += hu->stoim_1
-          tmp_os->p4 += hu->kol_1     ; arr_uch[ 4 ] += hu->kol_1
+          if hu->usl_repl == 1
+            // áã¬¬  ‹œ 
+            tmp_os->p3 += 0
+            arr_uch[ 3 ] += 0
+          else  
+            tmp_os->p3 += hu->stoim_1
+            arr_uch[ 3 ] += hu->stoim_1
+          endif  
+          tmp_os->p4 += hu->kol_1
+          arr_uch[ 4 ] += hu->kol_1
         Else
           If Empty( js )
-            add_tmp_os( hu->stoim_1, hu->kol_1, 0, 0 )
+            if hu->usl_repl == 1
+              // áã¬¬  ‹œ 
+              add_tmp_os( 0, hu->kol_1, 0, 0 )
+            else  
+              add_tmp_os( hu->stoim_1, hu->kol_1, 0, 0 )
+            endif  
           Else
-            add_tmp_os( hu->stoim_1, hu->kol_1, p * hu->stoim_1, p * hu->kol_1 )
+            if hu->usl_repl == 1
+              // áã¬¬  ‹œ 
+              add_tmp_os( hu->stoim_1, hu->kol_1, 0, p * hu->kol_1 )
+            else  
+              add_tmp_os( hu->stoim_1, hu->kol_1, p * hu->stoim_1, p * hu->kol_1 )
+            endif
           Endif
         Endif
         Select HU
@@ -689,7 +715,7 @@ Function s52statist( nKey, oBrow )
   Endcase
   Return ret
 
-// 02.02.24
+// 00.06.26
 Function s53statist( ltip, arr_m, begin_date, end_date )
 
   Local i, j, k, s, buf := save_maxrow(), ;
@@ -848,8 +874,12 @@ Function s53statist( ltip, arr_m, begin_date, end_date )
                     arr_lp[ i, 2, i1, 2 ] += mkol
                     arr_lp[ i, 2, i1, 3 ] ++
                   Endif
-                  muet := 0
-                  msum := hu->stoim_1 * koef
+                  muet := 0 
+                  if hu->usl_repl == 1
+                    // áã¬¬  ‹œ 
+                  else  
+                    msum := hu->stoim_1 * koef
+                  endif  
                   If Between( k, 9, 10 )  // “…’ ¤«ï áâ®¬ â®«®£¨©
                     muet := round_5( mkol * ret_tfoms_uet( usl->shifr, lshifr1, human->vzros_reb ), 4 )
                   Endif
@@ -878,7 +908,11 @@ Function s53statist( ltip, arr_m, begin_date, end_date )
                     tmp->u_name := lname
                   Endif
                   tmp->kol += hu->kol_1
-                  tmp->sum += hu->stoim_1 * koef
+                  if hu->usl_repl == 1
+                    // áã¬¬  ‹œ 
+                  else  
+                    tmp->sum += hu->stoim_1 * koef
+                  endif  
                 Endif
               Next
             Endif
@@ -1060,8 +1094,6 @@ Function uzkie1spec()
       { {| k, r, c| k := year_month( r + 1, c ), ;
       if( k == nil, nil, ( parr_m := AClone( k ), k := { k[ 1 ], k[ 4 ] } ) ), ;
       k } }, A__FUNCTION,,, .f. ) }
-//    @ r1 + 3, 4 Say "‘âà å®¢ ï ª®¬¯ ­¨ï" Get mstrah ;
-//      reader {| x| menu_reader( x, glob_arr_smo, A__MENUVERT,,, .f. ) }
     @ r1 + 3, 4 Say "‘âà å®¢ ï ª®¬¯ ­¨ï" Get mstrah ;
       reader {| x| menu_reader( x, smo_volgograd(), A__MENUVERT,,, .f. ) }
     @ r1 + 4, 4 Say "®¬¥à" Get mnomer
@@ -1091,12 +1123,15 @@ Function uzkie1spec()
 //
 Function uzkie2spec()
 
-  Static mm_perso := { { '¥àá®­ «', 1 }, { '¥àá®­ «+ãá«ã£¨', 2 }, ;
-    { '“á«ã£¨', 3 }, { '“á«ã£¨+¯¥àá®­ «', 4 } }
+  Static mm_perso := { ;
+    { '¥àá®­ «', 1 }, ;
+    { '¥àá®­ «+ãá«ã£¨', 2 }, ;
+    { '“á«ã£¨', 3 }, ;
+    { '“á«ã£¨+¯¥àá®­ «', 4 } }
   Local buf := SaveScreen(), r1 := 13
 
   Private mstrah := PadR( glob_strah[ 2 ], 30 ), m1strah := glob_strah[ 1 ], ;
-    m1usl := mm_danet[ 1, 2 ], musl := mm_danet[ 1, 1 ], ;
+    m1usl := mm_danet()[ 1, 2 ], musl := mm_danet()[ 1, 1 ], ;
     m1period := 0, mperiod := Space( 10 ), parr_m, ;
     mprocent := 0, mperso := mm_perso[ 1, 1 ], m1perso := mm_perso[ 1, 2 ], ;
     msumma := 0, gl_area := { r1, 0, 23, 79, 0 }, arr_usl
@@ -1110,12 +1145,10 @@ Function uzkie2spec()
       { {| k, r, c| k := year_month( r + 1, c ), ;
       if( k == nil, nil, ( parr_m := AClone( k ), k := { k[ 1 ], k[ 4 ] } ) ), ;
       k } }, A__FUNCTION, , , .f. ) }
-//    @ r1 + 3, 4 Say '‘âà å®¢ ï ª®¬¯ ­¨ï' Get mstrah ;
-//      reader {| x| menu_reader( x, glob_arr_smo, A__MENUVERT, , , .f. ) }
     @ r1 + 3, 4 Say '‘âà å®¢ ï ª®¬¯ ­¨ï' Get mstrah ;
       reader {| x| menu_reader( x, smo_volgograd(), A__MENUVERT, , , .f. ) }
     @ r1 + 4, 4 Say ' §à¥è¨âì ¨áª«îç¥­¨¥ ­¥ª®â®àëå ãá«ã£ ¨§ á¯¨áª  ’”Œ‘?' Get musl ;
-      reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+      reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
     @ r1 + 5, 4 Say '‚­¥è­¨© ¢¨¤ ¤®ªã¬¥­â ' Get mperso ;
       reader {| x| menu_reader( x, mm_perso, A__MENUVERT, , , .f. ) }
     @ r1 + 6, 4 Say 'à®æ¥­â ¤«ï  áá¨áâ¥­â  (¢ á«ãç ¥ ¥£® ¯à¨áãâáâ¢¨ï)' Get mprocent Pict '99'
@@ -1672,7 +1705,7 @@ Function prikaz_848_miac()
   mpoisk := inieditspr( A__MENUVERT, mm_poisk, m1poisk )
   mmest1 := inieditspr( A__MENUVERT, mm_mest, m1mest1 )
   mdolpro := inieditspr( A__MENUVERT, mm_dolpro, m1dolpro )
-  musl   := inieditspr( A__MENUVERT, mm_danet, m1usl  )
+  musl   := inieditspr( A__MENUVERT, mm_danet(), m1usl  )
   SetColor( cDataCGet )
   myclear( r )
   Private gl_area := { r, 0, MaxRow() -1, MaxCol(), 0 }
@@ -1689,7 +1722,7 @@ Function prikaz_848_miac()
   @ r + 5, 2 Say "Š ª ®â®¡à ¦ âì ¢à ç¥¡­ë¥ ¯à¨ñ¬ë" Get mdolpro ;
     reader {| x| menu_reader( x, mm_dolpro, A__MENUVERT,,, .f. ) }
   @ r + 6, 2 Say "‚ë¢®¤¨âì á¯¨á®ª ãá«ã£" Get musl ;
-    reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) }
+    reader {| x| menu_reader( x, mm_danet(), A__MENUVERT,,, .f. ) }
   myread()
   If LastKey() != K_ESC
     If mdate11 > mdate12

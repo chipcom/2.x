@@ -188,14 +188,14 @@ Function init_all_mem_public()
     If !Empty( k )
       stm_povod := {}
       For i := 1 To Len( k )
-        AAdd( stm_povod, { k[ i, 1 ], Int( Val( k[ i, 2 ] ) ) } )
+        AAdd( stm_povod(), { k[ i, 1 ], Int( Val( k[ i, 2 ] ) ) } )
       Next
     Endif
     k := getinisect( j, '’à ¢¬ ' )
     If !Empty( k )
       stm_travma := {}
       For i := 1 To Len( k )
-        AAdd( stm_travma, { k[ i, 1 ], Int( Val( k[ i, 2 ] ) ) } )
+        AAdd( stm_travma(), { k[ i, 1 ], Int( Val( k[ i, 2 ] ) ) } )
       Next
     Endif
   Endif

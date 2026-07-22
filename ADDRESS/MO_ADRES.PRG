@@ -44,7 +44,7 @@ Static skod_volg := '18400'
   inkey(0)
   return NIL*/
 
-// 09.03.23 переиндексировать все файлы адресного реестра ОКАТО
+// 11.06.26 переиндексировать все файлы адресного реестра ОКАТО
 Function okato_index( flag )
 
   Local i
@@ -63,6 +63,8 @@ Function okato_index( flag )
       Exit
     Endif
   Next
+  
+  fl_index := .t.
   If flag .or. fl_index
     For i := 1 To Len( arr_f )
       r_use( dir_exe() + arr_f[ i ] )

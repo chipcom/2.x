@@ -1,8 +1,8 @@
 // mo_hrb1.prg - старые функции
-#include "inkey.ch"
-#include "function.ch"
-#include "edit_spr.ch"
-#include "chip_mo.ch"
+#include 'inkey.ch'
+#include 'function.ch'
+#include 'edit_spr.ch'
+#include 'chip_mo.ch'
 
 // 04.09.13 Журнал регистрации новых больных
 Function i_new_boln()
@@ -12,19 +12,19 @@ Function i_new_boln()
   If ( arr_m := year_month() ) != NIL
     mywait()
     //
-    dbCreate( cur_dir() + "tmp", { { "is", "N", 1, 0 }, ;
-      { "kod_k", "N", 7, 0 }, ;
-      { "task", "N", 1, 0 }, ;
-      { "uch", "N", 3, 0 }, ;
-      { "otd", "N", 3, 0 }, ;
-      { "data", "D", 8, 0 }, ;
-      { "KOD_P", "C", 1, 0 } } ) // код пользователя, добавившего л/у
-    Use ( cur_dir() + "tmp" ) new
-    Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp" )
+    dbCreate( cur_dir() + 'tmp', { { 'is', 'N', 1, 0 }, ;
+      { 'kod_k', 'N', 7, 0 }, ;
+      { 'task', 'N', 1, 0 }, ;
+      { 'uch', 'N', 3, 0 }, ;
+      { 'otd', 'N', 3, 0 }, ;
+      { 'data', 'D', 8, 0 }, ;
+      { 'KOD_P', 'C', 1, 0 } } ) // код пользователя, добавившего л/у
+    Use ( cur_dir() + 'tmp' ) new
+    Index On Str( FIELD->kod_k, 7 ) to ( cur_dir() + 'tmp' )
     If is_task( X_REGIST )
-      waitstatus( "Подзадача РЕГИСТРАТУРА" )
-      r_use( dir_server() + "mo_regi", dir_server() + "mo_regi2", "REGI" )
-      // index on pdate to (dir_server()+"mo_regi2") progress
+      waitstatus( 'Подзадача РЕГИСТРАТУРА' )
+      r_use( dir_server() + 'mo_regi', dir_server() + 'mo_regi2', 'REGI' )
+      // index on FIELD->pdate to (dir_server()+'mo_regi2') progress
       dbSeek( arr_m[ 7 ], .t. )
       Do While regi->pdate <= arr_m[ 8 ] .and. !Eof()
         updatestatus()
@@ -54,9 +54,9 @@ Function i_new_boln()
       regi->( dbCloseArea() )
     Endif
     If is_task( X_PPOKOJ )
-      waitstatus( "Подзадача ПРИЁМНЫЙ ПОКОЙ" )
-      r_use( dir_server() + "mo_pp", dir_server() + "mo_pp_d", "PP" )
-      // index on dtos(n_data)+n_time to (dir_server()+"mo_pp_d") progress
+      waitstatus( 'Подзадача ПРИЁМНЫЙ ПОКОЙ' )
+      r_use( dir_server() + 'mo_pp', dir_server() + 'mo_pp_d', 'PP' )
+      // index on dtos(FIELD->n_data)+FIELD->n_time to (dir_server()+'mo_pp_d') progress
       dbSeek( DToS( arr_m[ 5 ] ), .t. )
       Do While pp->n_data <= arr_m[ 6 ] .and. !Eof()
         updatestatus()
@@ -86,13 +86,13 @@ Function i_new_boln()
       pp->( dbCloseArea() )
     Endif
     If is_task( X_PLATN )
-      waitstatus( "Подзадача ПЛАТНЫЕ УСЛУГИ" )
-      r_use( dir_server() + "hum_p", dir_server() + "hum_pd", "PLAT" )
-      // index on dtos(k_data) to (dir_server()+"hum_pd") progress
+      waitstatus( 'Подзадача ПЛАТНЫЕ УСЛУГИ' )
+      r_use( dir_server() + 'hum_p', dir_server() + 'hum_pd', 'PLAT' )
+      // index on dtos(FIELD->k_data) to (dir_server()+'hum_pd') progress
       dbSeek( DToS( AddMonth( arr_m[ 5 ], -6 ) ), .t. )
-      Index On DToS( n_data ) to ( cur_dir() + "tmp_plat" ) ;
-        For Between( n_data, arr_m[ 5 ], arr_m[ 6 ] ) ;
-        While k_data <= arr_m[ 6 ]
+      Index On DToS( FIELD->n_data ) to ( cur_dir() + 'tmp_plat' ) ;
+        For Between( FIELD->n_data, arr_m[ 5 ], arr_m[ 6 ] ) ;
+        While FIELD->k_data <= arr_m[ 6 ]
       Go Top
       Do While !Eof()
         updatestatus()
@@ -121,8 +121,8 @@ Function i_new_boln()
       Enddo
       plat->( dbCloseArea() )
       If is_task( X_KASSA )
-        r_use( dir_server() + "kas_pl", dir_server() + "kas_pl2", "KP" )
-        // index on dtos(k_data) to (dir_server()+"kas_pl2") progress
+        r_use( dir_server() + 'kas_pl', dir_server() + 'kas_pl2', 'KP' )
+        // index on dtos(FIELD->k_data) to (dir_server()+'kas_pl2') progress
         dbSeek( DToS( arr_m[ 5 ] ), .t. )
         Do While kp->k_data <= arr_m[ 6 ] .and. !Eof()
           updatestatus()
@@ -151,12 +151,12 @@ Function i_new_boln()
       Endif
     Endif
     If is_task( X_ORTO )
-      r_use( dir_server() + "hum_ort", dir_server() + "hum_ortd", "ORT" )
-      // index on dtos(k_data) to (dir_server()+"hum_ortd") progress
+      r_use( dir_server() + 'hum_ort', dir_server() + 'hum_ortd', 'ORT' )
+      // index on dtos(FIELD->k_data) to (dir_server()+'hum_ortd') progress
       dbSeek( DToS( AddMonth( arr_m[ 5 ], -6 ) ), .t. )
-      Index On DToS( n_data ) to ( cur_dir() + "tmp_ort" ) ;
-        For Between( n_data, arr_m[ 5 ], arr_m[ 6 ] ) ;
-        While k_data <= arr_m[ 6 ]
+      Index On DToS( FIELD->n_data ) to ( cur_dir() + 'tmp_ort' ) ;
+        For Between( FIELD->n_data, arr_m[ 5 ], arr_m[ 6 ] ) ;
+        While FIELD->k_data <= arr_m[ 6 ]
       Go Top
       Do While !Eof()
         updatestatus()
@@ -184,8 +184,8 @@ Function i_new_boln()
       Enddo
       ort->( dbCloseArea() )
       If is_task( X_KASSA )
-        r_use( dir_server() + "kas_ort", dir_server() + "kas_ort2", "KP" )
-        // index on dtos(k_data) to (dir_server()+"kas_ort2") progress
+        r_use( dir_server() + 'kas_ort', dir_server() + 'kas_ort2', 'KP' )
+        // index on dtos(FIELD->k_data) to (dir_server()+'kas_ort2') progress
         dbSeek( DToS( arr_m[ 5 ] ), .t. )
         Do While kp->k_data <= arr_m[ 6 ] .and. !Eof()
           updatestatus()
@@ -213,13 +213,13 @@ Function i_new_boln()
         kp->( dbCloseArea() )
       Endif
     Endif
-    waitstatus( "Подзадача ОМС" )
-    r_use( dir_server() + "human", dir_server() + "humand", "OMS" )
-    // index on dtos(k_data)+uch_doc to (dir_server()+"humand") progress
+    waitstatus( 'Подзадача ОМС' )
+    r_use( dir_server() + 'human', dir_server() + 'humand', 'OMS' )
+    // index on dtos(FIELD->k_data)+FIELD->uch_doc to (dir_server()+'humand') progress
     dbSeek( DToS( AddMonth( arr_m[ 5 ], -6 ) ), .t. )
-    Index On DToS( n_data ) to ( cur_dir() + "tmp_oms" ) ;
-      For Between( n_data, arr_m[ 5 ], arr_m[ 6 ] ) ;
-      While k_data <= arr_m[ 6 ]
+    Index On DToS( FIELD->n_data ) to ( cur_dir() + 'tmp_oms' ) ;
+      For Between( FIELD->n_data, arr_m[ 5 ], arr_m[ 6 ] ) ;
+      While FIELD->k_data <= arr_m[ 6 ]
     Go Top
     Do While !Eof()
       updatestatus()
@@ -247,7 +247,7 @@ Function i_new_boln()
       Skip
     Enddo
     Select OMS
-    Set Index to ( dir_server() + "humankk" )
+    Set Index to ( dir_server() + 'humankk' )
     Select TMP
     Go Top
     Do While !Eof()
@@ -268,7 +268,7 @@ Function i_new_boln()
     Enddo
     oms->( dbCloseArea() )
     If is_task( X_PPOKOJ )
-      r_use( dir_server() + "mo_pp", dir_server() + "mo_pp_r", "PP" )
+      r_use( dir_server() + 'mo_pp', dir_server() + 'mo_pp_r', 'PP' )
       Select TMP
       Go Top
       Do While !Eof()
@@ -290,7 +290,7 @@ Function i_new_boln()
       pp->( dbCloseArea() )
     Endif
     If is_task( X_PLATN )
-      r_use( dir_server() + "hum_p", dir_server() + "hum_pkk", "PLAT" )
+      r_use( dir_server() + 'hum_p', dir_server() + 'hum_pkk', 'PLAT' )
       Select TMP
       Go Top
       Do While !Eof()
@@ -311,7 +311,7 @@ Function i_new_boln()
       Enddo
       plat->( dbCloseArea() )
       If is_task( X_KASSA )
-        r_use( dir_server() + "kas_pl", dir_server() + "kas_pl1", "KP" )
+        r_use( dir_server() + 'kas_pl', dir_server() + 'kas_pl1', 'KP' )
         Select TMP
         Go Top
         Do While !Eof()
@@ -334,7 +334,7 @@ Function i_new_boln()
       Endif
     Endif
     If is_task( X_ORTO )
-      r_use( dir_server() + "hum_ort", dir_server() + "hum_ortk", "ORT" )
+      r_use( dir_server() + 'hum_ort', dir_server() + 'hum_ortk', 'ORT' )
       Select TMP
       Go Top
       Do While !Eof()
@@ -355,7 +355,7 @@ Function i_new_boln()
       Enddo
       ort->( dbCloseArea() )
       If is_task( X_KASSA )
-        r_use( dir_server() + "kas_ort", dir_server() + "kas_ort1", "KP" )
+        r_use( dir_server() + 'kas_ort', dir_server() + 'kas_ort1', 'KP' )
         Select TMP
         Go Top
         Do While !Eof()
@@ -377,9 +377,9 @@ Function i_new_boln()
         kp->( dbCloseArea() )
       Endif
     Endif
-    waitstatus( "Новые пациенты" )
-    r_use( dir_server() + "kartote2",, "KART2" )
-    Index On pc1 to ( cur_dir() + "tmpkart2" ) For !Empty( pc1 ) .and. Between( SubStr( pc1, 2, 4 ), arr_m[ 7 ], arr_m[ 8 ] )
+    waitstatus( 'Новые пациенты' )
+    r_use( dir_server() + 'kartote2',, 'KART2' )
+    Index On FIELD->pc1 to ( cur_dir() + 'tmpkart2' ) For !Empty( FIELD->pc1 ) .and. Between( SubStr( FIELD->pc1, 2, 4 ), arr_m[ 7 ], arr_m[ 8 ] )
     Go Top
     Do While !Eof()
       updatestatus()
@@ -404,29 +404,29 @@ Function i_new_boln()
     Close databases
     //
     delfrfiles()
-    dbCreate( fr_titl, { { "name", "C", 130, 0 }, ;
-      { "itog", "N", 6, 0 }, ;
-      { "period", "C", 50, 0 } } )
+    dbCreate( fr_titl, { { 'name', 'C', 130, 0 }, ;
+      { 'itog', 'N', 6, 0 }, ;
+      { 'period', 'C', 50, 0 } } )
     Use ( fr_titl ) New Alias FRT
     Append Blank
     frt->name := glob_mo[ _MO_SHORT_NAME ]
     frt->period := arr_m[ 4 ]
-    dbCreate( fr_data, { { "nomer", "C", 15, 0 }, ;
-      { "fio", "C", 60, 0 }, ;
-      { "date_r", "D", 8, 0 }, ;
-      { "adres", "C", 250, 0 }, ;
-      { "oper", "C", 100, 0 } } )
+    dbCreate( fr_data, { { 'nomer', 'C', 15, 0 }, ;
+      { 'fio', 'C', 60, 0 }, ;
+      { 'date_r', 'D', 8, 0 }, ;
+      { 'adres', 'C', 250, 0 }, ;
+      { 'oper', 'C', 100, 0 } } )
     Use ( fr_data ) New Alias FRD
-    r_use( dir_server() + "base1",, "BASE1" )
-    r_use( dir_server() + "kartote_",, "KART_" )
-    r_use( dir_server() + "kartotek",, "KART" )
-    Use ( cur_dir() + "tmp" ) new
-    Set Relation To kod_k into KART, To kod_k into KART_
-    Index On Upper( kart->fio ) to ( cur_dir() + "tmp" ) For is > 0
+    r_use( dir_server() + 'base1',, 'BASE1' )
+    r_use( dir_server() + 'kartote_',, 'KART_' )
+    r_use( dir_server() + 'kartotek',, 'KART' )
+    Use ( cur_dir() + 'tmp' ) new
+    Set Relation To FIELD->kod_k into KART, To FIELD->kod_k into KART_
+    Index On Upper( kart->fio ) to ( cur_dir() + 'tmp' ) For is > 0
     Go Top
     Do While !Eof()
       frt->itog++
-      s := ""
+      s := ''
       If Asc( tmp->kod_p ) > 0
         Select BASE1
         Goto ( Asc( tmp->kod_p ) )
@@ -437,27 +437,27 @@ Function i_new_boln()
       If tmp->task == X_REGIST
         If !Empty( tmp->otd )
           If tmp->uch == 1
-            s += inieditspr( A__POPUPMENU, dir_server() + "mo_otd", tmp->otd )
+            s += inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', tmp->otd )
           Else
-            s += inieditspr( A__POPUPMENU, dir_server() + "p_priem", tmp->otd )
+            s += inieditspr( A__POPUPMENU, dir_server() + 'p_priem', tmp->otd )
           Endif
         Endif
       Else
         If !Empty( tmp->otd )
-          s += inieditspr( A__POPUPMENU, dir_server() + "mo_otd", tmp->otd )
+          s += inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', tmp->otd )
           If tmp->task != X_OMS
             s += hb_eol()
           Endif
         Endif
         Do Case
         Case tmp->task == X_PPOKOJ
-          s += "(пр/покой)"
+          s += '(пр/покой)'
         Case tmp->task == X_PLATN
-          s += "(пл/услуги)"
+          s += '(пл/услуги)'
         Case tmp->task == X_ORTO
-          s += "(ортопедия)"
+          s += '(ортопедия)'
         Case tmp->task == X_KASSA
-          s += "(касса)"
+          s += '(касса)'
         Endcase
       Endif
       Select FRD
@@ -465,7 +465,7 @@ Function i_new_boln()
       frd->nomer := amb_kartan()
       frd->fio := kart->fio
       frd->date_r := kart->date_r
-      frd->adres := iif( emptyall( kart_->okatog, kart->adres ), "", ;
+      frd->adres := iif( emptyall( kart_->okatog, kart->adres ), '', ;
         ret_okato_ulica( kart->adres, kart_->okatog ) )
       frd->oper := s
       Select TMP
@@ -473,7 +473,7 @@ Function i_new_boln()
     Enddo
     Close databases
     rest_box( buf )
-    call_fr( "mo_new_b" )
+    call_fr( 'mo_new_b' )
   Endif
 
   Return Nil
@@ -483,25 +483,25 @@ Function i_kol_del_zub()
 
   Local fl_exit := .f., hGauge
 
-  hGauge := gaugenew(,,, "Информация о количестве удалённых зубов", .t. )
+  hGauge := gaugenew(,,, 'Информация о количестве удалённых зубов', .t. )
   gaugedisplay( hGauge )
-  dbCreate( cur_dir() + "tmp", { ;
-    { "god", "N", 4, 0 }, ;
-    { "kod_k", "N", 7, 0 }, ;
-    { "pol", "C", 1, 0 }, ;
-    { "vozr", "N", 2, 0 }, ;
-    { "kol", "N", 6, 0 } } )
-  Use ( cur_dir() + "tmp" ) new
-  Index On Str( god, 4 ) + Str( kod_k, 7 ) To tmp memory
-  use_base( "lusl" )
-  r_use( dir_server() + "uslugi",, "USL" )
-  r_use( dir_server() + "human_u_",, "HU_" )
-  r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
-  Set Relation To RecNo() into HU_, To u_kod into USL
-  r_use( dir_server() + "human_2",, "HUMAN_2" )
-  r_use( dir_server() + "human_",, "HUMAN_" )
-  r_use( dir_server() + "human",, "HUMAN" )
-  Set Relation To kod into HUMAN_, To kod into HUMAN_2
+  dbCreate( cur_dir() + 'tmp', { ;
+    { 'god', 'N', 4, 0 }, ;
+    { 'kod_k', 'N', 7, 0 }, ;
+    { 'pol', 'C', 1, 0 }, ;
+    { 'vozr', 'N', 2, 0 }, ;
+    { 'kol', 'N', 6, 0 } } )
+  Use ( cur_dir() + 'tmp' ) new
+  Index On Str( FIELD->god, 4 ) + Str( FIELD->kod_k, 7 ) To tmp memory
+  use_base( 'lusl' )
+  r_use( dir_server() + 'uslugi',, 'USL' )
+  r_use( dir_server() + 'human_u_',, 'HU_' )
+  r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
+  Set Relation To RecNo() into HU_, To FIELD->u_kod into USL
+  r_use( dir_server() + 'human_2',, 'HUMAN_2' )
+  r_use( dir_server() + 'human_',, 'HUMAN_' )
+  r_use( dir_server() + 'human',, 'HUMAN' )
+  Set Relation To FIELD->kod into HUMAN_, To FIELD->kod into HUMAN_2
   Go Top
   Do While !Eof()
     gaugeupdate( hGauge, RecNo() / LastRec() )
@@ -518,7 +518,7 @@ Function i_kol_del_zub()
           lshifr1 := opr_shifr_tfoms( usl->shifr1, usl->kod, human->k_data )
           If is_usluga_tfoms( usl->shifr, lshifr1, human->k_data )
             lshifr := AllTrim( iif( Empty( lshifr1 ), usl->shifr, lshifr1 ) )
-            If between_shifr( lshifr, "57.3.2", "57.3.8" ) .or. between_shifr( lshifr, "57.8.72", "57.8.78" )
+            If between_shifr( lshifr, '57.3.2', '57.3.8' ) .or. between_shifr( lshifr, '57.8.72', '57.8.78' )
               lkol += hu->kol_1
             Endif
           Endif
@@ -551,28 +551,28 @@ Function i_kol_del_zub()
   Close databases
   If !fl_exit .and. k > 0
     agod := {}
-    Use ( cur_dir() + "tmp" ) new
-    Index On god To tmp Unique memory
+    Use ( cur_dir() + 'tmp' ) new
+    Index On FIELD->god To tmp Unique memory
     dbEval( {|| AAdd( agod, tmp->god ) } )
-    name_file := cur_dir() + "del_zub.txt"
+    name_file := cur_dir() + 'del_zub.txt'
     HH := 60
     arr_title := { ;
-      "─────────────────┬───────────────┬───────────────┬───────────────", ;
-      "                 │   мужчины     │    женщины    │    всего      ", ;
-      "Возрастной период├───────┬───────┼───────┬───────┼───────┬───────", ;
-      "                 │ зубов │человек│ зубов │человек│ зубов │человек", ;
-      "─────────────────┴───────┴───────┴───────┴───────┴───────┴───────";
+      '─────────────────┬───────────────┬───────────────┬───────────────', ;
+      '                 │   мужчины     │    женщины    │    всего      ', ;
+      'Возрастной период├───────┬───────┼───────┬───────┼───────┬───────', ;
+      '                 │ зубов │человек│ зубов │человек│ зубов │человек', ;
+      '─────────────────┴───────┴───────┴───────┴───────┴───────┴───────';
       }
     sh := Len( arr_title[ 1 ] )
     fp := FCreate( name_file ) ; tek_stroke := 0 ; n_list := 1
     add_string( glob_mo[ _MO_SHORT_NAME ] )
-    add_string( "" )
-    add_string( Center( "Информация о количестве удалённых постоянных зубов", sh ) )
+    add_string( '' )
+    add_string( Center( 'Информация о количестве удалённых постоянных зубов', sh ) )
     AEval( arr_title, {| x| add_string( x ) } )
     arr := Array( 6, 6 )
     Select TMP
     For ig := 1 To Len( agod )
-      Index On Str( kod_k, 7 ) To tmp For god == agod[ ig ] memory
+      Index On Str( FIELD->kod_k, 7 ) To tmp For FIELD->god == agod[ ig ] memory
       afillall( arr, 0 )
       Go Top
       Do While !Eof()
@@ -587,7 +587,7 @@ Function i_kol_del_zub()
         Else
           j := 5
         Endif
-        k := iif( tmp->pol == "М", 1, 3 )
+        k := iif( tmp->pol == 'М', 1, 3 )
         ax := { j, 6 } ; ay1 := { k, 5 } ; ay2 := { k + 1, 6 }
         For ix := 1 To 2
           x := ax[ ix ]
@@ -604,10 +604,10 @@ Function i_kol_del_zub()
       If verify_ff( HH - 8, .t., sh )
         AEval( arr_title, {| x| add_string( x ) } )
       Endif
-      add_string( "" )
-      add_string( PadC( "в " + lstr( agod[ ig ] ) + " году", sh, "_" ) )
+      add_string( '' )
+      add_string( PadC( 'в ' + lstr( agod[ ig ] ) + ' году', sh, '_' ) )
       For i := 1 To 6
-        s := { "до 20 лет", "21-35 лет", "36-60 лет", "61-75 лет", "старше 75 лет", "Итого" }[ i ]
+        s := { 'до 20 лет', '21-35 лет', '36-60 лет', '61-75 лет', 'старше 75 лет', 'Итого' }[ i ]
         s := PadC( s, 17 )
         For j := 1 To 6
           s += put_val( arr[ i, j ], 8 )
@@ -622,47 +622,47 @@ Function i_kol_del_zub()
 
   Return Nil
 
-// 09.07.17 Телефонограмма №15 ВО КЗ
+// 00.06.26 Телефонограмма №15 ВО КЗ
 Function phonegram_15_kz()
 
   Local fl_exit := .f., i, j, k, v, koef, msum, ifin, ldate_r, y, m, buf := save_maxrow(), ;
-    mkol, mdni, akslp, begin_date := SToD( "20170101" ), end_date := SToD( "20170630" )
-  Private arr_m := { 2017, 1, 6, "за 1-ое полугодие 2017 года", ;
+    mkol, mdni, akslp, begin_date := SToD( '20170101' ), end_date := SToD( '20170630' )
+  Private arr_m := { 2017, 1, 6, 'за 1-ое полугодие 2017 года', ;
     begin_date, end_date, dtoc4( begin_date ), dtoc4( end_date ) }
 
   waitstatus( arr_m[ 4 ] )
-  dbCreate( cur_dir() + "tmp", { { "nstr", "N", 1, 0 }, ;
-    { "oms", "N", 1, 0 }, ;
-    { "mm", "N", 2, 0 }, ;
-    { "kol", "N", 6, 0 }, ;
-    { "dni", "N", 6, 0 }, ;
-    { "sum", "N", 15, 2 }, ;
-    { "kslp", "N", 15, 2 } } )
-  Use ( cur_dir() + "tmp" ) New Alias TMP
-  Index On Str( oms, 1 ) + Str( nstr, 1 ) + Str( mm, 2 ) to ( cur_dir() + "tmp" )
-  r_use( dir_server() + "mo_rak",, "RAK" )
-  r_use( dir_server() + "mo_raks",, "RAKS" )
-  Set Relation To akt into RAK
-  r_use( dir_server() + "mo_raksh",, "RAKSH" )
-  Set Relation To kod_raks into RAKS
-  Index On Str( kod_h, 7 ) to ( cur_dir() + "tmp_raksh" )
+  dbCreate( cur_dir() + 'tmp', { { 'nstr', 'N', 1, 0 }, ;
+    { 'oms', 'N', 1, 0 }, ;
+    { 'mm', 'N', 2, 0 }, ;
+    { 'kol', 'N', 6, 0 }, ;
+    { 'dni', 'N', 6, 0 }, ;
+    { 'sum', 'N', 15, 2 }, ;
+    { 'kslp', 'N', 15, 2 } } )
+  Use ( cur_dir() + 'tmp' ) New Alias TMP
+  Index On Str( FIELD->oms, 1 ) + Str( FIELD->nstr, 1 ) + Str( FIELD->mm, 2 ) to ( cur_dir() + 'tmp' )
+  r_use( dir_server() + 'mo_rak',, 'RAK' )
+  r_use( dir_server() + 'mo_raks',, 'RAKS' )
+  Set Relation To FIELD->akt into RAK
+  r_use( dir_server() + 'mo_raksh',, 'RAKSH' )
+  Set Relation To FIELD->kod_raks into RAKS
+  Index On Str( FIELD->kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' )
   //
-  r_use( dir_server() + "schet_",, "SCHET_" )
-  r_use( dir_server() + "schet",, "SCHET" )
+  r_use( dir_server() + 'schet_',, 'SCHET_' )
+  r_use( dir_server() + 'schet',, 'SCHET' )
   Set Relation To RecNo() into SCHET_
   //
-  r_use( dir_server() + "uslugi",, "USL" )
-  g_use( dir_server() + "human_u_",, "HU_" )
-  r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
-  Set Relation To RecNo() into HU_, To u_kod into USL
+  r_use( dir_server() + 'uslugi',, 'USL' )
+  g_use( dir_server() + 'human_u_',, 'HU_' )
+  r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
+  Set Relation To RecNo() into HU_, To FIELD->u_kod into USL
   //
-  r_use( dir_server() + "human_2",, "HUMAN_2" )
-  r_use( dir_server() + "human_",, "HUMAN_" )
-  r_use( dir_server() + "human", dir_server() + "humand", "HUMAN" )
+  r_use( dir_server() + 'human_2',, 'HUMAN_2' )
+  r_use( dir_server() + 'human_',, 'HUMAN_' )
+  r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
   dbSeek( DToS( arr_m[ 5 ] ), .t. )
   Do While human->k_data <= arr_m[ 6 ] .and. !Eof()
-    @ MaxRow(), 0 Say date_8( human->k_data ) Color "W/R"
+    @ MaxRow(), 0 Say date_8( human->k_data ) Color 'W/R'
     updatestatus()
     If Inkey() == K_ESC
       fl_exit := .t. ; Exit
@@ -675,13 +675,13 @@ Function phonegram_15_kz()
         lshifr1 := opr_shifr_tfoms( usl->shifr1, usl->kod, human->k_data )
         If is_usluga_tfoms( usl->shifr, lshifr1, human->k_data )
           lshifr := AllTrim( iif( Empty( lshifr1 ), usl->shifr, lshifr1 ) )
-          If Left( lshifr, 1 ) == '1' .and. !( "." $ lshifr ) // это шифр КСГ (круглосуточный стационар)
+          If Left( lshifr, 1 ) == '1' .and. !( '.' $ lshifr ) // это шифр КСГ (круглосуточный стационар)
             If Int( Val( Right( lshifr, 3 ) ) ) >= 900 // последние три цифры - код КСГ
               fl := .f.
               mkol := 0 // диализ не учитываем количественно
             Endif
             If fl
-              akslp := f_cena_kslp( hu->stoim, lshifr, iif( human_->NOVOR == 0, human->date_r, human_->DATE_R2 ), human->n_data, human->k_data )
+              akslp := f_cena_kslp( iif(hu->usl_repl == 1, 0, hu->stoim ), lshifr, iif( human_->NOVOR == 0, human->date_r, human_->DATE_R2 ), human->n_data, human->k_data )
               If !Empty( akslp )
                 fl := .f.
               Endif
@@ -781,29 +781,29 @@ Function phonegram_15_kz()
     If tmp->( LastRec() ) > 0
       HH := 80
       arr_title := { ;
-        "────────────────┬──────────┬────────────┬────────────┬────────────┬────────────┬────────────┬────────────┬─────────────", ;
-        "  Возраст       │ значение │   январь   │   февраль  │    март    │   апрель   │    май     │    июнь    │    ИТОГО    ", ;
-        "────────────────┴──────────┴────────────┴────────────┴────────────┴────────────┴────────────┴────────────┴─────────────" }
+        '────────────────┬──────────┬────────────┬────────────┬────────────┬────────────┬────────────┬────────────┬─────────────', ;
+        '  Возраст       │ значение │   январь   │   февраль  │    март    │   апрель   │    май     │    июнь    │    ИТОГО    ', ;
+        '────────────────┴──────────┴────────────┴────────────┴────────────┴────────────┴────────────┴────────────┴─────────────' }
       sh := Len( arr_title[ 1 ] )
       //
-      nfile := cur_dir() + "phone_15.txt"
+      nfile := cur_dir() + 'phone_15.txt'
       fp := FCreate( nfile ) ; n_list := 1 ; tek_stroke := 0
-      add_string( Center( "Статистика оказания стационарной медицинской помощи лицам пожилого возраста", sh ) )
+      add_string( Center( 'Статистика оказания стационарной медицинской помощи лицам пожилого возраста', sh ) )
       add_string( Center( arr_m[ 4 ], sh ) )
       Select TMP
       For ifin := 0 To 1
-        add_string( "" )
-        add_string( Center( { "Всего пролечено", "ОМС (зарегистрировано в ТФОМС)" }[ ifin + 1 ], sh ) )
+        add_string( '' )
+        add_string( Center( { 'Всего пролечено', 'ОМС (зарегистрировано в ТФОМС)' }[ ifin + 1 ], sh ) )
         AEval( arr_title, {| x| add_string( x ) } )
         For j := 1 To 3
-          s1 := { "мужчины", "", "" }[ j ]
-          s2 := { " 60 лет и старше", "60 лет и старше", "75 лет и старше" }[ j ]
-          s3 := { "женщины", "", "" }[ j ]
-          s4 := { " 55 лет и старше", "", "" }[ j ]
-          s1 := PadR( s1, 17 ) + "больных   "
-          s2 := PadR( s2, 17 ) + "койко-дней"
-          s3 := PadR( s3, 17 ) + "сумма     "
-          s4 := PadR( s4, 17 ) + "надб(КСЛП)"
+          s1 := { 'мужчины', '', '' }[ j ]
+          s2 := { ' 60 лет и старше', '60 лет и старше', '75 лет и старше' }[ j ]
+          s3 := { 'женщины', '', '' }[ j ]
+          s4 := { ' 55 лет и старше', '', '' }[ j ]
+          s1 := PadR( s1, 17 ) + 'больных   '
+          s2 := PadR( s2, 17 ) + 'койко-дней'
+          s3 := PadR( s3, 17 ) + 'сумма     '
+          s4 := PadR( s4, 17 ) + 'надб(КСЛП)'
           ss := { 0, 0, 0, 0 }
           For m := 1 To 6
             find ( Str( ifin, 1 ) + Str( j, 1 ) + Str( m, 2 ) )
@@ -831,7 +831,7 @@ Function phonegram_15_kz()
           add_string( s2 )
           add_string( s3 )
           add_string( s4 )
-          add_string( Replicate( "─", sh ) )
+          add_string( Replicate( '─', sh ) )
         Next j
       Next ifin
       FClose( fp )
@@ -839,7 +839,7 @@ Function phonegram_15_kz()
       rest_box( buf )
       viewtext( nfile,,,, .t.,,, 3 )
     Else
-      func_error( 4, "Нет информации по стационару за 2017 год!" )
+      func_error( 4, 'Нет информации по стационару за 2017 год!' )
     Endif
   Endif
   Close databases
@@ -856,18 +856,18 @@ Function b_25_perinat_2()
   If ( arr_m := year_month(,,, 4 ) ) == NIL
     Return Nil
   Endif
-  If ( musl_ok := popup_prompt( T_ROW, T_COL - 5, si, { "Стационарное лечение", "Дневной стационар" } ) ) == 0
+  If ( musl_ok := popup_prompt( T_ROW, T_COL - 5, si, { 'Стационарное лечение', 'Дневной стационар' } ) ) == 0
     Return Nil
   Endif
   si := musl_ok
-  If ( mkomp := popup_prompt( T_ROW, T_COL - 5, sk, { "Страховые компании", "Прочие компании", "Комитеты (МО)" } ) ) == 0
+  If ( mkomp := popup_prompt( T_ROW, T_COL - 5, sk, { 'Страховые компании', 'Прочие компании', 'Комитеты (МО)' } ) ) == 0
     Return Nil
   Endif
   If ( sk := mkomp ) > 1
-    n_file := { "", "str_komp", "komitet" }[ sk ]
+    n_file := { '', 'str_komp', 'komitet' }[ sk ]
     If hb_FileExists( dir_server() + n_file + sdbf() )
       arr := {}
-      r_use( dir_server() + n_file,, "_B" )
+      r_use( dir_server() + n_file,, '_B' )
       Go Top
       Do While !Eof()
         If iif( sk == 1, !Between( _b->tfoms, 44, 47 ), .t. )
@@ -885,47 +885,47 @@ Function b_25_perinat_2()
             AAdd( _arr_komit, AClone( a[ i ] ) )
           Next
         Else
-          Return func_error( 4, "Нет выбора" )
+          Return func_error( 4, 'Нет выбора' )
         Endif
       Else
-        Return func_error( 4, "Ошибка" )
+        Return func_error( 4, 'Ошибка' )
       Endif
     Else
-      Return func_error( 4, "Не обнаружен файл " + dir_server() + n_file + sdbf() )
+      Return func_error( 4, 'Не обнаружен файл ' + dir_server() + n_file + sdbf() )
     Endif
   Endif
   waitstatus( arr_m[ 4 ] )
-  dbCreate( cur_dir() + "tmp", { ;
-    { "ID_PAC",  "N", 7, 0 }, ;
-    { "ID_SL",   "N", 7, 0 }, ;
-    { "VID_MP",  "N", 1, 0 }, ;
-    { "OSN_DIAG", "C", 6, 0 }, ;
-    { "SOP_DIAG", "C", 50, 0 }, ;
-    { "OSL_DIAG", "C", 20, 0 }, ;
-    { "DNI",     "N", 3, 0 }, ;
-    { "KOD_OTD", "C", 6, 0 }, ;
-    { "PROFIL",  "C", 99, 0 }, ;
-    { "POL_PAC", "N", 1, 0 }, ;
-    { "DATE_ROG", "C", 10, 0 }, ;
-    { "DATE_GOS", "C", 10, 0 }, ;
-    { "VIDVMP",  "C", 12, 0 }, ; // вид ВМП по справочнику V018
-  { "METVMP",  "C", 4, 0 }, ; // метод ВМП по справочнику V019
-  { "REANIMAC", "C", 3, 0 }, ;
-    { "SEBESTO", "C", 12, 0 }, ;
-    { "USLUGI",  "C", 99, 0 } } )
-  Use ( cur_dir() + "tmp" ) new
-  r_use( dir_server() + "mo_otd",, "OTD" )
-  r_use( dir_server() + "mo_su",, "MOSU" )
-  g_use( dir_server() + "mo_hu", dir_server() + "mo_hu", "MOHU" )
-  Set Relation To u_kod into MOSU
-  use_base( "lusl" )
-  r_use( dir_server() + "uslugi",, "USL" )
-  r_use( dir_server() + "human_u_",, "HU_" )
-  r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
-  Set Relation To RecNo() into HU_, To u_kod into USL
-  r_use( dir_server() + "human_2",, "HUMAN_2" )
-  r_use( dir_server() + "human_",, "HUMAN_" )
-  r_use( dir_server() + "human", dir_server() + "humand", "HUMAN" )
+  dbCreate( cur_dir() + 'tmp', { ;
+    { 'ID_PAC',  'N', 7, 0 }, ;
+    { 'ID_SL',   'N', 7, 0 }, ;
+    { 'VID_MP',  'N', 1, 0 }, ;
+    { 'OSN_DIAG', 'C', 6, 0 }, ;
+    { 'SOP_DIAG', 'C', 50, 0 }, ;
+    { 'OSL_DIAG', 'C', 20, 0 }, ;
+    { 'DNI',     'N', 3, 0 }, ;
+    { 'KOD_OTD', 'C', 6, 0 }, ;
+    { 'PROFIL',  'C', 99, 0 }, ;
+    { 'POL_PAC', 'N', 1, 0 }, ;
+    { 'DATE_ROG', 'C', 10, 0 }, ;
+    { 'DATE_GOS', 'C', 10, 0 }, ;
+    { 'VIDVMP',  'C', 12, 0 }, ; // вид ВМП по справочнику V018
+  { 'METVMP',  'C', 4, 0 }, ; // метод ВМП по справочнику V019
+  { 'REANIMAC', 'C', 3, 0 }, ;
+    { 'SEBESTO', 'C', 12, 0 }, ;
+    { 'USLUGI',  'C', 99, 0 } } )
+  Use ( cur_dir() + 'tmp' ) new
+  r_use( dir_server() + 'mo_otd',, 'OTD' )
+  r_use( dir_server() + 'mo_su',, 'MOSU' )
+  g_use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
+  Set Relation To FIELD->u_kod into MOSU
+  use_base( 'lusl' )
+  r_use( dir_server() + 'uslugi',, 'USL' )
+  r_use( dir_server() + 'human_u_',, 'HU_' )
+  r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
+  Set Relation To RecNo() into HU_, To FIELD->u_kod into USL
+  r_use( dir_server() + 'human_2',, 'HUMAN_2' )
+  r_use( dir_server() + 'human_',, 'HUMAN_' )
+  r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
   dbSeek( DToS( arr_m[ 5 ] ), .t. )
   Do While human->k_data <= arr_m[ 6 ] .and. !Eof()
@@ -950,7 +950,7 @@ Function b_25_perinat_2()
         lshifr1 := opr_shifr_tfoms( usl->shifr1, usl->kod, human->k_data )
         If is_usluga_tfoms( usl->shifr, lshifr1, human->k_data )
           lshifr := AllTrim( iif( Empty( lshifr1 ), usl->shifr, lshifr1 ) )
-          If eq_any( Left( lshifr, 5 ), "1.11.", "55.1." )
+          If eq_any( Left( lshifr, 5 ), '1.11.', '55.1.' )
             lshifr1 := AllTrim( usl->shifr )
             i := Len( arr_sl )
             If i > 0 .and. hu->otd == arr_sl[ i, 7 ] .and. hu_->profil == arr_sl[ i, 3 ] .and. lshifr1 == arr_sl[ i, 2 ]
@@ -975,24 +975,24 @@ Function b_25_perinat_2()
       Enddo
       If !is_dializ
         mdiagnoz := diag_for_xml(, .t.,,, .t. )
-        mdiagnoz2 := ""
+        mdiagnoz2 := ''
         For i := 2 To Len( mdiagnoz )
           If !Empty( mdiagnoz[ i ] )
-            mdiagnoz2 += mdiagnoz[ i ] + ";"
+            mdiagnoz2 += mdiagnoz[ i ] + ';'
           Endif
         Next
         If !Empty( mdiagnoz2 )
           mdiagnoz2 := Left( mdiagnoz2, Len( mdiagnoz2 ) -1 )
         Endif
-        mdiagnoz3 := ""
+        mdiagnoz3 := ''
         If !Empty( human_2->OSL1 )
-          mdiagnoz3 += AllTrim( human_2->OSL1 ) + ";"
+          mdiagnoz3 += AllTrim( human_2->OSL1 ) + ';'
         Endif
         If !Empty( human_2->OSL2 )
-          mdiagnoz3 += AllTrim( human_2->OSL2 ) + ";"
+          mdiagnoz3 += AllTrim( human_2->OSL2 ) + ';'
         Endif
         If !Empty( human_2->OSL3 )
-          mdiagnoz3 += AllTrim( human_2->OSL3 ) + ";"
+          mdiagnoz3 += AllTrim( human_2->OSL3 ) + ';'
         Endif
         If !Empty( mdiagnoz3 )
           mdiagnoz3 := Left( mdiagnoz3, Len( mdiagnoz3 ) -1 )
@@ -1001,7 +1001,7 @@ Function b_25_perinat_2()
         find ( Str( human->kod, 7 ) )
         Do While mohu->kod == human->kod .and. !Eof()
           If ( i := AScan( arr_sl, {| x| mohu->DATE_U >= x[ 4 ] .and. mohu->DATE_U2 <= x[ 5 ] } ) ) > 0
-            arr_sl[ i, 8 ] += ";" + AllTrim( mosu->shifr1 )
+            arr_sl[ i, 8 ] += ';' + AllTrim( mosu->shifr1 )
           Endif
           Select MOHU
           Skip
@@ -1024,12 +1024,12 @@ Function b_25_perinat_2()
             tmp->KOD_OTD := arr_sl[ i, 2 ]
           Endif
           tmp->PROFIL   := inieditspr( A__MENUVERT, getv002(), arr_sl[ i, 3 ] )
-          tmp->POL_PAC  := iif( iif( human_->NOVOR > 0, human_->pol2, human->pol ) == "М", 1, 0 )
+          tmp->POL_PAC  := iif( iif( human_->NOVOR > 0, human_->pol2, human->pol ) == 'М', 1, 0 )
           tmp->DATE_ROG := full_date( iif( human_->NOVOR > 0, human_->date_r2, human->date_r ) )
           tmp->DATE_GOS := full_date( c4tod( arr_sl[ i, 4 ] ) )
-          tmp->VIDVMP   := iif( human_2->vmp > 0, human_2->VIDVMP, "" )
-          tmp->METVMP   := iif( human_2->vmp > 0, lstr( human_2->METVMP ), "" )
-          tmp->REANIMAC := iif( arr_sl[ i, 3 ] == 5, lstr( arr_sl[ i, 6 ] ), "" )
+          tmp->VIDVMP   := iif( human_2->vmp > 0, human_2->VIDVMP, '' )
+          tmp->METVMP   := iif( human_2->vmp > 0, lstr( human_2->METVMP ), '' )
+          tmp->REANIMAC := iif( arr_sl[ i, 3 ] == 5, lstr( arr_sl[ i, 6 ] ), '' )
           tmp->USLUGI   := arr_sl[ i, 8 ]
         Next
       Endif
@@ -1040,11 +1040,11 @@ Function b_25_perinat_2()
   Close databases
   RestScreen( buf )
   If !fl_exit
-    n_file := "SVED"
-    Copy File ( cur_dir() + "tmp" + sdbf() ) to ( cur_dir() + n_file + sdbf() )
-    n_message( { "В каталоге " + Upper( cur_dir() ), ;
-      "создан файл " + Upper( n_file + sdbf() ), ;
-      "со сведениями о случаях лечения пациентов." },, ;
+    n_file := 'SVED'
+    Copy File ( cur_dir() + 'tmp' + sdbf() ) to ( cur_dir() + n_file + sdbf() )
+    n_message( { 'В каталоге ' + Upper( cur_dir() ), ;
+      'создан файл ' + Upper( n_file + sdbf() ), ;
+      'со сведениями о случаях лечения пациентов.' },, ;
       cColorStMsg, cColorStMsg,,, cColorSt2Msg )
   Endif
 
@@ -1053,15 +1053,15 @@ Function b_25_perinat_2()
 // 22.06.17
 Function forma_792_miac()
 
-  Local fl_exit := .f., arr_f := { "str_komp",, "komitet" }, i, j, k, v, koef, msum, ifin, ;
+  Local fl_exit := .f., arr_f := { 'str_komp',, 'komitet' }, i, j, k, v, koef, msum, ifin, ;
     acomp := {}, ldate_r, y, m, d, buf := save_maxrow(), ;
-    begin_date := SToD( "20160101" ), end_date := SToD( "20161231" )
-  Private arr_m := { 2016, 1, 12, "за 2016 год", begin_date, end_date, dtoc4( begin_date ), dtoc4( end_date ) }
+    begin_date := SToD( '20160101' ), end_date := SToD( '20161231' )
+  Private arr_m := { 2016, 1, 12, 'за 2016 год', begin_date, end_date, dtoc4( begin_date ), dtoc4( end_date ) }
 
   waitstatus( arr_m[ 4 ] )
   For i := 1 To 3
     If i != 2 .and. hb_FileExists( dir_server() + arr_f[ i ] + sdbf() )
-      r_use( dir_server() + arr_f[ i ],, "_B" )
+      r_use( dir_server() + arr_f[ i ],, '_B' )
       Go Top
       Do While !Eof()
         If iif( i == 1, !Between( _b->tfoms, 44, 47 ), .t. ) .and. _b->ist_fin == I_FIN_BUD
@@ -1072,39 +1072,39 @@ Function forma_792_miac()
       Use
     Endif
   Next
-  dbCreate( cur_dir() + "tmp", { { "nstr", "N", 1, 0 }, ;
-    { "oms", "N", 1, 0 }, ;
-    { "profil", "N", 3, 0 }, ;
-    { "kol1", "N", 6, 0 }, ;
-    { "sum1", "N", 15, 2 }, ;
-    { "kol2", "N", 6, 0 }, ;
-    { "sum2", "N", 15, 2 }, ;
-    { "kol3", "N", 6, 0 }, ;
-    { "sum3", "N", 15, 2 }, ;
-    { "kol4", "N", 6, 0 }, ;
-    { "sum4", "N", 15, 2 }, ;
-    { "kol", "N", 6, 0 }, ;
-    { "sum", "N", 15, 2 } } )
-  Use ( cur_dir() + "tmp" ) New Alias TMP
-  Index On Str( oms, 1 ) + Str( nstr, 1 ) + Str( profil, 3 ) to ( cur_dir() + "tmp" )
-  r_use( dir_server() + "mo_rak",, "RAK" )
-  r_use( dir_server() + "mo_raks",, "RAKS" )
-  Set Relation To akt into RAK
-  r_use( dir_server() + "mo_raksh",, "RAKSH" )
-  Set Relation To kod_raks into RAKS
-  Index On Str( kod_h, 7 ) to ( cur_dir() + "tmp_raksh" )
+  dbCreate( cur_dir() + 'tmp', { { 'nstr', 'N', 1, 0 }, ;
+    { 'oms', 'N', 1, 0 }, ;
+    { 'profil', 'N', 3, 0 }, ;
+    { 'kol1', 'N', 6, 0 }, ;
+    { 'sum1', 'N', 15, 2 }, ;
+    { 'kol2', 'N', 6, 0 }, ;
+    { 'sum2', 'N', 15, 2 }, ;
+    { 'kol3', 'N', 6, 0 }, ;
+    { 'sum3', 'N', 15, 2 }, ;
+    { 'kol4', 'N', 6, 0 }, ;
+    { 'sum4', 'N', 15, 2 }, ;
+    { 'kol', 'N', 6, 0 }, ;
+    { 'sum', 'N', 15, 2 } } )
+  Use ( cur_dir() + 'tmp' ) New Alias TMP
+  Index On Str( FIELD->oms, 1 ) + Str( FIELD->nstr, 1 ) + Str( FIELD->profil, 3 ) to ( cur_dir() + 'tmp' )
+  r_use( dir_server() + 'mo_rak',, 'RAK' )
+  r_use( dir_server() + 'mo_raks',, 'RAKS' )
+  Set Relation To FIELD->akt into RAK
+  r_use( dir_server() + 'mo_raksh',, 'RAKSH' )
+  Set Relation To FIELD->kod_raks into RAKS
+  Index On Str( FIELD->kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' )
   //
-  r_use( dir_server() + "schet_",, "SCHET_" )
-  r_use( dir_server() + "schet",, "SCHET" )
+  r_use( dir_server() + 'schet_',, 'SCHET_' )
+  r_use( dir_server() + 'schet',, 'SCHET' )
   Set Relation To RecNo() into SCHET_
   //
-  r_use( dir_server() + "human_2",, "HUMAN_2" )
-  r_use( dir_server() + "human_",, "HUMAN_" )
-  r_use( dir_server() + "human", dir_server() + "humand", "HUMAN" )
+  r_use( dir_server() + 'human_2',, 'HUMAN_2' )
+  r_use( dir_server() + 'human_',, 'HUMAN_' )
+  r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
   dbSeek( DToS( arr_m[ 5 ] ), .t. )
   Do While human->k_data <= arr_m[ 6 ] .and. !Eof()
-    @ MaxRow(), 0 Say date_8( human->k_data ) Color "W/R"
+    @ MaxRow(), 0 Say date_8( human->k_data ) Color 'W/R'
     updatestatus()
     If Inkey() == K_ESC
       fl_exit := .t. ; Exit
@@ -1154,8 +1154,8 @@ Function forma_792_miac()
         Else
           v := 4
         Endif
-        polek := "tmp->kol" + lstr( v )
-        poles := "tmp->sum" + lstr( v )
+        polek := 'tmp->kol' + lstr( v )
+        poles := 'tmp->sum' + lstr( v )
         Select TMP
         find ( Str( ifin, 1 ) + Str( j, 1 ) + Str( 0, 3 ) )
         If !Found()
@@ -1201,33 +1201,33 @@ Function forma_792_miac()
     If tmp->( LastRec() ) > 0
       HH := 80
       arr_title := { ;
-        "───────┬───────────────────┬───────────────────┬───────────────────┬───────────────────┬───────────────────", ;
-        "       │    до 1 года      │  от 1 г. до 16 лет│   от 17 до 59 лет │ от 60 лет и старше│      всего        ", ;
-        "       │───────────────────│───────────────────│───────────────────│───────────────────│───────────────────", ;
-        "МКБ-10 │ кол. │   сумма    │ кол. │   сумма    │ кол. │   сумма    │ кол. │   сумма    │ кол. │   сумма    ", ;
-        "───────┴──────┴────────────┴──────┴────────────┴──────┴────────────┴──────┴────────────┴──────┴────────────" }
+        '───────┬───────────────────┬───────────────────┬───────────────────┬───────────────────┬───────────────────', ;
+        '       │    до 1 года      │  от 1 г. до 16 лет│   от 17 до 59 лет │ от 60 лет и старше│      всего        ', ;
+        '       │───────────────────│───────────────────│───────────────────│───────────────────│───────────────────', ;
+        'МКБ-10 │ кол. │   сумма    │ кол. │   сумма    │ кол. │   сумма    │ кол. │   сумма    │ кол. │   сумма    ', ;
+        '───────┴──────┴────────────┴──────┴────────────┴──────┴────────────┴──────┴────────────┴──────┴────────────' }
       sh := Len( arr_title[ 1 ] )
       //
-      nfile := cur_dir() + "pr_792.txt"
+      nfile := cur_dir() + 'pr_792.txt'
       fp := FCreate( nfile ) ; n_list := 1 ; tek_stroke := 0
-      add_string( Center( "Фактические показатели объёма и финансового обеспечения специализированной медицинской помощи, оказанной в", sh ) )
-      add_string( Center( "стационарных условиях, по отдельным профилям медицинской помощи за 2016 год (в тыс.руб.)", sh ) )
+      add_string( Center( 'Фактические показатели объёма и финансового обеспечения специализированной медицинской помощи, оказанной в', sh ) )
+      add_string( Center( 'стационарных условиях, по отдельным профилям медицинской помощи за 2016 год (в тыс.руб.)', sh ) )
       For ifin := 1 To 2
         Select TMP
         find ( Str( ifin, 1 ) )
         If Found()
-          add_string( "" )
-          add_string( Center( { "ОМС", "бюджет" }[ ifin ], sh ) )
+          add_string( '' )
+          add_string( Center( { 'ОМС', 'бюджет' }[ ifin ], sh ) )
           AEval( arr_title, {| x| add_string( x ) } )
-          add_string( Center( "Диагнозы + профили", sh ) )
-          add_string( Replicate( "─", sh ) )
+          add_string( Center( 'Диагнозы + профили', sh ) )
+          add_string( Replicate( '─', sh ) )
           For j := 1 To 5
-            s := { "E10-E14", "C00-C97", "A00-B99", "J00-J99", "P35-P39" }[ j ]
+            s := { 'E10-E14', 'C00-C97', 'A00-B99', 'J00-J99', 'P35-P39' }[ j ]
             find ( Str( ifin, 1 ) + Str( j, 1 ) + Str( 0, 3 ) )
             If Found()
               For v := 1 To 4
-                polek := "tmp->kol" + lstr( v )
-                poles := "tmp->sum" + lstr( v )
+                polek := 'tmp->kol' + lstr( v )
+                poles := 'tmp->sum' + lstr( v )
                 If Empty( &( polek ) )
                   s += Space( 20 )
                 Else
@@ -1248,8 +1248,8 @@ Function forma_792_miac()
               add_string( '- ' + inieditspr( A__MENUVERT, getv002(), tmp->PROFIL ) )
               s := Space( 7 )
               For v := 1 To 4
-                polek := "tmp->kol" + lstr( v )
-                poles := "tmp->sum" + lstr( v )
+                polek := 'tmp->kol' + lstr( v )
+                poles := 'tmp->sum' + lstr( v )
                 If Empty( &( polek ) )
                   s += Space( 20 )
                 Else
@@ -1260,10 +1260,10 @@ Function forma_792_miac()
               add_string( s )
               Skip
             Enddo
-            add_string( Replicate( "─", sh ) )
+            add_string( Replicate( '─', sh ) )
           Next j
-          add_string( Center( "Профили", sh ) )
-          add_string( Replicate( "─", sh ) )
+          add_string( Center( 'Профили', sh ) )
+          add_string( Replicate( '─', sh ) )
           dbSeek( Str( ifin, 1 ) + Str( 0, 1 ), .t. )
           Do While tmp->nstr == 0 .and. tmp->oms == ifin .and. !Eof()
             If verify_ff( HH - 1, .t., sh )
@@ -1272,8 +1272,8 @@ Function forma_792_miac()
             add_string( inieditspr( A__MENUVERT, getv002(), tmp->PROFIL ) )
             s := Space( 7 )
             For v := 1 To 4
-              polek := "tmp->kol" + lstr( v )
-              poles := "tmp->sum" + lstr( v )
+              polek := 'tmp->kol' + lstr( v )
+              poles := 'tmp->sum' + lstr( v )
               If Empty( &( polek ) )
                 s += Space( 20 )
               Else
@@ -1291,7 +1291,7 @@ Function forma_792_miac()
       rest_box( buf )
       viewtext( nfile,,,, .t.,,, 6 )
     Else
-      func_error( 4, "Нет информации по стационару за 2016 год!" )
+      func_error( 4, 'Нет информации по стационару за 2016 год!' )
     Endif
   Endif
   Close databases
@@ -1306,99 +1306,101 @@ Function f1forma_792_miac( mkod_diag )
 
   c := Left( mkod_diag, 1 )
   s := Left( mkod_diag, 3 )
-  If c == "C"
+  If c == 'C'
     k := 2
-  Elseif c == "J"
+  Elseif c == 'J'
     k := 4
-  Elseif c == "A" .or. c == "B"
+  Elseif c == 'A' .or. c == 'B'
     k := 3
-  Elseif Between( s, "E10", "E14" )
+  Elseif Between( s, 'E10', 'E14' )
     k := 1
-  Elseif Between( s, "P35", "P39" )
+  Elseif Between( s, 'P35', 'P39' )
     k := 5
   Endif
 
   Return k
 
-// 11.09.25 Мониторинг по видам медицинской помощи для Комитета здравоохранения ВО
+// 16.07.26 Мониторинг по видам медицинской помощи для Комитета здравоохранения ВО
 Function monitoring_vid_pom()
 
-  Static mm_schet := { { "все случаи", 1 }, { "в выставленных счетах", 2 }, { "в зарегистрированных счетах", 3 } }
+  Static mm_schet := { { 'все случаи', 1 }, { 'в выставленных счетах', 2 }, { 'в зарегистрированных счетах', 3 } }
   Local mm_tmp := {}, buf := SaveScreen(), tmp_color := SetColor( cDataCGet ), ;
-    tmp_help := help_code, hGauge, name_file := cur_dir() + "mon_kz.txt", ;
-    sh := 80, HH := 60, i, k, tmp_file := "tmp_mon" + sdbf(), r1, r2
+    tmp_help := help_code, hGauge, name_file := cur_dir() + 'mon_kz.txt', ;
+    sh := 80, HH := 60, i, k, r1, r2
+  local tmp_file := 'tmp_mon' // + sdbf()
+
   Private pdate_lech
 
   //
-  AAdd( mm_tmp, { "date_lech", "N", 4, 0, NIL, ;
+  AAdd( mm_tmp, { 'date_lech', 'N', 4, 0, NIL, ;
     {| x| menu_reader( x, ;
     { {| k, r, c| k := year_month( r + 1, c ), ;
     iif( k == nil, nil, ( pdate_lech := AClone( k ), k := { k[ 1 ], k[ 4 ] } ) ), ;
     k } }, A__FUNCTION ) }, ;
     0, {|| Space( 10 ) }, ;
     'Дата окончания лечения (отч.период)', {|| f_valid_mon() } } )
-  AAdd( mm_tmp, { "schet", "N", 1, 0, NIL, ;
+  AAdd( mm_tmp, { 'schet', 'N', 1, 0, NIL, ;
     {| x| menu_reader( x, mm_schet, A__MENUVERT ) }, ;
     3, {| x| inieditspr( A__MENUVERT, mm_schet, x ) }, ;
-    "Какие случаи учитываются", {|| f_valid_mon() } } )
-  AAdd( mm_tmp, { "date_reg", "D", 8, 0,, ;
+    'Какие случаи учитываются', {|| f_valid_mon() } } )
+  AAdd( mm_tmp, { 'date_reg', 'D', 8, 0,, ;
     nil, ;
-    CToD( "" ), nil, ;
-    "По какую дату (включительно) зарегистрирован счёт", ;
+    CToD( '' ), nil, ;
+    'По какую дату (включительно) зарегистрирован счёт', ;
     {|| f_valid_mon() }, {|| m1schet == 3 } } )
-  AAdd( mm_tmp, { "rak", "N", 1, 0, NIL, ;
-    {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
-    0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
-    "Учитывать случаи, полностью снятые по актам контроля", ;
+  AAdd( mm_tmp, { 'rak', 'N', 1, 0, NIL, ;
+    {| x| menu_reader( x, mm_danet(), A__MENUVERT ) }, ;
+    0, {| x| inieditspr( A__MENUVERT, mm_danet(), x ) }, ;
+    'Учитывать случаи, полностью снятые по актам контроля', ;
     {|| f_valid_mon() } } )
-  AAdd( mm_tmp, { "date_rak", "D", 8, 0,,, CToD( "" ),, ;
-    "По какую дату (включительно) проверять акты контроля",, ;
+  AAdd( mm_tmp, { 'date_rak', 'D', 8, 0,,, CToD( '' ),, ;
+    'По какую дату (включительно) проверять акты контроля',, ;
     {|| m1rak == 0 } } )
-  Delete File ( tmp_file )
+  Delete File ( tmp_file + sdbf() )
   init_base( tmp_file,, mm_tmp, 0 )
   r1 := 16 ; r2 := 22
-  fillscrarea( r1 - 1, 0, r1 - 1, 79, "░", color1 )
-  str_center( r1 - 1, " Мониторинг по видам медицинской помощи ", color8 )
-  fillscrarea( r2 + 1, 0, r2 + 1, 79, "░", color1 )
-  If f_edit_spr( A__APPEND, mm_tmp, "", "e_use(cur_dir()+'tmp_mon')", 0, 1,,,, { r1, 0, r2, 79, -1 }, "write_mon" ) > 0
+  fillscrarea( r1 - 1, 0, r1 - 1, 79, '░', color1 )
+  str_center( r1 - 1, ' Мониторинг по видам медицинской помощи ', color8 )
+  fillscrarea( r2 + 1, 0, r2 + 1, 79, '░', color1 )
+  If f_edit_spr( A__APPEND, mm_tmp, '', 'e_use(cur_dir() + "tmp_mon" )', 0, 1,,,, { r1, 0, r2, 79, -1 }, 'write_mon' ) > 0
     RestScreen( buf )
     If Year( pdate_lech[ 5 ] ) < 2016
-      Return func_error( 4, "Данный алгоритм работает с 2016 года" )
+      Return func_error( 4, 'Данный алгоритм работает с 2016 года' )
     Endif
     mywait()
     Use ( tmp_file ) New Alias MN
     arr := { ;
-      { "Мед.помощь в рамках террпрограммы ОМС", "10", "", 0, 0 }, ; // 1
-    { "скорая медицинская помощь", "11", "вызов", 0, 0 }, ;             // 2
-      { "медицинская помощь", "12.1", "посещение с проф.целью", 0, 0 }, ;    // 3
-    { "    в амбулаторных", "12.2", "посещение по неотложной помощи", 0, 0 }, ;// 4
-    { "    условиях", "12.3", "обращение", 0, 0 }, ;                           // 5
-      { "стационар", "13", "случай госпитализации", 0, 0 }, ;                // 6
-      { "  в т.ч. реабилитация", "14", "койко-день", 0, 0 }, ;                 // 7
-      { "  в т.ч. ВМП", "15", "случай госпитализации", 0, 0 }, ;               // 8
-      { "дневной стационар", "16", "пациенто-день", 0, 0 } ;                // 9
+      { 'Мед.помощь в рамках террпрограммы ОМС', '10', '', 0, 0 }, ; // 1
+      { 'скорая медицинская помощь', '11', 'вызов', 0, 0 }, ;             // 2
+      { 'медицинская помощь', '12.1', 'посещение с проф.целью', 0, 0 }, ;    // 3
+      { '    в амбулаторных', '12.2', 'посещение по неотложной помощи', 0, 0 }, ;// 4
+      { '    условиях', '12.3', 'обращение', 0, 0 }, ;                           // 5
+      { 'стационар', '13', 'случай госпитализации', 0, 0 }, ;                // 6
+      { '  в т.ч. реабилитация', '14', 'койко-день', 0, 0 }, ;                 // 7
+      { '  в т.ч. ВМП', '15', 'случай госпитализации', 0, 0 }, ;               // 8
+      { 'дневной стационар', '16', 'пациенто-день', 0, 0 } ;                // 9
       }
-    r_use( dir_server() + "uslugi",, "USL" )
-    r_use( dir_server() + "human_u_",, "HU_" )
-    r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
-    Set Relation To RecNo() into HU_, To u_kod into USL
+    r_use( dir_server() + 'uslugi',, 'USL' )
+    r_use( dir_server() + 'human_u_',, 'HU_' )
+    r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
+    Set Relation To RecNo() into HU_, To FIELD->u_kod into USL
     If mn->rak == 0
-      r_use( dir_server() + "mo_xml",, "MO_XML" )
-      r_use( dir_server() + "mo_rak",, "RAK" )
-      Set Relation To kod_xml into MO_XML
-      r_use( dir_server() + "mo_raks",, "RAKS" )
-      Set Relation To akt into RAK
-      r_use( dir_server() + "mo_raksh",, "RAKSH" )
-      Set Relation To kod_raks into RAKS
-      Index On Str( kod_h, 7 ) to ( cur_dir() + "tmp_raksh" ) For rak->DAKT <= mn->date_rak
+      r_use( dir_server() + 'mo_xml',, 'MO_XML' )
+      r_use( dir_server() + 'mo_rak',, 'RAK' )
+      Set Relation To FIELD->kod_xml into MO_XML
+      r_use( dir_server() + 'mo_raks',, 'RAKS' )
+      Set Relation To FIELD->akt into RAK
+      r_use( dir_server() + 'mo_raksh',, 'RAKSH' )
+      Set Relation To FIELD->kod_raks into RAKS
+      Index On Str( FIELD->kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' ) For rak->DAKT <= mn->date_rak
     Endif
-    r_use( dir_server() + "schet_",, "SCHET_" )
-    r_use( dir_server() + "schet",, "SCHET" )
+    r_use( dir_server() + 'schet_',, 'SCHET_' )
+    r_use( dir_server() + 'schet',, 'SCHET' )
     Set Relation To RecNo() into SCHET_
     //
-    r_use( dir_server() + "human_2",, "HUMAN_2" )
-    r_use( dir_server() + "human_",, "HUMAN_" )
-    r_use( dir_server() + "human", dir_server() + "humand", "HUMAN" )
+    r_use( dir_server() + 'human_2',, 'HUMAN_2' )
+    r_use( dir_server() + 'human_',, 'HUMAN_' )
+    r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
     Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
     dbSeek( DToS( pdate_lech[ 5 ] ), .t. )
     old := pdate_lech[ 5 ] -1
@@ -1453,26 +1455,26 @@ Function monitoring_vid_pom()
               lshifr := iif( Empty( lshifr1 ), usl->shifr, lshifr1 )
               ta := f14tf_nastr( @lshifr,, d2_year )
               lshifr := AllTrim( lshifr )
-              AAdd( au, { lshifr, hu->kol_1, Round( hu->stoim_1 * koef, 2 ), 0, 0, hu->kol_1 } )
-              If eq_any( Left( lshifr, 5 ), "2.78.", "2.89." )
+              AAdd( au, { lshifr, hu->kol_1, Round( iif(hu->usl_repl == 1,0,hu->stoim_1) * koef, 2 ), 0, 0, hu->kol_1 } )
+              If eq_any( Left( lshifr, 5 ), '2.78.', '2.89.' )
                 kp := 1
                 vid_vp := 2 // обращения с лечебной целью
-              Elseif eq_any( Left( lshifr, 5 ), "2.80.", "2.82." )
+              Elseif eq_any( Left( lshifr, 5 ), '2.80.', '2.82.' )
                 kp += hu->kol_1
                 vid_vp := 1 // в неотложной форме
-              Elseif Left( lshifr, 2 ) == "2." // остальная профилактика
-                If eq_any( Left( lshifr, 5 ), "2.60.", "2.90." )
+              Elseif Left( lshifr, 2 ) == '2.' // остальная профилактика
+                If eq_any( Left( lshifr, 5 ), '2.60.', '2.90.' )
                   //
                 Else
                   kp += hu->kol_1
                 Endif
-              Elseif Left( lshifr, 2 ) == "1." // койко-дни
+              Elseif Left( lshifr, 2 ) == '1.' // койко-дни
                 kp += hu->kol_1 // если реабилитация
-              Elseif Left( lshifr, 3 ) == "55."  // пациенто-дни
+              Elseif Left( lshifr, 3 ) == '55.'  // пациенто-дни
                 kp += hu->kol_1
-              Elseif Left( lshifr, 5 ) == "60.2." .or. lshifr == "4.20.702" // Р-исследование
+              Elseif Left( lshifr, 5 ) == '60.2.' .or. lshifr == '4.20.702' // Р-исследование
                 kp := 0  // участвует не количеством, а только суммой
-              Elseif Left( lshifr, 3 ) == "57."  // стоматология
+              Elseif Left( lshifr, 3 ) == '57.'  // стоматология
                 fl_stom := .t.
               Endif
             Endif
@@ -1524,17 +1526,17 @@ Function monitoring_vid_pom()
     Enddo
     Close databases
     arr_title := { ;
-      "─────────────────────────────────┬────┬────────────────────┬──────┬─────────────", ;
-      "Виды и условия оказания мед.пом. │№стр│ Единица измерения  │ кол. │ сумма в руб.", ;
-      "─────────────────────────────────┴────┴────────────────────┴──────┴─────────────" }
+      '─────────────────────────────────┬────┬────────────────────┬──────┬─────────────', ;
+      'Виды и условия оказания мед.пом. │№стр│ Единица измерения  │ кол. │ сумма в руб.', ;
+      '─────────────────────────────────┴────┴────────────────────┴──────┴─────────────' }
     fp := FCreate( name_file ) ; n_list := 1 ; tek_stroke := 0
-    add_string( "" )
-    add_string( Center( "Мониторинг по видам медицинской помощи", sh ) )
+    add_string( '' )
+    add_string( Center( 'Мониторинг по видам медицинской помощи', sh ) )
     add_string( Center( pdate_lech[ 4 ], sh ) )
-    add_string( "" )
+    add_string( '' )
     AEval( arr_title, {| x| add_string( x ) } )
     For i := 1 To Len( arr )
-      add_string( PadR( arr[ i, 1 ], 33 ) + " " + PadR( arr[ i, 2 ], 5 ) + PadR( arr[ i, 3 ], 20 ) + ;
+      add_string( PadR( arr[ i, 1 ], 33 ) + ' ' + PadR( arr[ i, 2 ], 5 ) + PadR( arr[ i, 3 ], 20 ) + ;
         put_val( arr[ i, 4 ], 7 ) + put_kope( arr[ i, 5 ], 14 ) )
     Next
     FClose( fp )
@@ -1553,7 +1555,7 @@ Function write_mon( k )
 
   If k == 1
     If Empty( mdate_lech )
-      fl := func_error( 4, "Обязательно должно быть заполнено поле даты окончания лечения!" )
+      fl := func_error( 4, 'Обязательно должно быть заполнено поле даты окончания лечения!' )
     Else
       If m1schet == 3
         If Empty( mdate_reg ) .or. mdate_reg < pdate_lech[ 6 ]
@@ -1580,7 +1582,7 @@ Function f_valid_mon()
         mdate_reg := pdate_lech[ 6 ] + 10
       Endif
     Else
-      mdate_reg := CToD( "" )
+      mdate_reg := CToD( '' )
     Endif
     If m1rak == 0
       If Empty( mdate_rak ) .or. mdate_rak < pdate_lech[ 6 ] .or. ;
@@ -1592,7 +1594,7 @@ Function f_valid_mon()
         Endif
       Endif
     Else
-      mdate_rak := CToD( "" )
+      mdate_rak := CToD( '' )
     Endif
   Endif
 

@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 30.04.26 ДДС - добавление или редактирование случая (листа учета)
+// 30.06.26 ДДС - добавление или редактирование случая (листа учета)
 Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
 
   // tip_lu - TIP_LU_DDS или TIP_LU_DDSOP
@@ -751,8 +751,8 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       @ ++j, 1 To j, 78
 //      ++j
       @ ++j, 1 Say 'Сроки диспансеризации' Get mn_data ;
-        valid {| g| f_k_data( g, 1 ), iif( mvozrast < 18, nil, func_error( 4, 'Это взрослый пациент!' ) ), .t. }
-      @ Row(), Col() + 1 Say '-'   Get mk_data valid {| g| f_k_data( g, 2 ) }
+        valid {| g| control_date_disp( g, 1, tip_lu, kod_kartotek ), iif( mvozrast < 18, nil, func_error( 4, 'Это взрослый пациент!' ) ), .t. }
+      @ Row(), Col() + 1 Say '-'   Get mk_data valid {| g| control_date_disp( g, 2, tip_lu, kod_kartotek, mperiod ) }
       @ Row(), Col() + 3 Get mvzros_reb When .f. Color cDataCSay
       @ ++j, 1 Say '№ амбулаторной карты' Get much_doc Picture '@!' ;
         When !( is_uchastok == 1 .and. is_task( X_REGIST ) ) ;
@@ -2074,6 +2074,9 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
         hu->otd     := m1otd
         hu->kol := hu->kol_1 := 1
         hu->stoim := hu->stoim_1 := arr_usl_dop[ i, 8 ] 
+        if arr_usl_dop[ i, 9 ] < MN_DATA
+          hu->USL_REPL := 1 // будет замена услуги на нулевую
+        endif
         Select HU_
         Do While hu_->( LastRec() ) < mrec_hu
           Append Blank

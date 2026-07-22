@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 03.06.26
+// 29.06.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -39,6 +39,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   local tarif_usl, sumvv_usl
   local mNPR_MO, napr_number := ''
   local is_vmp
+  Local oMR_USL_N
 
 //  Local oPAC
 //  Local cSMOname
@@ -191,13 +192,17 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       human_->REES_ZAP := rhum->REES_ZAP
       human_->REES_NUM := 1 //  отправляем 1-й раз
       human_->SCHET_ZAP := rhum->REES_ZAP
-      human_->SCHET_NUM := 1 //  отправляем 1-й раз
+      if human_->KOD_UP == 0
+        human_->SCHET_NUM := 0 //  отправляем 1-й раз
+      else
+        human_->SCHET_NUM := 1 //  повторная отправка
+      endif
       human_->( dbUnlock() )
       if isl == 2
         human_3->( dbRLock() )
         human_3->REES_ZAP := rhum->REES_ZAP
         human_3->( dbUnlock() )
-      endif
+      endif 
       mo_add_xml_stroke( oZAP, 'PR_NOV', iif( human_->SCHET_NUM > 0, '1', '0' ) ) // если попал в счёт 2-й раз и т.д.
 
       // заполним сведения о пациенте для XML-документа
@@ -339,6 +344,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         If lTypeLUOnkoDisp
           s := '1.3'
         Endif
+/*
         If ( AScan( a_usl_name, '2.80.67' ) > 0 ) .or. ( AScan( a_usl_name, '2.88.14' ) > 0 )
           s := '1.0'
           If human->K_DATA >= 0d20250401 .and. ( AScan( a_usl_name, '2.80.67' ) > 0 ) // письмо Мызгин А.В. от 14.04.25
@@ -349,7 +355,9 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
               ( ascan( a_usl_name, '2.76.103' ) > 0 ) .or. ( ascan( a_usl_name, '2.76.104' ) > 0 )
           s := '2.7'
         Endif
-        mo_add_xml_stroke( oSL, 'P_CEL', s )
+*/
+//        mo_add_xml_stroke( oSL, 'P_CEL', s )
+        mo_add_xml_stroke( oSL, 'P_CEL', human_->P_CEL )
         mo_add_xml_stroke( oSL, 'MOP', lstr( human->MOP ) )
       Endif
     Endif
@@ -816,7 +824,11 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
         if ! ( p_tip_reestr == TYPE_REESTR_DISPASER .and. Len( a_otkaz ) > 0 .and. AScan( a_otkaz, { | x | x[ 1 ] == lshifr } ) > 0 )
           p2->( dbGoto( hu->kod_vr ) )
-          tag_mr_usl_n( oUsl, _nyear, 1, hu_->PRVS, p2->snils ) // пока ставим 1 исполнитель
+          if ( p_tip_reestr == TYPE_REESTR_DISPASER ) .and. ! between_date( human->n_data, human->k_data, c4tod( hu->DATE_U ) )
+            tag_mr_usl_n( oUsl, _nyear, 1, hu_->PRVS, '0' ) // пока ставим 1 исполнитель
+          else
+            tag_mr_usl_n( oUsl, _nyear, 1, hu_->PRVS, p2->snils ) // пока ставим 1 исполнитель
+          endif
         endif
       Next
     Endif
@@ -946,8 +958,12 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         If between_date( human->n_data, human->k_data, c4tod( mohu->DATE_U ) )
           p2->( dbGoto( mohu->kod_vr ) )
           tag_mr_usl_n( oUsl, _nyear, 1, mohu->PRVS, p2->snils ) // пока ставим 1 исполнитель
-        else
-          tag_mr_usl_n( oUsl, _nyear, 1, mohu->PRVS, '0' ) // пока ставим 1 исполнитель
+        else 
+//          tag_mr_usl_n( oUsl, _nyear, 1, mohu->PRVS, '0' ) // пока ставим 1 исполнитель
+          oMR_USL_N := oUSL:add( hxmlnode():new( 'MR_USL_N' ) )
+          mo_add_xml_stroke( oMR_USL_N, 'MR_N', lstr( 1 ) )   // пока ставим 1 исполнитель
+          mo_add_xml_stroke( oMR_USL_N, 'PRVS', put_prvs_to_reestr( mohu->PRVS, _nyear ) )
+          mo_add_xml_stroke( oMR_USL_N, 'CODE_MD', '0' )
         Endif 
         If !Empty( mohu->zf )
           dbSelectArea( laluslf )

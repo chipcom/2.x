@@ -123,7 +123,81 @@ Function update_data_db( aVersion )
     update_v60407()   // исправление двойных случаев
   endif
 
+  If ver_base < 60602 // переход на версию 6.6.2
+    update_v60602()   // добавление для услуг диспансеризации флагов заменяемых услуг
+  endif
+
 Return Nil
+
+// 19.06.26
+function update_v60602()
+
+  local beg_data, end_data, human_rec, human_otd
+  local aOtdAdult := {}, aOtdDeti := {}
+//  local aOtdPN := {}, aOtdDDS := {}
+  local iPn //, iDDS
+
+  stat_msg( 'Проверка услуг диспансеризации' )
+
+  r_use( dir_server() + 'mo_otd',, 'otd' )
+  otd->( dbGoTop() )
+  do while ! otd->( Eof() )
+    If otd->TIPLU == TIP_LU_PN // если профилактика несовершеннолетних
+//      AAdd( aOtdPN, otd->kod )
+      AAdd( aOtdDeti, otd->kod )
+    elseIf otd->TIPLU == TIP_LU_DDS // если диспансеризация детей в стационаре
+//      AAdd( aOtdDDS, otd->kod )
+      AAdd( aOtdDeti, otd->kod )
+    elseIf otd->TIPLU == TIP_LU_DDSOP // если диспансеризация детей под опекой
+//      AAdd( aOtdDDS, otd->kod )
+      AAdd( aOtdDeti, otd->kod )
+    elseIf otd->TIPLU == TIP_LU_DVN // если диспансеризация взрослых
+      AAdd( aOtdAdult, otd->kod )
+    endif
+    otd->( dbSkip() )
+  enddo
+  otd->( dbCloseArea() )
+
+  e_use( dir_server() + 'human_u', dir_server() + 'human_u', 'hu' )
+  r_use( dir_server() + 'human', dir_server() + 'humand', 'human' )
+
+  human->( dbGoTop() )
+  human->( dbSeek( DToS( 0d20250831 ) ) )
+  do while ! human->( Eof() )
+    human_rec := human->kod
+    beg_data := human->N_DATA
+    end_data := human->k_data
+    human_otd := human->OTD
+    if end_data > 0d20250831
+//      if ( ( iPn := AScan( aOtdPN, human_otd ) ) > 0 ) .or. ( ( iDDS := AScan( aOtdDDS, human_otd ) ) > 0 )
+      if ( ( iPn := AScan( aOtdDeti, human_otd ) ) > 0 )
+        hu->( dbSeek( Str( human_rec, 7 ) ) )
+        do while hu->kod == human_rec .and. ( ! hu->( Eof() ) )
+          if c4tod( hu->date_u ) < beg_data
+            hu->usl_repl := 1
+          endif
+          hu->( dbSkip() )
+        enddo
+      elseif ( AScan( aOtdAdult, human_otd ) > 0 .and. end_data > 0d20251231 )
+        hu->( dbSeek( Str( human_rec, 7 ) ) )
+        do while hu->kod == human_rec .and. ( ! hu->( Eof() ) )
+          if ( c4tod( hu->date_u ) < beg_data )
+            hu->usl_repl := 1
+          endif
+          hu->( dbSkip() )
+        enddo
+      endif
+    endif
+
+    human->( dbSkip() )
+  enddo
+
+  dbCloseAll()
+//  index_base( 'human' )
+  use_base( 'human_u' )
+  index_base( 'human_u' )
+
+  return nil
 
 // 19.04.26
 function update_v60407()

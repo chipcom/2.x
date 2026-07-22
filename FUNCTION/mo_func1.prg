@@ -702,7 +702,7 @@ Function fv_date_r( _data, fl_end )
   Endif
   If Type( 'm1vzros_reb' ) == 'N' .and. m1vzros_reb != k
     m1vzros_reb := k
-    mvzros_reb := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
+    mvzros_reb := inieditspr( A__MENUVERT, menu_vzros(), m1vzros_reb )
     update_get( 'mvzros_reb' )
   Endif
   If fl_end

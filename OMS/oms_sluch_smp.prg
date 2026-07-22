@@ -449,18 +449,18 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
   Close databases
   fv_date_r( iif( Loc_kod > 0, mn_data, ) )
   MFIO_KART := _f_fio_kart()
-  mvzros_reb := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
-  MNOVOR    := inieditspr( A__MENUVERT, mm_danet, M1NOVOR )
-  MF14_EKST := inieditspr( A__MENUVERT, mm_ekst_smp, M1F14_EKST )
+  mvzros_reb := inieditspr( A__MENUVERT, menu_vzros(), m1vzros_reb )
+  MNOVOR    := inieditspr( A__MENUVERT, mm_danet(), M1NOVOR )
+  MF14_EKST := inieditspr( A__MENUVERT, mm_ekst_smp(), M1F14_EKST )
   mrslt     := inieditspr( A__MENUVERT, getv009(), m1rslt )
   mishod    := inieditspr( A__MENUVERT, getv012(), m1ishod )
   mlpu      := inieditspr( A__POPUPMENU, dir_server() + 'mo_uch', m1lpu )
   motd      := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', m1otd )
   MKEMVYD   := inieditspr( A__POPUPMENU, dir_server() + 's_kemvyd', M1KEMVYD )
-  mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
+  mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis(), m1vidpolis )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
   mkomu     := inieditspr( A__MENUVERT, mm_komu(), m1komu )
-  mtip      := inieditspr( A__MENUVERT, mm_danet, m1tip )
+  mtip      := inieditspr( A__MENUVERT, mm_danet(), m1tip )
   musluga   := inieditspr( A__MENUBIT,  mm_usluga, m1usluga )
   mismo     := init_ismo( m1ismo )
   mSCO      := SubStr( inieditspr( A__MENUVERT, mm_SOC(), m1SCO ), 1, 20 )
@@ -556,7 +556,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
       @ Row(), Col() + 3 Say 'номер'  Get mnpolis When m1komu == 0 ;
         valid {|| findkartoteka( 2, @mkod_k ) }
       @ Row(), Col() + 3 Say 'вид'    Get mvidpolis ;
-        reader {| x| menu_reader( x, mm_vid_polis, A__MENUVERT, , , .f. ) } ;
+        reader {| x| menu_reader( x, mm_vid_polis(), A__MENUVERT, , , .f. ) } ;
         When m1komu == 0 ;
         Valid func_valid_polis( m1vidpolis, mspolis, mnpolis )
       //
@@ -568,7 +568,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
         valid {| g| valfamimot( 3, mot ) }
       If mem_pol == 1
         @ Row(), 70 Say 'Пол' Get mpol ;
-          reader {| x| menu_reader( x, menupol, A__MENUVERT, , , .f. ) }
+          reader {| x| menu_reader( x, menupol(), A__MENUVERT, , , .f. ) }
       Else
         @ Row(), 70 Say 'Пол' Get mpol Pict '@!' valid {| g| mpol $ 'МЖ' }
       Endif
@@ -608,7 +608,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
       @ ++j, 1 Say 'Полис ОМС: серия' Get mspolis When m1komu == 0
       @ Row(), Col() + 3 Say 'номер'  Get mnpolis When m1komu == 0
       @ Row(), Col() + 3 Say 'вид'    Get mvidpolis ;
-        reader {| x| menu_reader( x, mm_vid_polis, A__MENUVERT, , , .f. ) } ;
+        reader {| x| menu_reader( x, mm_vid_polis(), A__MENUVERT, , , .f. ) } ;
         When m1komu == 0 ;
         Valid func_valid_polis( m1vidpolis, mspolis, mnpolis )
     Endif
@@ -622,7 +622,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
 
     //
     @ ++j, 1 Say 'Новорожденный?' Get mnovor ;
-      reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+      reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
       valid {| g, o| f_valid_novor( g, o ) } ;
       Color colget_menu
     @ Row(), Col() + 3 Say '№/пп ребёнка' Get mcount_reb Pict '99' Range 1, 99 ;
@@ -630,7 +630,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
     @ Row(), Col() + 3 Say 'Д.р. ребёнка' Get mdate_r2 when ( m1novor == 1 )
     If mem_pol == 1
       @ Row(), Col() + 3 Say 'Пол ребёнка' Get mpol2 ;
-        reader {| x| menu_reader( x, menupol, A__MENUVERT, , , .f. ) } ;
+        reader {| x| menu_reader( x, menupol(), A__MENUVERT, , , .f. ) } ;
         When diag_screen( 2 ) .and. ( m1novor == 1 )
     Else
       @ Row(), Col() + 3 Say 'Пол ребёнка' Get mpol2 Pict '@!' ;
@@ -648,7 +648,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
       Valid val1_10diag( .t., .t., .t., mn_data, iif( m1novor == 0, mpol, mpol2 ) )
     If tip_lu == TIP_LU_SMP
       @ Row(), Col() + 3 Say 'Форма оказания СМП' Get MF14_EKST ;
-        reader {| x| menu_reader( x, mm_ekst_smp, A__MENUVERT, , , .f. ) }
+        reader {| x| menu_reader( x, mm_ekst_smp(), A__MENUVERT, , , .f. ) }
     Endif
     ++j ; rdiag := j
     If ( ibrm := f_oms_beremenn( mkod_diag, MN_DATA ) ) == 1
@@ -678,7 +678,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
           reader {| x| menu_reader( x, mm_brig, A__MENUVERT, , , .f. ) }
       Else
         @ ++j, 1 Say 'Тромболитическая терапия:' Get mtip ;
-          reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+          reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
           valid {| g, o| f_valid_brig( g, o, mm_brigada, mm_trombolit, st_brigada, st_trombolit ) }
         @ j, 32 Say 'Бригада СМП' Get mbrig ;
           reader {| x| menu_reader( x, mm_brig, A__MENUVERT, , , .f. ) }

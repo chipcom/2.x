@@ -564,10 +564,10 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   MFIO_KART := _f_fio_kart()
   mndisp    := inieditspr( A__MENUVERT, mm_ndisp, metap )
   mrab_nerab := inieditspr( A__MENUVERT, menu_rab(), m1rab_nerab )
-  mvzros_reb := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
+  mvzros_reb := inieditspr( A__MENUVERT, menu_vzros(), m1vzros_reb )
   mlpu      := inieditspr( A__POPUPMENU, dir_server() + 'mo_uch', m1lpu )
   motd      := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', m1otd )
-  mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
+  mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis(), m1vidpolis )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
   mkomu     := inieditspr( A__MENUVERT, mm_komu(), m1komu )
   mismo     := init_ismo( m1ismo )
@@ -660,7 +660,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       @ Row(), Col() + 1 Say 'Д.р.' Get mdate_r When .f. Color color14
 
       @ ++j, 1 Say 'Полис ОМС: вид' Get mvidpolis ;
-        reader {| x | menu_reader( x, mm_vid_polis, A__MENUVERT,,, .f. ) } ;
+        reader {| x | menu_reader( x, mm_vid_polis(), A__MENUVERT,,, .f. ) } ;
         When m1komu == 0 ;
         Valid func_valid_polis( m1vidpolis, mspolis, mnpolis )
       @ Row(), Col() + 1 Say '№'  Get mnpolis When m1komu == 0

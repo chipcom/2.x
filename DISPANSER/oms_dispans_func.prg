@@ -4,6 +4,67 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 02.07.26 проверка правильности ввода сроков диспансеризации
+Function control_date_disp( get, k, tip_lu, kod_kartotek, period )
+
+  // k = 1 - дата начала диспансеризации
+  // k = 2 - дата окончания диспансеризации
+
+  local ret := .t.
+
+  default period to 0
+
+  If k == 1 .and. Year( mn_data ) < 2025
+    mn_data := get:original
+    Return func_error( 3, 'В дате начала диспансеризации неверно введен год (ранее 2025 года).' )
+  Endif
+
+  If k == 2 .and. Empty( mk_data )
+    mk_data := get:original
+    Return func_error( 3, 'Не введена дата окончания диспансеризации.' )
+  Endif
+  If k == 2 .and. ;
+      !( Year( mk_data ) == Year( sys_date ) .or. Year( mk_data ) == Year( sys_date ) -1 )
+    mk_data := get:original
+    Return func_error( 3, 'В дате окончания диспансеризации неверно введен год.' )
+  Endif
+  If !Empty( mk_data ) .and. mn_data > mk_data
+    If k == 1
+      mn_data := get:original
+    Else
+      mk_data := get:original
+    Endif
+    Return func_error( 4, 'Дата начала диспансеризации больше даты её окончания. Ошибка!' )
+  Endif
+  If k == 1 .and. Type( 'mdate_r' ) == 'D'
+    fv_date_r( mn_data ) 
+  Endif
+
+  If k == 2
+    if Empty( mkod ) // для новых листов учета
+      r_use( dir_server() + 'human_',, 'HUMAN_' )
+      r_use( dir_server() + 'human', dir_server() + 'humankk', 'HUMAN' )
+      Set Relation To RecNo() into HUMAN_
+      human->( dbSeek( Str( kod_kartotek, 7 ) ) )
+      Do While human->kod_k == kod_kartotek .and. ! human->( Eof() )
+        if eq_any( tip_lu, TIP_LU_DDS, TIP_LU_DDSOP, TIP_LU_PN ) .and. ;
+            ( is_sluch_dispanser_deti_siroty( human->ishod ) .or. is_sluch_dispanser_profilaktika_deti( human->ishod ) )
+          If !Empty( mk_data ) .and. ( Year( human->K_DATA ) == Year( mk_data ) ) .and. period > 15 // дети старше 2 лет
+              mk_data := get:original
+              hb_Alert( 'Уже проведена диспансеризация с ' + DToC( human->N_DATA ) + ' по ' + DToC( human->K_DATA ) + '!', 4 )
+              ret := .f.
+              exit
+            endif
+        endif
+        human->( dbSkip() )
+      Enddo
+      human_->( dbCloseArea() )
+      human->( dbCloseArea() )
+    endif
+  endif
+
+  Return ret
+
 // 11.04.26
 Function read_arr_dispans( lkod )
 
@@ -165,11 +226,6 @@ function check_group_nazn( type, ... )
 // 04.07.24
 function is_dispanserizaciya( ishod )
 
-  // return ( Between( ishod, 101, 102 ) .or. ;  // диспансеризация детей-сирот в стационарах или диспансеризация детей-сирот под опекой
-  //       Between( ishod, 201, 205 ) .or. ;   // диспансеризация взрослого населения
-  //       Between( ishod, 301, 305 ) .or. ;   // профилактики несовершеннолетних
-  //       Between( ishod, 401, 402 ) .or. ;   // диспансеризация после COVID-19
-  //       Between( ishod, 501, 502) )         // диспансеризация репродуктивного здоровья
   return ( is_sluch_dispanser_deti_siroty( ishod ) .or. ; // диспансеризация детей-сирот в стационарах или диспансеризация детей-сирот под опекой
     is_sluch_dispanser_DVN_prof( ishod ) .or. ;           // диспансеризация взрослого населения
     is_sluch_dispanser_profilaktika_deti( ishod ) .or. ;  // профилактики несовершеннолетних
@@ -225,7 +281,7 @@ Function f_valid_diag_oms_sluch_dvn( get, k )
       &pole_d_dispans := CToD( '' )
     Else
       &pole_pervich := inieditspr( A__MENUVERT, mm_pervich, &pole_1pervich )
-      &pole_dispans := inieditspr( A__MENUVERT, mm_danet, &pole_1dispans )
+      &pole_dispans := inieditspr( A__MENUVERT, mm_danet(), &pole_1dispans )
     Endif
   Endif
   If emptyall( m1dispans1, m1dispans2, m1dispans3, m1dispans4, m1dispans5 )
@@ -391,7 +447,7 @@ Function f_valid_vyav_diag_dispanser( get, k )
       &pole_d_dispans := CToD( "" )
     Else
       &pole_pervich := inieditspr( A__MENUVERT, mm_pervich, &pole_1pervich )
-      &pole_dispans := inieditspr( A__MENUVERT, mm_danet, &pole_1dispans )
+      &pole_dispans := inieditspr( A__MENUVERT, mm_danet(), &pole_1dispans )
     Endif
   Endif
   If emptyall( m1dispans1, m1dispans2, m1dispans3, m1dispans4, m1dispans5 )
@@ -437,7 +493,7 @@ function dispans_vyav_diag( /*@*/j, mndisp )
   @ j, 35 Get m1stadia1 Pict '9' Range 1, 4 ;
     When !Empty( mdiag1 )
   @ j, 44 Get mdispans1 ;
-    reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) } ;
+    reader {| x| menu_reader( x, mm_danet(), A__MENUVERT,,, .f. ) } ;
     When !Empty( mdiag1 )
   @ j, 54 Get mddispans1 When m1dispans1 == 1
   @ j, 67 Get mdndispans1 When m1dispans1 == 1
@@ -454,7 +510,7 @@ function dispans_vyav_diag( /*@*/j, mndisp )
   @ j, 35 Get m1stadia2 Pict '9' Range 1, 4 ;
     When !Empty( mdiag2 )
   @ j, 44 Get mdispans2 ;
-    reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) } ;
+    reader {| x| menu_reader( x, mm_danet(), A__MENUVERT,,, .f. ) } ;
     When !Empty( mdiag2 )
   @ j, 54 Get mddispans2 When m1dispans2 == 1
   @ j, 67 Get mdndispans2 When m1dispans2 == 1
@@ -471,7 +527,7 @@ function dispans_vyav_diag( /*@*/j, mndisp )
   @ j, 35 Get m1stadia3 Pict '9' Range 1, 4 ;
     When !Empty( mdiag3 )
   @ j, 44 Get mdispans3 ;
-    reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) } ;
+    reader {| x| menu_reader( x, mm_danet(), A__MENUVERT,,, .f. ) } ;
     When !Empty( mdiag3 )
   @ j, 54 Get mddispans3 When m1dispans3 == 1
   @ j, 67 Get mdndispans3 When m1dispans3 == 1
@@ -488,7 +544,7 @@ function dispans_vyav_diag( /*@*/j, mndisp )
   @ j, 35 Get m1stadia4 Pict '9' Range 1, 4 ;
     When !Empty( mdiag4 )
   @ j, 44 Get mdispans4 ;
-    reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) } ;
+    reader {| x| menu_reader( x, mm_danet(), A__MENUVERT,,, .f. ) } ;
     When !Empty( mdiag4 )
   @ j, 54 Get mddispans4 When m1dispans4 == 1
   @ j, 67 Get mdndispans4 When m1dispans4 == 1
@@ -505,7 +561,7 @@ function dispans_vyav_diag( /*@*/j, mndisp )
   @ j, 35 Get m1stadia5 Pict '9' Range 1, 4 ;
     When !Empty( mdiag5 )
   @ j, 44 Get mdispans5 ;
-    reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) } ;
+    reader {| x| menu_reader( x, mm_danet(), A__MENUVERT,,, .f. ) } ;
     When !Empty( mdiag5 )
   @ j, 54 Get mddispans5 When m1dispans5 == 1
   @ j, 67 Get mdndispans5 When m1dispans5 == 1

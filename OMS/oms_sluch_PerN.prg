@@ -268,10 +268,10 @@ Function oms_sluch_pern( Loc_kod, kod_kartotek, f_print )
   is_talon := .t.
   fv_date_r( iif( Loc_kod > 0, mn_data, ) )
   MFIO_KART := _f_fio_kart()
-  mvzros_reb := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
+  mvzros_reb := inieditspr( A__MENUVERT, menu_vzros(), m1vzros_reb )
   mlpu      := inieditspr( A__POPUPMENU, dir_server() + 'mo_uch', m1lpu )
   motd      := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', m1otd )
-  mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
+  mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis(), m1vidpolis )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
   mkomu     := inieditspr( A__MENUVERT, mm_komu(), m1komu )
   mismo     := init_ismo( m1ismo )
@@ -295,7 +295,7 @@ Function oms_sluch_pern( Loc_kod, kod_kartotek, f_print )
   Endif
   mschool := inieditspr( A__POPUPMENU, dir_server() + 'mo_schoo', m1school )
   mtip_school := inieditspr( A__MENUVERT, mm_tip_school(), m1tip_school )
-  mprotivo := inieditspr( A__MENUVERT, mm_danet, m1protivo )
+  mprotivo := inieditspr( A__MENUVERT, mm_danet(), m1protivo )
   //
   If !Empty( f_print )
     return &( f_print + '(' + lstr( Loc_kod ) + ',' + lstr( kod_kartotek ) + ',' + lstr( mvozrast ) + ')' )
@@ -339,7 +339,7 @@ Function oms_sluch_pern( Loc_kod, kod_kartotek, f_print )
     @ ++j, 1 Say 'Полис ОМС: серия' Get mspolis When m1komu == 0
     @ Row(), Col() + 3 Say 'номер'  Get mnpolis When m1komu == 0
     @ Row(), Col() + 3 Say 'вид'    Get mvidpolis ;
-      reader {| x| menu_reader( x, mm_vid_polis, A__MENUVERT, , , .f. ) } ;
+      reader {| x| menu_reader( x, mm_vid_polis(), A__MENUVERT, , , .f. ) } ;
       When m1komu == 0 ;
       Valid func_valid_polis( m1vidpolis, mspolis, mnpolis )
     @ ++j, 1 To j, 78
@@ -433,7 +433,7 @@ Function oms_sluch_pern( Loc_kod, kod_kartotek, f_print )
       reader {| o| mygetreader( o, bg ) } Valid val1_10diag( .t., .f., .f., mn_data, mpol )
     @ ++j, 1 To j, 78
     @ ++j, 1 Say 'Обнаружены медицинские противопоказания к продолжению учёбы?' Get mprotivo ;
-      reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+      reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
     status_key( '^<Esc>^ - выход без записи; ^<PgDn>^ - запись' )
     If !Empty( a_smert )
       n_message( a_smert, , 'GR+/R', 'W+/R', , , 'G+/R' )

@@ -394,7 +394,7 @@ Function f1dubl_zap_1()
             ++j1
             s := iif(j1 == 1, padr(lstr(k) + '.', 5), space(5))
             add_string(s + left(mkod_mis, 16) + ' ' + padr(amb_kartaN(.t.), 10) + ;
-                     padr(alltrim(kart->fio) + ' (' + alltrim(inieditspr(A__MENUVERT, mm_vid_polis, kart_->VPOLIS)) + ;
+                     padr(alltrim(kart->fio) + ' (' + alltrim(inieditspr(A__MENUVERT, mm_vid_polis(), kart_->VPOLIS)) + ;
                           ' полис)', 50) + ' ' + date_8(kart->date_r))
             select TMPITG
             append blank

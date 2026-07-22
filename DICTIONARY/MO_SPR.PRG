@@ -1647,12 +1647,12 @@ Function edit_otd()
     space( 17 ), {| x| inieditspr( A__MENUVERT, mm_lpu1, x ) }, ;
     'Структурное подразделение по "ГИС ОМС"' }, ;
     { 'DS_STAC', 'N', 1, 0, , ;
-    {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }, ;
-    0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
+    {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }, ;
+    0, {| x| inieditspr( A__MENUVERT, mm_danet(), x ) }, ;
     'Этот дневной стационар при стационаре' }, ;
     { 'TIP_OTD', 'N', 2, 0, , ;
-    {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }, ;
-    0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
+    {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }, ;
+    0, {| x| inieditspr( A__MENUVERT, mm_danet(), x ) }, ;
     'Является данное отделение приёмным покоем стационара' }, ;
     { 'MOP', 'N', 3, 0, , ;
     {| x| menu_reader( x, getv040(), A__MENUVERT, , , .f. ) }, ;
@@ -1802,7 +1802,7 @@ Function edit_uch()
   arr[ US_ARR_BROWSE ] := { '═', '░', '═', 'N/BG,W+/N,B/BG,W+/B', .t. }
   arr[ US_COLUMN   ] := { { ' Наименование', {|| name }, blk }, ;
     { 'Сокр.;наим.', {|| SHORT_NAME }, blk }, ;
-    { 'Работа с;талоном', {|| PadC( inieditspr( A__MENUVERT, mm_danet, is_talon ), 8 ) }, blk } }
+    { 'Работа с;талоном', {|| PadC( inieditspr( A__MENUVERT, mm_danet(), is_talon ), 8 ) }, blk } }
   arr[ US_BLK_DEL  ] := {| _k| fdel_uch( _k ) }
   arr[ US_IM_PADEG ] := arr[ US_SEMAPHORE ] := 'учреждения'
   arr[ US_ROD_PADEG ] := 'учреждений' 
@@ -1814,8 +1814,8 @@ Function edit_uch()
       , { | x | inieditspr( A__MENUVERT, menu_users, x ) }, ;
       'Таб.№ руководителя' }, ;
     { 'is_talon', 'N', 1, 0, , ;
-      { | x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }, ;
-      0, { | x | inieditspr( A__MENUVERT, mm_danet, x ) }, ;
+      { | x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }, ;
+      0, { | x | inieditspr( A__MENUVERT, mm_danet(), x ) }, ;
       'Работаем со стат.талоном?' }, ;
     { 'dbegin', 'D', 8, 0, , , BoY( sys_date ), , ;
     'Дата начала работы с учреждением' }, ;

@@ -4633,7 +4633,7 @@ Function ort_mnog_poisk()
     " ", nil, ;
     "Пол", {|| mpol $ " МЖ" } } )
   AAdd( mm_tmp, { "vzros_reb", "N", 2, 0, NIL, ;
-    {| x| menu_reader( x, menu_vzros, A__MENUVERT ) }, ;
+    {| x| menu_reader( x, menu_vzros(), A__MENUVERT ) }, ;
     -1, {|| Space( 10 ) }, ;
     "Возрастная принадлежность" } )
   AAdd( mm_tmp, { "god_r_min", "D", 8, 0,, ;
@@ -4803,7 +4803,7 @@ aadd(mm_tmp, {"rajon","N",2,0,NIL,;
     {| x| menu_reader( x, arr_doc, A__MENUBIT ) }, ;
     lvid_doc, {| x| inieditspr( A__MENUBIT, arr_doc, x ) }, ;
     "Вид документа", NIL } )
-  Delete File ( tmp_file )
+  Delete File ( tmp_file + sdbf() )
   init_base( tmp_file,, mm_tmp, 0 )
   //
   r_use( dir_server() + "mo_pers", dir_server() + "mo_pers", "PERSO" )
@@ -5121,7 +5121,7 @@ aadd(mm_tmp, {"rajon","N",2,0,NIL,;
       Endif
       If mn->vzros_reb >= 0
         add_string( "Возрастная принадлежность: " + ;
-          inieditspr( A__MENUVERT, menu_vzros, mn->vzros_reb ) )
+          inieditspr( A__MENUVERT, menu_vzros(), mn->vzros_reb ) )
       Endif
       If !Empty( mn->god_r_min ) .or. !Empty( mn->god_r_max )
         If Empty( mn->god_r_min )

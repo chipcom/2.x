@@ -364,7 +364,7 @@ Function f2_view_r_pr_nas( nKey, oBrow )
 
   Return ret
 
-// 25.02.26
+// 25.06.26
 Function f3_view_r_pr_nas( oBrow )
 
   Static si := 1, snfile := '', sarr_mo, sarr_err, sjmo, sjerr
@@ -377,6 +377,7 @@ Function f3_view_r_pr_nas( oBrow )
     mm_err := { ;
       { '¥ ¨¬¥¥â â¥ªãé¥£® áâà å®¢ ­¨ï', 708 }, ; // !!!
       { 'à¨ªà¥¯«¥­¨¥ ª Œ ®âáãâáâ¢ã¥â', 709 }, ; //
+      { ' æ¨¥­â ¯®ª  ­¥ § ªà¥¯«¥­ §  ‘Œ - áç¥â  ­  Œ€Œ—Š“', 999 }, ;
       { '’”Œ‘ ­¥ ¢¥à­ã« ­¨ª ª®© ¨­ä®à¬ æ¨¨', -99 } } // !!!
   Endif
   If Left( krtr->FNAME, 2 ) == 'MO'
@@ -1425,10 +1426,9 @@ Function f1_k_z_prikreplenie( nKey, oBrow, regim )
     Else
       frt->adres_p := ret_okato_ulica( kart_->adresp, kart_->okatop )
     Endif
-//    s := AllTrim( inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( kart_->smo ) ) ) ) + ', ¯®«¨á '
     s := AllTrim( inieditspr( A__MENUVERT, smo_volgograd(), Int( Val( kart_->smo ) ) ) ) + ', ¯®«¨á '
     s += AllTrim( RTrim( kart_->SPOLIS ) + ' ' + kart_->NPOLIS ) + ' (' + ;
-      AllTrim( inieditspr( A__MENUVERT, mm_vid_polis, kart_->VPOLIS ) ) + ')'
+      AllTrim( inieditspr( A__MENUVERT, mm_vid_polis(), kart_->VPOLIS ) ) + ')'
     frt->smo := s
     frt->ruk_fio := AllTrim( iif( Empty( org->ruk_fio ), org->ruk, org->ruk_fio ) )
     frt->ruk := AllTrim( org->ruk )

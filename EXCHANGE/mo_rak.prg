@@ -7,7 +7,7 @@
 Static lcount_uch := 1
 Static lcount_otd := 1
 
-// 22.04.26 прочитать и 'разнести' по базам данных РАК
+// 22.06.26 прочитать и 'разнести' по базам данных РАК
 Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
 
   Local fl_akt, fl_schet, blk_akt, blk_schet, i, s, s1, arr_s := {}, t_arr[ 2 ], ;
@@ -103,7 +103,7 @@ Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
           @ Row(), Col() Say lstr( ih ) Color 'W+/R*'
           Select HUMAN
           human->( dbSeek( tmp4->_ID_C ) )
-          If human->( Found() )
+          If human->( Found() ) // поиск внутри HUMAN
             tmp4->KOD_H := human->kod
             fl_IDC := ( Upper( tmp4->_ID_C ) == Upper( human_->ID_C ) )
             If !fl_IDC
@@ -127,16 +127,51 @@ Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
               AAdd( aerr, '  случай № ' + lstr( tmp4->_IDCASE ) + ', ' + AllTrim( human->fio ) + ', л/у ' + lstr( human->kod ) )
               AAdd( aerr, '   ID_C в СМО = ' + tmp4->_ID_C + ', ID_C у нас = ' + human_->ID_C )
             Endif
-          Else
-            If fl_akt
-              Eval( blk_akt )
-              fl_akt := .f.
-            Endif
-            If fl_schet
-              Eval( blk_schet )
-              fl_schet := .f.
-            Endif
-            AAdd( aerr, '   не найден пациент с IDCASE = ' + lstr( tmp4->_IDCASE ) + '  ID_C = ' + alltrim( tmp4->_ID_C ) )
+          Else // или НЕ НАШЛИ или надо проверить ДВОЙНЫЕ случаи. из HUMAN_3
+            tmp_alias := Select()
+            r_use( dir_server() + 'human_3', , 'HUMAN_3' )
+            Index On FIELD->id_c to ( cur_dir() + 'tmp66' )
+            select HUMAN_3
+            human_3->( dbSeek( tmp4->_ID_C ) )
+            If human_3->( Found() ) // поиск внутри HUMAN_3
+              tmp4->KOD_H := human_3->kod
+              fl_IDC := ( Upper( tmp4->_ID_C ) == Upper( human_3->ID_C ) )
+              If !fl_IDC
+            //  tmp_alias := Select()
+            //  r_use( dir_server() + 'human_3', dir_server() + 'human_3', 'HUMAN_3' )
+            //  If human_3->( dbSeek( Str( human_->( RecNo() ), 7 ) ) )
+            //    fl_IDC := ( Upper( tmp4->_ID_C ) == Upper( human_3->ID_C ) )
+            //  Endif
+            //  human_3->( dbCloseArea() )
+              Select( tmp_alias )
+              Endif
+              If !fl_IDC
+                If fl_akt
+                  Eval( blk_akt )
+                  fl_akt := .f.
+                Endif
+                If fl_schet
+                  Eval( blk_schet )
+                  fl_schet := .f.
+                Endif
+                AAdd( aerr, '  случай № ' + lstr( tmp4->_IDCASE ) + ', ' + AllTrim( human->fio ) + ', л/у ' + lstr( human->kod ) )
+                AAdd( aerr, '   ID_C в СМО = ' + tmp4->_ID_C + ', ID_C у нас = ' + human_->ID_C )
+              Endif
+            endif
+            human_3->( dbCloseArea() )
+            Select( tmp_alias )
+            // 
+            If !fl_IDC
+              If fl_akt
+                Eval( blk_akt )
+                fl_akt := .f.
+              Endif
+              If fl_schet
+                Eval( blk_schet )
+                fl_schet := .f.
+              Endif
+              AAdd( aerr, '   не найден пациент с IDCASE = ' + lstr( tmp4->_IDCASE ) + '  ID_C = ' + alltrim( tmp4->_ID_C ) )
+            endif  
           Endif
           Select TMP4
           tmp4->( dbSkip() )    //  Skip
@@ -691,7 +726,7 @@ Function f2_view_rak( nKey, oBrow )
 
   Return ret
 
-// 20.04.26
+// 15.07.26
 Function delete_rak( lrec, lname, not_end ) 
 
   Local ret := 0, arr_next := {}, fl, ia, is, ih, buf := save_maxrow()
@@ -753,9 +788,9 @@ Function delete_rak( lrec, lname, not_end )
   If not_end
     fl := .t.
   Else
-    if year( date_rak ) == 2026 .and. month( date_rak ) == 4
+    if ( year( date_rak ) == 2026 .and. month( date_rak ) == 4 ) .or. ( date_rak == 0d20260714 )
       fl := .t.
-    else  
+    else
       fl := involved_password( 2, lname, 'подтверждения возврата (удаления) РАК' )
     endif
   Endif
@@ -1116,7 +1151,7 @@ Function f1_view_rak_akt_schet_human( nk, ob, regim )
       If human_->OPLATA == 9
         func_error( 'Ошибка! Данный случай уже был перевыставлен!' )
       Else
-        rak_akt_schet_human_add_next( s, s1, rec, raksh->REFREASON  )
+        rak_akt_schet_human_add_next( s, s1, rec, raksh->REFREASON  ) 
       Endif
     Else
       rak_akt_schet_human_del_next( s, s1, rec )
@@ -1995,6 +2030,283 @@ Function rak_akt_schet_human_del_next( s, s1, lrec )
   Endif
   rest_box( buf )
 
+  Return nil
+  
+  // 14.06.26
+Function rak_akt_schet_human_del_next_human( )
+
+  Local arr1, arr2, mkod, mkodh3 := 0, buf := save_maxrow()
+  Local s := ' ', s1 := ' '
+   
+  
+  mkod := human_->(recno()) 
+  arr1 := { s, ;
+    s1, ;
+    'После подтверждения повторно выставленный лист учёта будет удалён', ;
+    '' }
+  arr2 := { ' Отказ ', ' Удалить повторно выставленный л/у ' }
+  If f_alert( arr1, arr2, 1, 'N+/GR*', 'N/GR*', 15, , 'N/GR*' ) == 2
+    If f_alert( arr1, arr2, 1, 'N+/GR*', 'R/GR*', 16, , 'N/GR*' ) == 2
+      mywait()
+      Close databases
+      use_base( 'mo_hdisp' )
+      use_base( 'mo_hu' )
+      use_base( 'human_u' )
+      g_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
+      use_base( 'human' )
+      Goto ( glob_perso )
+      glob_persoh3 := 0
+      If human->ishod == 88
+        Select HUMAN_3
+        find ( Str( glob_perso, 7 ) )
+        If Found()
+          glob_persoh3 := human_3->kod2
+        Endif
+      Endif
+      Select HUMAN
+      Goto ( mkod )
+      If human->ishod == 88
+        Select HUMAN_3
+        find ( Str( mkod, 7 ) )
+        If Found()
+          mkodh3 := human_3->kod2
+          rech3 := RecNo()
+        Endif
+      Endif
+      //
+      del_NAPR_MO( mkod, _NPR_LECH )
+      //
+      g_use( dir_server() + 'mo_raksh', , 'RAKSH' )
+      g_use( dir_server() + 'mo_os', , 'MO_OS' )
+      Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_moos' ) For FIELD->NEXT_KOD > 0
+      find ( Str( glob_perso, 7 ) )
+      If Found()
+        deleterec( .t. )
+      Endif
+      Do While .t.
+        Select HDISP
+        find ( Str( mkod, 7 ) )
+        If !Found()
+          Exit
+        Endif
+        deleterec( .t. )
+      Enddo
+      g_use( dir_server() + 'mo_onkna', dir_server() + 'mo_onkna' )
+      Do While .t.
+        find ( Str( mkod, 7 ) )
+        If !Found()
+          Exit
+        Endif
+        deleterec( .t. )
+      Enddo
+      If mkodh3 > 0
+        Do While .t.
+          find ( Str( mkodh3, 7 ) )
+          If !Found()
+            Exit
+          Endif
+          deleterec( .t. )
+        Enddo
+      Endif
+      g_use( dir_server() + 'mo_onksl', dir_server() + 'mo_onksl' )
+      Do While .t.
+        find ( Str( mkod, 7 ) )
+        If !Found()
+          Exit
+        Endif
+        deleterec( .t. )
+      Enddo
+      If mkodh3 > 0
+        Do While .t.
+          find ( Str( mkodh3, 7 ) )
+          If !Found()
+            Exit
+          Endif
+          deleterec( .t. )
+        Enddo
+      Endif
+      g_use( dir_server() + 'mo_onkco', dir_server() + 'mo_onkco' )
+      Do While .t.
+        find ( Str( mkod, 7 ) )
+        If !Found()
+          Exit
+        Endif
+        deleterec( .t. )
+      Enddo
+      If mkodh3 > 0
+        Do While .t.
+          find ( Str( mkodh3, 7 ) )
+          If !Found()
+            Exit
+          Endif
+          deleterec( .t. )
+        Enddo
+      Endif
+      g_use( dir_server() + 'mo_onkdi', dir_server() + 'mo_onkdi' )
+      Do While .t.
+        find ( Str( mkod, 7 ) )
+        If !Found()
+          Exit
+        Endif
+        deleterec( .t. )
+      Enddo
+      If mkodh3 > 0
+        Do While .t.
+          find ( Str( mkodh3, 7 ) )
+          If !Found()
+            Exit
+          Endif
+          deleterec( .t. )
+        Enddo
+      Endif
+      g_use( dir_server() + 'mo_onkpr', dir_server() + 'mo_onkpr' )
+      Do While .t.
+        find ( Str( mkod, 7 ) )
+        If !Found()
+          Exit
+        Endif
+        deleterec( .t. )
+      Enddo
+      If mkodh3 > 0
+        Do While .t.
+          find ( Str( mkodh3, 7 ) )
+          If !Found()
+            Exit
+          Endif
+          deleterec( .t. )
+        Enddo
+      Endif
+      g_use( dir_server() + 'mo_onkus', dir_server() + 'mo_onkus' )
+      Do While .t.
+        find ( Str( mkod, 7 ) )
+        If !Found()
+          Exit
+        Endif
+        deleterec( .t. )
+      Enddo
+      If mkodh3 > 0
+        Do While .t.
+          find ( Str( mkodh3, 7 ) )
+          If !Found()
+            Exit
+          Endif
+          deleterec( .t. )
+        Enddo
+      Endif
+      g_use( dir_server() + 'mo_onkle', dir_server() + 'mo_onkle' )
+      Do While .t.
+        find ( Str( mkod, 7 ) )
+        If !Found()
+          Exit
+        Endif
+        deleterec( .t. )
+      Enddo
+      If mkodh3 > 0
+        Do While .t.
+          find ( Str( mkodh3, 7 ) )
+          If !Found()
+            Exit
+          Endif
+          deleterec( .t. )
+        Enddo
+      Endif
+      Do While .t.
+        Select MOHU
+        find ( Str( mkod, 7 ) )
+        If !Found()
+          Exit
+        Endif
+        deleterec( .t., .f. )  // без пометки на удаление
+        If mkodh3 > 0
+          Do While .t.
+            find ( Str( mkodh3, 7 ) )
+            If !Found()
+              Exit
+            Endif
+            deleterec( .t., .f. )  // без пометки на удаление
+          Enddo
+        Endif
+      Enddo
+      Do While .t.
+        Select HU
+        find ( Str( mkod, 7 ) )
+        If !Found()
+          Exit
+        Endif
+        //
+        Select HU_
+        deleterec( .t., .f. )
+        Select HU
+        deleterec( .t., .f. )  // без пометки на удаление
+      Enddo
+      If mkodh3 > 0
+        Do While .t.
+          Select HU
+          find ( Str( mkodh3, 7 ) )
+          If !Found()
+            Exit
+          Endif
+          //
+          Select HU_
+          deleterec( .t., .f. )
+          Select HU
+          deleterec( .t., .f. )  // без пометки на удаление
+        Enddo
+      Endif
+      If mkodh3 > 0
+        Select HUMAN
+        find ( Str( mkodh3, 7 ) )
+        Select HUMAN_
+        deleterec( .t., .f. )
+        Select HUMAN
+        deleterec( .t., .f. )  // без пометки на удаление
+        g_rlock( 'forever' )
+        Replace human->schet With -1  // (вместо нуля)
+      Endif
+      Select HUMAN
+      find ( Str( mkod, 7 ) )
+      Select HUMAN_
+      deleterec( .t., .f. )
+      Select HUMAN
+      deleterec( .t., .f. )  // без пометки на удаление
+      g_rlock( 'forever' )
+      Replace human->schet With -1  // (вместо нуля)
+      //
+      // ---- ПРОВЕРИТЬ
+      Select RAKSH
+      Goto ( lrec )
+      g_rlock( 'forever' )
+      raksh->IS_REPEAT := 0
+      raksh->DATE_REP  := CToD( '' )
+      raksh->NEXT_KOD  := 0
+      //
+      If glob_persoh3 > 0
+        Select HUMAN
+        Goto ( glob_persoh3 )
+        Select HUMAN_
+        g_rlock( 'forever' )
+        human_->OPLATA := raksh->OPLATA
+      Endif
+      If mkodh3 > 0
+        Select HUMAN_3
+        Goto ( rech3 )
+        deleterec( .t. )
+      Endif
+      Select HUMAN
+      Goto ( glob_perso )
+      Select HUMAN_
+      g_rlock( 'forever' )
+      human_->OPLATA    := raksh->OPLATA
+      human_->SANK_MEK  := raksh->SANK_MEK
+      human_->SANK_MEE  := raksh->SANK_MEE
+      human_->SANK_EKMP := raksh->SANK_EKMP
+      Close databases
+      stat_msg( 'Повторно выставленный лист учёта удалён' )
+      mybell( 2, OK )
+    Endif
+  Endif
+  rest_box( buf )
+
   Return Nil
 
 // 10.12.13
@@ -2773,7 +3085,6 @@ Function pr_list_rak()
     krak := 0, kakt, ksch, kpac, kerr, kpen, sh, HH := 60
 
   If arr_smo == NIL
-    // arr_smo := mo_cut_menu( glob_arr_smo )
     arr_smo := mo_cut_menu( smo_volgograd() )
   Endif
   If ( arr_m := year_month( T_ROW, T_COL - 5 ) ) == NIL
@@ -2953,7 +3264,7 @@ Function akt_summa_of_refusal( tip )
   // 1 - по дате АКТА в РАК
   // 2  - по дате РАК
   Local buf := save_maxrow(), arr_m, n_file := cur_dir() + 'sum_RAK' + stxt(), sh, HH := 40
-  Local arr_smo := AClone( smo_volgograd() )  // glob_arr_smo )
+  Local arr_smo := AClone( smo_volgograd() )
   local adbf
 
   If ( arr_m := year_month( T_ROW, T_COL - 5 ) ) == NIL
@@ -3216,7 +3527,6 @@ Function akt_list_of_refusal_defect()
   Local buf := SaveScreen(), i, ar, s, r := 14
 
   If arr_smo == NIL
-    // arr_smo := mo_cut_menu( glob_arr_smo )
     arr_smo := mo_cut_menu( smo_volgograd() )
     For i := 1 To Len( arr_smo )
       arr_smo[ i, 3 ] := PadR( lstr( arr_smo[ i, 2 ] ), 5 )

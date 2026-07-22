@@ -1503,7 +1503,7 @@ Function forma_39_povod()
     { "повода обращения", 1 } }
   Local nfile := dir_server() + f39_nastr, ;
     name_sect := f39_sect + "6", ;
-    r, ar, i, j, k, n := Len( stm_povod ), ;
+    r, ar, i, j, k, n := Len( stm_povod() ), ;
     buf := SaveScreen()
 
   ar := getinisect( nFile, name_sect )
@@ -1524,19 +1524,19 @@ Function forma_39_povod()
   r += 3
   For i := 1 To n
     k := 1
-    If ( j := AScan( default_povod_nastr, {| x| x[ 1 ] == stm_povod[ i, 2 ] } ) ) > 0
+    If ( j := AScan( default_povod_nastr, {| x| x[ 1 ] == stm_povod()[ i, 2 ] } ) ) > 0
       k := default_povod_nastr[ j, 2 ]
     Endif
-    j := Int( Val( a2default( ar, "povod_" + lstr( stm_povod[ i, 2 ] ), "0" ) ) )
+    j := Int( Val( a2default( ar, "povod_" + lstr( stm_povod()[ i, 2 ] ), "0" ) ) )
     If Between( j, 1, 2 )
       k := j
     Endif
     //
-    mvar  := "mda" + lstr( stm_povod[ i, 2 ] )
-    m1var := "m1da" + lstr( stm_povod[ i, 2 ] )
+    mvar  := "mda" + lstr( stm_povod()[ i, 2 ] )
+    m1var := "m1da" + lstr( stm_povod()[ i, 2 ] )
     Private &m1var := k
     Private &mvar  := inieditspr( A__MENUVERT, mm_z_p, k )
-    @ r + i, 2 Say stm_povod[ i, 1 ]
+    @ r + i, 2 Say stm_povod()[ i, 1 ]
     @ Row(), 40 get &mvar reader {| x| menu_reader( x, mm_z_p, A__MENUVERT,,, .f. ) }
   Next
   status_key( "^<Esc>^ - выход;  ^<PgDn>^ - подтверждение записи настроек" )
@@ -1544,9 +1544,9 @@ Function forma_39_povod()
   If LastKey() != K_ESC .and. f_esc_enter( "записи настроек" )
     ar := { { "povod", m1povod } }
     For i := 1 To n
-      mvar  := "mda" + lstr( stm_povod[ i, 2 ] )
-      m1var := "m1da" + lstr( stm_povod[ i, 2 ] )
-      AAdd( ar, { "povod_" + lstr( stm_povod[ i, 2 ] ), &m1var } )
+      mvar  := "mda" + lstr( stm_povod()[ i, 2 ] )
+      m1var := "m1da" + lstr( stm_povod()[ i, 2 ] )
+      AAdd( ar, { "povod_" + lstr( stm_povod()[ i, 2 ] ), &m1var } )
     Next
     setinisect( nFile, name_sect, ar )
   Endif

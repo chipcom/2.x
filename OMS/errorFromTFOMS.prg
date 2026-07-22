@@ -4,7 +4,7 @@
 #include 'chip_mo.ch'
 #include 'tbox.ch'
 
-// 05.04.26 Редактирование случая с выбором по конкретной ошибке из ТФОМС
+// 01.07.26 Редактирование случая с выбором по конкретной ошибке из ТФОМС
 Function f3oms_edit()
 
   Static si := 1
@@ -166,10 +166,10 @@ Function f3oms_edit()
           { ;
             'Редактирование листов учёта', ;
             'Создание файла ХОДАТАЙСТВА для отсылки в ТФОМС' ;
-          },,, color5 ) ) > 1
-        Return tfoms_hodatajstvo( arr_m, iRefr, i - 1 )
-      Endif
-      */
+            },,, color5 ) ) > 1
+          Return tfoms_hodatajstvo( arr_m, iRefr, i - 1 )
+        Endif
+        */
       Private mr1 := T_ROW, regim_vyb := 2, p_del_error := ret_arr
       kod_REFREASON_menu := iRefr
       Do While .t.
@@ -239,10 +239,10 @@ Function f3oms_edit()
             mas_pmt := { 'Редактирование ~карточки', 'Редактирование ~услуг' }
           Endif
           If glob_otd[ 3 ] == 4 .or. ;
-              ( glob_otd[ 4 ] > 0 .and. ;
-                glob_otd[ 4 ] != TIP_LU_MED_REAB .and. ;
-                glob_otd[ 4 ] != TIP_LU_H_DIA .and. ;
-                glob_otd[ 4 ] != TIP_LU_P_DIA )
+                ( glob_otd[ 4 ] > 0 .and. ;
+              glob_otd[ 4 ] != TIP_LU_MED_REAB .and. ;
+              glob_otd[ 4 ] != TIP_LU_H_DIA .and. ;
+              glob_otd[ 4 ] != TIP_LU_P_DIA )
             si := 1
             ASize( mas_pmt, 1 )
             Keyboard Chr( K_ENTER )

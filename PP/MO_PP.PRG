@@ -158,8 +158,8 @@ Function pp_nastr_ist_bol()
     Close databases
     Delete file tmp.dbf
     AAdd( mm_tmp, { 'NOVOR', 'N', 1, 0, NIL, ;
-      {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
-      0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
+      {| x| menu_reader( x, mm_danet(), A__MENUVERT ) }, ;
+      0, {| x| inieditspr( A__MENUVERT, mm_danet(), x ) }, ;
       'Вводить новорожденного' } )
     AAdd( mm_tmp, { 'e_01', 'C', 1, 0, NIL, ;
       NIL, ;
@@ -171,20 +171,20 @@ Function pp_nastr_ist_bol()
       '', {| x| ini_ed_mo( x ) }, ;
       '==>' } )
     AAdd( mm_tmp, { 'POB_D_LEK', 'N', 1, 0, NIL, ;
-      {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
-      0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
+      {| x| menu_reader( x, mm_danet(), A__MENUVERT ) }, ;
+      0, {| x| inieditspr( A__MENUVERT, mm_danet(), x ) }, ;
       'Вводить побочное действие лекарств' } )
     AAdd( mm_tmp, { 'KOD_VR', 'N', 1, 0, NIL, ;
-      {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
-      0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
+      {| x| menu_reader( x, mm_danet(), A__MENUVERT ) }, ;
+      0, {| x| inieditspr( A__MENUVERT, mm_danet(), x ) }, ;
       'Вводить табельный номер врача приёмного отделения' } )
     AAdd( mm_tmp, { 'TRAVMA', 'N', 1, 0, NIL, ;
-      {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
-      0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
+      {| x| menu_reader( x, mm_danet(), A__MENUVERT ) }, ;
+      0, {| x| inieditspr( A__MENUVERT, mm_danet(), x ) }, ;
       'Вводить вид травмы' } )
     AAdd( mm_tmp, { 'NE_ZAK', 'N', 1, 0, NIL, ;
-      {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
-      0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
+      {| x| menu_reader( x, mm_danet(), A__MENUVERT ) }, ;
+      0, {| x| inieditspr( A__MENUVERT, mm_danet(), x ) }, ;
       'Запрещать ввод, если не закончено лечение по предыдущему случаю' } )
     init_base( cur_dir() + 'tmp',, mm_tmp, 0 )
     Use ( cur_dir() + 'tmp' ) new
@@ -276,7 +276,7 @@ Function pp_nastr_rab_mesto()
   rest_box( buf )
   Return Nil
 
-//
+// 09.07.26
 Function f_pp_stol()
 
   Local blk, arr[ US_LEN ]
@@ -289,14 +289,14 @@ Function f_pp_stol()
   arr[ US_BASE     ] := dir_server() + 'mo_ppst'
   arr[ US_ARR_BROWSE ] := { '═', '░', '═', 'N/BG,W+/N,B/BG,W+/B', .t. }
   arr[ US_COLUMN   ] := { { ' Стол', {|| name }, blk }, ;
-    { ' Тип', {|| inieditspr( A__MENUVERT, menu_stdnst, tip ) }, blk } }
+    { ' Тип', {|| inieditspr( A__MENUVERT, menu_stdnst(), tip ) }, blk } }
   arr[ US_BLK_DEL  ] := {| _k| fdel_pp_stol( _k ) }
   arr[ US_IM_PADEG ] := arr[ US_SEMAPHORE ] := 'столы'
   arr[ US_ROD_PADEG ] := 'столов'
   arr[ US_EDIT_SPR ] := { { 'name', 'C', 10, 0,,, Space( 10 ),, 'Стол' }, ;
     { 'tip', 'N', 1, 0,, ;
-    {| x| menu_reader( x, menu_stdnst, A__MENUVERT,,, .f. ) }, ;
-    1, {| x| inieditspr( A__MENUVERT, menu_stdnst, x ) }, ;
+    {| x| menu_reader( x, menu_stdnst(), A__MENUVERT,,, .f. ) }, ;
+    1, {| x| inieditspr( A__MENUVERT, menu_stdnst(), x ) }, ;
     'Тип' };
     }
   edit_u_spr( 1, arr )
@@ -597,7 +597,7 @@ Function del_ppokoj()
   view_human_pp( 2 )
   Return Nil
 
-// 27.01.26
+// 09.07.26
 Function f_kart_pp( Loc_kod, kod_kartotek )
 
   Static mm_gospit := { { 'да ', 0 }, { 'нет', 1 } }
@@ -822,12 +822,12 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
   Endif
   Close databases
   Private gl_arr := { ;  // для битовых полей
-  { 'vid_opl', 'N', 3, 0,,,, {| x| inieditspr( A__MENUBIT, menu_vid_opl, x ) } }, ;
+  { 'vid_opl', 'N', 3, 0,,,, {| x| inieditspr( A__MENUBIT, menu_vid_opl(), x ) } }, ;
     { 'pprab_nerab', 'N', 10, 0,,,, {| x| inieditspr( A__MENUBIT, mmpp_rab(), x ) } };
     }
   much := inieditspr( A__POPUPMENU, dir_server() + 'mo_uch', m1uch )
   motd := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', m1otd )
-  MNOVOR := inieditspr( A__MENUVERT, mm_danet, M1NOVOR )
+  MNOVOR := inieditspr( A__MENUVERT, mm_danet(), M1NOVOR )
   If !Empty( M1KEM_NAPR )
     mKEM_NAPR := ret_mo( M1KEM_NAPR )[ _MO_SHORT_NAME ]
   Endif
@@ -835,30 +835,29 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
     m1pr_gospit := 0
   Endif
   Private OLD_IS_GOSPIT := M1IS_GOSPIT
-  mvid_opl   := inieditspr( A__MENUBIT, menu_vid_opl, m1vid_opl )
+  mvid_opl   := inieditspr( A__MENUBIT, menu_vid_opl(), m1vid_opl )
   mpprab_nerab := inieditspr( A__MENUBIT, mmpp_rab(), m1pprab_nerab )
-  mreg_lech  := inieditspr( A__MENUVERT, mmpp_regim, m1reg_lech )
+  mreg_lech  := inieditspr( A__MENUVERT, mmpp_regim(), m1reg_lech )
   mkategor   := inieditspr( A__MENUVERT, mmpp_kategor(), m1kategor )
   If glob_mo[ _MO_KOD_TFOMS ] == '711001' // РЖД
-    MKEM_DOST  := inieditspr( A__MENUVERT, mmpp_kem1dost, M1KEM_DOST )
+    MKEM_DOST  := inieditspr( A__MENUVERT, mmpp_kem1dost(), M1KEM_DOST )
   Else
-    MKEM_DOST  := inieditspr( A__MENUVERT, mmpp_kem_dost, M1KEM_DOST )
+    MKEM_DOST  := inieditspr( A__MENUVERT, mmpp_kem_dost(), M1KEM_DOST )
   Endif
   mis_gospit := inieditspr( A__MENUVERT, mm_gospit, m1is_gospit )
-  mpr_gospit := inieditspr( A__MENUVERT, mmpp_pr_gospit, m1pr_gospit )
-  msost_op   := inieditspr( A__MENUVERT, menu_sost_op, m1sost_op )
-  mgospit0   := inieditspr( A__MENUVERT, menu0gospit, m1gospit0 )
+  mpr_gospit := inieditspr( A__MENUVERT, mmpp_pr_gospit(), m1pr_gospit )
+  msost_op   := inieditspr( A__MENUVERT, menu_sost_op(), m1sost_op )
+  mgospit0   := inieditspr( A__MENUVERT, menu0gospit(), m1gospit0 )
   mgospit1   := inieditspr( A__MENUVERT, mm_ekst(), m1gospit1 )
-  mgospit2   := inieditspr( A__MENUVERT, menu2gospit, m1gospit2 )
-  mishod1    := inieditspr( A__MENUVERT, mmpp1ishod, m1ishod1 )
-  mishod2    := inieditspr( A__MENUVERT, mmpp2ishod, m1ishod2 )
-  mtravma    := inieditspr( A__MENUVERT, mmpp_travma, m1travma )
+  mgospit2   := inieditspr( A__MENUVERT, menu2gospit(), m1gospit2 )
+  mishod1    := inieditspr( A__MENUVERT, mmpp1ishod(), m1ishod1 )
+  mishod2    := inieditspr( A__MENUVERT, mmpp2ishod(), m1ishod2 )
+  mtravma    := inieditspr( A__MENUVERT, mmpp_travma(), m1travma )
   mbolnich   := inieditspr( A__MENUVERT, menu_bolnich, m1bolnich )
   mstol      := inieditspr( A__POPUPMENU, dir_server() + 'mo_ppst', m1stol )
   If !eq_any( m1komu, 0, 1, 3, 5 ) ; m1komu := 0 ; Endif
   mkomu      := inieditspr( A__MENUVERT, mm_komu(), m1komu )
   mismo      := init_ismo( m1ismo )
-//  Private old_name_smo := PadR( inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( msmo ) ) ), 38 )
   Private old_name_smo := PadR( inieditspr( A__MENUVERT, smo_volgograd(), Int( Val( msmo ) ) ), 38 )
   f_valid_komu(, -1 )
   If m1komu == 0
@@ -896,14 +895,14 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
     ++j
     If pp_NOVOR == 1
       @ j, 1 Say 'Новорожденный?' Get mnovor ;
-        reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) } ;
+        reader {| x| menu_reader( x, mm_danet(), A__MENUVERT,,, .f. ) } ;
         valid {| g, o| f_valid_novor( g, o ) }
       @ j, Col() + 3 Say '№/пп ребёнка' Get mcount_reb Pict '99' Range 1, 99 ;
         when ( m1novor == 1 )
       @ j, Col() + 3 Say 'Д.р. ребёнка' Get mdate_r2 when ( m1novor == 1 )
       If mem_pol == 1
         @ j, Col() + 3 Say 'Пол ребёнка' Get mpol2 ;
-          reader {| x| menu_reader( x, menupol, A__MENUVERT,,, .f. ) } ;
+          reader {| x| menu_reader( x, menupol(), A__MENUVERT,,, .f. ) } ;
           when ( m1novor == 1 )
       Else
         @ j, Col() + 3 Say 'Пол ребёнка' Get mpol2 Pict '@!' ;
@@ -913,7 +912,7 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
     Endif
     //
     ++j ; @ j, 1 Say 'Режим лечения' Get mreg_lech ;
-      reader {| x| menu_reader( x, mmpp_regim, A__MENUVERT,,, .f. ) }
+      reader {| x| menu_reader( x, mmpp_regim(), A__MENUVERT,,, .f. ) }
     //
     ++j ; @ j, 1 Say '№ истории болезни' Get much_doc Picture '@!'
     If pp_kod_vr == 1
@@ -925,7 +924,7 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
       reader {| x| menu_reader( x, mmpp_kategor(), A__MENUVERT,,, .f. ) }
     //
     ++j ; @ j, 1 Say 'Вид оплаты' Get mvid_opl ;
-      reader {| x| menu_reader( x, menu_vid_opl, A__MENUBIT,,, .f. ) }
+      reader {| x| menu_reader( x, menu_vid_opl(), A__MENUBIT,,, .f. ) }
     @ j, 40 Say 'Статус' Get mpprab_nerab ;
       reader {| x| menu_reader( x, mmpp_rab(), A__MENUBIT,,, .f. ) }
     //
@@ -940,10 +939,10 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
     //
     If glob_mo[ _MO_KOD_TFOMS ] == '711001' // РЖД
       ++j ; @ j, 1 Say 'Кем направлен' Get mkem_dost ;
-        reader {| x| menu_reader( x, mmpp_kem1dost, A__MENUVERT,,, .f. ) }
+        reader {| x| menu_reader( x, mmpp_kem1dost(), A__MENUVERT,,, .f. ) }
     Else
       ++j ; @ j, 1 Say 'Кем доставлен' Get mkem_dost ;
-        reader {| x| menu_reader( x, mmpp_kem_dost, A__MENUVERT,,, .f. ) }
+        reader {| x| menu_reader( x, mmpp_kem_dost(), A__MENUVERT,,, .f. ) }
     Endif
     ++j ; @ j, 1 Say 'Направившая МО' Get mkem_napr ;
       reader {| x| menu_reader( x, { {| k, r, c| f_get_mo( k, r, c ) } }, A__FUNCTION,,, .f. ) }
@@ -954,14 +953,14 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
       @ j, 1 Say 'Побочное дейст.лекарств:' Get MPOB_D_LEK Pict '@S52'
     Endif
     ++j ; @ j, 1 Say 'Доставлен в сост.опьянения' Get MSOST_OP ;
-      reader {| x| menu_reader( x, menu_sost_op, A__MENUVERT,,, .f. ) }
+      reader {| x| menu_reader( x, menu_sost_op(), A__MENUVERT,,, .f. ) }
     @ j, Col() Say ',' Get MGOSPIT2 ;
-      reader {| x| menu_reader( x, menu2gospit, A__MENUVERT,,, .f. ) }
+      reader {| x| menu_reader( x, menu2gospit(), A__MENUVERT,,, .f. ) }
     @ j, Col() + 1 Say 'от нач.заболевания'
     ++j
     If pp_TRAVMA == 1
       @ j, 1 Say 'Вид травмы' Get mtravma ;
-        reader {| x| menu_reader( x, mmpp_travma, A__MENUVERT,,, .f. ) }
+        reader {| x| menu_reader( x, mmpp_travma(), A__MENUVERT,,, .f. ) }
     Endif
     ++j ; @ j, 1 Say 'ЛПУ' Get much ;
       reader {| x| menu_reader( x, { {| k, r, c| ret_uch_otd( k, r, c ) } }, A__FUNCTION,,, .f. ) }
@@ -972,10 +971,10 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
       reader {| x| menu_reader( x, mm_gospit, A__MENUVERT,,, .f. ) } ;
       valid {| g, o| pp_valid_gospit( g, o ) }
     @ j, Col() + 3 Say '?' Get mpr_gospit ;
-      reader {| x| menu_reader( x, mmpp_pr_gospit, A__MENUVERT,,, .f. ) } ;
+      reader {| x| menu_reader( x, mmpp_pr_gospit(), A__MENUVERT,,, .f. ) } ;
       When m1is_gospit == 1
     ++j ; @ j, 1 Say 'Госпит. по поводу дан.забол. в тек.году' Get mgospit0 ;
-      reader {| x| menu_reader( x, menu0gospit, A__MENUVERT,,, .f. ) } ;
+      reader {| x| menu_reader( x, menu0gospit(), A__MENUVERT,,, .f. ) } ;
       When m1is_gospit == 0
     @ j, Col() Say ',' Get mgospit1 ;
       reader {| x| menu_reader( x, mm_ekst(), A__MENUVERT,,, .f. ) } ;
@@ -993,9 +992,9 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
       @ j, Col() Say ', время' Color color8  Get mk_time Pict pict_time ;
         When !Empty( mk_data )
       ++j ; @ j, 1 Say 'Исход' Color color8  Get mishod1 ;
-        reader {| x| menu_reader( x, mmpp1ishod, A__MENUVERT,,, .f. ) }
+        reader {| x| menu_reader( x, mmpp1ishod(), A__MENUVERT,,, .f. ) }
       @ j, 40 Say 'Результат' Color color8  Get mishod2 ;
-        reader {| x| menu_reader( x, mmpp2ishod, A__MENUVERT,,, .f. ) }
+        reader {| x| menu_reader( x, mmpp2ishod(), A__MENUVERT,,, .f. ) }
       //
       ++j; @ j, 1 Say 'Больничный' Color color8  Get mbolnich ;
         reader {| x| menu_reader( x, menu_bolnich, A__MENUVERT,,, .f. ) } ;
@@ -1005,7 +1004,7 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
       @ j, Col() + 1 Say 'Д.р.родителя' Color color8  Get mrodit_dr When m1bolnich == 2
       If mem_pol == 1
         @ j, Col() + 1 Say 'Пол' Color color8  Get mrodit_pol ;
-          reader {| x| menu_reader( x, menupol, A__MENUVERT,,, .f. ) } ;
+          reader {| x| menu_reader( x, menupol(), A__MENUVERT,,, .f. ) } ;
           When m1bolnich == 2
       Else
         @ j, Col() + 1 Say 'Пол' Color color8  Get mrodit_pol Pict '@!' ;
@@ -1630,7 +1629,7 @@ Function pp_val_k_data( get )
   Endif
   Return .t.
 
-// 27.01.26
+// 09.07.26
 Function pp_valid_gospit( get, old )
 
   If m1is_gospit != old .and. old != NIL
@@ -1643,7 +1642,7 @@ Function pp_valid_gospit( get, old )
         update_gets( 'mg_time' )
       Endif
     Else
-      m1gospit0 := 0 ; mgospit0 := PadR( '', Len( menu0gospit[ 1, 1 ] ) )
+      m1gospit0 := 0 ; mgospit0 := PadR( '', Len( menu0gospit()[ 1, 1 ] ) )
       m1gospit1 := 0 ; mgospit1 := PadR( '', Len( mm_ekst()[ 1, 1 ] ) )
       m1stol    := 0 ; mstol := Space( 10 )
       mg_data := CToD( '' )
@@ -2111,7 +2110,7 @@ Function f4_v_human_pp()
   Select ( tmp_select )
   Return Nil
 
-// 27.01.26
+// 09.07.26
 Function f2_v_human_pp( nkey, oBrow )
 
   // наименования файлов шаблонов
@@ -2366,7 +2365,6 @@ Function f2_v_human_pp( nkey, oBrow )
       Endif
       frd->smo := '(' + AllTrim( kart_->KVARTAL_D ) + ') ' + s
     Elseif Left( kart_->SMO, 2 ) == '34'
-//      frd->smo := AllTrim( inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( kart_->smo ) ) ) )
       frd->smo := AllTrim( inieditspr( A__MENUVERT, smo_volgograd(), Int( Val( kart_->smo ) ) ) )
     Elseif !Empty( kart_->SMO )
       frd->smo := '(' + AllTrim( kart_->KVARTAL_D ) + ') ' + init_ismo( kart_->SMO )
@@ -2409,7 +2407,6 @@ Function f2_v_human_pp( nkey, oBrow )
       m1company := m1str_crb
     Endif
     If m1komu == 0 // ОМС
-//      mm_company := AClone( glob_arr_smo )
       mm_company := AClone( smo_volgograd() )
     Elseif m1komu == 1 // Прочие компании
       r_use( dir_server() + 'str_komp' )
@@ -2446,10 +2443,10 @@ Function f2_v_human_pp( nkey, oBrow )
     frd->g_data := hu->g_data
     frd->g_time := hu->g_time
     If !Empty( hu->travma )
-      frd->travma := inieditspr( A__MENUVERT, mmpp_travma, hu->travma )
+      frd->travma := inieditspr( A__MENUVERT, mmpp_travma(), hu->travma )
     Endif
-    frd->vid_opl    := inieditspr( 2, menu_vid_opl, hu->vid_opl )
-    frd->vid_opl1    := inieditspr( 2, menu_vid_opl, hu->vid_opl )
+    frd->vid_opl    := inieditspr( 2, menu_vid_opl(), hu->vid_opl )
+    frd->vid_opl1    := inieditspr( 2, menu_vid_opl(), hu->vid_opl )
     If hu->vid_opl == 1
       frd->vid_opl1 := 'обязательного'
       ss := sb1 + 'обязательное   медицинское   страхование - 1' + sb2 + ' ,   средства    бюджета  (всех    уровней) - 2, '
@@ -2472,11 +2469,11 @@ Function f2_v_human_pp( nkey, oBrow )
     frd->pp_status  := inieditspr( 2, mmpp_rab(),     hu->rab_nerab )
     frd->pp_kategor := inieditspr( 1, mmpp_kategor(), hu->kategor )
     If glob_mo[ _MO_KOD_TFOMS ] == '711001' // РЖД
-      frd->kem_dost   := inieditspr( 1, mmpp_kem1dost, hu->kem_dost )
+      frd->kem_dost   := inieditspr( 1, mmpp_kem1dost(), hu->kem_dost )
     Else
-      frd->kem_dost   := inieditspr( 1, mmpp_kem_dost, hu->kem_dost )
+      frd->kem_dost   := inieditspr( 1, mmpp_kem_dost(), hu->kem_dost )
     Endif
-    frd->sost_op    := inieditspr( 1, menu_sost_op, hu->sost_op )
+    frd->sost_op    := inieditspr( 1, menu_sost_op(), hu->sost_op )
     frd->reg_lech := hu->reg_lech
     s1 := 'Поступил в '
     Do Case
@@ -2514,7 +2511,7 @@ Function f2_v_human_pp( nkey, oBrow )
       s1 +=  ' стационар <b> (дневной стационар) </b> '
     Endcase
     //
-    frd->gospit0   := inieditspr( A__MENUVERT, menu0gospit, hu->gospit0 )
+    frd->gospit0   := inieditspr( A__MENUVERT, menu0gospit(), hu->gospit0 )
     If hu->IS_GOSPIT == 1 // не госпитализирован 02.05.18
       frd->gospit0 := ''
     Endif
@@ -2522,14 +2519,14 @@ Function f2_v_human_pp( nkey, oBrow )
     // <b> поликлиникой  - 1 </b>, выездной бригадой   скорой   медицинской   помощи  -  2,  полицией  -  3,  обратился самостоятельно - 4, другое - 5 (указать) ____________________________________________
     s1 := s1 + ' для оказания медицинской  помощи в текущем году: по поводу  основного   заболевания, указанного в диагнозе при поступлении:'
     frd->regim_l3u := s1 + ' <b> ' + AllTrim( frd->gospit0 ) + ' </b> '
-    frd->regim_l2u := s + ' <b> ' + inieditspr( 1, mmpp_kem1dost, hu->kem_dost ) + '</b> '
+    frd->regim_l2u := s + ' <b> ' + inieditspr( 1, mmpp_kem1dost(), hu->kem_dost ) + '</b> '
     // не госпитализирован и оказана амбулаторная помощь в приёмном покое
     If hu->IS_GOSPIT == 1 .and. hu->PR_GOSPIT == 99
       frd->regim_lu := 'АМБУЛАТОРНОГО БОЛЬНОГО'
     Endif
-    frd->vidpolis := ' (' + AllTrim( inieditspr( A__MENUVERT, mm_vid_polis, kart_->vpolis ) ) + ')'
+    frd->vidpolis := ' (' + AllTrim( inieditspr( A__MENUVERT, mm_vid_polis(), kart_->vpolis ) ) + ')'
     frd->mesto_rog := AllTrim( kart_->mesto_r )
-    frd->gorod_selo := inieditspr( A__MENUVERT, mm_gorod_selo, kart_->gorod_selo )
+    frd->gorod_selo := inieditspr( A__MENUVERT, mm_gorod_selo(), kart_->gorod_selo )
     frd->fio := Upper( kart->fio )
     frd->fio1 := fam_i_o( kart->fio )
     frd->polis := make_polis( kart_->spolis, kart_->npolis )
@@ -2582,7 +2579,7 @@ Function f2_v_human_pp( nkey, oBrow )
     Endif
     frd->phone := s
     frd->rab_nerab := Upper( inieditspr( A__MENUVERT, menu_rab(), kart->rab_nerab ) )
-    frd->vzros_reb := Upper( inieditspr( A__MENUVERT, menu_vzros, kart->vzros_reb ) )
+    frd->vzros_reb := Upper( inieditspr( A__MENUVERT, menu_vzros(), kart->vzros_reb ) )
     frd->mi_git    := okato_mi_git( kart_->okatog )
     frd->rajon_git := okato_rajon( kart_->okatog )
     frd->pr_date   := kart2->date_pr
@@ -2619,14 +2616,14 @@ Function f2_v_human_pp( nkey, oBrow )
       frd->novor := '(Новорожденный: ' + lstr( hu->NOVOR ) + '-й ребёнок, д.р. ' + ;
         date_8( hu->DATE_R2 ) + ', пол ' + hu->POL2 + ')'
     Endif
-    frd->gospit0   := inieditspr( A__MENUVERT, menu0gospit, hu->gospit0 )
+    frd->gospit0   := inieditspr( A__MENUVERT, menu0gospit(), hu->gospit0 )
     frd->gospit1   := inieditspr( A__MENUVERT, mm_ekst(), hu->GOSPIT1 )
     If hu->IS_GOSPIT == 1 // не госпитализирован 02.05.18
       frd->gospit0 := ''
       frd->gospit1 := 'НЕТ'
     Endif
     //
-    frd->gospit2   := inieditspr( A__MENUVERT, menu2gospit, hu->gospit2 )
+    frd->gospit2   := inieditspr( A__MENUVERT, menu2gospit(), hu->gospit2 )
     frd->name_uch := inieditspr( 6, dir_server() + 'mo_uch', hu->LPU )
     frd->name_otd := inieditspr( 6, dir_server() + 'mo_otd', hu->OTD )
     // 02.05.18
@@ -2721,7 +2718,6 @@ Function f2_v_human_pp( nkey, oBrow )
         frd->mest_inog := 'Регион финансирования: ' + inieditspr( A__MENUVERT, glob_array_srf(), kart_->KVARTAL_D ) // ОКАТО субъекта РФ территории страхования
         frd->mestnost := s4 + ', область 3,' + sb1 + ' иногородние -4,' + sb2 + 'иностранцы -5'
       Elseif Left( kart_->SMO, 2 ) == '34'
-//        mkomu += AllTrim( inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( kart_->smo ) ) ) )
         mkomu += AllTrim( inieditspr( A__MENUVERT, smo_volgograd(), Int( Val( kart_->smo ) ) ) )
         // frd->mest_inog := 'Регион финансирования: '+'Волгоградская область'
         frd->mestnost := s4 + ', область 3, иногородние -4, иностранцы -5'

@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 04.05.26 ПН - добавление или редактирование случая (листа учета)
+// 30.06.26 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -638,10 +638,10 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   is_talon := .t.
   fv_date_r( iif( Loc_kod > 0, mn_data, ) )
   MFIO_KART := _f_fio_kart()
-  mvzros_reb := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
+  mvzros_reb := inieditspr( A__MENUVERT, menu_vzros(), m1vzros_reb )
   mlpu      := inieditspr( A__POPUPMENU, dir_DB + 'mo_uch', m1lpu )
   motd      := inieditspr( A__POPUPMENU, dir_DB + 'mo_otd', m1otd )
-  mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
+  mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis(), m1vidpolis )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
   mkomu     := inieditspr( A__MENUVERT, mm_komu(), m1komu )
   mismo     := init_ismo( m1ismo )
@@ -813,20 +813,30 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       @ ++j, 1 Say 'Полис ОМС: серия' Get mspolis When m1komu == 0
       @ Row(), Col() + 3 Say 'номер'  Get mnpolis When m1komu == 0
       @ Row(), Col() + 3 Say 'вид'    Get mvidpolis ;
-        reader {| x| menu_reader( x, mm_vid_polis, A__MENUVERT, , , .f. ) } ;
+        reader {| x| menu_reader( x, mm_vid_polis(), A__MENUVERT, , , .f. ) } ;
         When m1komu == 0 ;
         Valid func_valid_polis( m1vidpolis, mspolis, mnpolis )
       @ ++j, 1 To j, 78
       @ ++j, 1 Say 'Категория учета ребенка' Get mkateg_uch ;
         reader {| x| menu_reader( x, mm_kateg_uch(), A__MENUVERT, , , .f. ) }
       ++j
+/*
       @ ++j, 1 Say 'Сроки профилактики' Get mn_data ;
         valid {| g| f_k_data( g, 1 ), ;
         iif( mvozrast < 18, nil, func_error( 4, 'Это взрослый пациент!' ) ), ;
         msvozrast := PadR( count_ymd( mdate_r, mn_data ), 40 ), ;
         .t. ;
         }
-      @ Row(), Col() + 1 Say '-' Get mk_data valid {| g| f_k_data( g, 2 ) }
+      @ Row(), Col() + 1 Say '-' Get mk_data valid {| g| f_k_data( g, 2 ) } 
+*/
+      @ ++j, 1 Say 'Сроки профилактики' Get mn_data ;
+        valid {| g| control_date_disp( g, 1, TIP_LU_PN, kod_kartotek ), ;
+        iif( mvozrast < 18, nil, func_error( 4, 'Это взрослый пациент!' ) ), ;
+        msvozrast := PadR( count_ymd( mdate_r, mn_data ), 40 ), ;
+        .t. ;
+        }
+      @ Row(), Col() + 1 Say '-' Get mk_data valid {| g| control_date_disp( g, 2, TIP_LU_PN, kod_kartotek, mperiod ) } 
+
       @ Row(), Col() + 3 Get msvozrast When .f. Color color14
       @ ++j, 1 Say '№ амбулаторной карты' Get much_doc Picture '@!' ;
         When !( is_uchastok == 1 .and. is_task( X_REGIST ) ) ;
@@ -2056,6 +2066,9 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         hu->otd     := m1otd
         hu->kol := hu->kol_1 := 1
         hu->stoim := hu->stoim_1 := arr_usl_dop[ i, 8 ]
+        if arr_usl_dop[ i, 9 ] < MN_DATA
+          hu->USL_REPL := 1 // будет замена услуги на нулевую
+        endif
         Select HU_
         Do While hu_->( LastRec() ) < mrec_hu
           Append Blank

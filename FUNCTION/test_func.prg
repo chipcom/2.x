@@ -7,11 +7,11 @@ function test_init()
 
 //  local aaa
 
-//  aaa := get_plans_KZVO( 2026, '340169' ) // Фроловская ЦРБ
+//  aaa := glob_MGI()
 //  altd()
 
   return nil
-
+/*
 // 12.07.24
 function convert_P_CEL()
 
@@ -40,3 +40,4 @@ function convert_P_CEL()
   endif
 
   return hPCEL
+*/

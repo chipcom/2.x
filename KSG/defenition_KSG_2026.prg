@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 01.06.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
+// 10.06.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
 Function defenition_ksg( par, k_data2, lDoubleSluch )
 
   // файлы 'human', 'human_' и 'human_2' открыты и стоят на нужной записи
@@ -196,7 +196,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
     Elseif ( AScan( arr_VMP(), lvidvmp ) == 0 .and. Year( lk_data ) < 2021 )
       AAdd( arerr, ' для метода ВМП ' + lstr( lvidvmp ) + ' нет услуги ТФОМС' )
     Else
-      lksg := getserviceforvmp( lvidvmp, lk_data, human_2->VIDVMP, human_2->METVMP, human_2->PN5, full_diagnoz_human( human->KOD_DIAG, human->DIAG_PLUS ) )
+      lksg := getserviceforvmp( lvidvmp, lk_data, human_2->VIDVMP, human_2->METVMP, human_2->PN5, full_main_diagnoz_human( human->KOD_DIAG, human->DIAG_PLUS ) )
       AAdd( ars, ' для ' + lstr( lvidvmp ) + ' метода ВМП введена услуга ' + lksg )
       lcena := ret_cena_ksg( lksg, lvr, date_usl )
       If lcena > 0
@@ -233,7 +233,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
         ldnej += hu->kol_1
       Endif
       Select HU
-      hu->( dbSkip() )  //  Skip
+      hu->( dbSkip() )
     Enddo
     If Select( 'MOSU' ) == 0
       r_use( dir_server() + 'mo_su', , 'MOSU' )
@@ -253,7 +253,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
         lpar_org += Len( list2arr( mohu->zf ) )
       Endif
       Select MOHU
-      mohu->( dbSkip() )  //  Skip
+      mohu->( dbSkip() )
     Enddo
   Else
     Select IHU
@@ -538,7 +538,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
         Endif
 //      endif
       Select K006
-      k006->( dbSkip() )  //  Skip
+      k006->( dbSkip() )
     Enddo
   Endif
 
@@ -575,7 +575,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
       _a1 := {}
       Select K006
       Set Order To 2
-      k006->( dbSeek( typeKSG + lshifr ) )      //  find ( typeKSG + PadR( lshifr, 20 ) )
+      k006->( dbSeek( typeKSG + lshifr ) )
 //      Do While Left( k006->shifr, 2 ) == typeKSG .and. k006->sy == PadR( lshifr, 20 ) .and. ! k006->( Eof() )
       Do While Left( k006->shifr, 2 ) == typeKSG .and. AllTrim( k006->sy ) == lshifr .and. ! k006->( Eof() )
         lkoef := k006->kz
@@ -652,7 +652,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
           endif
         Endif
         Select K006
-        k006->( dbSkip() )  //  Skip
+        k006->( dbSkip() )
       Enddo
       If Len( _a1 ) > 1 // если по данной услуге более одной КСГ, сортируем по убыванию критериев
         If __mvExist( 'mshifr' ) .and. ! HB_ISNIL( mshifr )
@@ -755,69 +755,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
     Endif
 */
   Endif
-/*
-  If kol_ter > 0 .and. kol_hir > 0
-    aTerKSG[ 1, 1 ] := AllTrim( aTerKSG[ 1, 1 ] )
-    aHirKSG[ 1, 1 ] := AllTrim( aHirKSG[ 1, 1 ] )
-    If !Empty( aTerKSG[ 1, 6 ] ) // т.е. диагноз + услуга
-      lksg  := aTerKSG[ 1, 1 ]
-      lcena := aTerKSG[ 1, 2 ]
-      lkiro := list2arr( aTerKSG[ 1, 4 ] )
-      lkslp := aTerKSG[ 1, 14 ]
-      if lk_data >= 0d20260101
-        ltype_ksg := aTerKSG[ 1, 16 ]
-      endif
-      AAdd( ars, ' выбираем КСГ=' + lksg + ' (осн.диагноз+услуга ' + RTrim( aTerKSG[ 1, 6 ] ) + ')' )
-    Elseif AScan( a_iskl_1, {| x| x[ 1 ] == aHirKSG[ 1, 1 ] .and. ( Empty( x[ 2 ] ) .or. x[ 2 ] == aTerKSG[ 1, 1 ] ) } ) > 0 // исключение из правил №1
-      lksg  := aHirKSG[ 1, 1 ]
-      lcena := aHirKSG[ 1, 2 ]
-      lkiro := list2arr( aHirKSG[ 1, 4 ] )
-      lkslp := aHirKSG[ 1, 14 ]
-      if lk_data >= 0d20260101
-        ltype_ksg := aHirKSG[ 1, 16 ]
-      endif
-      AAdd( ars, ' в соответствии с ИНСТРУКЦИЕЙ по КСГ выбираем ' + aHirKSG[ 1, 1 ] + ' вместо ' + aTerKSG[ 1, 1 ] )
-    Else
-      If aTerKSG[ 1, 3 ] > aHirKSG[ 1, 3 ] // 'если хирур.КЗ меньше терапевтического КЗ'
-        lksg  := aTerKSG[ 1, 1 ]
-        lcena := aTerKSG[ 1, 2 ]
-        lkiro := list2arr( aTerKSG[ 1, 4 ] )
-        lkslp := aTerKSG[ 1, 14 ]
-        if lk_data >= 0d20260101
-          ltype_ksg := aTerKSG[ 1, 16 ]
-        endif
-        AAdd( ars, ' выбираем КСГ =' + aTerKSG[ 1, 1 ] + ' с БОЛЬШИМ коэффициентом затратоёмкости ' + lstr( aTerKSG[ 1, 3 ] ) )
-      Else
-        lksg  := aHirKSG[ 1, 1 ]
-        lcena := aHirKSG[ 1, 2 ]
-        lkiro := list2arr( aHirKSG[ 1, 4 ] )
-        lkslp := aHirKSG[ 1, 14 ]
-        AAdd( ars, ' оставляем КСГ=' + aHirKSG[ 1, 1 ] + ' с коэффициентом затратоёмкости ' + lstr( aHirKSG[ 1, 3 ] ) )
-        if lk_data >= 0d20260101
-          ltype_ksg := aHirKSG[ 1, 16 ]
-        endif
-      Endif
-    Endif
-  Elseif kol_ter > 0
-    aTerKSG[ 1, 1 ] := AllTrim( aTerKSG[ 1, 1 ] )
-    lksg  := aTerKSG[ 1, 1 ]
-    lcena := aTerKSG[ 1, 2 ]
-    lkiro := list2arr( aTerKSG[ 1, 4 ] )
-    lkslp := aTerKSG[ 1, 14 ]
-    if lk_data >= 0d20260101
-      ltype_ksg := aTerKSG[ 1, 16 ]
-    endif
-  Elseif kol_hir > 0
-    aHirKSG[ 1, 1 ] := AllTrim( aHirKSG[ 1, 1 ] )
-    lksg  := aHirKSG[ 1, 1 ]
-    lcena := aHirKSG[ 1, 2 ]
-    lkiro := list2arr( aHirKSG[ 1, 4 ] )
-    lkslp := aHirKSG[ 1, 14 ]
-    if lk_data >= 0d20260101
-      ltype_ksg := aHirKSG[ 1, 16 ]
-    endif
-  Endif
-*/
+
   if Len( ar_ksg ) == 0
     AAdd( arerr, ' РЕЗУЛЬТАТ: не получилось выбрать КСГ' + iif( fl_reabil, ' для случая медицинской реабилитации', '' ) )
     Return { ars, arerr, AllTrim( lksg ), lcena, akslp, akiro, s_dializ }
@@ -948,4 +886,3 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
 
   Return { ars, arerr, AllTrim( lksg ), lcena, akslp, akiro, s_dializ }
         //  1     2        3              4      5      6        7
-

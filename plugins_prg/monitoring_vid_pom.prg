@@ -3,13 +3,14 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 11.09.25 Мониторинг по видам медицинской помощи для Комитета здравоохранения ВО
+// 16.07.26 Мониторинг по видам медицинской помощи для Комитета здравоохранения ВО
 Function monitoring_vid_pom()
   
   Static mm_schet := { { 'все случаи', 1 }, { 'в выставленных счетах', 2 }, { 'в зарегистрированных счетах', 3 } }
   Local mm_tmp := {}, buf := SaveScreen(), tmp_color := SetColor( cDataCGet ), ;
     tmp_help := help_code, name_file := 'mon_kz.txt', ;
-    sh := 80, HH := 60, i, k, tmp_file := 'tmp_mon' + sdbf(), r1, r2
+    sh := 80, HH := 60, i, k, r1, r2
+  local tmp_file := 'tmp_mon' //   + sdbf()
 
   Private pdate_lech
 
@@ -31,14 +32,14 @@ Function monitoring_vid_pom()
     'По какую дату (включительно) зарегистрирован счёт', ;
     {|| f_valid_mon() }, {|| m1schet == 3 } } )
   AAdd( mm_tmp, { 'rak', 'N', 1, 0, NIL, ;
-    {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
-    0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
+    {| x| menu_reader( x, mm_danet(), A__MENUVERT ) }, ;
+    0, {| x| inieditspr( A__MENUVERT, mm_danet(), x ) }, ;
     'Учитывать случаи, полностью снятые по актам контроля', ;
     {|| f_valid_mon() } } )
   AAdd( mm_tmp, { 'date_rak', 'D', 8, 0,,, CToD( '' ),, ;
     'По какую дату (включительно) проверять акты контроля',, ;
     {|| m1rak == 0 } } )
-  Delete File ( tmp_file )
+  Delete File ( tmp_file + sdbf() )
   init_base( tmp_file,, mm_tmp, 0 )
   r1 := 16 ; r2 := 22
   fillscrarea( r1 - 1, 0, r1 - 1, 79, '░', color1 )
@@ -53,10 +54,10 @@ Function monitoring_vid_pom()
     Use ( tmp_file ) New Alias MN
     arr := { ;
       { 'Мед.помощь в рамках террпрограммы ОМС', '10', '', 0, 0 }, ; // 1
-    { 'скорая медицинская помощь', '11', 'вызов', 0, 0 }, ;             // 2
+      { 'скорая медицинская помощь', '11', 'вызов', 0, 0 }, ;             // 2
       { 'медицинская помощь', '12.1', 'посещение с проф.целью', 0, 0 }, ;    // 3
-    { '    в амбулаторных', '12.2', 'посещение по неотложной помощи', 0, 0 }, ;// 4
-    { '    условиях', '12.3', 'обращение', 0, 0 }, ;                           // 5
+      { '    в амбулаторных', '12.2', 'посещение по неотложной помощи', 0, 0 }, ;// 4
+      { '    условиях', '12.3', 'обращение', 0, 0 }, ;                           // 5
       { 'стационар', '13', 'случай госпитализации', 0, 0 }, ;                // 6
       { '  в т.ч. реабилитация', '14', 'койко-день', 0, 0 }, ;                 // 7
       { '  в т.ч. ВМП', '15', 'случай госпитализации', 0, 0 }, ;               // 8
@@ -137,7 +138,7 @@ Function monitoring_vid_pom()
               lshifr := iif( Empty( lshifr1 ), usl->shifr, lshifr1 )
               ta := f14tf_nastr( @lshifr,, d2_year )
               lshifr := AllTrim( lshifr )
-              AAdd( au, { lshifr, hu->kol_1, Round( hu->stoim_1 * koef, 2 ), 0, 0, hu->kol_1 } )
+              AAdd( au, { lshifr, hu->kol_1, Round( iif( hu->usl_repl == 1, 0, hu->stoim_1 ) * koef, 2 ), 0, 0, hu->kol_1 } )
               If eq_any( Left( lshifr, 5 ), '2.78.', '2.89.' )
                 kp := 1
                 vid_vp := 2 // обращения с лечебной целью

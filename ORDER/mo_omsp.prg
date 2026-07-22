@@ -894,9 +894,6 @@ Function i_list_of_pd()
   Enddo
   Close databases
   arr_smo := {}
-//  For i := 1 To Len( glob_arr_smo )
-//    If AScan( lsmo, {| x| Int( Val( x ) ) == glob_arr_smo[ i, 2 ] } ) > 0
-//      AAdd( arr_smo, glob_arr_smo[ i ] )
   For i := 1 To Len( smo_volgograd() )
     If AScan( lsmo, {| x| Int( Val( x ) ) == smo_volgograd()[ i, 2 ] } ) > 0
       AAdd( arr_smo, smo_volgograd()[ i ] )
@@ -1618,7 +1615,6 @@ Function pr1_oborot_schet()
     Next
   Endif
   If arr_smo == NIL
-//    arr_smo := mo_cut_menu( glob_arr_smo )
     arr_smo := mo_cut_menu( smo_volgograd() )
     For i := 1 To Len( arr_smo )
       arr_smo[ i, 3 ] := PadR( lstr( arr_smo[ i, 2 ] ), 5 )
@@ -1874,7 +1870,7 @@ Function f1pr1_oborot_schet( asmo, ssmo )
   Do Case
   Case m1schet == 0 // по СМО
     Index On smo to ( cur_dir() + "tmp1" )
-    n := 25 // glob_arr_smo[i, 1]
+    n := 25
     arr_title := { ;
       "_________________________", ;
       "    Страховая компания   ", ;
@@ -1920,11 +1916,9 @@ Function f1pr1_oborot_schet( asmo, ssmo )
   s1 := s2 := s3 := spenalty := 0
   Do Case
   Case m1schet == 0 // по СМО
-    For i := 1 To Len( smo_volgograd() )  //  glob_arr_smo )
-//      find ( PadR( lstr( glob_arr_smo[ i, 2 ] ), 5 ) )
+    For i := 1 To Len( smo_volgograd() )
       find ( PadR( lstr( smo_volgograd()[ i, 2 ] ), 5 ) )
       If Found()
-//        add_string( PadR( glob_arr_smo[ i, 1 ], n ) + put_kop( tmp1->summa1, 15, 2 ) + ;
         add_string( PadR( smo_volgograd()[ i, 1 ], n ) + put_kop( tmp1->summa1, 15, 2 ) + ;
           put_kope( tmp1->sum_sn, 12, 2 ) + put_kope( tmp1->sum_op, 15, 2 ) + ;
           put_kope( tmp1->summa1 - tmp1->sum_sn - tmp1->sum_op, 15, 2 ) )
