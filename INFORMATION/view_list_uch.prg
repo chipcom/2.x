@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 16.07.26
+// 24.07.26
 Function print_l_uch( mkod, par, regim, lnomer )
 
   // mkod - код больного по БД human
@@ -39,7 +39,8 @@ Function print_l_uch( mkod, par, regim, lnomer )
   If !myfiledeleted( cur_dir() + 'tmp1' + sdbf() )
     Return Nil
   Endif
-  dbCreate( cur_dir() + 'tmp1', { { 'kod', 'N', 4, 0 }, ;
+  dbCreate( cur_dir() + 'tmp1', { ;
+    { 'kod', 'N', 4, 0 }, ;
     { 'name', 'C', 255, 0 }, ;
     { 'shifr', 'C', 20, 0 }, ;
     { 'shifr1', 'C', 20, 0 }, ;
@@ -56,7 +57,8 @@ Function print_l_uch( mkod, par, regim, lnomer )
     { 'kod_as', 'N', 5, 0 }, ;
     { 'profil', 'N', 4, 0 }, ;
     { 'kol', 'N', 4, 0 }, ;
-    { 'summa', 'N', 11, 2 } } )
+    { 'summa', 'N', 11, 2 } ;
+  } )
   Use ( cur_dir() + 'tmp1' )
   Index On Str( FIELD->kod, 4 ) to ( cur_dir() + 'tmp11' )
   Index On DToS( FIELD->date_u1 ) + fsort_usl( FIELD->shifr ) to ( cur_dir() + 'tmp12' )
@@ -72,19 +74,19 @@ Function print_l_uch( mkod, par, regim, lnomer )
   r_use( dir_server() + 'mo_otd', , 'OTD' )
   r_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
   r_use( dir_server() + 'human_2', , 'HUMAN_2' )
-  Goto ( mkod )
+  human_2->( dbGoto( mkod ) )
   r_use( dir_server() + 'human_', , 'HUMAN_' )
-  Goto ( mkod )
+  human_->( dbGoto( mkod ) )
   r_use( dir_server() + 'human', , 'HUMAN' )
-  Goto ( mkod )
+  human->( dbGoto( mkod ) )
   r_use( dir_server() + 'mo_pers', , 'PERSO' )
-  Goto ( human_->vrach )
+  perso->( dbGoto( human_->vrach ) )
   mlech_vr := iif( Empty( perso->tab_nom ), '', lstr( perso->tab_nom ) + ' ' ) + AllTrim( perso->fio )
   otd->( dbGoto( human->otd ) )
   r_use( dir_server() + 'kartote_', , 'KART_' )
-  Goto ( human->kod_k )
+  kart_->( dbGoto( human->kod_k ) )
   r_use( dir_server() + 'kartotek', , 'KART' )
-  Goto ( human->kod_k )
+  kart->( dbGoto( human->kod_k ) )
   //
   Private mvid_ud := kart_->vid_ud, ;
     mser    := kart_->ser_ud, ;
@@ -116,9 +118,9 @@ Function print_l_uch( mkod, par, regim, lnomer )
   //
   If human->tip_h >= B_SCHET .and. human->schet > 0 // добавление номера счета
     r_use( dir_server() + 'schet_', , 'SCHET_' )
-    Goto ( human->schet )
+    schet_->( dbGoto( human->schet ) )
     r_use( dir_server() + 'schet', , 'SCHET' )
-    Goto ( human->schet )
+    schet->( dbGoto( human->schet ) )
     add_string( 'Счет № ' + AllTrim( schet_->nschet ) + ' от ' + date_8( schet_->dschet ) + 'г.' + ;
       if( human_->SCHET_ZAP == 0, '', '  [ № ' + lstr( human_->SCHET_ZAP ) + ' ]' ) )
     If eq_any( human_->oplata, 2, 3, 9 )
@@ -130,7 +132,6 @@ Function print_l_uch( mkod, par, regim, lnomer )
       Locate For kod == mkod
       If Found()
         s += 'Акт № ' + AllTrim( mo_os->AKT ) + ' от ' + date_8( mo_os->DATE_OPL ) + ' '
-        // if !empty(s1 := ret_t005(mo_os->REFREASON))
         If ! Empty( s1 := ret_f014( mo_os->REFREASON ) )
           s += 'Код дефекта ' + s1 + '. '
         Endif
@@ -667,8 +668,9 @@ Function print_l_uch( mkod, par, regim, lnomer )
           If Len( akiro ) > 1
             s1 += '(с учётом КИРО='
             If lExistFilesTFOMS
-              arrKIRO := getinfokiro( human->k_data, akiro[ 1 ] )
-              s1 += AllTrim( Str( arrKIRO[ 1 ] ) ) + '. ' + arrKIRO[ 3 ] + ', коэф.=' + Str( arrKIRO[ 4 ], 4, 2 ) + ') '
+                arrKIRO := getinfokiro( human->k_data, akiro[ 1 ] )
+                s1 += AllTrim( Str( arrKIRO[ 1 ] ) ) + '. ' + arrKIRO[ 3 ] + ', коэф.=' + ;
+                  iif( human->k_data >= 0d20260101, Str( aKIRO[ 2 ], 4, 2 ), Str( arrKIRO[ 4 ], 4, 2 ) ) + ') '
             Else
               //
             Endif
@@ -1694,190 +1696,188 @@ Function print_al_uch( arr_h, arr_m )
   if !myFileDeleted( cur_dir() + 'tmp1' + sdbf() )
     return NIL
   endif
-  dbcreate(cur_dir() + 'tmp1', {{'kod', 'N', 4, 0}, ;
-                   {'name', 'C', 65, 0}, ;
-                   {'shifr', 'C', 10, 0}, ;
-                   {'dom', 'N', 1, 0}, ;
-                   {'zf', 'C', 30, 0}, ;
-                   {'kod_diag', 'C', 5, 0}, ;
-                   {'date_u1', 'D', 8, 0}, ;
-                   {'rec_hu', 'N', 8, 0}, ;
-                   {'otd', 'C', 5, 0}, ;
-                   {'plus', 'L', 1, 0}, ;
-                   {'is_edit', 'N', 2, 0}, ;
-                   {'kod_vr', 'N', 5, 0}, ;
-                   {'kod_as', 'N', 5, 0}, ;
-                   {'profil', 'N', 4, 0}, ;
-                   {'kol', 'N', 4, 0}, ;
-                   {'summa', 'N', 11, 2}})
-  use (cur_dir() + 'tmp1')
+  dbcreate( cur_dir() + 'tmp1', { { 'kod', 'N', 4, 0 }, ;
+                   { 'name', 'C', 65, 0 }, ;
+                   { 'shifr', 'C', 10, 0 }, ;
+                   { 'dom', 'N', 1, 0 }, ;
+                   { 'zf', 'C', 30, 0 }, ;
+                   { 'kod_diag', 'C', 5, 0 }, ;
+                   { 'date_u1', 'D', 8, 0 }, ;
+                   { 'rec_hu', 'N', 8, 0 }, ;
+                   { 'otd', 'C', 5, 0 }, ;
+                   { 'plus', 'L', 1, 0 }, ;
+                   { 'is_edit', 'N', 2, 0 }, ;
+                   { 'kod_vr', 'N', 5, 0 }, ;
+                   { 'kod_as', 'N', 5, 0 }, ;
+                   { 'profil', 'N', 4, 0 }, ;
+                   { 'kol', 'N', 4, 0 }, ;
+                   { 'summa', 'N', 11, 2 } } )
+  use ( cur_dir() + 'tmp1' )
   index on str( FIELD->kod, 4 ) to ( cur_dir() + 'tmp11' )
   index on dtos( FIELD->date_u1 ) + fsort_usl( FIELD->shifr ) to ( cur_dir() + 'tmp12' )
   dbCloseAll()
   //
-  R_Use(dir_server() + 'human_', , 'HUMAN_')
-  R_Use(dir_server() + 'human', , 'HUMAN')
+  R_Use( dir_server() + 'human_', , 'HUMAN_' )
+  R_Use( dir_server() + 'human', , 'HUMAN' )
   set relation to recno() into HUMAN_
-  goto (atail(arr_h)[2])
-  mpolis := alltrim(rtrim(human_->SPOLIS) + ' ' +human_->NPOLIS) + ' (' + ;
-            alltrim(inieditspr(A__MENUVERT, mm_vid_polis(), human_->VPOLIS)) + ')'
-  R_Use(dir_server() + 'kartote_', , 'KART_')
-  R_Use(dir_server() + 'kartotek', , 'KART')
+  goto ( atail( arr_h )[ 2 ] )
+  mpolis := alltrim( rtrim( human_->SPOLIS ) + ' ' +human_->NPOLIS ) + ' (' + ;
+            alltrim( inieditspr( A__MENUVERT, mm_vid_polis(), human_->VPOLIS ) ) + ')'
+  R_Use( dir_server() + 'kartote_', , 'KART_' )
+  R_Use( dir_server() + 'kartotek', , 'KART' )
   set relation to recno() into KART_
-  goto (human->kod_k)
-  madres := iif(emptyall(kart_->okatog, kart->adres), '', ;
-                ret_okato_ulica(kart->adres, kart_->okatog))
+  goto ( human->kod_k )
+  madres := iif( emptyall( kart_->okatog, kart->adres ), '', ;
+                ret_okato_ulica( kart->adres, kart_->okatog ) )
   Private mvid_ud := kart_->vid_ud, ;
           mser    := kart_->ser_ud, ;
           mnom    := kart_->nom_ud
   if mvid_ud > 0
-    mud_lich := get_Name_Vid_Ud(mvid_ud, , ': ')
-    if !empty(mser)
-      mud_lich += charone(' ',mser) + ' '
+    mud_lich := get_Name_Vid_Ud( mvid_ud, , ': ' )
+    if !empty( mser )
+      mud_lich += charone( ' ', mser ) + ' '
     endif
-    if !empty(mnom)
+    if !empty( mnom )
       mud_lich += mnom + ' '
     endif
   endif
   //
-  mvzros_reb := inieditspr(A__MENUVERT, menu_vzros(), human->vzros_reb)
-  mrab_nerab := inieditspr(A__MENUVERT, menu_rab(), human->rab_nerab)
-  mkomu := f4_view_list_schet(human->komu, cut_code_smo(human_->smo), human->str_crb)
-  mnum_lu := alltrim(human->uch_doc)
+  mvzros_reb := inieditspr( A__MENUVERT, menu_vzros(), human->vzros_reb )
+  mrab_nerab := inieditspr( A__MENUVERT, menu_rab(), human->rab_nerab )
+  mkomu := f4_view_list_schet( human->komu, cut_code_smo( human_->smo ), human->str_crb )
+  mnum_lu := alltrim( human->uch_doc )
   if yes_num_lu == 1
-    mnum_lu += ' [' + lstr(human->kod) + ']'
+    mnum_lu += ' [' + lstr( human->kod ) + ']'
   endif
-  add_string(name_org)
-  add_string('')
-  add_string(center('Л_И_С_Ты  У_Ч_Е_Т_А', sh))
-  add_string(center('М_Е_Д_И_Ц_И_Н_С_К_И_Х  У_С_Л_У_Г  № ' + mnum_lu, sh))
-  add_string(center(arr_m[4], sh))
-  add_string('')
-  add_string('  Ф.И.О.: ' + human->fio+ '          Пол: ' + human->pol)
-  add_string('  Дата рождения: ' + full_date(human->date_r) + '  [ ' +mvzros_reb+ ' ]')
-//  add_string('  СНИЛС: ' + transform(kart->SNILS, picture_pf))
+  add_string( name_org )
+  add_string( '' )
+  add_string( center( 'Л_И_С_Ты  У_Ч_Е_Т_А', sh ) )
+  add_string( center( 'М_Е_Д_И_Ц_И_Н_С_К_И_Х  У_С_Л_У_Г  № ' + mnum_lu, sh ) )
+  add_string( center( arr_m[ 4 ], sh ) )
+  add_string( '' )
+  add_string( '  Ф.И.О.: ' + human->fio+ '          Пол: ' + human->pol )
+  add_string( '  Дата рождения: ' + full_date( human->date_r ) + '  [ ' +mvzros_reb+ ' ]' )
   add_string( '  СНИЛС: ' + transform_SNILS( kart->SNILS ) )
 
-  if !empty(mud_lich)
-    k := perenos(tmp, mud_lich, sh-2)
-    add_string('  ' + tmp[1])
+  if !empty( mud_lich )
+    k := perenos( tmp, mud_lich, sh-2 )
+    add_string( '  ' + tmp[ 1 ] )
     for i := 2 to k
-      add_string(padl(alltrim(tmp[i]), sh))
+      add_string( padl( alltrim( tmp[ i ] ), sh ) )
     next
   endif
-  add_string('  Адрес: ' + madres)
-  if !empty(kart->mr_dol)
-    add_string('  Место работы/учебы: ' + human->mr_dol)
+  add_string( '  Адрес: ' + madres )
+  if !empty( kart->mr_dol )
+    add_string( '  Место работы/учебы: ' + human->mr_dol )
   endif
-  add_string('  Статус пациента: ' + mrab_nerab)
-  add_string('  Принадлежность счета: ' + mkomu)
-  // add_string('  Полис: ' + mpolis)
-  add_string('  Серия и номер страхового полиса: ' + mpolis)
+  add_string( '  Статус пациента: ' + mrab_nerab )
+  add_string( '  Принадлежность счета: ' + mkomu )
+  add_string( '  Серия и номер страхового полиса: ' + mpolis )
   //
-  // R_Use(dir_server() + 'mo_uch', , 'UCH')
-  R_Use(dir_server() + 'mo_otd', , 'OTD')
-  R_Use(dir_server() + 'uslugi', , 'USL')
-  R_Use(dir_server() + 'mo_pers', , 'PERSO')
-  R_Use(dir_server() + 'schet_', , 'SCHET_')
-  R_Use(dir_server() + 'schet', , 'SCHET')
+  // R_Use( dir_server() + 'mo_uch', , 'UCH' )
+  R_Use( dir_server() + 'mo_otd', , 'OTD' )
+  R_Use( dir_server() + 'uslugi', , 'USL' )
+  R_Use( dir_server() + 'mo_pers', , 'PERSO' )
+  R_Use( dir_server() + 'schet_', , 'SCHET_' )
+  R_Use( dir_server() + 'schet', , 'SCHET' )
   set relation to recno() into SCHET_
-  R_Use(dir_server() + 'human_u_', , 'HU_')
-  R_Use(dir_server() + 'human_u', dir_server() + 'human_u', 'HU')
+  R_Use( dir_server() + 'human_u_', , 'HU_' )
+  R_Use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
   set relation to recno() into HU_
-  R_Use(dir_server() + 'mo_su', , 'MOSU')
-  R_Use(dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU')
+  R_Use( dir_server() + 'mo_su', , 'MOSU' )
+  R_Use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
   use ( cur_dir() + 'tmp1' ) index ( cur_dir() + 'tmp11' ), ( cur_dir() + 'tmp12' ) new alias tmp1
-  for ii := 1 to len(arr_h)
+  for ii := 1 to len( arr_h )
     select TMP1
     set order to 1
     zap
     select HUMAN
-    goto (arr_h[ii, 2])
+    goto ( arr_h[ ii, 2 ] )
     if human->schet > 0
-      schet->(dbGoto(human->schet))
+      schet->( dbGoto( human->schet ) )
     endif
     mlech_vr := ''
     if human_->vrach > 0
       select PERSO
-      goto (human_->vrach)
-      mlech_vr := alltrim(perso->fio)
+      goto ( human_->vrach )
+      mlech_vr := alltrim( perso->fio )
     endif
     //
-    afill(adiag_talon, 0)
+    afill( adiag_talon, 0 )
     for j := 1 to 16
-      adiag_talon[j] := int(val(substr(human_->DISPANS, j, 1)))
+      adiag_talon[ j ] := int( val( substr( human_->DISPANS, j, 1 ) ) )
     next
     //
-    verify_FF(HH - 5, .t., sh)
-    print_l_uch_disp(sh)
-    add_string('')
-    add_string(padc(' Срок лечения с ' + full_date(human->n_data) + ' по ' + full_date(human->k_data) + ' ', sh, '─'))
-    // uch->(dbGoto(human->lpu))
-    otd->(dbGoto(human->otd))
-    add_string('  Условия: ' + ;
-      inieditspr(A__MENUVERT, getV006(), human_->USL_OK) + ', ' + ;
-      alltrim(otd->name) + ' [' + alltrim(getUCH_Name(human->lpu)) + ']')
-      // alltrim(otd->name) + ' [' + alltrim(uch->name) + ']')
+    verify_FF( HH - 5, .t., sh )
+    print_l_uch_disp( sh )
+    add_string( '' )
+    add_string( padc( ' Срок лечения с ' + full_date( human->n_data ) + ' по ' + full_date( human->k_data ) + ' ', sh, '─' ) )
+    // uch->( dbGoto( human->lpu ) )
+    otd->( dbGoto( human->otd ) )
+    add_string( '  Условия: ' + ;
+      inieditspr( A__MENUVERT, getV006(), human_->USL_OK ) + ', ' + ;
+      alltrim( otd->name ) + ' [' + alltrim( getUCH_Name( human->lpu ) ) + ']' )
+      // alltrim( otd->name ) + ' [' + alltrim( uch->name ) + ']' )
     s := '  '
-    if !empty(human_->KOD_DIAG0)
-      s := padr('  Первичный диагноз: ' + human_->KOD_DIAG0, 40)
+    if !empty( human_->KOD_DIAG0 )
+      s := padr( '  Первичный диагноз: ' + human_->KOD_DIAG0, 40 )
     endif
-    if !empty(human_->STATUS_ST)
-      s += 'Статус стом.больного: ' + alltrim(human_->STATUS_ST)
+    if !empty( human_->STATUS_ST )
+      s += 'Статус стом.больного: ' + alltrim( human_->STATUS_ST )
     endif
-    if !empty(s)
-      add_string(s)
+    if !empty( s )
+      add_string( s )
     endif
     diagVspom := ''
-    arr := diag_to_array( , .t., .t., .t., .t., adiag_talon)
-    if len(arr) > 0
-      if diagnosis_for_replacement(arr[1], human_->USL_OK)
-        diagVspom := alltrim(arr[1])
-        diagMemory := alltrim(arr[2])
+    arr := diag_to_array( , .t., .t., .t., .t., adiag_talon )
+    if len( arr ) > 0
+      if diagnosis_for_replacement( arr[ 1 ], human_->USL_OK )
+        diagVspom := alltrim( arr[ 1 ] )
+        diagMemory := alltrim( arr[ 2 ] )
       endif
-      add_string('  Основной диагноз: ' + iif(empty(diagVspom), arr[1], arr[2] + ' (!!!вспомогательный диагноз ' + diagVspom + '!!!)'))
-      if len(arr) > 1
+      add_string( '  Основной диагноз: ' + iif( empty( diagVspom ), arr[ 1 ], arr[ 2 ] + ' (!!!вспомогательный диагноз ' + diagVspom + '!!!)' ) )
+      if len( arr ) > 1
         tmp1 := '  Сопутствующие диагнозы:'
-        for j := iif(empty(diagVspom), 2, 3) to len(arr)
-        // for j := 2 to len(arr)
-          tmp1 += ' ' + arr[j]
+        for j := iif( empty( diagVspom ), 2, 3 ) to len( arr )
+        // for j := 2 to len( arr )
+          tmp1 += ' ' + arr[ j ]
         next
-        add_string(tmp1)
+        add_string( tmp1 )
       endif
     endif
     tmp1 := ''
   
-    verify_FF(HH - 6, .t., sh)
+    verify_FF( HH - 6, .t., sh )
     if human_->PROFIL > 0
-      add_string('  Профиль: ' + inieditspr(A__MENUVERT, getV002(), human_->PROFIL))
+      add_string( '  Профиль: ' + inieditspr( A__MENUVERT, getV002(), human_->PROFIL ) )
     endif
-    add_string('  Способ оплаты: ' + inieditspr(A__MENUVERT, getV010(), human_->IDSP))
-    add_string('  Результат обращения: ' + inieditspr(A__MENUVERT, getV009(), human_->RSLT_NEW))
-    add_string('  Исход заболевания: ' + inieditspr(A__MENUVERT, getV012(), human_->ISHOD_NEW))
-    if !empty(mlech_vr)
-      add_string('  Лечащий врач : ' + mlech_vr)
+    add_string( '  Способ оплаты: ' + inieditspr( A__MENUVERT, getV010(), human_->IDSP ) )
+    add_string( '  Результат обращения: ' + inieditspr( A__MENUVERT, getV009(), human_->RSLT_NEW ) )
+    add_string( '  Исход заболевания: ' + inieditspr( A__MENUVERT, getV012(), human_->ISHOD_NEW ) )
+    if !empty( mlech_vr )
+      add_string( '  Лечащий врач : ' + mlech_vr )
     endif
     if human->bolnich > 0
-      add_string('  Временная нетрудоспособность (больничный) с ' +;
-                 full_date(c4tod(human->date_b_1)) + ' по ' + full_date(c4tod(human->date_b_2)))
-      add_string('')
+      add_string( '  Временная нетрудоспособность (больничный) с ' + ;
+                 full_date( c4tod( human->date_b_1 ) ) + ' по ' + full_date( c4tod( human->date_b_2 ) ) )
+      add_string( '' )
     endif
     Select HU
-    find (str(arr_h[ii, 2], 7))
-    do while hu->kod == arr_h[ii, 2] .and. !eof()
-      if !emptyall(hu->kol_1, hu->stoim_1)
+    find ( str( arr_h[ ii, 2 ], 7 ) )
+    do while hu->kod == arr_h[ ii, 2 ] .and. !eof()
+      if !emptyall( hu->kol_1, hu->stoim_1 )
         Select OTD
-        goto (hu->otd)
+        goto ( hu->otd )
         Select USL
-        goto (hu->u_kod)
-        lshifr1 := opr_shifr_TFOMS(usl->shifr1, usl->kod, human->k_data)
+        goto ( hu->u_kod )
+        lshifr1 := opr_shifr_TFOMS( usl->shifr1, usl->kod, human->k_data )
         select TMP1
         append blank
         tmp1->kod := usl->kod
         tmp1->name := usl->name
-        tmp1->shifr := usl->shifr //iif(empty(lshifr1), usl->shifr, lshifr1)
-        tmp1->date_u1 := c4tod(hu->date_u)
-        tmp1->dom := iif(between(hu->kol_rcp, -2, -1), -hu->kol_rcp, 0)
+        tmp1->shifr := usl->shifr //iif(empty( lshifr1 ), usl->shifr, lshifr1 )
+        tmp1->date_u1 := c4tod( hu->date_u )
+        tmp1->dom := iif( between( hu->kol_rcp, -2, -1 ), -hu->kol_rcp, 0 )
         tmp1->rec_hu := hu->( recno() )
         tmp1->kod_diag := hu_->KOD_DIAG
         tmp1->otd := otd->short_name
