@@ -1147,7 +1147,7 @@ Function f_lis_mgi( mkod, ao )
   sl->DS1_T := 5
   sl->b_diag := 98 // выполнено (результат получен)
   //
-  If ( i := AScan( glob_MGI, {| x| x[ 1 ] == ao[ LISS_USL, 1, LISU_SHIFR ] } ) ) > 0 // услуга входит в список ТФОМС
+  If ( i := AScan( glob_MGI(), {| x| x[ 1 ] == ao[ LISS_USL, 1, LISU_SHIFR ] } ) ) > 0 // услуга входит в список ТФОМС
     // select N12
     // dbeval({|| aadd(ar_N012, n12->id_igh) }, ;
     // {|| between_date(n12->datebeg, n12->dateend, ao[LISS_USL, 1, LISU_DATE]) .and. left(human->KOD_DIAG,3) == n12->ds_igh })
@@ -1155,14 +1155,14 @@ Function f_lis_mgi( mkod, ao )
       ar_N012 := AClone( aN012_DS[ it, 2 ] )
     Endif
 
-    If AScan( ar_N012, glob_MGI[ i, 2 ] ) > 0 // по данному диагнозу присутствует необходимый маркер
+    If AScan( ar_N012, glob_MGI()[ i, 2 ] ) > 0 // по данному диагнозу присутствует необходимый маркер
       Select DIAG
       addrec( 7 )
       diag->kod       := mkod
       diag->DIAG_DATE := ao[ LISS_USL, 1, LISU_DATE ]
       diag->DIAG_TIP  := 2
-      diag->DIAG_CODE := glob_MGI[ i, 2 ]
-      diag->DIAG_RSLT := iif( ao[ LISS_USL, 1, LISU_D_RSLT ] == '1', glob_MGI[ i, 4 ], glob_MGI[ i, 3 ] )
+      diag->DIAG_CODE := glob_MGI()[ i, 2 ]
+      diag->DIAG_RSLT := iif( ao[ LISS_USL, 1, LISU_D_RSLT ] == '1', glob_MGI()[ i, 4 ], glob_MGI()[ i, 3 ] )
       diag->REC_RSLT  := 1
     Endif
   Endif

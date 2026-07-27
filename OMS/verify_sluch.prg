@@ -8,19 +8,29 @@
 #define BASE_ISHOD_RZD 500  //
 
 // соответствие с возвращаемым массивом из функции collect_uslugi_new()
-#define USL_SHIFR     1   // шифр услуги
-#define USL_U_KOD     2   // код услуги по справочнику uslugi.dbf
-#define USL_DATE      3   // дата выполнения услуги
-#define USL_CENA      4   // цена услуги
-#define USL_KOEF      5   // коэффициент услуги
-#define USL_VR        6   // врач окуазавший услугу
-#define USL_AS        7   // ассистент оказавший услугу
-#define USL_KOLVO     8   // количество услуг
-#define USL_OTD       9   // отделение в котором оказывалась услуга
+#define USL_TYPEF     1   // тип используемого файла 0 - human_u.dbf, 1 - mo_hu.dbf (федеральные услуги)
+#define USL_RECNO     2   // номер записи в human_u.dbf
+#define USL_SHIFR     3   // шифр услуги (реальный, после замены если есть)
+#define USL_U_KOD     4   // код услуги по справочнику uslugi.dbf
+#define USL_DATE      5   // дата выполнения услуги
+#define USL_CENA      6   // цена услуги
+#define USL_KOEF      7   // коэффициент услуги
+#define USL_VR        8   // врач окуазавший услугу
+#define USL_VR_PRVS21 9   // специальность врача окуазавшего услугу по справочнику V021
+#define USL_VR_PROF  10   // профиль врача окуазавшего услугу
+#define USL_AS       11   // ассистент оказавший услугу
+#define USL_KOLVO    12   // количество услуг
+#define USL_OTD      13   // отделение в котором оказывалась услуга
+#define USL_SVIDPOM  14   // виды оказываемой медицинской помощи
+#define USL_ZAK_SL   15   // признак оплаты по законченному случаю
 
-// 28.06.26 
+// 16.07.26 
 Function verify_sluch( fl_view, ft )
 
+  Local arrUslugi := {} // массив содержаший коды услуг в случае 
+  Local arrUslugiHuman_U := {} // массив содержаший коды услуг в случае 
+  local arr_end_disp  // список услуг завершающих диспансеризацию
+  local arr_temp
   local mIDPC // код цели посещения по справочнику V025
   local arr_IDPC := {}  // массив для кодов целей посещения
   local arrUslugiOver // для проверки услуг пересекающихся случаев поликлиники
@@ -86,10 +96,7 @@ Function verify_sluch( fl_view, ft )
   local is_60_17_1 := .f., is_60_17_2 := .f., kol_60_17_100 := 0
   local first_2 // первые два символа МО прикрепления
   local arrOKATO := {}
-  Local arrUslugi := {} // массив содержаший коды услуг в случае 
-  Local arrUslugiHuman_U := {} // массив содержаший коды услуг в случае 
-  local arr_end_disp  // список услуг завершающих диспансеризацию
-  local arr_temp
+  local mDS_stac := 0     // дневной стационар при стационаре - 1 иначе - 0
 //  local cUIDSPMO
 
   Default fl_view To .t.
@@ -108,7 +115,13 @@ Function verify_sluch( fl_view, ft )
   mIDPC := ''
   rec_human := human->( RecNo() )
 
-  arrUslugiHuman_U := collect_uslugi_new( rec_human )   // выберем все коды услуг случая
+  // установим курсор на нужное учреждение и отделение
+  uch->( dbGoto( human->LPU ) )
+  otd->( dbGoto( human->OTD ) )
+  lu_type := otd->TIPLU
+  mDS_stac := otd->DS_STAC
+
+  arrUslugiHuman_U := collect_uslugi_new( rec_human, human->k_data )   // выберем все коды услуг случая
 
   mo_current := glob_mo()
 
@@ -128,11 +141,6 @@ Function verify_sluch( fl_view, ft )
 
   // определяем возраст, если 0 то возраст до года
   vozrast := count_years( iif( human_->NOVOR == 0, human->DATE_R, human_->DATE_R2 ), human->N_DATA )
-
-  // установим курсор на нужное учреждение и отделение
-  uch->( dbGoto( human->LPU ) )
-  otd->( dbGoto( human->OTD ) )
-  lu_type := otd->TIPLU
 
   if Empty( otd->LPU_1 )
     aValidProf := {}
@@ -172,7 +180,7 @@ Function verify_sluch( fl_view, ft )
   cuch_doc := human->uch_doc
 
   // проверка отделения
-  if Empty( otd->LPU_1 )
+  if ! glob_mo()[_MO_KOD_TFOMS] == '804501' .and. Empty( otd->LPU_1 ) // без РУСАЛа
     AAdd( ta, 'для отделения ' + AllTrim( otd->short_name ) + ' не выбрано "Структурное подразделение по ГИС ОМС"' )
   endif
 
@@ -233,21 +241,6 @@ Function verify_sluch( fl_view, ft )
     Next
   Endif
 
-  if human_->VIDPOM == 0
-/*
-    mm_lpu1 := get_f033_with_address( glob_mo()[ _MO_KOD_FFOMS ] )
-    cUIDSPMO := otd->LPU_1
-    str_lpu1 := ''
-    if ( ic := ascan( mm_lpu1, { | x | x[ 2 ] == cUIDSPMO } ) ) > 0
-      str_lpu1 := mm_lpu1[ ic, 1 ]
-    endif
-
-    AAdd( ta, 'не определен вид помощи по справочнику услуг ТФОМС [ вероятно неверно указано в справочнике для отделения <' ;
-      + AllTrim( otd->name ) + ' (' + AllTrim( otd->short_name ) + ')' ;
-      + '> "Структурное подразделение по ГИС ОМС" = <' + AllTrim( str_lpu1 ) + '> ]' )
-*/
-    AAdd( ta, 'не определен вид помощи по справочнику услуг ТФОМС' )
-  endif
   //
   // ПРОВЕРЯЕМ ДИАГНОЗЫ
   //
@@ -455,10 +448,6 @@ Function verify_sluch( fl_view, ft )
 
   val_fio( retfamimot( 2, .f. ), ta )
 
-//  Select HUMAN
-//  Set Order To 1
-//  dbGoto( rec_human )
-//  g_rlock( 'forever' )
   human_->( g_rlock( 'forever' ) )
   human_2->( g_rlock( 'forever' ) )
 
@@ -493,7 +482,6 @@ Function verify_sluch( fl_view, ft )
   human_->SPOLIS := val_polis( human_->SPOLIS )
   human_->NPOLIS := val_polis( human_->NPOLIS )
 //  valid_sn_polis( human_->vpolis, human_->SPOLIS, human_->NPOLIS, ta, Between( human_->smo, '34001', '34007' ) )
-  //
 //  If Select( 'SMO' ) == 0
 //    r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo2', 'SMO' )
 //  Endif
@@ -704,8 +692,6 @@ Function verify_sluch( fl_view, ft )
   g_rlock( 'forever' )
   human_->( g_rlock( 'forever' ) )
   human_2->( g_rlock( 'forever' ) )
-//  uch->( dbGoto( human->LPU ) )
-//  otd->( dbGoto( human->OTD ) )
 
   If Year( human->k_data ) == 2022 .and. !Empty( HUMAN_2->PC1 )
     If AllTrim( human_2->PC1 ) == '2' // КСЛП 2 - место законному представителю для 2022 года
@@ -906,7 +892,7 @@ Function verify_sluch( fl_view, ft )
       Endif
       otd->( dbGoto( hu->OTD ) )
       // проверка отделения для услуги
-      if Empty( otd->LPU_1 )
+      if ! glob_mo()[_MO_KOD_TFOMS] == '804501' .and. Empty( otd->LPU_1 ) // без РУСАЛа
         AAdd( ta, 'для отделения ' + AllTrim( otd->short_name ) + ', где оказана услуга ' + AllTrim( lshifr ) + ' не выбрано "Структурное подразделение по ГИС ОМС"' )
       endif
       hu->( g_rlock( 'forever' ) )
@@ -1588,9 +1574,6 @@ Function verify_sluch( fl_view, ft )
     If Len( arr_povod ) > 1
       AAdd( ta, 'смешивание целей посещения в случае ' + print_array( arr_povod ) )
     Else
-//      If is_dom .and. arr_povod[ 1, 1 ] == 1
-//        arr_povod[ 1, 1 ] := 3 // 1.2 - активное посещение, т.е. на дому
-//      Endif
       If is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID .or. is_disp_DRZ
         //
       Elseif human_->usl_ok == USL_OK_POLYCLINIC .and. l_mdiagnoz_fill
@@ -1773,7 +1756,7 @@ Function verify_sluch( fl_view, ft )
     Endif
     otd->( dbGoto( mohu->OTD ) )
     // проверка отделения для услуги
-    if Empty( otd->LPU_1 )
+    if ! glob_mo()[_MO_KOD_TFOMS] == '804501' .and. Empty( otd->LPU_1 ) // без РУСАЛа
       AAdd( ta, 'для отделения ' + AllTrim( otd->short_name ) + ', где оказана услуга ' + AllTrim( lshifr ) + ' не выбрано "Структурное подразделение по ГИС ОМС"' )
     endif
     mohu->( g_rlock( 'forever' ) )
@@ -2023,8 +2006,8 @@ Function verify_sluch( fl_view, ft )
         Next
       Endif
       If is_mgi
-        If ( i := AScan( glob_MGI, {| x| x[ 1 ] == shifr_mgi } ) ) > 0 // услуга входит в список ТФОМС
-          If ( j := AScan( ar_N012, {| x| x[ 2 ] == glob_MGI[ i, 2 ] } ) ) > 0 // по данному диагнозу присутствует необходимый маркер
+        If ( i := AScan( glob_MGI(), {| x| x[ 1 ] == shifr_mgi } ) ) > 0 // услуга входит в список ТФОМС
+          If ( j := AScan( ar_N012, {| x| x[ 2 ] == glob_MGI()[ i, 2 ] } ) ) > 0 // по данному диагнозу присутствует необходимый маркер
             tmp_arr := {}
             AAdd( tmp_arr, AClone( ar_N012[ j ] ) )
             ar_N012 := AClone( tmp_arr ) // оставим в массиве только один нужный нам маркер
@@ -2045,12 +2028,6 @@ Function verify_sluch( fl_view, ft )
         If Empty( onkdi->DIAG_DATE ) .and. is_gisto
           AAdd( arr_onkdi0, .f. )
         Else
-          // if is_gisto .and. onkdi->DIAG_DATE != dBegin
-          // aadd(ta, 'для гистологии дата взятия материала ' + date_8(onkdi->DIAG_DATE) + 'г. не равняется дате начала лечения ' + date_8(dBegin) + 'г.')
-          // elseif onkdi->DIAG_DATE < 0d20180901
-          // fl_krit_date := .t.
-          // //aadd(ta, 'Дата взятия материала ' + date_8(onkdi->DIAG_DATE) + 'г. меньше КРИТИЧЕСКОЙ даты')
-          // endif
         Endif
         Do While onkdi->kod == human->kod .and. !onkdi->( Eof() )
           If onkdi->DIAG_TIP == 1
@@ -2163,12 +2140,6 @@ Function verify_sluch( fl_view, ft )
         onkus->( dbSkip() )
       Enddo
       If Empty( arr_onk_usl )
-        //
-        // закомментировал временно 13.02.22 пока не разберусь
-        //
-        // if iif(human_2->VMP == 1, .t., between(onksl->ds1_t, 0, 2)) .and. empty(alltrim(human_2->PC3))
-        // aadd(ta, 'не введено онкологическое лечение')
-        // endif
       Elseif eq_ascan( arr_onk_usl, 2, 4 )
         If Empty( onksl->crit )
           AAdd( ta, 'не введена схема лекарственной терапии' )
@@ -2241,9 +2212,6 @@ Function verify_sluch( fl_view, ft )
           If Empty( arr_lek )
             AAdd( ta, 'не заполнен cписок лекарственных препаратов' )
           Else
-            // if fl_zolend
-            // aadd(ta, 'в составе случая оказания химиотерапии не может быть применен ТОЛЬКО один препарат из списка (золедроновая кислота, ибандроновая кислота, памидроновая кислота, клодроновая кислота или деносумаб)')
-            // endif
             aN021 := getn021( dEnd )
             n := 0
             l_n021 := .f.
@@ -2252,10 +2220,6 @@ Function verify_sluch( fl_view, ft )
                 l_n021 := .t.
                 If ( i := AScan( arr_lek, {| x| x[ 1 ] == row[ 3 ] } ) ) > 0
                   ++n
-                  // elseif onksl->is_err == 0
-                  // aadd(ta, 'не по всем препаратам введены даты - отредактируйте cписок лекарственных препаратов')
-                  // fl := .f.
-                  // exit
                 Endif
               Endif
             Next
@@ -2841,44 +2805,8 @@ Function verify_sluch( fl_view, ft )
         AAdd( ta, 'в одной из услуг 55.1.* должны повториться диагноз+профиль+врач из случая' )
       Endif
     Endif
-/*
-    If !Empty( lvidpoms )
-      If AScan( au_lu, {| x| AllTrim( x[ 1 ] ) == '55.1.2' } ) > 0 .or. ;
-          AScan( au_lu, {| x| AllTrim( x[ 1 ] ) == '55.1.3' } ) > 0
-        //
-        //
-        If AScan( au_lu, {| x| AllTrim( x[ 1 ] ) == '55.1.3' } ) > 0
-          lvidpoms := ret_vidpom_st_dom_licensia( human_->USL_OK, lvidpoms, lprofil )
-        Endif
-      Else // только для дн.стационара при стационаре смотрим лицензию
-        lvidpoms := ret_vidpom_licensia( human_->USL_OK, lvidpoms )
-      Endif
-      If ',' $ lvidpoms
-        If AScan( au_lu, {| x| AllTrim( x[ 1 ] ) == '55.1.1' } ) > 0 .or. ;
-            AScan( au_lu, {| x| AllTrim( x[ 1 ] ) == '55.1.4' } ) > 0 .or. ;
-            AScan( au_lu, {| x| AllTrim( x[ 1 ] ) == '55.1.6' } ) > 0
-          If !( '31' $ lvidpoms )
-            AAdd( ta, 'для КСГ=' + shifr_ksg + ' в справочнике Т006 не введён вид помощи 31' )
-          Endif
-        Else
-          If eq_any( human_->PROFIL, 57, 68, 97 ) // терапия,педиатр,врач общ.практики
-            If !( '12' $ lvidpoms )
-              AAdd( ta, 'для КСГ=' + shifr_ksg + ' в справочнике Т006 не введён вид помощи 12; ' + ;
-                'вероятно, в случае не может стоять профиль "терапевт", "педиатр", "врач общ.практики"' )
-            Endif
-          Else
-            If !( '13' $ lvidpoms )
-              AAdd( ta, 'для КСГ=' + shifr_ksg + ' в справочнике Т006 не введён вид помощи 13; ' + ;
-                'проставьте в случае профиль "терапевт", "педиатр", "врач общ.практики" ' + ;
-                'или звоните в ТФОМС об ошибке в справочнике' )
-            Endif
-          Endif
-        Endif
-      Endif
-    Endif
-*/
   Endif
-  If Len( a_period_stac ) > 0 // .and. !is_s_dializ .and. !is_dializ .and. !is_perito
+  If Len( a_period_stac ) > 0
     Select HU
     find ( Str( human->kod, 7 ) )
     Do While hu->kod == human->kod .and. !hu->( Eof() )
@@ -2957,7 +2885,6 @@ Function verify_sluch( fl_view, ft )
     .and. kkt == 0 ; // не отдельно стоящая иссл.процедура
     .and. Len( a_period_amb ) > 0
     For i := 1 To Len( a_period_amb )
-//      If a_period_amb[ i, 3 ] == human_->profil .and. ! ( human_->profil == 122 .or. human_->profil == 21 ) // кроме эндокринологии 
       If a_period_amb[ i, 3 ] == human_->profil .and. ! ( eq_any( human_->profil, 122, 21, 97, 11, 29, 17, 53, 56, 68, 75, 4, 100 ) ) ;// кроме эндокринологии 
           .and. ! ( a_period_amb[ i, 6 ] .or. is_2_92_ )  // школы ХНИЗ исключаем
         AAdd( ta, 'данный случай пересекается со случаем амбулаторного лечения' )
@@ -2988,7 +2915,7 @@ Function verify_sluch( fl_view, ft )
       AAdd( ta, 'в случае применены ' + lstr( kvp_2_78 ) + ' услуги "2.78.*" (должна быть одна)' )
     Endif
   Endif
-  If is_disp_DDS // is_70_5 .or. is_70_6 
+  If is_disp_DDS
     mIDSP := 11 // диспансеризация
     If kvp_70_5 > 1 .and. dEnd < 0d20250901
       AAdd( ta, 'в случае применены ' + lstr( kvp_70_5 ) + ' услуги "70.5.*" (должна быть одна)' )
@@ -2997,7 +2924,7 @@ Function verify_sluch( fl_view, ft )
       AAdd( ta, 'в случае применены ' + lstr( kvp_70_6 ) + ' услуги "70.6.*" (должна быть одна)' )
     Endif
   Endif
-  If is_disp_DVN // is_70_3
+  If is_disp_DVN
 //    mIDSP := 11 // диспансеризация
 //    If is_disp_DVN3 // профилактика
 //      mIDSP := 17 // Законченный случай в поликлинике
@@ -3573,9 +3500,6 @@ Function verify_sluch( fl_view, ft )
       If is_oncology == 2
         // повод обращения - диагностика уже проверен выше
       Elseif PadR( mdiagnoz[ 1 ], 5 ) == 'Z03.1'
-        // if is_gisto
-        // aadd(ta, 'для ' + s + ' не может быть установлен основной диагноз 'Z03.1 наблюдение при подозрении на злокачественную опухоль'')
-        // endif
       Elseif is_kt
         If !( PadR( mdiagnoz[ 1 ], 5 ) == 'Z01.6' )
           AAdd( ta, 'для ' + s + ' основной диагноз должен быть Z01.6' )
@@ -3621,12 +3545,9 @@ Function verify_sluch( fl_view, ft )
       AAdd( ta, 'количество услуг должно быть равно 1' )
     Endif
     If is_2_78 .or. is_2_89
-      // mpztip := 59 // 59, 'Обращение', 'амб.обращ.'}, ;
       mPZKOL := 1 // ???
     Elseif is_2_79 .or. is_2_81 .or. is_2_88
-      // mpztip := 57 // 57, 'Посещение профилактическое', 'амб.проф.'}, ;
     Elseif is_2_80 .or. is_2_82
-      // mpztip := 58 // 58, 'Посещение неотложное', 'амб.неотл.'}, ;
     Endif
   Elseif ksmp > 0
     mpztip := 51 // 51, 'Вызов СМП', 'вызов СМП'}, ;
@@ -3816,39 +3737,6 @@ Function verify_sluch( fl_view, ft )
             ! ( eq_any( au_lu[ i, 5 ], '7.2.702', '7.61.3', '4.29.103', '4.29.102' ) )
           AAdd( ta, s + ' не попадает в диапазон лечения' )
         Endif
-/*
-        if dEnd < 0d20250901
-          If eq_any( Left( au_lu[ i, 1 ], 5 ), '70.5.', '70.6.' )
-            ++zs
-            s := ret_shifr_zs_dds( tip_lu )
-            If dEnd < 0d20250901 .and. !( AllTrim( au_lu[ i, 1 ] ) == s )
-              AAdd( ta, 'в л/у услуга ' + AllTrim( au_lu[ i, 1 ] ) + ', а должна быть ' + s + ;
-                ' для возраста ' + lstr( mvozrast ) + ' ' + s_let( mvozrast ) )
-            Endif
-          Elseif is_osmotr_dds( au_lu[ i ], mvozrast, ta, metap, mpol, tip_lu, human->K_DATA, m1mobilbr )
-            If eq_any( Left( au_lu[ i, 1 ], 5 ), '2.83.', '2.87.' )
-              ++kvp
-            Elseif Left( au_lu[ i, 1 ], 4 ) == '2.3.'
-              ++kvp
-            Endif
-            If dBegin == au_lu[ i, 2 ]
-              is_1_den := .t.
-            Endif
-            If dEnd == au_lu[ i, 2 ]
-              is_last_den := .t.
-            Endif
-          Else
-            oth_usl += AllTrim( au_lu[ i, 1 ] ) + ' '
-          Endif
-        else
-          If dBegin == au_lu[ i, 2 ]
-            is_1_den := .t.
-          Endif
-          If dEnd == au_lu[ i, 2 ]
-            is_last_den := .t.
-          Endif
-        Endif
-*/
         If dBegin == au_lu[ i, 2 ]
           is_1_den := .t.
         Endif
@@ -4042,11 +3930,6 @@ Function verify_sluch( fl_view, ft )
         Else
           s := ''
           arr_not_zs := PN_usl_replace( dEnd )
-          
-//          If ( ( j := AScan( np_arr_issled( dEnd ), {| x| x[ 1 ] == lshifr } ) ) > 0 ) .and. ;
-//              ( ( jk := AScan( arr_not_zs, {| x| x[ 2 ] == lshifr } ) ) > 0 )
-//            if np_arr_issled( dEnd )[ j, 1 ] != arr_not_zs[ jk, 1 ]
-//              s := np_arr_issled( dEnd )[ j, 3 ]
           If ( ( j := AScan( arr_pn_issled, {| x| x[ 1 ] == lshifr } ) ) > 0 ) .and. ;
               ( ( jk := AScan( arr_not_zs, {| x| x[ 2 ] == lshifr } ) ) > 0 )
             if arr_pn_issled[ j, 1 ] != arr_not_zs[ jk, 1 ]
@@ -5116,7 +4999,8 @@ Function verify_sluch( fl_view, ft )
     Endif
     If i > 0
       Select D_SROK
-      Append Blank
+//      Append Blank
+      d_srok->( dbAppend() )
       d_srok->kod   := human->kod
       d_srok->tip   := ltip
       d_srok->tips  := d_sroks
@@ -5162,20 +5046,91 @@ Function verify_sluch( fl_view, ft )
     AAdd( ta, 'для исхода заболевания "306/Осмотр" некорректный результат обращения "' + ;
       inieditspr( A__MENUVERT, getv009(), human_->RSLT_NEW ) + '"' )
   Endif
+//  If ( is_disp_DDS .or. is_disp_DVN .or. is_prof_PN ) .and. ;
+//      ( Between( dEnd, 0d20200320, 0d20200906 ) .or. Between( dBegin, 0d20200320, 0d20200906 ) )
+//    AAdd( ta, 'случай не может быть начат ранее 7 сентября' )
+//  Endif
+
+  // ПРОВЕРКА НАПРАВЛЕНИЯ ДЛЯ СЛУЧАЕВ ОТЛИЧНЫХ ОТ ДИСПАНСЕРИЗАЦИИ
   If !emptyany( human_->NPR_MO, human_2->NPR_DATE ) .and. !Empty( s := verify_dend_mo( human_->NPR_MO, human_2->NPR_DATE, .t. ) )
     AAdd( ta, 'направившая МО: ' + s )
   Endif
-  // mpovod := iif(len(arr_povod) == 1, arr_povod[1, 1], 0)
-  If ( is_disp_DDS .or. is_disp_DVN .or. is_prof_PN ) .and. ;
-      ( Between( dEnd, 0d20200320, 0d20200906 ) .or. Between( dBegin, 0d20200320, 0d20200906 ) )
-    AAdd( ta, 'случай не может быть начат ранее 7 сентября' )
-  Endif
+  If ( human_->USL_OK == USL_OK_HOSPITAL .and. SubStr( human_->FORMA14, 1, 1 ) == '0' .and. human_2->p_per != 4 ) .or. ;
+      ( human_->USL_OK == USL_OK_DAY_HOSPITAL )
+
+    s := 'при плановой госпитализации в стационар или при работе дневного стационара '
+    if Empty( human_2->NPR_DATE )
+      AAdd( ta, s + 'должно быть заполнено поле "Дата направления на госпитализацию"' )
+    else
+      if human_2->NPR_DATE > dBegin
+        AAdd( ta, s + '"Дата направления на госпитализацию" не может быть больше "Даты начала лечения"' )
+      Elseif human_2->NPR_DATE + 60 < dBegin
+        AAdd( ta, s + 'направлению на госпитализацию не может быть больше двух месяцев' )
+      Endif
+    endif
+
+    If Empty( human_->NPR_MO )
+      AAdd( ta, s + 'должно быть заполнено поле "Направившая МО"' )
+    Endif
+
+    // проверка номера направления на госпитализацию
+    napr_number := AllTrim( get_NAPR_MO( human->kod, _NPR_LECH ) ) 
+    if Empty( napr_number )
+        AAdd( ta, s + 'должно быть заполнено поле "Номер направления на госпитализацию"' )
+    endif
+    s := ''
+  elseIf human_->USL_OK == USL_OK_POLYCLINIC
+
+  endif
+
+  human_->( g_rlock( 'forever' ) )  // заблокируем для последующего использования
+
+  // определяем цель посещения для поликлиники
+  if ( human_->USL_OK == USL_OK_POLYCLINIC ) // .and. ( ( len( arr_povod ) == 1 ) .or. glob_mo()[ _MO_KOD_TFOMS ] == '805965' )
+//    for counter := 1 to len( arrUslugi )
+//      mPCEL := getPCEL_usl( arrUslugi[ counter ] )
+    for counter := 1 to len( arrUslugiHuman_U )
+      if arrUslugiHuman_U[ counter, USL_TYPEF ] == 0  // услуга из human_u.dbf
+//        mPCEL := getPCEL_usl( arrUslugiHuman_U[ counter, USL_SHIFR ], arrUslugiHuman_U[ counter, USL_U_KOD ], human->k_data )
+        mPCEL := getPCEL_usl( arrUslugiHuman_U[ counter, USL_SHIFR ] )
+        if ! Empty( mPCEL )
+          human_->P_CEL := mPCEL
+        endif
+      endif
+    next
+    if Empty( human_->P_CEL )
+      AAdd( ta, 'не удалось определить цель посещения (P_CEL)' )
+    endif
+  endif
+
+  // проверяем вид помощи
+  if ! is_dispanserizaciya( human->ishod ) .and. ! ( lu_type == TIP_LU_SMP .or. human_->USL_OK == USL_OK_AMBULANCE )
+//    human_->( g_rlock( 'forever' ) )
+    human_->VIDPOM := define_vidpom_new( arrUslugiHuman_U, mDS_stac, human->kod, human->K_DATA, human_->USL_OK )
+//    human_->( dbUnlock() )
+  endif
+
+  if human_->VIDPOM == 0
+/*
+    mm_lpu1 := get_f033_with_address( glob_mo()[ _MO_KOD_FFOMS ] )
+    cUIDSPMO := otd->LPU_1
+    str_lpu1 := ''
+    if ( ic := ascan( mm_lpu1, { | x | x[ 2 ] == cUIDSPMO } ) ) > 0
+      str_lpu1 := mm_lpu1[ ic, 1 ]
+    endif
+
+    AAdd( ta, 'не определен вид помощи по справочнику услуг ТФОМС [ вероятно неверно указано в справочнике для отделения <' ;
+      + AllTrim( otd->name ) + ' (' + AllTrim( otd->short_name ) + ')' ;
+      + '> "Структурное подразделение по ГИС ОМС" = <' + AllTrim( str_lpu1 ) + '> ]' )
+*/
+    AAdd( ta, 'не определен вид помощи по справочнику услуг ТФОМС' )
+  endif
+
   If Len( ta ) > 0
     _ocenka := 0
     If AScan( kod_LIS(), mo_current[ _MO_KOD_TFOMS ] ) > 0 .and. Type( 'old_npr_mo' ) == 'C'
       If !( old_npr_mo == human_->NPR_MO )
         If !( old_npr_mo == '000000' )
-//          verify_ff( -1, .t., 80 ) // безусловный перевод страницы
         Endif
         ft:add_string( Replicate( '=', 80 ) )
         ft:add_string( 'Направление из МО: ' + human_->NPR_MO + ' ' + ret_mo( human_->NPR_MO )[ _MO_SHORT_NAME ] )
@@ -5183,7 +5138,6 @@ Function verify_sluch( fl_view, ft )
       Endif
       old_npr_mo := human_->NPR_MO
     Endif
-//    verify_ff( 80 - Len( ta ) -3, .t., 80 )
     // вывод заголовок пациента
     ft:add_string( '' )
     ft:add_string( header_error, FILE_CENTER, ' ', .t. )
@@ -5231,15 +5185,7 @@ Function verify_sluch( fl_view, ft )
     Endif
     human_->POVOD := arr_povod[ 1, 1 ]
   Endif
-
-  if ( human_->USL_OK == USL_OK_POLYCLINIC ) .and. ( len( arr_povod ) == 1 )
-    for counter := 1 to len( arrUslugi )
-      mPCEL := getPCEL_usl( arrUslugi[ counter ] )
-      if ! Empty( mPCEL )
-        human_->P_CEL := mPCEL
-      endif
-    next
-  endif
+//  human_->( g_rlock( 'forever' ) )
 
   If !valid_guid( human_->ID_PAC )
     human_->ID_PAC := mo_guid( 1, human_->( RecNo() ) )
@@ -5248,8 +5194,90 @@ Function verify_sluch( fl_view, ft )
     human_->ID_C := mo_guid( 2, human_->( RecNo() ) )
   Endif
   human_->ST_VERIFY := _ocenka // проверен
+  human_->( dbUnlock() )
   If fl_view
     // dbUnLockAll()
   Endif
 
   Return ( _ocenka >= 5 )
+
+// 16.07.26
+function define_vidpom_new( arr_HU, mDS_stac, kod_hum, mdate, usl_ok )
+
+  Local tmpselect, i, lshifr1, mshifr, sVidpoms, lst
+  local arrUsluga := {}, mVidPom := 0
+  local lAliasHU := .f., lAliasUsl := .f., lAliasPers := .f., lAliasOtd := .f.
+  local m_vrPRVS_21, m_vrProfil
+  local arr_v := {}, row    // , mDS_stac := 0
+
+  tmpSelect := Select()
+
+//  if Select( 'OTD' ) == 0
+//    r_use( dir_server() + 'mo_otd', , 'OTD' )
+//    lAliasOtd := .t.
+//  endif
+//  otd->( dbGoto( otd ) )
+////  r_use( dir_exe() + '_mo_f034', cur_dir() + '_mo_f034', 'F034' )
+////  f034->( dbSeek( otd->LPU_1 ) )
+////  Do While ( f034->uidspmo == otd->LPU_1 ) .and. ! f034->( Eof() )
+////    if ( f034->MPUSL == usl_ok )
+////      AAdd( arr_v, { f034->MPVID, f034->MPUSL, f034->MPROF } )
+////    endif
+////    f034->( dbSkip() )
+////  Enddo
+////  f034->( dbCloseArea() )
+
+//  mDS_stac := otd->DS_STAC
+////  arr_v := get_f034_usl_ok( otd->LPU_1, usl_ok )
+
+//  If lAliasOtd
+//    otd->( dbCloseArea() )
+//  endif
+
+  for each row in arr_HU
+    if row[ USL_TYPEF ] == 0 .and. row[ USL_CENA ] != 0  // услуга из human_u.dbf
+      AAdd( arrUsluga, row )
+    endif
+  next
+
+  if Len( arrUsluga ) > 0   // == 1
+    if isServiceVMP( arrUsluga[ 1, USL_SHIFR ], mdate )
+      mVidPom := 32
+    elseif SubStr( arrUsluga[ 1, USL_SHIFR ], 1, 2 ) == 'st'
+      if hb_At( '31', arrUsluga[ 1, USL_SVIDPOM ] ) > 0
+        mVidPom := 31
+      endif
+    elseif SubStr( arrUsluga[ 1, USL_SHIFR ], 1, 2 ) == 'ds'
+      if mDS_stac == 1
+        if hb_At( '31', arrUsluga[ 1, USL_SVIDPOM ] ) > 0
+          mVidPom := 31
+        endif
+      else
+        if eq_any( arrUsluga[ 1, USL_VR_PRVS21 ], 76, 49, 39 ) .and. ( hb_At( '12', arrUsluga[ 1, USL_SVIDPOM ] ) > 0 )  // тераипия, педиатрия, общая врачебная практика
+          mVidPom := 12
+        elseif  ( hb_At( '13', arrUsluga[ 1, USL_SVIDPOM ] ) > 0 )
+          mVidPom := 13
+        endif
+      endif
+    elseif hb_At( ',', arrUsluga[ 1, USL_SVIDPOM ] ) == 0
+      mVidPom := Val( arrUsluga[ 1, USL_SVIDPOM ] )
+    else
+      if eq_any( arrUsluga[ 1, USL_VR_PRVS21 ], 206, 207 )  // фельдшер, акушер
+        if hb_At( '11', arrUsluga[ 1, USL_SVIDPOM ] ) > 0
+          mVidPom := 11
+        endif
+      elseif eq_any( arrUsluga[ 1, USL_VR_PRVS21 ], 76, 49, 39 )  // терапия, педиатрия, общая врачебная практика
+        if hb_At( '12', arrUsluga[ 1, USL_SVIDPOM ] ) > 0
+          mVidPom := 12
+        endif
+      else  // узкие специалисты
+        if hb_At( '13', arrUsluga[ 1, USL_SVIDPOM ] ) > 0
+          mVidPom := 13
+        endif
+      endif
+    endif
+  endif
+
+  Select( tmpSelect )
+
+  return mVidPom

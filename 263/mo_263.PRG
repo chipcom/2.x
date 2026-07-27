@@ -2497,8 +2497,8 @@ Function _263_to_nastr()
   Delete file tmp.dbf
   //
   AAdd( mm_tmp, { 'work_otd', 'N', 1, 0, NIL, ;
-    {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
-    0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
+    {| x| menu_reader( x, mm_danet(), A__MENUVERT ) }, ;
+    0, {| x| inieditspr( A__MENUVERT, mm_danet(), x ) }, ;
     'Работаем с отделениями в данной подзадаче?', , ;
     {|| currentuser():isadmin() } } )
   AAdd( mm_tmp, { 'e_1', 'C', 1, 0, NIL, , '', , ;

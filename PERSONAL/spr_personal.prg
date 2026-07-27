@@ -251,7 +251,7 @@ Function f2edit_pers( nKey, oBrow )
     mkateg    := inieditspr( A__MENUVERT, gmenu_kateg, m1kateg )
     mvid      := inieditspr( A__MENUVERT, osn_sovm, m1vid )
     mvr_kateg := inieditspr( A__MENUVERT, menu_vr_kateg, m1vr_kateg )
-    msertif   := inieditspr( A__MENUVERT, mm_danet, m1sertif )
+    msertif   := inieditspr( A__MENUVERT, mm_danet(), m1sertif )
     m1prvs    := iif( Empty( m1prvs ), Space( 4 ), PadR( lstr( m1prvs ), 4 ) )
     mprvs     := PadR( ret_tmp_prvs( 0, m1prvs ), 40 )
 
@@ -300,7 +300,7 @@ Function f2edit_pers( nKey, oBrow )
       when ( m1kateg == 1 .or. m1kateg == 2 )
     @ ++r, 2 Say 'Дата подтверждения мед.категории' Get mD_KATEG  when ( m1kateg == 1 .or. m1kateg == 2 )
     @ ++r, 2 Say 'Наличие сертификата' Get mSERTIF ;
-      reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+      reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
       when ( m1kateg == 1 .or. m1kateg == 2 )
     @ ++r, 2 Say 'Дата подтверждения сертификата' Get mD_SERTIF ;
       when ( m1kateg == 1 .or. m1kateg == 2 )

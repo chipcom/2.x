@@ -657,7 +657,7 @@ Function r_list_uch( par, name_func )
   mtime := hour_min( Seconds() )
   mbeg_polis := full_date( c4tod( kart_->beg_polis ) )
   msrok_polis := full_date( c4tod( kart->srok_polis ) )
-  mvzros_reb := Upper( inieditspr( A__MENUVERT, menu_vzros, kart->vzros_reb ) )
+  mvzros_reb := Upper( inieditspr( A__MENUVERT, menu_vzros(), kart->vzros_reb ) )
   mmi_git    := okato_mi_git( kart_->okatog )
   mrajon_git := okato_rajon( kart_->okatog )
   If !emptyall( kart_->PHONE_H, kart_->PHONE_M, kart_->PHONE_W )
@@ -682,7 +682,6 @@ Function r_list_uch( par, name_func )
       mkomu += iif( Empty( s ), 'ТФОМС (иногородние)', s )
       mmest_inog := inieditspr( A__MENUVERT, glob_array_srf(), kart_->KVARTAL_D ) // ОКАТО субъекта РФ территории страхования
     Elseif Left( kart_->SMO, 2 ) == '34'
-//      mkomu += AllTrim( inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( kart_->smo ) ) ) )
       mkomu += AllTrim( inieditspr( A__MENUVERT, smo_volgograd(), Int( Val( kart_->smo ) ) ) )
       mmest_inog := 'Волгоградская область'
     Elseif !Empty( kart_->SMO )
@@ -702,7 +701,7 @@ Function r_list_uch( par, name_func )
   m1vid_ud := kart_->vid_ud
   mnom     := kart_->nom_ud
   mser     := kart_->ser_ud
-  mvidpolis := ' (' + AllTrim( inieditspr( A__MENUVERT, mm_vid_polis, kart_->vpolis ) ) + ')'
+  mvidpolis := ' (' + AllTrim( inieditspr( A__MENUVERT, mm_vid_polis(), kart_->vpolis ) ) + ')'
   mmesto_rog := AllTrim( kart_->mesto_r )
   If Empty( stm_kategor2 )
     m1kategor := kart_->kategor
@@ -984,7 +983,6 @@ Function new_list_uch( par, name_func )
     Endif
     frt->smo := '(' + AllTrim( kart_->KVARTAL_D ) + ') ' + s
   Elseif Left( kart_->SMO, 2 ) == '34'
-//    frt->smo := AllTrim( inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( kart_->smo ) ) ) )
     frt->smo := AllTrim( inieditspr( A__MENUVERT, smo_volgograd(), Int( Val( kart_->smo ) ) ) )
   Elseif !Empty( kart_->SMO )
     frt->smo := '(' + AllTrim( kart_->KVARTAL_D ) + ') ' + init_ismo( kart_->SMO )
@@ -1057,7 +1055,6 @@ Function new_list_uch( par, name_func )
     m1company := m1str_crb
   Endif
   If m1komu == 0 // ОМС
-//    mm_company := AClone( glob_arr_smo )
     mm_company := AClone( smo_volgograd() )
   Elseif m1komu == 1 // Прочие компании
     r_use( dir_server() + 'str_komp' )
@@ -1574,7 +1571,7 @@ Function p4_travma( r, c )
   mnomer := snomer
   mdate_obr := sd_obr
   mdate_travm := sd_travm
-  mtravma := inieditspr( A__MENUVERT, stm_travma, stravma )
+  mtravma := inieditspr( A__MENUVERT, stm_travma(), stravma )
   mvrach := svrach
   mdost := sdost
   mtitul := AllTrim( kart->fio )
@@ -1589,7 +1586,7 @@ Function p4_travma( r, c )
   @ ++k, 4 Say 'Дата обращения' Get mdate_obr
   @ ++k, 4 Say 'Дата получения травмы' Get mdate_travm
   @ ++k, 4 Say 'Вид травмы' Get mtravma ;
-    reader {| x| menu_reader( x, stm_travma, A__MENUVERT, , , .f. ) }
+    reader {| x| menu_reader( x, stm_travma(), A__MENUVERT, , , .f. ) }
   If fl_dost
     @ ++k, 4 Say 'Как доставлен' Get mdost ;
       reader {| x| menu_reader( x, arr_dost, A__MENUVERT, , , .f. ) }
@@ -2187,7 +2184,7 @@ Function f0_prn_kartotek( par, nuch, nsmo )
         tmp->DATE_R     := full_date( kart->date_r ) // дата рождения больного
         mdate_r := kart->date_r
         fv_date_r(, .f. )
-        tmp->VZROS_REB  := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
+        tmp->VZROS_REB  := inieditspr( A__MENUVERT, menu_vzros(), m1vzros_reb )
         tmp->mesto_r    := kart_->mesto_r // место рождения;;
         tmp->OKATOR     := kart_->okatog
         tmp->ADRESR     := ret_okato_ulica( kart->adres, kart_->okatog ) // адрес больного
@@ -2199,7 +2196,7 @@ Function f0_prn_kartotek( par, nuch, nsmo )
         tmp->END_POLIS  := full_date( c4tod( kart->SROK_POLIS ) ) // срок действия полиса
         tmp->KOD_SMO    := kart_->smo
         tmp->SMO        := smo_to_screen( 1 )
-        tmp->vpolis     := inieditspr( A__MENUVERT, mm_vid_polis, kart_->vpolis )
+        tmp->vpolis     := inieditspr( A__MENUVERT, mm_vid_polis(), kart_->vpolis )
         tmp->polis      := LTrim( kart_->NPOLIS )
 //        tmp->SNILS      := iif( Empty( kart->SNILS ), '', Transform( kart->SNILS, picture_pf ) )
         tmp->SNILS      := iif( Empty( kart->SNILS ), '', Transform_SNILS( kart->SNILS ) )
@@ -2266,7 +2263,7 @@ Function f0_prn_kartotek( par, nuch, nsmo )
         tmp->DATE_R     := full_date( kart->date_r ) // дата рождения больного
         mdate_r := kart->date_r
         fv_date_r(, .f. )
-        tmp->VZROS_REB  := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
+        tmp->VZROS_REB  := inieditspr( A__MENUVERT, menu_vzros(), m1vzros_reb )
         tmp->mesto_r    := kart_->mesto_r // место рождения;;
         tmp->OKATOR     := kart_->okatog
         tmp->ADRESR     := ret_okato_ulica( kart->adres, kart_->okatog ) // адрес больного
@@ -2278,7 +2275,7 @@ Function f0_prn_kartotek( par, nuch, nsmo )
         tmp->END_POLIS  := full_date( c4tod( kart->SROK_POLIS ) ) // срок действия полиса
         tmp->KOD_SMO    := kart_->smo
         tmp->SMO        := smo_to_screen( 1 )
-        tmp->vpolis     := inieditspr( A__MENUVERT, mm_vid_polis, kart_->vpolis )
+        tmp->vpolis     := inieditspr( A__MENUVERT, mm_vid_polis(), kart_->vpolis )
         tmp->polis      := LTrim( kart_->NPOLIS )
 //        tmp->SNILS      := iif( Empty( kart->SNILS ), '', Transform( kart->SNILS, picture_pf ) )
         tmp->SNILS      := iif( Empty( kart->SNILS ), '', Transform_SNILS( kart->SNILS ) )
@@ -3671,7 +3668,7 @@ Return Nil
 #define CSV_A_DT_ZAPR  13   // Дата запроса для данного случая
 #define CSV_A_CERR     14   // ошибки     
   
-// 25.06.26 чтение в память и анализ CSV-файла ответа на запрос для НОВОЙ сверки 
+// 04.07.26 чтение в память и анализ CSV-файла ответа на запрос для НОВОЙ сверки 
 Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
 
   Local i, j, k1, k, s, arr_csv, te := {}, kol1 := 0, kol2 := 0, kol3 := kol4 := 0, ;
@@ -3741,9 +3738,15 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
     s := arr_csv[ i, CSV_A_CERR ]
     arr_csv[ i, CSV_A_CERR ] := {}
     If !Empty( s )
-      For j := 1 To NumToken( s, ',', 1 )
-        AAdd( arr_csv[ i, CSV_A_CERR ], Int( Val( AllTrim( Token( s, ',', j, 1 ) ) ) ) )
-      Next
+      // коррекция массива ну умерших позднее
+      if 706 == Int( Val( AllTrim( Token( s, ',', 1, 1 ) ) ) ) .and. ;
+        arr_csv[ i, CSV_A_SMO_E ] >  arr_csv[ i, CSV_A_DT_ZAPR ] 
+         // массив не создаем
+      else 
+        For j := 1 To NumToken( s, ',', 1 )
+          AAdd( arr_csv[ i, CSV_A_CERR ], Int( Val( AllTrim( Token( s, ',', j, 1 ) ) ) ) )
+        Next
+      endif  
     //  mydebug(,'-----------------')
     //  mydebug(,print_array(arr_csv[ i, CSV_A_CERR ] ))
     elseif alltrim(arr_csv[ i, CSV_A_SMO ]) == '34000' // пациент еще не определен в СМО      

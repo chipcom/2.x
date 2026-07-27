@@ -726,7 +726,7 @@ Function f2_view_rak( nKey, oBrow )
 
   Return ret
 
-// 20.04.26
+// 15.07.26
 Function delete_rak( lrec, lname, not_end ) 
 
   Local ret := 0, arr_next := {}, fl, ia, is, ih, buf := save_maxrow()
@@ -788,9 +788,9 @@ Function delete_rak( lrec, lname, not_end )
   If not_end
     fl := .t.
   Else
-    if year( date_rak ) == 2026 .and. month( date_rak ) == 4
+    if ( year( date_rak ) == 2026 .and. month( date_rak ) == 4 ) .or. ( date_rak == 0d20260714 )
       fl := .t.
-    else  
+    else
       fl := involved_password( 2, lname, 'подтверждения возврата (удаления) РАК' )
     endif
   Endif
@@ -3085,7 +3085,6 @@ Function pr_list_rak()
     krak := 0, kakt, ksch, kpac, kerr, kpen, sh, HH := 60
 
   If arr_smo == NIL
-    // arr_smo := mo_cut_menu( glob_arr_smo )
     arr_smo := mo_cut_menu( smo_volgograd() )
   Endif
   If ( arr_m := year_month( T_ROW, T_COL - 5 ) ) == NIL
@@ -3265,7 +3264,7 @@ Function akt_summa_of_refusal( tip )
   // 1 - по дате АКТА в РАК
   // 2  - по дате РАК
   Local buf := save_maxrow(), arr_m, n_file := cur_dir() + 'sum_RAK' + stxt(), sh, HH := 40
-  Local arr_smo := AClone( smo_volgograd() )  // glob_arr_smo )
+  Local arr_smo := AClone( smo_volgograd() )
   local adbf
 
   If ( arr_m := year_month( T_ROW, T_COL - 5 ) ) == NIL
@@ -3528,7 +3527,6 @@ Function akt_list_of_refusal_defect()
   Local buf := SaveScreen(), i, ar, s, r := 14
 
   If arr_smo == NIL
-    // arr_smo := mo_cut_menu( glob_arr_smo )
     arr_smo := mo_cut_menu( smo_volgograd() )
     For i := 1 To Len( arr_smo )
       arr_smo[ i, 3 ] := PadR( lstr( arr_smo[ i, 2 ] ), 5 )

@@ -470,7 +470,6 @@ Function f4_view_list_schet( lkomu, lsmo, lstr_crb )
   If lkomu == 5
     s := 'Личный счёт'
   Elseif !Empty( lsmo )
-//    s := inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( lsmo ) ) )
     s := inieditspr( A__MENUVERT, smo_volgograd(), Int( Val( lsmo ) ) )
     If Empty( s )
       s := inieditspr( A__POPUPMENU, dir_server() + 'str_komp', lstr_crb )

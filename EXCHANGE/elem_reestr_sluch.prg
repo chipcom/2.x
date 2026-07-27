@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 27.06.26
+// 29.06.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -824,7 +824,11 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
         if ! ( p_tip_reestr == TYPE_REESTR_DISPASER .and. Len( a_otkaz ) > 0 .and. AScan( a_otkaz, { | x | x[ 1 ] == lshifr } ) > 0 )
           p2->( dbGoto( hu->kod_vr ) )
-          tag_mr_usl_n( oUsl, _nyear, 1, hu_->PRVS, p2->snils ) // пока ставим 1 исполнитель
+          if ( p_tip_reestr == TYPE_REESTR_DISPASER ) .and. ! between_date( human->n_data, human->k_data, c4tod( hu->DATE_U ) )
+            tag_mr_usl_n( oUsl, _nyear, 1, hu_->PRVS, '0' ) // пока ставим 1 исполнитель
+          else
+            tag_mr_usl_n( oUsl, _nyear, 1, hu_->PRVS, p2->snils ) // пока ставим 1 исполнитель
+          endif
         endif
       Next
     Endif

@@ -887,7 +887,7 @@ Function f_valid_usl_tip( g, o )
         // mlek := padr(init_lek_pr(m1usl_tip, m1crit), 53)
         mlek := PadR( init_lek_pr(), 53 )
         lstr_ptr := ret_str_onc( 9, 1 )
-        mpptr := inieditspr( A__MENUVERT, mm_danet, m1pptr )
+        mpptr := inieditspr( A__MENUVERT, mm_danet(), m1pptr )
       Endif
       musl_tip1 := PadR( mm_usl_tip1[ 1, 1 ], 69 )
       m1usl_tip1 := mm_usl_tip1[ 1, 2 ]

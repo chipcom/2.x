@@ -54,7 +54,7 @@ function editDepartment( oBrowse, aObjects, oDepartment, nKey )
 	elseif nKey == K_F2
 	elseif nKey == K_INS .OR. nKey == K_ENTER .or. nKey == K_F4
 		m1talon		:= iif( oDepartment:IsUseTalon, 1, 0 )
-		mtalon			:= inieditspr_bay( A__MENUVERT, mm_danet, m1talon )
+		mtalon			:= inieditspr_bay( A__MENUVERT, mm_danet(), m1talon )
 		oChief		:= oDepartment:Chief
 		if ! isnil( oChief )
 			mvrach := padr( oChief:ShortFIO(), 20 )
@@ -71,7 +71,7 @@ function editDepartment( oBrowse, aObjects, oDepartment, nKey )
 		@ k + 1, 12 say 'Наименование подразделения' get oDepartment:Name
 		@ k + 2, 12 say 'Сокращенное наименование' get oDepartment:ShortName
 		@ k + 3, 12 say 'Работаем со стат. талоном?' get mtalon ;
-				reader { | x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+				reader { | x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
 		@ k + 4, 12 say 'Таб.№ руководителя' get mtabn_vr pict '99999' ;
 				valid { | g | validEmployer( g, 'врач', @oChief ) }
 		@ row(), col() + 1 get mvrach  when .f. color color14 picture '@S20'

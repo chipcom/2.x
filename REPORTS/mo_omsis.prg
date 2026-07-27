@@ -1094,8 +1094,6 @@ Function uzkie1spec()
       { {| k, r, c| k := year_month( r + 1, c ), ;
       if( k == nil, nil, ( parr_m := AClone( k ), k := { k[ 1 ], k[ 4 ] } ) ), ;
       k } }, A__FUNCTION,,, .f. ) }
-//    @ r1 + 3, 4 Say "‘âà å®¢ ï ª®¬¯ ­¨ï" Get mstrah ;
-//      reader {| x| menu_reader( x, glob_arr_smo, A__MENUVERT,,, .f. ) }
     @ r1 + 3, 4 Say "‘âà å®¢ ï ª®¬¯ ­¨ï" Get mstrah ;
       reader {| x| menu_reader( x, smo_volgograd(), A__MENUVERT,,, .f. ) }
     @ r1 + 4, 4 Say "®¬¥à" Get mnomer
@@ -1125,12 +1123,15 @@ Function uzkie1spec()
 //
 Function uzkie2spec()
 
-  Static mm_perso := { { '¥àá®­ «', 1 }, { '¥àá®­ «+ãá«ã£¨', 2 }, ;
-    { '“á«ã£¨', 3 }, { '“á«ã£¨+¯¥àá®­ «', 4 } }
+  Static mm_perso := { ;
+    { '¥àá®­ «', 1 }, ;
+    { '¥àá®­ «+ãá«ã£¨', 2 }, ;
+    { '“á«ã£¨', 3 }, ;
+    { '“á«ã£¨+¯¥àá®­ «', 4 } }
   Local buf := SaveScreen(), r1 := 13
 
   Private mstrah := PadR( glob_strah[ 2 ], 30 ), m1strah := glob_strah[ 1 ], ;
-    m1usl := mm_danet[ 1, 2 ], musl := mm_danet[ 1, 1 ], ;
+    m1usl := mm_danet()[ 1, 2 ], musl := mm_danet()[ 1, 1 ], ;
     m1period := 0, mperiod := Space( 10 ), parr_m, ;
     mprocent := 0, mperso := mm_perso[ 1, 1 ], m1perso := mm_perso[ 1, 2 ], ;
     msumma := 0, gl_area := { r1, 0, 23, 79, 0 }, arr_usl
@@ -1144,12 +1145,10 @@ Function uzkie2spec()
       { {| k, r, c| k := year_month( r + 1, c ), ;
       if( k == nil, nil, ( parr_m := AClone( k ), k := { k[ 1 ], k[ 4 ] } ) ), ;
       k } }, A__FUNCTION, , , .f. ) }
-//    @ r1 + 3, 4 Say '‘âà å®¢ ï ª®¬¯ ­¨ï' Get mstrah ;
-//      reader {| x| menu_reader( x, glob_arr_smo, A__MENUVERT, , , .f. ) }
     @ r1 + 3, 4 Say '‘âà å®¢ ï ª®¬¯ ­¨ï' Get mstrah ;
       reader {| x| menu_reader( x, smo_volgograd(), A__MENUVERT, , , .f. ) }
     @ r1 + 4, 4 Say ' §à¥è¨âì ¨áª«îç¥­¨¥ ­¥ª®â®àëå ãá«ã£ ¨§ á¯¨áª  ’”Œ‘?' Get musl ;
-      reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+      reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
     @ r1 + 5, 4 Say '‚­¥è­¨© ¢¨¤ ¤®ªã¬¥­â ' Get mperso ;
       reader {| x| menu_reader( x, mm_perso, A__MENUVERT, , , .f. ) }
     @ r1 + 6, 4 Say 'à®æ¥­â ¤«ï  áá¨áâ¥­â  (¢ á«ãç ¥ ¥£® ¯à¨áãâáâ¢¨ï)' Get mprocent Pict '99'
@@ -1706,7 +1705,7 @@ Function prikaz_848_miac()
   mpoisk := inieditspr( A__MENUVERT, mm_poisk, m1poisk )
   mmest1 := inieditspr( A__MENUVERT, mm_mest, m1mest1 )
   mdolpro := inieditspr( A__MENUVERT, mm_dolpro, m1dolpro )
-  musl   := inieditspr( A__MENUVERT, mm_danet, m1usl  )
+  musl   := inieditspr( A__MENUVERT, mm_danet(), m1usl  )
   SetColor( cDataCGet )
   myclear( r )
   Private gl_area := { r, 0, MaxRow() -1, MaxCol(), 0 }
@@ -1723,7 +1722,7 @@ Function prikaz_848_miac()
   @ r + 5, 2 Say "Š ª ®â®¡à ¦ âì ¢à ç¥¡­ë¥ ¯à¨ñ¬ë" Get mdolpro ;
     reader {| x| menu_reader( x, mm_dolpro, A__MENUVERT,,, .f. ) }
   @ r + 6, 2 Say "‚ë¢®¤¨âì á¯¨á®ª ãá«ã£" Get musl ;
-    reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) }
+    reader {| x| menu_reader( x, mm_danet(), A__MENUVERT,,, .f. ) }
   myread()
   If LastKey() != K_ESC
     If mdate11 > mdate12

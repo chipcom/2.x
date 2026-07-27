@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 19.06.26 ДВН - добавление или редактирование случая (листа учета)
+// 02.07.26 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -301,11 +301,10 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     kart_->( dbGoto( mkod_k ) )
     r_use( dir_server() + 'kartotek', , 'KART' )
     kart->( dbGoto( mkod_k ) )
-
-    If Left( kart2->PC2, 1 ) == '1'
+    If Left( kart2->PC2, 1 ) == '1' 
       func_error( 4, 'По информации из ТФОМС пациент У_М_Е_Р!' )
-      dbCloseAll()
-      Return Nil
+//      dbCloseAll()
+//      Return Nil
     endif
     if kart2->MO_PR != glob_mo()[ _MO_KOD_TFOMS ] .and. mem_stranger_attachment == 0
       func_error( 4, 'У пациента нет прикрепления к нашей организации!' )

@@ -67,8 +67,8 @@ function get_komitet()
     aadd(arr, {'okpo', 'C', 15, 0, nil, nil, space(15), nil, ;
                        'Код по ОКПО'})
     aadd(arr, {'parakl', 'N', 1, 0, nil, ;
-                       {|x|menu_reader(x, mm_danet, A__MENUVERT)}, ;
-                       0, {|x|inieditspr(A__MENUVERT, mm_danet, x)}, ;
+                       {|x|menu_reader(x, mm_danet(), A__MENUVERT)}, ;
+                       0, {|x|inieditspr(A__MENUVERT, mm_danet(), x)}, ;
                        'Включать ПАРАКЛИНИКУ в сумму счета по данному комитету (МО):'})
     aadd(arr, {'ist_fin', 'N', 1, 0, nil, ;
                        {|x|menu_reader(x, mm1ist_fin(), A__MENUVERT)}, ;
@@ -108,8 +108,8 @@ function get_strah()
     aadd(arr, {'tfoms', 'N', 2, 0, nil, nil, 0, nil, ;
       'Код ТФОМС', , {||.f.}})
     aadd(arr, {'parakl', 'N', 1, 0, nil, ;
-      {|x|menu_reader(x, mm_danet, A__MENUVERT)}, ;
-      0, {|x|inieditspr(A__MENUVERT, mm_danet, x)}, ;
+      {|x|menu_reader(x, mm_danet(), A__MENUVERT)}, ;
+      0, {|x|inieditspr(A__MENUVERT, mm_danet(), x)}, ;
       'Включать ПАРАКЛИНИКУ в сумму счета по данной компании:'})
     aadd(arr, {'ist_fin', 'N', 1, 0, nil, ;
       {|x|menu_reader(x, mm1ist_fin(), A__MENUVERT)}, ;

@@ -7,12 +7,12 @@ function test_init()
 
 //  local aaa
 
-//  aaa := load_arr_DVN_etap( 1, 0, 64 )
+//  aaa := get_plans_KZVO( 2026, '340169' ) // Фроловская ЦРБ
 //  altd()
 //  aaa := load_arr_DVN_etap( 1, 'Ж', 40 )
 
   return nil
-
+/*
 // 12.07.24
 function convert_P_CEL()
 
@@ -41,3 +41,4 @@ function convert_P_CEL()
   endif
 
   return hPCEL
+*/

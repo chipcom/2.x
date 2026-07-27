@@ -307,7 +307,6 @@ Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
     Do While !Eof()
       If tmp2->_OPLATA == 1
         ++ii1
-//        If AScan( glob_arr_smo, {| x| x[ 2 ] == Int( Val( tmp2->_SMO ) ) } ) == 0
         If AScan( smo_volgograd(), {| x| x[ 2 ] == Int( Val( tmp2->_SMO ) ) } ) == 0
           AAdd( aerr, 'Некорректное значение атрибута SMO: ' + tmp2->_SMO )
         Endif

@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 07.04.26 добавление или редактирование случая (листа учета)
+// 15.07.26 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -608,7 +608,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   Endif
   Close databases
   MFIO_KART := SubStr( _f_fio_kart(), 1, 35 )
-  mvzros_reb := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
+  mvzros_reb := inieditspr( A__MENUVERT, menu_vzros(), m1vzros_reb )
   If Empty( m1USL_OK )
     m1USL_OK := USL_OK_HOSPITAL
   Endif // на всякий случай
@@ -623,28 +623,28 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   mPROFIL   := SubStr( inieditspr( A__MENUVERT, getv002(), m1PROFIL ), 1, 27 )
   mPROFIL_K := inieditspr( A__MENUVERT, getv020(),  m1PROFIL_K )
   mPROFIL_M := Substr( inieditspr( A__MENUVERT, getM003(),  m1PROFIL_M ), 1, 15 )
-  mvid_reab := inieditspr( A__MENUVERT, mm_vid_reab, m1vid_reab )
+  mvid_reab := inieditspr( A__MENUVERT, mm_vid_reab(), m1vid_reab )
   If !Empty( m1NPR_MO )
     mNPR_MO := substr( ret_mo( m1NPR_MO )[ _MO_SHORT_NAME ], 1, 20 )
   Endif
-  mDS_ONK   := inieditspr( A__MENUVERT, mm_danet, M1DS_ONK )
-  MVMP      := inieditspr( A__MENUVERT, mm_danet, M1VMP )
+  mDS_ONK   := inieditspr( A__MENUVERT, mm_danet(), M1DS_ONK )
+  MVMP      := inieditspr( A__MENUVERT, mm_danet(), M1VMP )
   MVIDVMP   := ret_v018( M1VIDVMP, mk_data )
   MMETVMP   := ret_v019( M1METVMP, M1VIDVMP, mk_data )
   mmodpac   := ret_v022( m1modpac, mk_data )
   mreg_lech := inieditspr( A__MENUVERT, mm_reg_lech, m1reg_lech )
-  MNOVOR    := inieditspr( A__MENUVERT, mm_danet, M1NOVOR )
+  MNOVOR    := inieditspr( A__MENUVERT, mm_danet(), M1NOVOR )
   MF14_EKST := inieditspr( A__MENUVERT, mm_ekst(), M1F14_EKST )
-  MF14_SKOR := inieditspr( A__MENUVERT, mm_danet, M1F14_SKOR )
-  MF14_VSKR := inieditspr( A__MENUVERT, mm_vskrytie, M1F14_VSKR )
-  MF14_RASH := inieditspr( A__MENUVERT, mm_danet, M1F14_RASH )
+  MF14_SKOR := inieditspr( A__MENUVERT, mm_danet(), M1F14_SKOR )
+  MF14_VSKR := inieditspr( A__MENUVERT, mm_vskrytie(), M1F14_VSKR )
+  MF14_RASH := inieditspr( A__MENUVERT, mm_danet(), M1F14_RASH )
   mrslt     := inieditspr( A__MENUVERT, getv009(), m1rslt )
   mishod    := inieditspr( A__MENUVERT, getv012(), m1ishod )
-  mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
+  mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis(), m1vidpolis )
   mbolnich  := inieditspr( A__MENUVERT, menu_bolnich, m1bolnich )
   mNMSE     := inieditspr( A__MENUVERT, arr_NO_YES(), m1NMSE )
-  // mpovod    := inieditspr(A__MENUVERT, stm_povod, m1povod)
-  // mtravma   := inieditspr(A__MENUVERT, stm_travma, m1travma)
+  // mpovod    := inieditspr(A__MENUVERT, stm_povod(), m1povod)
+  // mtravma   := inieditspr(A__MENUVERT, stm_travma(), m1travma)
   motd      := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd',  m1otd )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
   mkomu     := inieditspr( A__MENUVERT, mm_komu(), m1komu )
@@ -691,7 +691,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     Else
       m1_l_z := mtip_h - B_END
     Endif
-    m_l_z := inieditspr( A__MENUVERT, mm_danet, m1_l_z )
+    m_l_z := inieditspr( A__MENUVERT, mm_danet(), m1_l_z )
   Endif
   pr_1_str( str_1 )
   SetColor( color8 )
@@ -745,7 +745,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       //        reader {| x| menu_reader( x, { {| k, r, c| f_get_mo( k, r, c ) } }, A__FUNCTION, , , .f. ) } ;
       //
       @ ++j, 1 Say 'Новорожденный?' Get mnovor ;
-        reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+        reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
         valid {| g, o| f_valid_novor( g, o ) } ;
         Color colget_menu
       @ Row(), Col() + 3 Say '№/пп ребёнка' Get mcount_reb Pict '99' Range 1, 99 ;
@@ -753,7 +753,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       @ Row(), Col() + 3 Say 'Д.р. ребёнка' Get mdate_r2 when ( m1novor == 1 )
       If mem_pol == 1
         @ Row(), Col() + 3 Say 'Пол ребёнка' Get mpol2 ;
-          reader {| x| menu_reader( x, menupol, A__MENUVERT, , , .f. ) } ;
+          reader {| x| menu_reader( x, menupol(), A__MENUVERT, , , .f. ) } ;
           when ( m1novor == 1 )
       Else
         @ Row(), Col() + 3 Say 'Пол ребёнка' Get mpol2 Pict '@!' ;
@@ -767,7 +767,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       If yes_vypisan == B_END
         @ Row(), Col() + 5 Say ' Лечение завершено?' Color 'G+/B'
         @ Row(), Col() + 1 Get m_l_z ;
-          reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+          reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
           Color 'GR+/B'
       Endif
       //
@@ -831,7 +831,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       @ ++j, 1 Say 'Полис ОМС: серия' Get mspolis When m1komu == 0
       @ Row(), Col() + 3 Say 'номер' Get mnpolis When m1komu == 0
       @ Row(), Col() + 3 Say 'вид'   Get mvidpolis ;
-        reader {| x| menu_reader( x, mm_vid_polis, A__MENUVERT, , , .f. ) } ;
+        reader {| x| menu_reader( x, mm_vid_polis(), A__MENUVERT, , , .f. ) } ;
         When m1komu == 0 ;
         Valid func_valid_polis( m1vidpolis, mspolis, mnpolis )
       //
@@ -878,7 +878,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         When eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
       If is_reabil_slux()
         @ ++j, 3 Say 'вид мед.реабилитации' Get mvid_reab ;
-          reader {| x| menu_reader( x, mm_vid_reab, A__MENUVERT, , , .f. ) } ;
+          reader {| x| menu_reader( x, mm_vid_reab(), A__MENUVERT, , , .f. ) } ;
           When eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL ) .and. m1profil == 158
       Endif
       //
@@ -898,19 +898,19 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         reader {| x| menu_reader( x, mm_ekst(), A__MENUVERT, , , .f. ) } ;
         valid {| g, o| f_valid_f14_ekst( g, o, m1p_per ) }
       @ Row(), Col() + 3 Say 'Доставлен скорой помощью' Get MF14_SKOR ;
-        reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+        reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
         When M1F14_EKST == 1
       @ ++j, 3 Say 'вскрытие' Get MF14_VSKR ;
-        reader {| x| menu_reader( x, mm_vskrytie, A__MENUVERT, , , .f. ) } ;
+        reader {| x| menu_reader( x, mm_vskrytie(), A__MENUVERT, , , .f. ) } ;
         When is_death( m1RSLT )
       @ Row(), Col() + 3 Say 'установлено расхождение диагнозов' Get MF14_RASH ;
-        reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+        reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
         When M1F14_VSKR > 0
       /*++j
       if is_talon
         if mem_st_pov == 1
           @ j, 1 say 'Повод обращения' get mpovod ;
-              reader {|x|menu_reader(x,stm_povod, A__MENUVERT, , , .f.)} ;
+              reader {|x|menu_reader(x,stm_povod(), A__MENUVERT, , , .f.)} ;
               color colget_menu
         else
           @ j, 1 say 'Повод обращения' get m1povod pict '9' ;
@@ -920,7 +920,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         if .t.//is_travma // если в настройке для отделения - работа с травмой
           if mem_st_trav == 1
             @ j, 43 say 'Вид травмы' get mtravma ;
-                reader {|x|menu_reader(x,stm_travma, A__MENUVERT, , , .f.)} ;
+                reader {|x|menu_reader(x,stm_travma(), A__MENUVERT, , , .f.)} ;
                 color colget_menu
           else
             @ j, 43 say 'Вид травмы' get m1travma pict '99' ;
@@ -959,7 +959,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       //
       If is_MO_VMP .and. M1USL_OK == USL_OK_HOSPITAL
         @ ++j, 1 Say 'ВМП?' Get MVMP ;
-          reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+          reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
           When m1usl_ok == USL_OK_HOSPITAL ;
           valid {| g, o| f_valid_vmp( g, o ) } ;
           Color colget_menu
@@ -990,7 +990,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       @ Row(),  Col() + 1 Say 'Д.р.родителя' Get mrodit_dr When m1bolnich == 2
       If mem_pol == 1
         @ Row(),  Col() + 1 Say 'Пол' Get mrodit_pol ;
-          reader {| x| menu_reader( x, menupol, A__MENUVERT, , , .f. ) } ;
+          reader {| x| menu_reader( x, menupol(), A__MENUVERT, , , .f. ) } ;
           When m1bolnich == 2
       Else
         @ Row(), Col() + 1 Say 'Пол' Get mrodit_pol Pict '@!' ;
@@ -998,7 +998,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
           When m1bolnich == 2
       Endif
       @ ++j, 1 Say 'Признак подозрения на ЗНО' Get mDS_ONK ;
-        reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+        reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
         when {|| when_ds_onk() } ;
         Color colget_menu
 
@@ -1068,7 +1068,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
           Skip
         Enddo
         For i := 1 To 6
-          &( 'mprot' + lstr( i ) ) := inieditspr( A__MENUVERT, mm_danet, &( 'm1prot' + lstr( i ) ) )
+          &( 'mprot' + lstr( i ) ) := inieditspr( A__MENUVERT, mm_danet(), &( 'm1prot' + lstr( i ) ) )
         Next
         mPR_CONS := inieditspr( A__MENUVERT, mm_PR_CONS, m1PR_CONS )
         //
@@ -1091,7 +1091,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
 //        mm_N005 := f_define_tnm( 5, mkod_diag, mk_data )
 
         mDS1_T := inieditspr( A__MENUVERT, mm_DS1_T, m1DS1_T )
-        mMTSTZ := inieditspr( A__MENUVERT, mm_danet, m1MTSTZ )
+        mMTSTZ := inieditspr( A__MENUVERT, mm_danet(), m1MTSTZ )
         If Len( mm_N002 ) == 1
           m1STAD := mm_N002[ 1, 2 ]
         Endif
@@ -1153,8 +1153,8 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         Endif
         ASort( mm_N012, , , {| x, y| x[ 2 ] < y[ 2 ] } )
         If Len( mm_N012 ) > 0 .and. is_mgi
-          If ( i := AScan( glob_MGI, {| x| x[ 1 ] == lshifr } ) ) > 0 // услуга входит в список ТФОМС
-            If ( j := AScan( mm_N012, {| x| x[ 2 ] == glob_MGI[ i, 2 ] } ) ) > 0 // по данному диагнозу присутствует необходимый маркер
+          If ( i := AScan( glob_MGI(), {| x| x[ 1 ] == lshifr } ) ) > 0 // услуга входит в список ТФОМС
+            If ( j := AScan( mm_N012, {| x| x[ 2 ] == glob_MGI()[ i, 2 ] } ) ) > 0 // по данному диагнозу присутствует необходимый маркер
               tmp_arr := {}
               AAdd( tmp_arr, AClone( mm_N012[ j ] ) )
               mm_N012 := AClone( tmp_arr ) // оставим в массиве только один нужный нам маркер
@@ -1365,7 +1365,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
               mlek := m1lek := init_lek_pr()
               lstr_vmpptr := ret_str_onc( 9, 1 )
               m1pptr := tmpou->pptr
-              mpptr := inieditspr( A__MENUVERT, mm_danet, m1pptr )
+              mpptr := inieditspr( A__MENUVERT, mm_danet(), m1pptr )
             Elseif m1usl_vmp == 3
               m1usl_vmp1 := iif( Found(),  tmpou->LUCH_TIP, 0 )
               mm_usl_vmp1 := mm_N017
@@ -1434,7 +1434,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
             mlek := m1lek := init_lek_pr()
             lstr_ptr := ret_str_onc( 9, 1 )
             m1pptr := tmpou->pptr
-            mpptr := inieditspr( A__MENUVERT, mm_danet, m1pptr )
+            mpptr := inieditspr( A__MENUVERT, mm_danet(), m1pptr )
           Endif
         Endif
 //        mmb_diag := { ;
@@ -1522,7 +1522,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
             Color colget_menu
 //            reader {| x| menu_reader( x, mm_N005, A__MENUVERT, , , .f. ) } ;
           @ ++j, 5 Say 'Наличие отдаленных метастазов (при рецидиве или прогрессировании)' Get mMTSTZ ;
-            reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+            reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
             When eq_any( m1DS1_T, 1, 2 ) ;
             Color colget_menu
         endif
@@ -1647,7 +1647,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
               When !Empty( m1crit ) .and. eq_any( m1usl_tip, 2, 4 )
             @ ++j, 5 Get lstr_ptr Color color1 When .f.
             @ j, Col() + 1 Get mpptr ;
-              reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+              reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
               When eq_any( m1usl_tip, 2, 4 )
           Endif
           If is_onko_VMP .and. mtipvmp == 1 // две услуги
@@ -1687,7 +1687,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
                 When !Empty( m1crit ) .and. eq_any( m1usl_vmp, 2, 4 )
               @ ++j, 5 Get lstr_vmpptr Color color1 When .f.
               @ j, Col() + 1 Get mpptr ;
-                reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+                reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
                 When eq_any( m1usl_vmp, 2, 4 )
             Endif
           Endif
@@ -1699,7 +1699,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
             mval := 'mprot' + lstr( i )
             mdval := 'mdprot' + lstr( i )
             @ ++j, 5 Say arr[ i ] get &mval ;
-              reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+              reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
               Color colget_menu
             @ j, 53 get &mdval
           Next i
@@ -1709,7 +1709,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
             mval := 'mprot' + lstr( i )
             mdval := 'mdprot' + lstr( i )
             @ ++j, 5 Say arr[ i - 3 ] get &mval ;
-              reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+              reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
               Color colget_menu
             @ j, 53 get &mdval
           Next i
@@ -2099,7 +2099,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       human_->OPLATA    := 0 // уберём '2',  если отредактировали запись из реестра СП и ТК
       human_->ST_VERIFY := 0 // снова ещё не проверен
 
-      human_->VIDPOM    := define_vidpom( human->OTD, human->kod, human->K_DATA, human_->USL_OK )
+//      human_->VIDPOM    := define_vidpom( human->OTD, human->kod, human->K_DATA, human_->USL_OK )
 
       If Loc_kod == 0  // при добавлении
         human_->ID_PAC    := mo_guid( 1, human_->( RecNo() ) )

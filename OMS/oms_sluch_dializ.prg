@@ -12,7 +12,7 @@ Function f_d_dializ()
 
   Return .t.
 
-// 02.04.26 гемодиализ (1) и перитонеальный диализ (2)
+// 15.07.26 гемодиализ (1) и перитонеальный диализ (2)
 Function oms_sluch_dializ( par, Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -207,12 +207,12 @@ Function oms_sluch_dializ( par, Loc_kod, kod_kartotek )
   dbCloseAll()
   fv_date_r( iif( Loc_kod > 0, mn_data, ) )
   MFIO_KART := _f_fio_kart()
-  mvzros_reb := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
+  mvzros_reb := inieditspr( A__MENUVERT, menu_vzros(), m1vzros_reb )
   mrslt     := inieditspr( A__MENUVERT, mm_rslt, m1rslt )
   mishod    := inieditspr( A__MENUVERT, mm_ishod, m1ishod )
   mlpu      := inieditspr( A__POPUPMENU, dir_server() + 'mo_uch', m1lpu )
   motd      := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', m1otd )
-  mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
+  mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis(), m1vidpolis )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
   mkomu     := inieditspr( A__MENUVERT, mm_komu(), m1komu )
   mismo     := init_ismo( m1ismo )
@@ -275,7 +275,7 @@ Function oms_sluch_dializ( par, Loc_kod, kod_kartotek )
     @ ++j, 1 Say 'Полис ОМС: серия' Get mspolis When m1komu == 0
     @ Row(), Col() + 3 Say 'номер'  Get mnpolis When m1komu == 0
     @ Row(), Col() + 3 Say 'вид'    Get mvidpolis ;
-      reader {| x| menu_reader( x, mm_vid_polis, A__MENUVERT, , , .f. ) } ;
+      reader {| x| menu_reader( x, mm_vid_polis(), A__MENUVERT, , , .f. ) } ;
       When diag_screen( 2 ) .and. m1komu == 0 ;
       Valid func_valid_polis( m1vidpolis, mspolis, mnpolis )
 
@@ -591,7 +591,7 @@ Function oms_sluch_dializ( par, Loc_kod, kod_kartotek )
       human_->OPLATA    := 0 // уберём '2', если отредактировали запись из реестра СП и ТК
       human_->ST_VERIFY := 0 // снова ещё не проверен
       
-      human_->VIDPOM    := define_vidpom( human->OTD, human->kod, human->K_DATA, human_->USL_OK ) 
+//      human_->VIDPOM    := define_vidpom( human->OTD, human->kod, human->K_DATA, human_->USL_OK ) 
 
       human_->ID_PAC    := mo_guid( 1, human_->( RecNo() ) )
       human_->ID_C      := mo_guid( 2, human_->( RecNo() ) )
