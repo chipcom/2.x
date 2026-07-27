@@ -6,25 +6,9 @@
 // 27.03.26
 Function is_usluga_dvn( ausl, _vozrast, arr, _etap, _pol, _spec_ter, arr_umolch, arr_usl )
   
-  // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
-  Local i, j, s, fl := .f., as, lshifr := alltrim(ausl[1])
+  Local i, j, s, fl := .f., as, lshifr := alltrim( ausl[ 1 ] )
   local kprof
-//  local fl_19
 
-/*
-  fl_19 := ( type( 'is_disp_19' ) == 'L' .and. is_disp_19 )
-  if ! fl_19 .and. ( ( lshifr == '2.3.3' .and. ausl[ 3 ] == 3 ) .or. ; // акушерскому делу
-                  ( lshifr == '2.3.1' .and. ausl[ 3 ] == 136 ) )   // акушерству и гинекологии
-      //.and. ( i := ascan(arr_usl, { | x | valtype( x[ 2 ] ) == 'C' .and. x[ 2 ] == '4.20.1' } ) ) > 0
-    if ( ( lshifr == '2.3.3' .and. eq_any( ret_old_prvs( ausl[ 4 ] ), 2003, 2002 ) ) .or. ;
-      ( lshifr == '2.3.1' .and. ret_old_prvs( ausl[ 4 ] ) == 1101 ) )
-    else
-      aadd( arr, 'не та специальность врача в случае невозможности использования услуги:' )
-      aadd( arr, ' "4.1.12.Осмотр акушеркой, взятие мазка (соскоба)"' )
-    endif
-    fl := .t.
-  endif
-*/
   if !fl
     for i := 1 to len( arr_umolch )
       if arr_umolch[ i, 2 ] == lshifr
@@ -78,7 +62,6 @@ Function is_usluga_dvn( ausl, _vozrast, arr, _etap, _pol, _spec_ter, arr_umolch,
             if arr_usl[ i, j ] == 0
               aadd( arr, 'несовместимость по полу в услуге ' + s )
             endif
-//          elseif type('is_disp_19') == 'L' .and. is_disp_19
           elseif valtype( arr_usl[ i, j ] ) == 'A'
             if ascan( arr_usl[ i, j ], _vozrast ) == 0
               aadd( arr,'некорректный возраст пациента для услуги ' + s )
@@ -91,7 +74,6 @@ Function is_usluga_dvn( ausl, _vozrast, arr, _etap, _pol, _spec_ter, arr_umolch,
         endif
         if valtype( arr_usl[ i, 10 ] ) == 'N'
           if ret_profil_dispans( arr_usl[ i, 10 ], ausl[ 4 ] ) != ausl[ 3 ]
-          //if arr_usl[ i, 10 ] != ausl[ 3 ]
             aadd( arr, 'не тот профиль в услуге ' + s )
           endif
         else
@@ -104,10 +86,6 @@ Function is_usluga_dvn( ausl, _vozrast, arr, _etap, _pol, _spec_ter, arr_umolch,
         if _etap == 1 .and. as[ 1 ] == 1112 .and. _spec_ter > 0
           aadd( as, _spec_ter ) // добавить спец-ть терапевта
         endif
-        /*if ascan( as, ausl[ 4 ] ) == 0
-          aadd( arr,'Не та специальность врача в услуге ' + s )
-          aadd( arr, ' у Вас: ' + lstr( ausl[ 4 ] ) + ', разрешено: ' + print_array( as ) )
-        endif*/
         exit
       endif
     next
@@ -666,17 +644,16 @@ Function fget_spec_dvn( k, r, c, a_spec, lFull )
     } )
     Use ( n_file ) New Alias SDVN
     Use ( cur_dir() + 'tmp_v015' ) index ( cur_dir() + 'tmpkV015' ) New Alias tmp_ga
-    Go Top
-    Do While !Eof()
+    tmp_ga->( dbGoTop() )
+    Do While !tmp_ga->( Eof() )
       if lFull
         Select SDVN
-        Append Blank
+        sdvn->( dbAppend() )
         sdvn->name := AfterAtNum( '.', tmp_ga->name, 1 )
         sdvn->kod := tmp_ga->kod
-//        sdvn->isn := as[ i, 2 ]
         s := ''
         Select TMP_GA
-        rec := RecNo()
+        rec := tmp_ga->( RecNo() )
         Do While !Empty( tmp_ga->kod_up )
           find ( tmp_ga->kod_up )
           If Found()
@@ -690,13 +667,13 @@ Function fget_spec_dvn( k, r, c, a_spec, lFull )
       else
         If ( i := AScan( as, { | x | lstr( x[ 1 ] ) == RTrim( tmp_ga->kod ) } ) ) > 0
           Select SDVN
-          Append Blank
+          sdvn->( dbAppend() )
           sdvn->name := AfterAtNum( '.', tmp_ga->name, 1 )
           sdvn->kod := tmp_ga->kod
           sdvn->isn := as[ i, 2 ]
           s := ''
           Select TMP_GA
-          rec := RecNo()
+          rec := tmp_ga->( RecNo() )
           Do While !Empty( tmp_ga->kod_up )
             find ( tmp_ga->kod_up )
             If Found()
@@ -709,23 +686,23 @@ Function fget_spec_dvn( k, r, c, a_spec, lFull )
           sdvn->name1 := s
         Endif
       endif
-      Skip
+      tmp_ga->( dbSkip() )
     Enddo
     sdvn->( dbCloseArea() )
     tmp_ga->( dbCloseArea() )
   Endif
   Use ( n_file ) New Alias tmp_ga
-  Do While !Eof()
+  Do While !tmp_ga->( Eof() )
     tmp_ga->is := ( AScan( a_spec, Int( Val( tmp_ga->kod ) ) ) > 0 )
-    Skip
+    tmp_ga->( dbSkip() )
   Enddo
   if lFull
-    Index On Upper( name ) + kod to ( n_file )
+    Index On Upper( FIELD->name ) + FIELD->kod to ( n_file )
   else
     If metap == 3
-      Index On Upper( name ) + kod to ( n_file )
+      Index On Upper( FIELD->name ) + FIELD->kod to ( n_file )
     Else
-      Index On Upper( name ) + kod to ( n_file ) For isn == 1
+      Index On Upper( FIELD->name ) + FIELD->kod to ( n_file ) For FIELD->isn == 1
     Endif
   endif
   If r <= MaxRow() / 2
@@ -752,8 +729,8 @@ Function fget_spec_dvn( k, r, c, a_spec, lFull )
   edit_browse( t_arr )
   s := ''
   ASize( a_spec, 0 )
-  Go Top
-  Do While !Eof()
+  tmp_ga->( dbGoTop() )
+  Do While !tmp_ga->( Eof() )
     if lFull
       If tmp_ga->is
         s += AllTrim( tmp_ga->kod ) + ','
@@ -765,7 +742,7 @@ Function fget_spec_dvn( k, r, c, a_spec, lFull )
         AAdd( a_spec, Int( Val( tmp_ga->kod ) ) )
       Endif
     endif
-    Skip
+    tmp_ga->( dbSkip() )
   Enddo
   If Empty( s )
     s := '---'
@@ -840,15 +817,11 @@ Function f_is_usl_oms_sluch_dvn( mdata, mobil, i, _etap, _vozrast, _pol, /*@*/_d
     Endif
   Endif
   If fl .and. eq_any( _etap, 2, 3 )
-//    i := iif( _pol == 'М', 8, 9 )
     i := iif( _pol == 'М', 6, 7 )
     If ValType( ar[ i ] ) == 'N'
       fl := ( ar[ i ] != 0 )
-//    Elseif Type( 'is_disp_19' ) == 'L' .and. is_disp_19
     Elseif ValType( ar[ i ] ) == 'A'
       fl := AScan( ar[ i ], _vozrast ) > 0
-//    Else // для 2 этапа и профилактики возраст указан диапазоном
-//      fl := Between( _vozrast, ar[ i, 1 ], ar[ i, 2 ] )
     else
       fl := AScan( ar[ i ], _vozrast ) > 0
     Endif
@@ -872,7 +845,6 @@ Function ret_etap_dvn( lkod_h, lkod_k )
     r_use( dir_server() + 'human', dir_server() + 'humankk', 'HUMAN' )
     Set Relation To RecNo() into HUMAN_
   endif
-//  Set Relation To RecNo() into HUMAN_
   human->( dbSeek( Str( lkod_k, 7 ) ) )
   Do While human->kod_k == lkod_k .and. ! human->( Eof() )
     fl := ( lkod_h != human->( RecNo() ) )
@@ -893,7 +865,6 @@ Function ret_etap_dvn( lkod_h, lkod_k )
   if lHuman
     human->( dbCloseArea() )
   endif
-//  dbCloseAll()
 
   Return ae
 
@@ -908,7 +879,7 @@ Function append_shifr_mo_su( lshifr, fl_commit )
   mosu->( dbSeek( PadR( lshifr, 20 ) ) )    //  find ( PadR( lshifr, 20 ) )
   Do While mosu->shifr1 == PadR( lshifr, 20 ) .and. ! mosu->( Eof() )
     AAdd( arr, { iif( Left( mosu->shifr, 1 ) == '*', 1, 0 ), mosu->kod } )
-    Skip
+    mosu->( dbSkip() )
   Enddo
   If !Empty( arr )
     ASort( arr, , , {| x, y| x[ 1 ] < y[ 1 ] } ) // все старые стомат.услуги со звёздочкой в конец массива
@@ -952,7 +923,8 @@ Function ret_profil_dispans( lprofil, lprvs )
 // 08.08.13 вернуть тип массы в строке
 Function ret_tip_mas( _WEIGHT, _HEIGHT, /*@*/ret )
 
-  Static mm_tip_mas := { { 'Дефицит массы тела', 0, 18.4 }, ;
+  Static mm_tip_mas := { ;
+    { 'Дефицит массы тела', 0, 18.4 }, ;
     { 'Нормальная масса тела', 18.5, 24.9 }, ;
     { 'Избыточная масса тела', 25.0, 29.9 }, ;
     { 'Ожирение I степени', 30.0, 34.9 }, ;
@@ -987,12 +959,6 @@ Function ret_ndisp( lkod_h, lkod_k, /*@*/new_etap, /*@*/msg )
   Endif
   
   If !( is_disp := AScan( ret_arr_vozrast_dvn( mk_data ), mdvozrast ) > 0 )
-//    If !is_disp_19 // по старому приказу МЗ РФ
-//      is_dostup_2_year := AScan( arr2m_vozrast_DVN(), mdvozrast ) > 0
-//      If !is_dostup_2_year .and. mpol == 'Ж'
-//        is_dostup_2_year := AScan( arr2g_vozrast_DVN(), mdvozrast ) > 0
-//      Endif
-//    Endif
   Endif
   If metap == 0
     If is_disp
@@ -1139,7 +1105,7 @@ Function ret_vozr_dvn_veteran( _dvozrast, _data )
 
   Return _dvozrast
 
-// 15.06.19 вернуть массив возрастов дисп-ии для старого или нового Приказов МЗ РФ
+// 26.07.26 вернуть массив возрастов дисп-ии для старого или нового Приказов МЗ РФ
 Function ret_arr_vozrast_dvn( _data )
 
   Static sp := 0, arr := {}
@@ -1150,8 +1116,8 @@ Function ret_arr_vozrast_dvn( _data )
     If ( sp := p ) == 2 // по новому Приказу МЗ РФ
       ASize( arr, 7 ) // уберём хвост после 39 лет {21, 24, 27, 30, 33, 36, 39,
       ins_array( arr, 1, 18 ) // вставим в начало =18 лет
-      For i := 40 To 99
-        AAdd( arr, i ) // добавим в конец подряд с 40 по 99 лет
+      For i := 40 To 110
+        AAdd( arr, i ) // добавим в конец подряд с 40 по 110 лет
       Next
     Endif
   Endif
