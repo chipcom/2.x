@@ -151,11 +151,11 @@ Function print_l_uch( mkod, par, regim, lnomer )
         // aadd(arr, {rak->NAKT, rak->DAKT, raksh->REFREASON, raksh->NEXT_KOD})
         // continue
         // enddo
-        find( Str( mkod, 7 ) )
-        If Found()
-          Do While raksh->kod_h == mkod .and. !Eof()
+        raksh->( dbSeek( Str( mkod, 7 ) ) )
+        If raksh->( Found() )
+          Do While raksh->kod_h == mkod .and. !raksh->( Eof() )
             AAdd( arr, { rak->NAKT, rak->DAKT, raksh->REFREASON, raksh->NEXT_KOD } )
-            Skip
+            raksh->( dbSkip() )
           Enddo
         Endif
         //
@@ -215,8 +215,8 @@ Function print_l_uch( mkod, par, regim, lnomer )
       Set Order To 2
       is_2 := 2
     Endif
-    find ( Str( human->kod, 7 ) )
-    If Found() // если нашли двойной случай
+    human_3->( dbSeek( Str( human->kod, 7 ) ) )
+    If human_3->( Found() ) // если нашли двойной случай
       add_string( '' )
       add_string( 'Это двойной случай (с ' + date_8( human_3->N_DATA ) + ' по ' + date_8( human_3->K_DATA ) + ' на сумму ' + lstr( human_3->CENA_1, 10, 2 ) + 'р.)' )
     Endif
@@ -454,14 +454,14 @@ Function print_l_uch( mkod, par, regim, lnomer )
   Endif
   add_string( Center( 'О_К_А_З_А_Н_Ы   У_С_Л_У_Г_И', sh ) )
   Select HU
-  find ( Str( mkod, 7 ) )
+  hu->( dbSeek( Str( mkod, 7 ) ) )
   Do While hu->kod == mkod .and. ! hu->( Eof() )
     lZam := .f.
     If ! emptyall( hu->kol_1, hu->stoim_1 )
       Select OTD
-      Goto ( hu->otd )
+      otd->( dbGoto( hu->otd ) )
       Select USL
-      Goto ( hu->u_kod )
+      usl->( dbGoto( hu->u_kod ) )
       lname := usl->name
 
       tmpAlias := create_name_alias( 'LUSL',  Year( human->k_data ) )
@@ -517,16 +517,16 @@ Function print_l_uch( mkod, par, regim, lnomer )
       Endif
     Endif
     Select HU
-    hu->( dbSkip() )    // Skip
+    hu->( dbSkip() )
   Enddo
   Select MOHU
-  find ( Str( mkod, 7 ) )
-  Do While mohu->kod == mkod .and. !Eof()
+  mohu->( dbSeek( Str( mkod, 7 ) ) )
+  Do While mohu->kod == mkod .and. !mohu->( Eof() )
     If !Empty( mohu->kol_1 )
       Select OTD
-      Goto ( mohu->otd )
+      otd->( dbGoto( mohu->otd ) )
       Select MOSU
-      Goto ( mohu->u_kod )
+      mosu->( dbGoto( mohu->u_kod ) )
       lname := mosu->name
       If lExistFilesTFOMS
         tmpAlias := create_name_alias( 'LUSLF',  Year( human->k_data ) )
@@ -558,7 +558,7 @@ Function print_l_uch( mkod, par, regim, lnomer )
       tmp1->summa += mohu->stoim_1
     Endif
     Select MOHU
-    mohu->( dbSkip() )    // Skip
+    mohu->( dbSkip() )
   Enddo
   mpsumma := 0
   w1 := 34
@@ -698,7 +698,7 @@ Function print_l_uch( mkod, par, regim, lnomer )
       Endif
     Endif
     Select TMP1
-    tmp1->( dbSkip() )    // skip
+    tmp1->( dbSkip() )
   Enddo
   Zap
   Set Order To 1
@@ -888,19 +888,19 @@ Function print_luch_onk( dk,  diag, sh )
     } )
     Use ( cur_dir() + 'tmp_onkle' ) New Alias TMPLE
     r_use( dir_server() + 'mo_onkle', dir_server() + 'mo_onkle',  'LE' ) // Сведения о применённых лекарственных препаратах
-    find ( Str( human->kod, 7 ) )
-    Do While le->kod == human->kod .and. !Eof()
+    le->( dbSeek( Str( human->kod, 7 ) ) )
+    Do While le->kod == human->kod .and. !le->( Eof() )
       Select TMPLE
-      Append Blank
+      tmple->( dbAppend() )
       tmple->REGNUM   := le->REGNUM
       tmple->CODE_SH  := le->CODE_SH
       tmple->DATE_INJ := le->DATE_INJ
       Select LE
-      Skip
+      le->( dbSkip() )
     Enddo
     r_use( dir_server() + 'mo_onkco', dir_server() + 'mo_onkco',  'CO' )
-    find ( Str( human->kod, 7 ) )
-    If Found()
+    co->( dbSeek( Str( human->kod, 7 ) ) )
+    If co->( Found() )
       m1PR_CONS := co->pr_cons
       mDT_CONS := co->dt_cons
     Endif
@@ -910,7 +910,7 @@ Function print_luch_onk( dk,  diag, sh )
 
     add_string( '  Онкология:' )
     r_use( dir_server() + 'mo_onksl', dir_server() + 'mo_onksl', 'ONKSL' ) // Сведения о случае лечения онкологического заболевания
-    find ( Str( human->kod, 7 ) )
+    onksl->( dbSeek( Str( human->kod, 7 ) ) )
 
     mm_N002 := f_define_tnm( 2, diag, dk )
     stage := inieditspr( A__MENUVERT, mm_N002, onksl->STAD )
@@ -937,8 +937,8 @@ Function print_luch_onk( dk,  diag, sh )
 
     add_string( '' )
     r_use( dir_server() + 'mo_onkus', dir_server() + 'mo_onkus', 'ONKUS' )
-    find ( Str( human->kod, 7 ) )
-    Do While onkus->kod == human->kod .and. !Eof()
+    onkus->( dbSeek( Str( human->kod, 7 ) ) )
+    Do While onkus->kod == human->kod .and. !onkus->( Eof() )
       If Between( onkus->USL_TIP, 1, 6 )
         add_string( '   Проведённое лечение: ' + inieditspr( A__MENUVERT, mm_usl_tip, onkus->USL_TIP ) )
         If eq_any( onkus->USL_TIP, 2, 4 ) .and. !Empty( onksl->crit )
@@ -995,7 +995,7 @@ Function print_luch_onk( dk,  diag, sh )
         Endif
       Endif
       Select ONKUS
-      Skip
+      onkus->( dbSkip() )
     Enddo
     add_string( '' )
     ONKUS->( dbCloseArea() )
@@ -1146,8 +1146,8 @@ Function f3o_list_uch()
 
   If Asc( human->kod_p ) > 0
     Select BASE1
-    Goto ( Asc( human->kod_p ) )
-    If !Eof() .and. !Empty( base1->p1 )
+    base1->( dbGoto( Asc( human->kod_p ) ) )
+    If !base1->( Eof() ) .and. !Empty( base1->p1 )
       s += AllTrim( Crypt( base1->p1, gpasskod ) ) + ' '
     Endif
   Elseif human_2->PN3 > 0
@@ -1158,8 +1158,8 @@ Function f3o_list_uch()
     s += 'исправление ' + date_8( c4tod( human_->DATE_E2 ) ) + 'г. '
     If Asc( human_->kod_p2 ) > 0
       Select BASE1
-      Goto ( Asc( human_->kod_p2 ) )
-      If !Eof() .and. !Empty( base1->p1 )
+      base1->( dbGoto( Asc( human_->kod_p2 ) ) )
+      If !base1->( Eof() ) .and. !Empty( base1->p1 )
         s += AllTrim( Crypt( base1->p1, gpasskod ) )
       Endif
     Endif
@@ -1196,7 +1196,7 @@ Function f4o_list_uch( nKey, oBrow )
     RestScreen( buf )
   Endif
   If fl
-    Close databases
+    dbCloseAll()
     If nkey == K_ENTER
       print_l_uch( glob_perso )
     Elseif nkey == K_F9
@@ -1223,7 +1223,7 @@ Function create_fr_file_for_spravkaoms()
     { 'data2', 'D', 8, 0 }, ;
     { 'fio', 'C', 60, 0 } } )
   Use ( fr_titl ) New Alias FRT
-  Append Blank
+  frt->( dbAppend() )
   frt->name := glob_mo[ _MO_FULL_NAME ]
   frt->adres := glob_mo[ _MO_ADRES ]
   dbCreate( fr_data, { { 'name', 'C', 255, 0 }, ;
@@ -1260,12 +1260,12 @@ Function print_spravka_oms( mkod )
   r_use( dir_server() + 'uslugi', , 'USL' )
   r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
   r_use( dir_server() + 'human_', , 'HUMAN_' )
-  Goto ( mkod )
+  human_->( dbGoto( mkod ) )
   r_use( dir_server() + 'human', , 'HUMAN' )
-  Goto ( mkod )
+  human->( dbGoto( mkod ) )
   If mdate < human->k_data
     rest_box( buf )
-    Close databases
+    dbCloseAll()
     Return func_error( 4, 'Дата выдачи справки меньше даты окончания лечения!' )
   Endif
   tmpAlias := create_name_alias( 'LUSL',  Year( human->k_data ) )
@@ -1278,8 +1278,8 @@ Function print_spravka_oms( mkod )
   frt->data2 := human->k_data
   frt->fio := human->fio
   Select HU
-  find ( Str( mkod, 7 ) )
-  Do While hu->kod == mkod .and. !Eof()
+  hu->( dbSeek( Str( mkod, 7 ) ) )
+  Do While hu->kod == mkod .and. !hu->( Eof() )
     If !emptyany( hu->kol_1, hu->stoim_1 )
       usl->( dbGoto( hu->u_kod ) )
       lshifr := opr_shifr_tfoms( usl->shifr1, usl->kod, human->k_data )
@@ -1287,11 +1287,11 @@ Function print_spravka_oms( mkod )
         If is_usluga_tfoms( usl->shifr, lshifr, human->k_data )
           lshifr := iif( Empty( lshifr ), usl->shifr, lshifr )
           Select LUSL
-          find ( PadR( lshifr, 10 ) )
+          lusl->( dbSeek( PadR( lshifr, 10 ) ) )
           Select FRD
-          find ( PadR( lshifr, 10 ) )
-          If !Found()
-            Append Blank
+          frd->( dbSeek( PadR( lshifr, 10 ) ) )
+          If !frd->( Found() )
+            frd->( dbAppend() )
             frd->shifr := lshifr
             frd->name := lusl->name  // наименование услуги из справочника ТФОМС
             frd->cena := hu->stoim_1 / hu->kol_1
@@ -1303,9 +1303,9 @@ Function print_spravka_oms( mkod )
       Else
         lshifr := iif( Empty( lshifr ), usl->shifr, lshifr )
         Select FRD
-        find ( PadR( lshifr, 10 ) )
-        If !Found()
-          Append Blank
+        frd->( dbSeek( PadR( lshifr, 10 ) ) )
+        If !frd->( Found() )
+          frd->( dbAppend() )
           frd->shifr := lshifr
           frd->name := 'Отсутствуют справочники ТФОМС за ' + Str( Year( human->k_data ), 4 ) + ' год.'
           frd->cena := hu->stoim_1 / hu->kol_1
@@ -1316,23 +1316,23 @@ Function print_spravka_oms( mkod )
       Endif
     Endif
     Select HU
-    Skip
+    hu->( dbSkip() )
   Enddo
   Select FRD
-  Go Top
-  Do While !Eof()
+  frd->( dbGoTop() )
+  Do While !frd->( Eof() )
     If frd->kol > 1
       frd->name1 := ' (в количестве ' + lstr( frd->kol ) + ')'
     Endif
-    Skip
+    frd->( dbSkip() )
   Enddo
   Index On Str( FIELD->summa, 11, 2 ) to ( fr_data ) descending
   g_use( dir_server() + 'mo_sprav', , 'SPR_OMS' )
   Locate For kod_h == mkod
   If Found()
-    g_rlock( forever )
+    g_rlock( 'forever' )
   Else
-    Append Blank
+    spr_oms->( dbAppend() )
     spr_oms->KOD_H  := mkod
     spr_oms->KOD_K  := 0
   Endif
@@ -1370,10 +1370,10 @@ Function f_spravka_oms()
 
   If k1 > 0
     r_use( dir_server() + 'kartotek', , 'KART' )
-    Goto ( glob_kartotek )
+    kart->( dbGoto( glob_kartotek ) )
     mfio    := kart->fio
     mdate_r := kart->date_r
-    Close databases
+    dbCloseAll()
   Endif
   Private r1 := MaxRow() -18
   Do While .t.
@@ -1454,11 +1454,11 @@ Function f_spravka_oms()
       For i := 1 To Len( parr_usl )
         If !emptyany( parr_usl[ i, 2 ], parr_usl[ i, 3 ] )
           Select LUSL
-          find ( PadR( parr_usl[ i, 5 ], 10 ) )
+          lusl->( dbSeek( PadR( parr_usl[ i, 5 ], 10 ) ) )
           Select FRD
-          find ( PadR( parr_usl[ i, 5 ], 10 ) )
-          If !Found()
-            Append Blank
+          frd->( dbSeek( PadR( parr_usl[ i, 5 ], 10 ) ) )
+          If !frd->( Found() )
+            frd->( dbAppend() )
             frd->shifr := parr_usl[ i, 5 ]
             frd->name := lusl->name  // наименование услуги из справочника ТФОМС
             frd->cena := parr_usl[ i, 3 ]
@@ -1468,23 +1468,23 @@ Function f_spravka_oms()
         Endif
       Next
       Select FRD
-      Go Top
-      Do While !Eof()
+      frd->( dbGoTop() )
+      Do While !frd->( Eof() )
         If frd->kol > 1
           frd->name1 := ' (в количестве ' + lstr( frd->kol ) + ')'
         Endif
-        Skip
+        frd->( dbSkip() )
       Enddo
       Index On Str( FIELD->summa, 11, 2 ) to ( fr_data ) descending
       g_use( dir_server() + 'mo_sprav', , 'SPR_OMS' )
       If rec_spr_oms == 0
-        Append Blank
+        spr_oms->( dbAppend() )
         spr_oms->KOD_H  := 0
         spr_oms->KOD_K  := iif( k1 > 0, glob_kartotek, 0 )
         rec_spr_oms := RecNo()
       Else
-        Goto ( rec_spr_oms )
-        g_rlock( forever )
+        spr_oms->( dbGoto( rec_spr_oms ) )
+        g_rlock( 'forever' )
       Endif
       spr_oms->FIO    := mFIO
       spr_oms->DATE_R := mDATE_R
@@ -1493,7 +1493,7 @@ Function f_spravka_oms()
       spr_oms->K_DATA := mk_data
       spr_oms->TIP    := mtip
       spr_oms->STOIM  := mstoim
-      Close databases
+      dbCloseAll()
       call_fr( 'mo_spravkaOMS' )
     Endif
   Enddo
@@ -1556,8 +1556,8 @@ Function fu2spravka_oms( b, ar, nDim, nElem, nKey )
         If LastKey() != K_ESC
           lshifr := mname := ''
           Select USL
-          find ( mshifr )
-          If Found()
+          usl->( dbSeek( mshifr ) )
+          If usl->( Found() )
             mname := usl->name
             lshifr1 := opr_shifr_tfoms( usl->shifr1, usl->kod, mk_data )
             If is_usluga_tfoms( usl->shifr, lshifr1, mk_data )
@@ -1567,8 +1567,8 @@ Function fu2spravka_oms( b, ar, nDim, nElem, nKey )
             Endif
           Else
             Select LUSL
-            find ( mshifr )
-            If Found()
+            lusl->( dbSeek( mshifr ) )
+            If lusl->( Found() )
               lshifr := lusl->shifr
               mname := lusl->name
             Else
@@ -1634,16 +1634,16 @@ Function f_otchet_spravka_oms()
     mywait()
     r_use( dir_server() + 'mo_sprav', , 'SPR_OMS' )
     Index On FIELD->Data to ( cur_dir() + 'tmp' ) For Between( FIELD->data, arr_m[ 5 ], arr_m[ 6 ] )
-    Go Top
-    Do While !Eof()
+    spr_oms->( dbGoTop() )
+    Do While !spr_oms->( Eof() )
       i := 1
       If Between( spr_oms->TIP, 1, 3 )
         i := spr_oms->TIP
       Endif
       as[ i ] ++
-      Skip
+      spr_oms->( dbSkip() )
     Enddo
-    Use
+    spr_oms->( dbCloseArea() )
     fp := FCreate( n_file )
     n_list := 1
     tek_stroke := 0
@@ -1720,13 +1720,13 @@ Function print_al_uch( arr_h, arr_m )
   R_Use( dir_server() + 'human_', , 'HUMAN_' )
   R_Use( dir_server() + 'human', , 'HUMAN' )
   set relation to recno() into HUMAN_
-  goto ( atail( arr_h )[ 2 ] )
+  human->( dbGoto( atail( arr_h )[ 2 ] ) )
   mpolis := alltrim( rtrim( human_->SPOLIS ) + ' ' +human_->NPOLIS ) + ' (' + ;
             alltrim( inieditspr( A__MENUVERT, mm_vid_polis(), human_->VPOLIS ) ) + ')'
   R_Use( dir_server() + 'kartote_', , 'KART_' )
   R_Use( dir_server() + 'kartotek', , 'KART' )
   set relation to recno() into KART_
-  goto ( human->kod_k )
+  kart->( dbGoto( human->kod_k ) )
   madres := iif( emptyall( kart_->okatog, kart->adres ), '', ;
                 ret_okato_ulica( kart->adres, kart_->okatog ) )
   Private mvid_ud := kart_->vid_ud, ;
@@ -1790,16 +1790,16 @@ Function print_al_uch( arr_h, arr_m )
   for ii := 1 to len( arr_h )
     select TMP1
     set order to 1
-    zap
+    tmp1->( __dbZap() ) //zap
     select HUMAN
-    goto ( arr_h[ ii, 2 ] )
+    human->( dbGoto( arr_h[ ii, 2 ] ) )
     if human->schet > 0
       schet->( dbGoto( human->schet ) )
     endif
     mlech_vr := ''
     if human_->vrach > 0
       select PERSO
-      goto ( human_->vrach )
+      perso->( dbGoto( human_->vrach ) )
       mlech_vr := alltrim( perso->fio )
     endif
     //
@@ -1863,16 +1863,16 @@ Function print_al_uch( arr_h, arr_m )
       add_string( '' )
     endif
     Select HU
-    find ( str( arr_h[ ii, 2 ], 7 ) )
-    do while hu->kod == arr_h[ ii, 2 ] .and. !eof()
+    hu->( dbSeek( str( arr_h[ ii, 2 ], 7 ) ) )
+    do while hu->kod == arr_h[ ii, 2 ] .and. !hu->( eof() )
       if !emptyall( hu->kol_1, hu->stoim_1 )
         Select OTD
-        goto ( hu->otd )
+        otd->( dbGoto( hu->otd ) )
         Select USL
-        goto ( hu->u_kod )
+        usl->( dbGoto( hu->u_kod ) )
         lshifr1 := opr_shifr_TFOMS( usl->shifr1, usl->kod, human->k_data )
         select TMP1
-        append blank
+        tmp1->( dbAppend() )
         tmp1->kod := usl->kod
         tmp1->name := usl->name
         tmp1->shifr := usl->shifr //iif(empty( lshifr1 ), usl->shifr, lshifr1 )
@@ -1896,18 +1896,18 @@ Function print_al_uch( arr_h, arr_m )
         tmp1->summa += hu->stoim_1
       endif
       select HU
-      Skip
+      hu->( dbSkip() )
     enddo
     Select MOHU
-    find ( str( arr_h[ ii, 2 ], 7 ) )
-    do while mohu->kod == arr_h[ ii, 2 ] .and. !eof()
+    mohu->( dbSeek( str( arr_h[ ii, 2 ], 7 ) ) )
+    do while mohu->kod == arr_h[ ii, 2 ] .and. !mohu->( eof() )
       if !empty( mohu->kol_1 )
         Select OTD
-        goto ( mohu->otd )
+        otd->( dbGoto( mohu->otd ) )
         Select MOSU
-        goto ( mohu->u_kod )
+        mosu->( dbGoto( mohu->u_kod ) )
         select TMP1
-        append blank
+        tmp1->( dbAppend() )
         tmp1->kod := mosu->kod
         tmp1->name := mosu->name
         tmp1->shifr := iif( empty( mosu->shifr ), mosu->shifr1, mosu->shifr )
@@ -1925,7 +1925,7 @@ Function print_al_uch( arr_h, arr_m )
         tmp1->summa += mohu->stoim_1
       endif
       select MOHU
-      Skip
+      mohu->( dbSkip() )
     enddo
     mpsumma := 0
     verify_FF( HH - 4, .t., sh )
@@ -1933,8 +1933,8 @@ Function print_al_uch( arr_h, arr_m )
     header_uslugi( w1 )
     select TMP1
     set order TO 2
-    go top
-    do while !eof()
+    tmp1->( dbGoTop() )
+    do while !tmp1->( eof() )
       s := alltrim( tmp1->shifr ) + iif( tmp1->dom == 1, '/на дому/', iif( tmp1->dom == 2, '/домАКТИВ/', ' ' ) ) + alltrim( tmp1->name )
       if eq_any( alltrim( tmp1->shifr ), '2.3.1', '2.3.3', '2.6.1', '2.60.1' )
         s += ' (' + alltrim( inieditspr( A__MENUVERT, getV002(), tmp1->PROFIL ) ) + ')'
@@ -1978,7 +1978,7 @@ Function print_al_uch( arr_h, arr_m )
         add_string( space( 21 ) + padl( rtrim( tmp[ i ] ), w1 ) )
       next
       select TMP1
-      skip
+      tmp1->( dbSkip() )
     enddo
     add_string( padl( replicate( '-', 33 ), sh ) )
     s := 'Общая сумма лечения: ' + put_kop( human->cena_1, 12 )
@@ -1987,7 +1987,7 @@ Function print_al_uch( arr_h, arr_m )
     endi
     add_string( padl( s, sh ) )
   next
-  close databases
+  dbCloseAll()
   fclose( fp )
   rest_box( buf )
   viewtext( n_file, , , , .f., , , 5 )
