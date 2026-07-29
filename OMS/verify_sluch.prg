@@ -24,7 +24,7 @@
 #define USL_SVIDPOM  14   // виды оказываемой медицинской помощи
 #define USL_ZAK_SL   15   // признак оплаты по законченному случаю
 
-// 16.07.26 
+// 28.07.26 
 Function verify_sluch( fl_view, ft )
 
   Local arrUslugi := {} // массив содержаший коды услуг в случае 
@@ -2828,7 +2828,8 @@ Function verify_sluch( fl_view, ft )
                 .and. !( Left( lshifr, 5 ) == '60.3.' ) ;
                 .and. !( Left( lshifr, 6 ) == '60.10.' ) ;
                 .and. is_2_stomat( lshifr, , .t. ) == 0 ;// не стоматология
-                .and. ( lshifr != '60.17.100' ) .and. ( lshifr != '60.17.1' ) .and. ( lshifr != '60.17.2' ) // не дистанционное наблюдение
+                .and. ( lshifr != '60.17.100' ) .and. ( lshifr != '60.17.1' ) .and. ( lshifr != '60.17.2' ) ;// не дистанционное наблюдение
+                .and. ( lshifr != '2.92.18' ) .and. ( lshifr != '2.93.2' )    // школа ХНИЗ грудное вскармливание
               otd->( dbGoto( u_other[ i, 8 ] ) )
               AAdd( ta, 'услуга ' + AllTrim( usl->shifr ) + ' от ' + date_8( mdate ) + ' в случае ' + ;
                 date_8( u_other[ i, 6 ] ) + '-' + date_8( u_other[ i, 7 ] ) + ;
