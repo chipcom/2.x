@@ -7,11 +7,11 @@ function test_init()
 
 //  local aaa
 
-//  aaa := get_f034( '34202606300010029' )
+//  aaa := glob_MGI()
 //  altd()
 
   return nil
-
+/*
 // 12.07.24
 function convert_P_CEL()
 
@@ -40,3 +40,4 @@ function convert_P_CEL()
   endif
 
   return hPCEL
+*/

@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 19.04.26 форма 14-МЕД (ОМС)
+// 22.07.26 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
 
   Static group_ini := 'f14_med_oms'
@@ -144,7 +144,7 @@ Function forma14_med_oms()
 
 
   // //////////////////////////////////////////////////////////////////
-  arr_m := { 2026, 1, 3, 'за январь - март 2026 года', 0d20260101, 0d20260331 }  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  arr_m := { 2026, 1, 6, 'за январь - июнь 2026 года', 0d20260101, 0d20260630 }  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   // //////////////////////////////////////////////////////////////////
   lal := create_name_alias( 'lusl', arr_m[ 1 ] )
   lalf := create_name_alias( 'luslf', arr_m[ 1 ] )
@@ -250,7 +250,7 @@ Function forma14_med_oms()
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To kod_k into KART
   //
   // //////////////////////////////////////////////////////////////////
-  mdate_rak := arr_m[ 6 ] + 10 // по какую дату РАК сумма к оплате 10.04.26    Основание - письмо  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  mdate_rak := arr_m[ 6 ] + 13 // по какую дату РАК сумма к оплате 13.06.26    Основание - письмо  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   // //////////////////////////////////////////////////////////////////
   r_use( dir_server() + 'mo_xml', , 'MO_XML' )
   r_use( dir_server() + 'mo_rak', , 'RAK' )
@@ -276,9 +276,9 @@ Function forma14_med_oms()
       mdate1 := SToD( StrZero( schet_->nyear, 4 ) + StrZero( schet_->nmonth, 2 ) + '25' ) // !!!
       //
       // 2026 год
-      k := 10 // дата регистрации по 10.01.26 // Основание - письмо!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      k := 8 // дата регистрации по 7.01.26 // Основание - письмо!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       //
-      fl := Between( mdate, arr_m[ 5 ], arr_m[ 6 ] + k ) .and. Between( mdate1, arr_m[ 5 ], arr_m[ 6 ] ) // !!отч.период 2023 год
+      fl := Between( mdate, arr_m[ 5 ], arr_m[ 6 ] + k ) .and. Between( mdate1, arr_m[ 5 ], arr_m[ 6 ] ) // !!отч.период 2026 год
     Endif
     If fl
       Select HUMAN
@@ -356,31 +356,55 @@ Function forma14_med_oms()
              
               If PadR( AllTrim( lshifr ), 5 ) == '60.4.'
                 // KT
-                arr_pol3000[ 23, 4 ] += Round( hu->stoim_1 * koef, 2 )
+                if hu->usl_repl == 1 
+                  arr_pol3000[ 23, 4 ] += Round( 0 * koef, 2 )
+                else  
+                  arr_pol3000[ 23, 4 ] += Round( hu->stoim_1 * koef, 2 )
+                endif  
                 arr_pol3000[ 23, 2 ] += 1
                 arr_pol1[ 6, 2 ] += 1
                 If is_inogoro
-                  arr_pol3000[ 23, 5 ] += Round( hu->stoim_1 * koef, 2 )
+                  if hu->usl_repl == 1 
+                    arr_pol3000[ 23, 5 ] += Round( 0 * koef, 2 )
+                  else
+                    arr_pol3000[ 23, 5 ] += Round( hu->stoim_1 * koef, 2 )
+                  endif
                   arr_pol3000[ 23, 3 ] += 1
                   arr_pol1[ 6, 3 ] += 1
                 Endif
               Elseif PadR( AllTrim( lshifr ), 5 ) == '60.5.'
                 // МРТ
-                arr_pol3000[ 24, 4 ] += Round( hu->stoim_1 * koef, 2 )
+                if hu->usl_repl == 1 
+                  arr_pol3000[ 24, 4 ] += Round( 0 * koef, 2 )
+                else
+                  arr_pol3000[ 24, 4 ] += Round( hu->stoim_1 * koef, 2 )
+                endif
                 arr_pol3000[ 24, 2 ] += 1
                 arr_pol1[ 6, 2 ] += 1
                 If is_inogoro
-                  arr_pol3000[ 24, 5 ] += Round( hu->stoim_1 * koef, 2 )
+                  if hu->usl_repl == 1 
+                    arr_pol3000[ 24, 5 ] += Round( 0 * koef, 2 )
+                  else
+                    arr_pol3000[ 24, 5 ] += Round( hu->stoim_1 * koef, 2 )
+                  endif
                   arr_pol3000[ 24, 3 ] += 1
                   arr_pol1[ 6, 3 ] += 1
                 Endif
               Elseif PadR( AllTrim( lshifr ), 5 ) == '60.6.'
                 // УЗИ ССС
-                arr_pol3000[ 25, 4 ] += Round( hu->stoim_1 * koef, 2 )
+                if hu->usl_repl == 1
+                  arr_pol3000[ 25, 4 ] += Round( 0 * koef, 2 )
+                 else
+                  arr_pol3000[ 25, 4 ] += Round( hu->stoim_1 * koef, 2 )
+                endif
                 arr_pol3000[ 25, 2 ] += 1
                 arr_pol1[ 6, 2 ] += 1
                 If is_inogoro
-                  arr_pol3000[ 25, 5 ] += Round( hu->stoim_1 * koef, 2 )
+                  if hu->usl_repl == 1
+                    arr_pol3000[ 25, 5 ] += Round( 0 * koef, 2 )
+                  else
+                    arr_pol3000[ 25, 5 ] += Round( hu->stoim_1 * koef, 2 )
+                  endif
                   arr_pol3000[ 25, 3 ] += 1
                   arr_pol1[ 6, 3 ] += 1
                 Endif
@@ -571,7 +595,11 @@ Function forma14_med_oms()
               AAdd( arr_full_usl, lshifr )
               ta := f14tf_nastr( @lshifr, , d2_year )
               lshifr := AllTrim( lshifr )
-              AAdd( au, { lshifr, hu->kol_1, Round( hu->stoim_1 * koef, 2 ), 0, 0, hu->kol_1 } )
+              if hu->usl_repl == 1
+                AAdd( au, { lshifr, hu->kol_1, Round( 0 * koef, 2 ), 0, 0, hu->kol_1 } )
+              else
+                AAdd( au, { lshifr, hu->kol_1, Round( hu->stoim_1 * koef, 2 ), 0, 0, hu->kol_1 } )
+              endif  
               i16 := 0
               dbSelectArea( lal )
               find ( PadR( lshifr, 10 ) )
@@ -697,7 +725,11 @@ Function forma14_med_oms()
                     mkol1 := hu->kol_1
                   Endif
                   muet := 0
-                  msum := Round( hu->stoim_1 * koef, 2 )
+                  if hu->usl_repl == 1
+                    msum := 0
+                  else  
+                    msum := Round( hu->stoim_1 * koef, 2 )
+                  endif  
                   //
                   ii := 0
                   is_obsh := .f.

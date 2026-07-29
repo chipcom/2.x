@@ -4,9 +4,8 @@
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
+#include 'chip_dispanser.ch'
 #include 'tfile.ch'
-
-// #define MONTH_UPLOAD 12 // Œ…‘Ÿ– ¤«ï ¢ë£àã§ª¨ R11  --- £¤¥ ®­ ?????
 
 // 22.01.26 ‘®§¤ ­¨¥ ä ©«  ®¡¬¥­  R11...
 Function f_create_r11()
@@ -27,7 +26,6 @@ Function f_create_r11()
   _arr_vozrast_DVN := ret_arr_vozrast_dvn( 0d20251201 )
   fl := .t.
   fl_1 := .f.
-  //  SMONTH := MONTH_UPLOAD // Œ…‘Ÿ–
   lm := MONTH_UPLOAD // Œ…‘Ÿ–
   dbCreate( cur_dir() + 'tmp_00', { ;
     { 'reestr',     'N', 6, 0 }, ;
@@ -62,7 +60,7 @@ Function f_create_r11()
       Endif
     Endif
     Select REES
-    Skip
+    rees->( dbSkip() )
   Enddo
   If fl
     fl_1 := !Empty( arr_rees )
@@ -76,17 +74,17 @@ if  !fl_1 // ¯¥à¢ë© à § - ¤«ï 2026 £®¤ 
 
   mywait()
   g_use( dir_server() + 'mo_dr00',, 'DR00' )
-  go top
-  do while !eof()
+  dr00->( dbGoTop() )   //  go top
+  do while !dr00->( eof() )
     if dr00->N_M == MONTH_UPLOAD
       // ¤®«¦­ë ¡ëâì â®«ìª® R01
-      g_rlock( forever )
+      g_rlock( 'forever' )
       dr00->n_m := 0
       dr00->n_q := 0
       dr00->reestr := 0 
-      unlock
+      dr00->( dbUnlock() )
     endif 
-    skip
+    dr00->( dbSkip() )
   enddo
   fl_1 := .T.
   dr00->(dbCloseArea())
@@ -128,8 +126,8 @@ endif
       r_use( dir_server() + 'kartotek',, 'KART' )
       Use ( dir_server() + 'mo_dr00' ) New Alias TMP
       Index On FIELD->kod to ( cur_dir() + 'tmp_dr00' ) For FIELD->reestr == 0 .and. FIELD->kod > 0
-      Go Top
-      Do While !Eof()
+      tmp->( dbGoTop() )  //  Go Top
+      Do While !tmp->( Eof() )
         kart->( dbGoto( tmp->kod ) )
         ar := f0_create_r11( YEAR_UPLOAD_DISPANSER, _arr_vozrast_DVN )
         If !( tmp->tip == ar[ 1 ] .and. tmp->tip1 == ar[ 2 ] .and. tmp->voz == ar[ 3 ] )
@@ -145,7 +143,7 @@ endif
             mkol[ j ] ++  // ¯®¤áçñâ ®áâ ¢è¥£®áï ª®« -¢  ¢ ¯ã«¥ ¯ æ¨¥­â®¢
           Endif
         Endif
-        Skip
+        tmp->( dbSkip() )
       Enddo
       Commit
 
@@ -170,7 +168,7 @@ endif
             Endif
           Endif
           Select R01k
-          Skip
+          r01k->( dbSkip() )
         Enddo
         If !fl ; exit ; Endif
       Next ir
@@ -210,8 +208,8 @@ endif
           Else
             Index On FIELD->kod to ( cur_dir() + 'tmp_dr00' ) For eq_any( tmp->tip, 1, 2 ) .and. tmp->tip1 == pj -2 .and. tmp->n_q == 0 // DESCENDING
           Endif
-          Go Top
-          Do While !Eof()
+          tmp->( dbGoTop() )      //  Go Top
+          Do While !tmp->( Eof() )
             If d == koef
               i := MONTH_UPLOAD
               If ames[ i, j, 1 ] > ames[ i, j, 2 ] // ¥á«¨ ¥éñ ­¥ ­ ¡à «¨ ¬¥áïæ
@@ -225,7 +223,7 @@ endif
             If Empty( skol[ j ] )
               Exit
             Endif
-            Skip
+            tmp->( dbSkip() )
           Enddo
           Select TMP
           If j == 2
@@ -235,39 +233,38 @@ endif
           Else
             Index On FIELD->kod to ( cur_dir() + 'tmp_dr00' ) For eq_any( tmp->tip, 1, 2 ) .and. tmp->tip1 == pj -2 .and. tmp->n_m > 0
           Endif
-          Go Top
-          Do While !Eof()
+          tmp->( dbGoTop() )  //Go Top
+          Do While !tmp->( Eof() )
             If tmp->n_q == 0 .and. tmp->n_m == MONTH_UPLOAD
               tmp->n_q := Int( ( tmp->n_m + 2 ) / 3 ) // ®¯à¥¤¥«ï¥¬ ­®¬¥à ª¢ àâ «  ¯® ¬¥áïæã
               ame[ tmp->n_m ] ++
             Endif
-            Skip
+            tmp->( dbSkip() )
           Enddo
         Enddo
       Next v
       Use ( cur_dir() + 'tmp_00' ) New Alias TMP1
       Select TMP
       Index On FIELD->kod to ( cur_dir() + 'tmp_dr00' ) For FIELD->reestr == 0 .and. FIELD->n_m > 0
-      Go Top
-      Do While !Eof()
+      tmp->( dbGoTop() )    //  Go Top
+      Do While !tmp->( Eof() )
         Select TMP1
-        Append Blank
+        tmp1->( dbAppend() )    //Append Blank
         tmp1->kod  := tmp->KOD
         tmp1->tip  := tmp->tip
         tmp1->tip1 := tmp->tip1
         tmp1->voz  := tmp->voz
         Select TMP
-        Skip
+        tmp->( dbSkip() )
       Enddo
     Endif
-    // quit
   Else // ¯¥à¢ë© à §
   /*  select REES
     index on str(NMONTH,2)+str(nn,3) to (cur_dir()+'tmp_dr01') for NYEAR == sgod .and. tip == 0
     find (str(lm,2))
     do while lm == rees->NMONTH .and. !eof()
       aadd(arr_rees,rees->kod) // á¯¨á®ª R01 §  ä¥¢à «ì
-      skip
+      rees->( dbSkip() )
     enddo
     Use (cur_dir()+'tmp_00') new alias TMP
     R_Use(dir_server()+'kartotek',,'KART')
@@ -294,7 +291,7 @@ endif
           endif
         endif
         select RHUM
-        skip
+        rhum->( dbSkip() )
       enddo
     next */
 
@@ -304,7 +301,7 @@ endif
     find ( Str( lm, 2 ) )
     Do While lm == rees->NMONTH .and. !Eof()
       AAdd( arr_rees, rees->kod ) // á¯¨á®ª R01 §  ä¥¢à «ì
-      Skip
+      rees->( dbSkip() )
     Enddo
     Use ( cur_dir() + 'tmp_00' ) New Alias TMP
     r_use( dir_server() + 'kartotek',, 'KART' )
@@ -327,13 +324,13 @@ endif
           Endif
         Endif
         Select RHUM
-        Skip
+        rhum->( dbSkip() )
       Enddo
     Next
     */
   Endif
 
-  dbCloseAll()  //  Close databases
+  dbCloseAll()
   If fl
     f1_create_r11( lm, fl_1 )
   Endif
@@ -399,7 +396,7 @@ Function f1_create_r11( lm, fl_dr00 )
     If lnn < rees->nn
       lnn := rees->nn
     Endif
-    rees->( dbSkip() )  //  Skip
+    rees->( dbSkip() )
   Enddo
   Set Index To
   g_use( dir_server() + 'mo_xml',, 'MO_XML' )
@@ -426,12 +423,11 @@ Function f1_create_r11( lm, fl_dr00 )
   rees->NYEAR  := YEAR_UPLOAD_DISPANSER
   rees->NMONTH := s_month
   rees->NN     := lnn + 1
-//  s := 'R11' + 'T34M' + CODE_LPU + '_' + Right( StrZero( rees->NYEAR, 4 ), 2 ) + StrZero( rees->NMONTH, 2 ) + StrZero( rees->NN, nsh )
   s := 'R11' + 'T34M' + glob_mo()[ _MO_KOD_TFOMS ] + '_' + Right( StrZero( rees->NYEAR, 4 ), 2 ) + StrZero( rees->NMONTH, 2 ) + StrZero( rees->NN, nsh )
   rees->NAME_XML := s
   mkod_reestr := rees->KOD
   //
-  rm->( g_rlock( forever ) )
+  rm->( g_rlock( 'forever' ) )
   &( 'rm->reestr' + StrZero( s_month, 2 ) ) := mkod_reestr
   //
   Select MO_XML
@@ -450,8 +446,8 @@ Function f1_create_r11( lm, fl_dr00 )
   Commit
   pkol := 0
   Select TMP
-  Go Top
-  Do While !Eof()
+  tmp->( dbGoTop() )      //  Go Top
+  Do While !tmp->( Eof() )
     If tmp->reestr == 0
       ++pkol
       @ MaxRow(), 1 Say lstr( pkol ) Color cColorSt2Msg
@@ -459,7 +455,7 @@ Function f1_create_r11( lm, fl_dr00 )
         Select DR00
         find ( Str( tmp->kod, 7 ) )
         If Found()
-          g_rlock( forever )
+          g_rlock( 'forever' )
           dr00->reestr := mkod_reestr
         Endif
       Endif
@@ -481,10 +477,10 @@ Function f1_create_r11( lm, fl_dr00 )
       dbCommitAll()
     Endif
     Select TMP
-    Skip
+    tmp->( dbSkip() )
   Enddo
   Select REES
-  g_rlock( forever )
+  g_rlock( 'forever' )
   rees->KOL := pkol
   rees->KOL_ERR := 0
   dbUnlockAll()
@@ -589,12 +585,12 @@ Function f1_create_r11( lm, fl_dr00 )
       mo_add_xml_stroke( oADDRESS, 'UL', kart->adres )
     Endif
     Select RHUM
-    rhum->( dbSkip() )  //  Skip
+    rhum->( dbSkip() )
   Enddo
   stat_msg( '‡ ¯¨áì XML-ä ©« ' )
   oXmlDoc:save( AllTrim( mo_xml->FNAME ) + sxml() )
   chip_create_zipxml( AllTrim( mo_xml->FNAME ) + szip(), { AllTrim( mo_xml->FNAME ) + sxml() }, .t. )
-  rm->( g_rlock( forever ) )
+  rm->( g_rlock( 'forever' ) )
   rm->TWORK2 := hour_min( Seconds() )
   dbCloseAll()  //  Close databases
   Keyboard Chr( K_TAB ) + Chr( K_ENTER )
@@ -712,7 +708,7 @@ Function f2_delete_reestr_r11( rec_m )
       Do While .t.
         find ( Str( mkod_reestr, 6 ) )
         If !Found() ; exit ; Endif
-        g_rlock( forever )
+        g_rlock( 'forever' )
         tmp->n_m := 0
         tmp->n_q := 0
         tmp->reestr := 0
@@ -730,7 +726,7 @@ Function f2_delete_reestr_r11( rec_m )
       Select REES
       deleterec( .t. )
       Select R01m
-      g_rlock( forever )
+      g_rlock( 'forever' )
       &( 'r01m->reestr' + StrZero( ir, 2 ) ) := 0
       dbUnlockAll()
       dbCommitAll()
@@ -783,7 +779,7 @@ Function delete_month_r11()
       Endif
     Endif
     Select R01m
-    Skip
+    r01m->( dbSkip() )
   Enddo
   REES->( dbCloseArea() )
   mo_xml->( dbCloseArea() )
@@ -845,7 +841,7 @@ do while !eof()
     endif
   endif
   select R01m
-  skip
+  r01m->( dbSkip() )
 enddo
 REES->(dbCloseArea())
 mo_xml->(dbCloseArea())
@@ -920,7 +916,7 @@ Function f32_view_r11( lm )
   rees->( dbGoTop() ) //  Go Top
   Do While ! rees->( Eof() )
     AAdd( arr_rees, rees->kod )
-    rees->( dbSkip() )  //Skip
+    rees->( dbSkip() )
   Enddo
 
   For k := Len( arr_rees ) To 1 Step -1
@@ -947,7 +943,7 @@ Function f32_view_r11( lm )
         Endif
       Endif
 //      Select RHUM
-      rhum->( dbSkip() )  //Skip
+      rhum->( dbSkip() )
     Enddo
   Next k
   rhum->( dbCloseArea() )
@@ -982,46 +978,6 @@ Function f32_view_r11( lm )
     Next
   next
   ft:add_string( PadR( 'ˆâ®£®:', n ) )
-//  for j := 1 to 5
-//    ft:add_string( padl(mmt[ j ], n ) + put_val( skol[ j, 1 ], 11 ) + ;
-//                              put_val( skol[ j, 2 ], 14) + ;
-//                              put_val( skol[ j, 3], 13 ) + ;
-//                              put_val( skol[ j, 1] - skol[ j, 3 ], 12 ) )
-//  next
-
-/*  
-  fp := FCreate( n_file )
-  tek_stroke := 0
-  n_list := 1
-
-  add_string( '' )
-  add_string( Center( 'Ž¡é ï ¨­ä®à¬ æ¨ï (R11)', 80 ) )
-  add_string( '' )
-  mmt := { '¤¨á¯ ­á¥à¨§ æ¨ï', '¯à®ä®á¬®âà', '¤¨á¯.¯¥­á¨®­¥àë', '¤¨á¯.65 «¥â', '¤¨á¯.66 ¨ áâ àè¥' }
-  For i := lm To lm
-    add_string( 'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄ' )
-    add_string( '     ¬¥áïæ                ³  ¯® ¯« ­ã   ³  ®â¯à ¢«¥­® ³  ¢ ’”ŽŒ‘¥  ³ à áå®¦¤¥­¨¥' )
-    add_string( 'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄ' )
-    n := 26
-    add_string( PadR( mm_month()[ i ], n ) )
-    For j := 1 To 5
-      add_string( PadL( mmt[ j ], n ) + put_val( ames[ i, j, 1 ], 11 ) + ;
-        put_val( ames[ i, j, 2 ], 14 ) + ;
-        put_val( ames[ i, j, 3 ], 13 ) + ;
-        put_val( ames[ i, j, 1 ] -ames[ i, j, 3 ], 12 ) )
-      // skol[j,2] += ames[i,j,2]
-      // skol[j,3] += ames[i,j,3]
-    Next
-  Next
-  add_string( PadR( 'ˆâ®£®:', n ) )
-//  for j := 1 to 5
-//    add_string(padl(mmt[j],n)+put_val(skol[j,1],11)+;
-//                              put_val(skol[j,2],14)+;
-//                              put_val(skol[j,3],13)+;
-//                              put_val(skol[j,1]-skol[j,3],12))
-//  next
-  FClose( fp )
-*/
   rest_box( buf )
   ft := nil
   viewtext( n_file,,,, .t.,,, 2 )
@@ -1035,9 +991,7 @@ Function find_unfinished_r11()
   Local fl := .t., skol := 0, mkol := 0, arr := {}, fl_date := .t.
 
 
-  Private mrec := 2 // !!!!!!!!!!!!
-//  Private sgod := YEAR_UPLOAD_DISPANSER
-//  private smonth := MONTH_UPLOAD // Œ…‘Ÿ– ¤«ï ¢ë£àã§ª¨ R11
+  Private mrec := 2
 
   If glob_mo()[ _MO_IS_UCH ]
     If ( fl := verify_packet_r05( 2, arr ) )
@@ -1067,7 +1021,7 @@ Function find_unfinished_r11()
           Endif
         Endif
 //        Select REES
-        rees->( dbSkip() )  //  Skip
+        rees->( dbSkip() )
       Enddo
       If fl .and. skol != mkol
         fl := .f.

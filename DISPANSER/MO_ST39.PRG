@@ -75,11 +75,6 @@ Function mnog_poisk_dvn1()
   If is_talon
     is_kategor2 := !Empty( stm_kategor2 )
   Endif
-//  For i := 1 To Len( glob_arr_smo )
-//    If glob_arr_smo[ i, 3 ] == 1
-//      AAdd( mm_smo, { glob_arr_smo[ i, 1 ], PadR( lstr( glob_arr_smo[ i, 2 ] ), 5 ) } )
-//    Endif
-//  Next
   For i := 1 To Len( smo_volgograd() )
     If smo_volgograd()[ i, 3 ] == 1
       AAdd( mm_smo, { smo_volgograd()[ i, 1 ], PadR( lstr( smo_volgograd()[ i, 2 ] ), 5 ) } )
@@ -768,7 +763,7 @@ Static Function f11_mnog_poisk_dvn1( date_otbor_old )
 
   Return fl_f11
 
-// 22.12.14 Многовариантный запрос по диспансеризации/профилактике взрослого населения
+// 07.05.26 Многовариантный запрос по диспансеризации/профилактике взрослого населения
 Function mnog_poisk_dvn2()
 
   Static mm_perevyst := { ;
@@ -798,8 +793,8 @@ Function mnog_poisk_dvn2()
   Local buf := SaveScreen(), tmp_color := SetColor( cDataCGet ), ;
     tmp_help := help_code, name_file := cur_dir() + 'mn_z2dvn.txt', ;
     sh := 80, HH := 77, i, a_diagnoz[ 10 ], lvid_doc := 0, ;
-    tmp_file := 'tmp_mn_p' + sdbf(), ;
-    tt_diagnoz[ 10 ], tt_usl[ 10 ]
+    tt_diagnoz[ 10 ], tt_usl[ 10 ], ;
+    tmp_file := 'tmp_mn_p'    // + sdbf(), ;
   Private ssumma := 0, suet := 0, mm_company := {}, ;
     is_kategor2 := .f., is_talon := ret_is_talon()
 
@@ -977,7 +972,7 @@ Function mnog_poisk_dvn2()
     {| x| menu_reader( x, mm_da_net, A__MENUVERT ) }, ;
     1, {|| Space( 10 ) }, ;
     'Создавать DBF-файл (параллельно с текстовым)?' } )
-  Delete File ( tmp_file )
+  Delete File ( tmp_file + sdbf() )
   init_base( tmp_file,, mm_tmp, 0 )
   //
   r_use( dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'PERSO' )
@@ -1795,11 +1790,6 @@ Function forma_39hall( tip_f39 )
     'По дате ~окончания лечения', ;
     'По ~дате оказания услуги' }
 
-  // Public menu_vid_opl := {{'ОМС',1},;  //  (битовое)
-  // {'Бюджет',2},;
-  // {'Пл.услуги',3},;
-  // {'ДМС',4},;
-  // {'Другое',5}}
   Private Pi1 := 0, Pi1_DATE, Pi1_OMS := 1
 
   For j := 1 To 35
@@ -2599,11 +2589,11 @@ Function fbp_tip_f39( r, c, ret_arr )
   Local i, j, a, out_arr
 
   Default r To T_ROW, c To T_COL + 5
-  If ( a := bit_popup( r, c, menu_vid_opl, sast ) ) != NIL
+  If ( a := bit_popup( r, c, menu_vid_opl(), sast ) ) != NIL
     out_arr := {} ; AFill( sast, .f. )
     For i := 1 To Len( a )
       AAdd( out_arr, a[ i, 2 ] )
-      If ( j := AScan( menu_vid_opl, {| x| x[ 2 ] == a[ i, 2 ] } ) ) > 0
+      If ( j := AScan( menu_vid_opl(), {| x| x[ 2 ] == a[ i, 2 ] } ) ) > 0
         sast[ j ] := .t.
       Endif
     Next
@@ -3248,11 +3238,6 @@ Function forma_39tall( tip_f39 )
     'По дате ~окончания лечения', ;
     'По ~дате оказания услуги' }
 
-  // Public menu_vid_opl := {{'ОМС',1},;  //  (битовое)
-  // {'Бюджет',2},;
-  // {'Пл.услуги',3},;
-  // {'ДМС',4},;
-  // {'Другое',5}}
   Private Pi1 := 0, Pi1_DATE, Pi1_OMS := 1
 
   For j := 1 To 56

@@ -206,9 +206,6 @@ Function fillzip( arr_f, sFileName )
 
     nLen := Len( arr_f )
     aGauge := gaugenew( , , { 'R/BG*', 'R/BG*', 'R/BG*' }, 'Создание архива ' + hb_FNameNameExt( sFileName ), .t. )
-    // lCompress := hb_ZipFile( sFileName, arr_f, COMPRESSION, ;
-    // , ;
-    // .t., , .f., ,  )
     lCompress := hb_ZipFile( sFileName, arr_f, COMPRESSION, ;
       {| cFile, nPos | gaugedisplay( aGauge ), stat_msg( 'Добавление в архив файла ' + hb_FNameNameExt( cFile ) + ' ( ' + AllTrim( lstr( nPos ) ) + ' из ' + AllTrim( lstr( nLen ) ) + ' )' ) }, ;
       .t., , .f., , {| nPos, nLen | gaugeupdate( aGauge, nPos / nLen ) } )
@@ -231,8 +228,6 @@ Function create_zip( par, dir_archiv, nPar )
   Local buf := SaveScreen()
   Local zip_xml_mo, zip_xml_tf, zip_napr_mo, zip_napr_tf, zip_xml_fns
   local afterDate := BoY( AddMonth( date(), - ( 12 * YEAR_COMPRESSION ) ) )
-  // Local blk := {| x | f_aadd_copy_db( arr_f, x ) }
-  // Local time_zip := 0, t1
 
   if nPar == 2
     afterDate := BoY( Date() )
@@ -325,9 +320,6 @@ Function create_zip( par, dir_archiv, nPar )
     Next
     nLen := Len( ar )
     aGauge := gaugenew( , , { 'R/BG*', 'R/BG*', 'R/BG*' }, 'Создание архива ' + zip_file, .t. )
-    // lCompress := hb_ZipFile( dir_archiv + zip_file, ar, COMPRESSION, ;
-    // , ;
-    // .t., , .f., , )
     lCompress := hb_ZipFile( dir_archiv + zip_file, ar, COMPRESSION, ;
       {| cFile, nPos | gaugedisplay( aGauge ), stat_msg( 'Добавление в архив файла ' + hb_FNameNameExt( cFile ) + ' ( ' + AllTrim( lstr( nPos ) ) + ' из ' + AllTrim( lstr( nLen ) ) + ' )' ) }, ;
       .t., , .f., , {| nPos, nLen | gaugeupdate( aGauge, nPos / nLen ) } )
@@ -364,44 +356,6 @@ Function create_zip( par, dir_archiv, nPar )
     Return Nil
   Endif
   Return zip_file
-
-// 07.11.23
-// Function f_aadd_copy_db( arr_f, x )
-
-  // static curYear
-  // Local fl := .t., s, y
-
-  // if isnil(curYear)
-  //   curYear := Year(date()) - 2000
-  // Endif
-
-  // x := Upper( x )
-  // If eq_any( Right( x, 4 ), szip(), stxt() )
-  //   s := strippath( x )
-  //   // реестры, ФЛК и счета
-  //   If eq_any( Left( s, 3 ), 'FRM', 'HRM' ) .or. eq_any( Left( s, 4 ), 'PFRM', 'PHRM' ) ;
-  //       .or. eq_any( Left( s, 2 ), 'I0', 'FM', 'HM', 'AT', 'AS', 'DT', 'DS' )
-  //     y := Int( Val( Left( AfterAtNum( '_', s ), 2 ) ) )
-  //     fl := ( y > 19 )  // с 2020 года
-  //   Elseif eq_any( Left( s, 3 ), 'FRT', 'HRT' )
-  //     y := Int( Val( SubStr( s, 14, 2 ) ) )
-  //     fl := ( y > 19 )  // с 2020 года
-  //   elseif eq_any( left( lower(s), 3), 'r01', 'r05', 'd01')
-  //     y := Int( Val( Left( AfterAtNum( '_', s ), 2 ) ) )
-  //     fl := ( y > (curYear - 2) )  // за послудние 2 года
-  //   elseif left( lower(s), 3) == 'r11'
-  //     y := Int( Val( Left( AfterAtNum( '_', s ), 2 ) ) )
-  //     fl := ( y > (curYear - 1) )  // за послудние 1 год
-  //   elseif left( lower(s), 2) == 'sz'
-  //     y := Int( Val( SubStr( s, 12, 2 ) ) )
-  //     fl := ( y > (curYear - 2) )  // за послудние 2 года
-  //   Endif
-  // Endif
-  // If fl
-    // AAdd( arr_f, x )
-  // Endif
-
-  // Return Nil
 
 // 06.11.23 то же, что и ScanFiles, но по одной директории cPath
 FUNCTION scandirfiles_for_backup( cPath, cFilespec, blk, afterDate )

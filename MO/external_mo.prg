@@ -135,7 +135,7 @@ Function f2get_mo( oBrow )
   Endif
   Return Nil
 
-// 09.09.25
+// 06.06.26
 Function f3get_mo( nkey, oBrow )
 
   Local ret := -1, cCode, rec
@@ -157,7 +157,7 @@ Function f3get_mo( nkey, oBrow )
       ret := 0
     Endif
   Elseif nKey == K_F3 .and. glob_task != X_263 .and. muslovie == Nil .and. ppar == 1
-    aRet := viewf003()
+    aRet := viewf032()
     If ! Empty( aRet[ 1 ] )
       _fl_add_mo := .t.
       RG->( dbAppend() )  // blank

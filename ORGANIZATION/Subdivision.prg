@@ -115,7 +115,7 @@ function editSubdivision( oBrowse, aObjects, oSubdivision, nKey )
 		
 		// тип подразделения
 		m1typpodr	:= oSubdivision:TypePodr
-		mtyppodr	:= inieditspr_bay( A__MENUVERT, mm_danet, m1typpodr )
+		mtyppodr	:= inieditspr_bay( A__MENUVERT, mm_danet(), m1typpodr )
 		
 		// профиль
 		m1mprofil 	:= oSubdivision:Profil
@@ -155,7 +155,7 @@ function editSubdivision( oBrowse, aObjects, oSubdivision, nKey )
 						reader { | x | menu_reader( x, mm_tiplu, A__MENUVERT, , , .f. ) }
 						
 		@ k + ii++, 4 say 'Является данное отделение приёмным покоем стационара' get mtyppodr ;
-						reader { | x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+						reader { | x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
 						
 		@ k + ii++, 4 say 'Профиль мед.помощи' get mmprofil ;
 						reader { | x | menu_reader( x, tmp_V002, A__MENUVERT_SPACE, , , .f. ) }

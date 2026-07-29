@@ -6,6 +6,15 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+#include "simpleio.ch"
+#include 'dbinfo.ch'
+
+#require "rddsql"
+#require "sddodbc"
+
+
+REQUEST SQLMIX, SDDODBC
+
 // External ust_printer, ErrorSys, ReadModal, like, flstr, prover_dbf, net_monitor, pr_view, ne_real
 External ust_printer, ReadModal, like, flstr, prover_dbf
 // старые (редко используемые) отчёты запускаем из hrb-файлов (для уменьшения задачи)
@@ -26,6 +35,7 @@ Procedure Main( ... )
   Local cVar, i
   Local sPass, chPass
   Local nameTask := strippath( hb_argv( 0 ) ) // имя запущенной задачи
+  Local tmp
 
   For Each s IN hb_AParams() // анализ входных параметров
     s := Lower( s )
@@ -172,6 +182,14 @@ Procedure Main( ... )
       f_end( .f. )
     Endif
   Endif
+
+  tmp := rddInfo( RDDI_CONNECT, { 'SQLITE3', dir_exe() + 'chip_mo.db' } )
+  dbCloseAll()
+  tmp := HB_DTOT( Date() )
+  tmp := HB_TTOD( tmp )
+
+// altd()
+
   f_main( r, is_local_version, a_parol )
   f_end()
   Return
@@ -206,7 +224,7 @@ Function app_ini()
   Set Color To
   Return Nil
 
-// 15.09.25
+// 26.05.26
 Function f_main( r0, is_local_version, a_parol )
 
   Local i, lens := 0, r, c, oldTfoms, arr, ar, k, fl_exit := .t.
@@ -250,8 +268,9 @@ Function f_main( r0, is_local_version, a_parol )
     // вывести центральные строки главного экрана
     main_center_screen( r0, a_parol )
     If currentuser():isadmin()
-      find_unfinished_reestr_sp_tk( .f., .t. )
-      find_time_limit_human_reestr_sp_tk()
+//      find_unfinished_reestr_sp_tk( .f., .t. )
+//      find_time_limit_human_reestr_sp_tk()
+
 //      If glob_mo()[ _MO_KOD_TFOMS ] == '711001' // ЖД-больница
 //      find_unfinished_r01()
 //      find_unfinished_r11()

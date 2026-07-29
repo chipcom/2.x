@@ -292,7 +292,7 @@ function input_polis_OMS(cur_row, mkod)
   // переменные mvidpolis, m1vidpolis, mspolis, mnpolis объявлены ранее как PRIVATE
   default mkod to 0
   @ cur_row, 1 say 'Полис ОМС: вид' get mvidpolis ;
-    reader {|x|menu_reader(x, mm_vid_polis, A__MENUVERT, , , .f.)}
+    reader {|x|menu_reader(x, mm_vid_polis(), A__MENUVERT, , , .f.)}
   @ row(), col() + 3 say 'серия' get mspolis when m1vidpolis == 1
   @ row(), col() + 3 say 'номер' get mnpolis ;
     picture iif(m1vidpolis == 3 .or. m1vidpolis == 1, '9999999999999999', '999999999');
@@ -347,7 +347,7 @@ Function get_fio_kart( k, r, c )
     m1okato     := kart_->KVARTAL_D // ОКАТО субъекта РФ территории страхования
     mokato      := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
     mkomu       := inieditspr( A__MENUVERT, mm_komu(), m1komu )
-    mvidpolis   := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
+    mvidpolis   := inieditspr( A__MENUVERT, mm_vid_polis(), m1vidpolis )
     If !Empty( mn_data )
       fv_date_r( mn_data, .f. )
     Endif

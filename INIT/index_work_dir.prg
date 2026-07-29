@@ -4,7 +4,7 @@
 #define NUMBER_YEAR 3 // число лет для переиндексации назад
 #define INDEX_NEED  2 // число лет обязательной переиндексации
 
-// 06.01.25 проверка наличия справочников НСИ
+// 04.06.26 проверка наличия справочников НСИ
 Function files_nsi_exists( dir_file )
 
   Local lRet := .t.
@@ -47,8 +47,8 @@ Function files_nsi_exists( dir_file )
   AAdd( arr_check, sbase )
 
   // справочник страховых компаний РФ
-  sbase := dir_file + '_mo_smo' + cDbf
-  AAdd( arr_check, sbase )
+  //sbase := dir_file + '_mo_smo' + cDbf
+  //AAdd( arr_check, sbase )
 
   // onkko_vmp
   sbase := dir_file + '_mo_ovmp' + cDbf
@@ -98,7 +98,7 @@ Function files_nsi_exists( dir_file )
   Endif
   Return lRet
 
-// 09.04.26 проверка и переиндексирование справочников ТФОМС
+// 03.06.26 проверка и переиндексирование справочников ТФОМС
 Function index_work_dir( dir_spavoch, working_dir, flag )
 
   Local fl := .t., i, buf := save_maxrow()
@@ -183,8 +183,8 @@ Function index_work_dir( dir_spavoch, working_dir, flag )
   // справочник ОКАТО
   okato_index( flag )
   //
-  // справочник страховых компаний РФ
-  glob_array_srf( dir_spavoch, working_dir )
+//  // справочник страховых компаний РФ
+//  glob_array_srf( dir_spavoch, working_dir )
   rest_box( buf )
   Return Nil
 

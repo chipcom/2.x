@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-//
+// 04.06.26
 Function func_valid_ismo( get, lkomu, sh, name_var )
 
   Local r1, r2, n := 3, buf, tmp_keys, tmp_list, tmp_color
@@ -26,12 +26,15 @@ Function func_valid_ismo( get, lkomu, sh, name_var )
     box_shadow( r1, 2, r2, 77, 'N+/W', 'Ввод иногородней СМО', 'GR/W' )
     tmp_color := SetColor( 'N/W, W+/N, , , B/W' )
     @ r1 + 1, 4 Say 'Субъект РФ' Get mokato ;
-      reader {| x| menu_reader( x, ;
-      { {| k, r, c| get_srf( k, r, c ) }, 62 }, A__FUNCTION, , , .f. ) } ;
+      reader {| x| menu_reader( x, glob_array_srf(), A__MENUVERT, , , .f. ) } ;
       valid {| g, o| when_ismo( g, o ) }
+
+//      reader {| x| menu_reader( x, ;
+//      { {| k, r, c| get_srf( k, r, c ) }, 62 }, A__FUNCTION, , , .f. ) } ;
+
     @ r1 + 2, 4 Say 'СМО' Get mismo ;
       reader {| x| menu_reader( x, mm_ismo, A__MENUVERT, , , .f. ) } ;
-      when {|| Len( mm_ismo ) > 0 .and. Empty( mnameismo ) } ;
+      when {|| Len( mm_ismo ) > 0  } ;  //.and. Empty( mnameismo ) } ;
       valid {|| iif( Empty( mismo ), , mnameismo := Space( 100 ) ), .t. }
    // @ r1 + 3, 4 Say 'Наименование СМО' Get mnameismo Pict '@S56' ;
    //   When Empty( m1ismo )
@@ -48,6 +51,7 @@ Function func_valid_ismo( get, lkomu, sh, name_var )
 
   Return .t.
 
+/*
 //
 Function get_srf( k, r, c )
 
@@ -87,7 +91,6 @@ Function get_srf( k, r, c )
   edit_browse( t_arr )
   tmp->( dbCloseArea() )
   Return ret
-
 //
 Function f2_srf( nk, ob )
 
@@ -142,11 +145,12 @@ Function f2_srf( nk, ob )
   Endif
 
   Return ret
+*/
 
-//
+// 28.05.26
 Function when_ismo( get, old )
 
-  Local s
+  Local row, s
 
   If !( m1okato == old ) .and. old != NIL
     m1ismo := ''
@@ -154,17 +158,22 @@ Function when_ismo( get, old )
   Endif
   mm_ismo := {}
   If !Empty( m1okato )
-    r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo', 'SMO' )
-    smo->( dbSeek( m1okato ) )  //  find ( m1okato )
-    Do While smo->okato == m1okato .and. ! smo->( Eof() )
-      s := AllTrim( smo->name )
-      If !Empty( smo->d_end )
-        s += ' (до ' + full_date( smo->d_end ) + ')'
-      Endif
-      AAdd( mm_ismo, { s, smo->smo } )
-      smo->( dbSkip() )   //  Skip
-    Enddo
-    smo->( dbCloseArea() )
+    for each row in get_SMO_OKATO_f019( m1okato )
+//    for each row in get_SMO_OKATO_f002( m1okato )
+//      AAdd( mm_ismo, { row[ 5 ], row[ 7 ] } )
+      AAdd( mm_ismo, { row[ 1 ], row[ 2 ] } )
+    next
+//    r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo', 'SMO' )
+//    smo->( dbSeek( m1okato ) )  //  find ( m1okato )
+//    Do While smo->okato == m1okato .and. ! smo->( Eof() )
+//      s := AllTrim( smo->name )
+//      If !Empty( smo->d_end )
+//        s += ' (до ' + full_date( smo->d_end ) + ')'
+//      Endif
+//      AAdd( mm_ismo, { s, smo->smo } )
+//      smo->( dbSkip() )   //  Skip
+//    Enddo
+//    smo->( dbCloseArea() )
   Endif
 
   Return Len( mm_ismo ) > 0

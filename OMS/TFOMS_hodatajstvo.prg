@@ -183,13 +183,13 @@ Function tfoms_hodatajstvo( arr_m, iRefr, par )
 
   Return Nil
 
-// 01.03.26 оформление ходатайства
+// 28.06.26 оформление ходатайства
 Function tfoms_hodatajstvo_new( )
   // Функция отрабатывает 
   // arr_m - временной массив
 
-  Local buf24 := save_maxrow(), t_arr[ BR_LEN ], blk
-  local a_mo_prik, i, arr_m := {}
+  Local buf24 := save_maxrow(), t_arr[ BR_LEN ]
+  local arr_m := {} 
 
   If !myfiledeleted( cur_dir() + 'tmp_k' + sdbf() )
     Return Nil
@@ -212,28 +212,44 @@ Function tfoms_hodatajstvo_new( )
   select HUMAN 
   dbSeek( DToS( arr_m[ 5 ] ), .t. ) // обратный порядок
   Do While human->k_data <= arr_m[6] .and. !Eof()
-    if human->komu == 0 // только ОМС
+    if human->komu == 0 .and. human->schet < 1 // только ОМС и не в счетах (перестраховка)
       select human_
       goto (human->kod)
       flag_zap := .F.
-      If human_->reestr == 0 .and. human_->schet_zap == 0
+      If human_->reestr == 0 //.and. human_->schet_zap == 0 - не всегда очищаются
        // начало контроля
        // надо добавить контроль через QA2-RA2 
-        select kart2
-        Goto ( human->kod_k )
-        if len(alltrim(kart2->pc3)) > 2 // ошибка от СВЕРКИ
-          // mydebug(,"111")
-          flag_zap := .T.
-        endif  
-        if !flag_zap .and. human_->vpolis != 3
+       if human_->smo == '00000'
+         flag_zap := .T.
+       endif 
+       if !flag_zap .and. human_->okato == '00000'
+         flag_zap := .T.
+       endif 
+       if !flag_zap 
+         select kart2
+         Goto ( human->kod_k )
+         if len(alltrim(kart2->pc3)) > 2 // ошибка от СВЕРКИ
+           // исключаем ошибку  803 - не верный СНИЛС 
+           if alltrim(kart2->pc3) == "803"
+             //
+           elseif alltrim(kart2->pc3) == "706" // Застрахованный умер 
+             //    
+           else // 709 прикрепление к МО отсутствует 708 - Не имеет текущего страхования
+             flag_zap := .T.
+           endif 
+         endif  
+       endif  
+       if !flag_zap .and. human_->vpolis != 3
           // проверяем на наличе ЕНП 
           select kart2
           Goto ( human->kod_k )
           if len(alltrim(kart2->kod_mis)) < 16 // нет верного ЕНП
-           // mydebug(,"222")
             flag_zap := .T.
           endif  
         Endif
+       if kart2->kod_tf > 0 .and. len( alltrim( kart2->mo_pr ) ) < 6
+        flag_zap := .T.
+       endif
         if flag_zap
           Select TMP_K
           Append Blank
@@ -359,13 +375,13 @@ Function f2tfoms_hodatajstvo( nKey, oBrow, regim )
 
   Return k
 
-// 01.03.26 создание файла ХОДАТАЙСТВА для отсылки в ТФОМС
+// 27.05.26 создание файла ХОДАТАЙСТВА для отсылки в ТФОМС
 Function create_file_hodatajstvo( arr_m )
 
   // arr_m - временной массив
   Local i, k := 0, as, fl := .f., mnn, mb, me, mfilial, ;
     buf := save_maxrow()
-  local adbf
+  local adbf, arrSMO := {}
 
   r_use( dir_server() + 'organiz',, 'ORG' )
   If Empty( mfilial := org->filial_h )
@@ -443,6 +459,7 @@ Function create_file_hodatajstvo( arr_m )
   Delete For is == 0
   Pack
   //as := { { 0, '34001', '' }, { 0, '34002', '' }, { 0, '34006', '' }, { 0, '34007', '' }, { 0, 'прочие', '' } }
+//  as := {{ 0, '34007', '' }, { 0, '34002', '' }, { 0, '00000', '' } }
   as := {{ 0, '34007', '' }, { 0, '34002', '' }, { 0, 'прочие', '' } }
 
   r_use( dir_server() + 'human_',, 'HUMAN_' )
@@ -483,7 +500,7 @@ Function create_file_hodatajstvo( arr_m )
     For i := 1 To 3
       If as[ i, 1 ] > 0
         // as[i,3] := n_file+'_'+as[i,2]+'.xls'
-        as[ i, 3 ] := n_file + '_' + as[ i, 2 ] + '.xlsx'
+        as[ i, 3 ] := n_file + '_' + as[ i, 2 ] + '.xlsx' 
         Delete File ( as[ i, 3 ] )
         delfrfiles()
         adbf := { ;
@@ -522,7 +539,7 @@ Function create_file_hodatajstvo( arr_m )
           { 'proch', 'C', 60, 0 } }
         dbCreate( fr_data, adbf )
         Use ( fr_data ) New Alias FRD
-        r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo2', 'SMO' )
+//        r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo2', 'SMO' )
         r_use( dir_server() + 'kartote_',, 'KART_' )
         r_use( dir_server() + 'kartotek',, 'KART' )
         Set Relation To RecNo() into KART_
@@ -558,20 +575,26 @@ Function create_file_hodatajstvo( arr_m )
             Endif
             frd->okatog := kart_->okatog
             frd->adresg := ret_okato_ulica( kart->adres, kart_->okatog, 1, 2 )
-            frd->vidpolis := lstr( human_->VPOLIS ) + '-' + inieditspr( A__MENUVERT, mm_vid_polis, human_->VPOLIS )
+            frd->vidpolis := lstr( human_->VPOLIS ) + '-' + inieditspr( A__MENUVERT, mm_vid_polis(), human_->VPOLIS )
             frd->polis := AllTrim( AllTrim( human_->SPOLIS ) + ' ' + human_->NPOLIS )
             frd->smo := human_->smo
-//            frd->name_smo := inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( human_->smo ) ) )
             frd->name_smo := inieditspr( A__MENUVERT, smo_volgograd(), Int( Val( human_->smo ) ) )
+            arrSMO := findSMO_in_f019( human_->smo )
             If Empty( frd->name_smo )
-              Select SMO
-              find ( PadR( human_->smo, 5 ) )
-              frd->name_smo := smo->name
+              if len( arrSMO ) != 0
+                frd->name_smo := arrSMO[ 5 ]
+              endif
+//              Select SMO
+//              find ( PadR( human_->smo, 5 ) )
+//              frd->name_smo := smo->name
             Endif
             If Empty( frd->okato := human_->okato )
-              Select SMO
-              find ( PadR( human_->smo, 5 ) )
-              frd->okato := smo->okato
+              if len( arrSMO ) != 0
+                frd->okato := arrSMO[ 1 ]
+              endif
+//              Select SMO
+//              find ( PadR( human_->smo, 5 ) )
+//              frd->okato := smo->okato
             Endif
             frd->region := inieditspr( A__MENUVERT, glob_array_srf(), frd->okato )
             frd->proch := AllTrim( AllTrim( kart_->PHONE_H ) + ' ' + AllTrim( kart_->PHONE_M ) + ' ' + kart_->PHONE_W )
@@ -581,7 +604,7 @@ Function create_file_hodatajstvo( arr_m )
         Enddo
         Close databases
 
-        error := hodotajstvoxls( n_file + '_' + as[ i, 2 ] )
+        error := hodotajstvoxls( n_file + '_' + hb_OEMToANSI( as[ i, 2 ] ) )
         If ! Empty( error )
           Return func_error( 4, 'Ошибка создания файла ходатайства.' )
         Endif
@@ -745,7 +768,7 @@ Function f2_view_list_hodatajstvo( nKey, oBrow )
             Copy File ( goal_dir + zip_file ) to ( s + zip_file )
             // if hb_fileExists(hb_OemToAnsi(s)+zip_file)
             If hb_FileExists( s + zip_file )
-              hod->( g_rlock( forever ) )
+              hod->( g_rlock( 'forever' ) )
               hod->DATE_OUT := sys_date
               If hod->NUMB_OUT < 99
                 hod->NUMB_OUT++

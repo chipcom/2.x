@@ -228,7 +228,7 @@ Function f2_263_p_napr( nKey, oBrow, regim )
           motd := '! некорректное отделение !'
         Endif
       Endif
-      mdisp := inieditspr( A__MENUVERT, mm_danet, m1disp )
+      mdisp := inieditspr( A__MENUVERT, mm_danet(), m1disp )
       mUSL_OK := inieditspr( A__MENUVERT, tmp_V006, m1USL_OK )
       mforma := inieditspr( A__MENUVERT, getv014(), m1forma )
       mprofil_k := inieditspr( A__MENUVERT, arr_t007(), M1PROFIL_K )
@@ -268,7 +268,7 @@ Function f2_263_p_napr( nKey, oBrow, regim )
           reader {| o| mygetreader( o, bg ) } ;
           Valid val1_10diag( .t., .f., .f., md_napr, mpol )
         @ ++i, 1 Say 'Направление выдано по результатам диспансеризации/профосмотра взрослых' Get mdisp ;
-          reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+          reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
         @ ++i, 1 Say 'Направил на госпитализацию врач' Get MTAB_NOM Pict '99999' ;
           valid {| g| v_kart_vrach( g, .t. ) }
         @ Row(), Col() + 1 Get mvrach When .f. Color color14

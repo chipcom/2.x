@@ -197,14 +197,14 @@ Function dublicate_diagnoze( arrDiagnoze )
 
   Return aRet
 
-// 04.04.24
-Function full_diagnoz_human( diag, dopDiag )
+// 10.06.26
+Function full_main_diagnoz_human( diag, dopDiag )
 
-  Local sDop := AllTrim( dopDiag )
+  Local sDop := SubStr( AllTrim( dopDiag ), 1, 1 )
 
   diag := AllTrim( diag )
 
-  If Len( sDop ) == 1 .and. ( sDop >= '0' .and. sDop <= '9' )
+  If !Empty( sDop ) .and. ( sDop >= '0' .and. sDop <= '9' )
     diag := diag + sDop
   Endif
 

@@ -1151,7 +1151,7 @@ Function ob2_statist( k, serv_arr )
   Endif
   Return Nil
 
-//
+// 00.06.26
 Static Function ob3_statist( k, arr_otd, serv_arr, mkod_perso )
 
   Local i, j, mtrud := { 0, 0, 0 }, koef_z := { 1, 1, 1 }, k1 := 2, s1 := "2", lstoim
@@ -1159,7 +1159,7 @@ Static Function ob3_statist( k, arr_otd, serv_arr, mkod_perso )
   If !_f_ist_fin()
     Return Nil
   Endif
-  If hu->u_kod > 0 .and. ( &pole_kol > 0 .or. &pole_stoim > 0 ) .and. ;
+  If hu->u_kod > 0 .and. ( &pole_kol > 0 .or. iif( hu->usl_repl == 1, .F., &pole_stoim > 0 ) ) .and. ; // hu->usl_repl == 1 стоимость НОЛЬ
       ( i := AScan( arr_otd, {| x| hu->otd == x[ 1 ] } ) ) > 0
     lstoim := _f_stoim( 1 )
     If mem_trudoem == 2
@@ -1580,7 +1580,7 @@ Static Function ob4_statist( k, arr_otd, i, mkol, mstoim, serv_arr, mkod_perso )
   Endcase
   Return Nil
 
-//
+// 00.06.26
 Static Function ob5_statist( k, arr_otd, serv_arr, mkol, mstoim )
 
   If !_f_ist_fin()
@@ -1606,7 +1606,11 @@ Static Function ob5_statist( k, arr_otd, serv_arr, mkol, mstoim )
   Endif
   Default mkol TO &pole_kol, mstoim TO &pole_stoim
   tmp->kol += mkol
-  tmp->stoim += mstoim
+  if hu->usl_repl == 1
+     // mstoim НОЛЬ
+  else  
+    tmp->stoim += mstoim
+  endif  
   Return Nil
 
 // подсчитать процент по отделениям (для службы)
@@ -1656,24 +1660,38 @@ Static Function ob7_statist()
 
   Return Nil
 
-//  
+//00.06.26
 Static Function _f_stoim( k )
 
   Local sstoim, skol, scena
 
   If k == 1
     skol := &pole_kol
-    sstoim := &pole_stoim
+    if hu->usl_repl == 1
+      // НОЛЬ 
+      sstoim := 0
+    else 
+      sstoim := &pole_stoim
+    endif  
   Else
     skol := hu->kol
-    sstoim := hu->stoim
+    if hu->usl_repl == 1
+      // НОЛЬ
+      sstoim := 0
+    else
+      sstoim := hu->stoim
+    endif  
   Endif
   If Empty( sstoim ) .and. Select( "UD" ) > 0
     Select UD
     find ( Str( hu->u_kod, 4 ) )
     If Found()
       scena := iif( human->vzros_reb == 0, ud->cena, ud->cena_d )
-      sstoim := round_5( scena * skol, 2 )
+      if hu->usl_repl == 1
+        sstoim := 0
+      else  
+        sstoim := round_5( scena * skol, 2 )
+      endif  
     Endif
   Endif
   Return sstoim
@@ -2715,7 +2733,11 @@ Function f1_poisk_rassogl()
       fl := f_paraklinika( usl->shifr, usl->shifr1, human->k_data )
     Endif
     If fl
-      ss += hu->stoim_1
+      if hu->usl_repl == 1
+        // сумма НОЛЬ 
+      else  
+       ss += hu->stoim_1
+      endif
     Endif
     Select HU
     Skip

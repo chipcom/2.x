@@ -124,8 +124,8 @@ Function f2_e_boln( nkey )
     For i := 1 To 16
       adiag_talon[ i ] := Int( Val( SubStr( human_->DISPANS, i, 1 ) ) )
     Next
-    Private mpovod  := inieditspr( A__MENUVERT, stm_povod, m1povod )
-    Private mtravma := inieditspr( A__MENUVERT, stm_travma, m1travma )
+    Private mpovod  := inieditspr( A__MENUVERT, stm_povod(), m1povod )
+    Private mtravma := inieditspr( A__MENUVERT, stm_travma(), m1travma )
     Private row_dop_diag := 7
     //
     mtitul := "Редактирование " + { "больничного", "стат.талона" }[ pr_regim ]
@@ -155,7 +155,7 @@ Function f2_e_boln( nkey )
       @ Row(), Col() + 1 Say "Д.р.родителя" Get mrodit_dr When m1bolnich == 2
       If mem_pol == 1
         @ Row(), Col() + 1 Say "Пол" Get mrodit_pol ;
-          reader {| x| menu_reader( x, menupol, A__MENUVERT,,, .f. ) } ;
+          reader {| x| menu_reader( x, menupol(), A__MENUVERT,,, .f. ) } ;
           When m1bolnich == 2
       Else
         @ Row(), Col() + 1 Say "Пол" Get mrodit_pol Pict "@!" ;
@@ -173,7 +173,7 @@ Function f2_e_boln( nkey )
       @ Row(), Col() Say ","                Get msoput_b4  reader {| o| mygetreader( o, bg ) } When when_diag()
       If mem_st_pov == 1
         @ 18, 1 Say "Повод обращения" Get mpovod ;
-          reader {| x| menu_reader( x, stm_povod, A__MENUVERT,,, .f. ) }
+          reader {| x| menu_reader( x, stm_povod(), A__MENUVERT,,, .f. ) }
       Else
         @ 18, 1 Say "Повод обращения" Get m1povod Pict "9" ;
           valid {| g| val_st_pov( g ) }
@@ -182,7 +182,7 @@ Function f2_e_boln( nkey )
       If .t. // is_travma // если в настройке для отделения - работа с травмой
         If mem_st_trav == 1
           @ 18, 43 Say "Вид травмы" Get mtravma ;
-            reader {| x| menu_reader( x, stm_travma, A__MENUVERT,,, .f. ) }
+            reader {| x| menu_reader( x, stm_travma(), A__MENUVERT,,, .f. ) }
         Else
           @ 18, 43 Say "Вид травмы" Get m1travma Pict "99" ;
             valid {| g| val_st_trav( g ) }

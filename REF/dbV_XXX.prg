@@ -1089,6 +1089,23 @@ Function get_idpc_from_v025_by_number( num )
   Next
   Return retIDPC
 
+// 16.07.26
+Function get_npc_from_v025_by_idpc( idpc )
+
+  Local tableV025 := getv025()
+  Local row
+  Local retIDPC := ''
+
+  idpc := AllTrim( idpc )
+
+  For Each row in tableV025
+    If AllTrim( row[ 3 ] ) == idpc
+      retIDPC := row[ 1 ]
+      Exit
+    Endif
+  Next
+  Return retIDPC
+
 // =========== V029 ===================
 //
 // 10.04.26 вернуть массив по справочнику ФФОМС V029.xml

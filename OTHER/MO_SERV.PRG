@@ -1147,7 +1147,7 @@ Function f_lis_mgi( mkod, ao )
   sl->DS1_T := 5
   sl->b_diag := 98 // выполнено (результат получен)
   //
-  If ( i := AScan( glob_MGI, {| x| x[ 1 ] == ao[ LISS_USL, 1, LISU_SHIFR ] } ) ) > 0 // услуга входит в список ТФОМС
+  If ( i := AScan( glob_MGI(), {| x| x[ 1 ] == ao[ LISS_USL, 1, LISU_SHIFR ] } ) ) > 0 // услуга входит в список ТФОМС
     // select N12
     // dbeval({|| aadd(ar_N012, n12->id_igh) }, ;
     // {|| between_date(n12->datebeg, n12->dateend, ao[LISS_USL, 1, LISU_DATE]) .and. left(human->KOD_DIAG,3) == n12->ds_igh })
@@ -1155,14 +1155,14 @@ Function f_lis_mgi( mkod, ao )
       ar_N012 := AClone( aN012_DS[ it, 2 ] )
     Endif
 
-    If AScan( ar_N012, glob_MGI[ i, 2 ] ) > 0 // по данному диагнозу присутствует необходимый маркер
+    If AScan( ar_N012, glob_MGI()[ i, 2 ] ) > 0 // по данному диагнозу присутствует необходимый маркер
       Select DIAG
       addrec( 7 )
       diag->kod       := mkod
       diag->DIAG_DATE := ao[ LISS_USL, 1, LISU_DATE ]
       diag->DIAG_TIP  := 2
-      diag->DIAG_CODE := glob_MGI[ i, 2 ]
-      diag->DIAG_RSLT := iif( ao[ LISS_USL, 1, LISU_D_RSLT ] == '1', glob_MGI[ i, 4 ], glob_MGI[ i, 3 ] )
+      diag->DIAG_CODE := glob_MGI()[ i, 2 ]
+      diag->DIAG_RSLT := iif( ao[ LISS_USL, 1, LISU_D_RSLT ] == '1', glob_MGI()[ i, 4 ], glob_MGI()[ i, 3 ] )
       diag->REC_RSLT  := 1
     Endif
   Endif
@@ -1388,7 +1388,7 @@ Function import_sluch_oms()
 
   Return Nil
 
-// 09.09.25
+// 27.05.26
 Function f1_import_sluch_oms()
 
   Local _lpu := { ;
@@ -1483,6 +1483,7 @@ Function f1_import_sluch_oms()
   Local i, j, k, arr_ksg, cType, cName, a_struct, fl := .t., buf := save_maxrow()
   Local arrV018
   Local arrV019
+  local arrSMO := {}
 
   mywait()
   a_struct := { _lpu, _otd, _sluch, _sluch_u }
@@ -1533,7 +1534,7 @@ Function f1_import_sluch_oms()
     use_base( 'human_u' )
     use_base( 'human' )
     //
-    r_use( dir_exe() + '_mo_smo', { cur_dir() + '_mo_smo', cur_dir() + '_mo_smo2' }, 'SMO' )
+//    r_use( dir_exe() + '_mo_smo', { cur_dir() + '_mo_smo', cur_dir() + '_mo_smo2' }, 'SMO' )
     Use ( name_path + '_lpu' ) New Alias ILPU
     Index On Str( FIELD->kod, 3 ) to ( cur_dir() + 'tmp_ilpu' )
     Use ( name_path + '_otd' ) New Alias IOTD
@@ -1650,10 +1651,11 @@ Function f1_import_sluch_oms()
         StrFile( '_SLUCH: запись № ' + lstr( ihuman->( RecNo() ) ) + ;
           ', не введен код СМО' + hb_eol(), cFileProtokol, .t. )
       Else
-        Select SMO
-        Set Order To 2
-        find ( ihuman->SMO )
-        If Found()
+        arrSMO := findSMO_in_f019( ihuman->SMO )
+//        Select SMO
+//        Set Order To 2
+//        find ( ihuman->SMO )
+        If Len( arrSMO ) != 0         //  Found()
           //
         Elseif Int( Val( ihuman->SMO ) ) == 34
           fl_34 := .t.
@@ -1664,10 +1666,11 @@ Function f1_import_sluch_oms()
         Endif
       Endif
       If fl_34 .and. !Empty( ihuman->SMO_OK )
-        Select SMO
-        Set Order To 1
-        find ( ihuman->SMO_OK )
-        If Found()
+        arrSMO := findSMO_in_f019( ihuman->SMO_OK )
+//        Select SMO
+//        Set Order To 1
+//        find ( ihuman->SMO_OK )
+        If Len( arrSMO ) != 0         //   Found()
           fl_okatosmo := .t.
         Else
           fl := .f.
@@ -3291,7 +3294,7 @@ Function pripisnoe_naselenie_create_vomiac()
 
   Return Nil
 
-// 12.09.25 создать файл приписного населения в Облздрав
+// 27.05.26 создать файл приписного населения в Облздрав
 Function pripisnoe_naselenie_create_oblsdrav()
 
   Local buf := SaveScreen(),  arr_fio, pr_date, name_file, name_zip
@@ -3322,6 +3325,8 @@ Function pripisnoe_naselenie_create_oblsdrav()
     { 'DATE_PR',    'D',      8,      0 }, ; // Да
     { 'SNILS_VR',   'C',     14,      0 }; // У XXX-XXX-XXX XX
   }
+  local arrSMO := {}
+
   If !f_esc_enter( 'создания файла для ВОМИАЦ', .t. )
     Return Nil
   Endif
@@ -3332,7 +3337,7 @@ Function pripisnoe_naselenie_create_oblsdrav()
   gaugedisplay( hGauge )
   curr := 0
   r_use( dir_server() + 's_kemvyd',, 'VID' )
-  r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo2', 'SMO' )
+//  r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo2', 'SMO' )
   // index on FIELD->smo to (cur_dir()+sbase+'2')
   // G_Use(dir_server() + 'mo_krtr',,'KRTR')
   // index on str(FIELD->kod,6) to (cur_dir() + 'tmp_krtr')
@@ -3379,11 +3384,15 @@ Function pripisnoe_naselenie_create_oblsdrav()
       Endif
       bars->POLIS        := kart->polis               // У
       bars->KOD_SMO      := kart_->smo                // У
-      Select SMO
-      find ( kart_->smo )
-      If Found()
-        bars->SMO        := smo->name                 // У
-      Endif
+      arrSMO := findSMO_in_f019( human_->smo )
+      if len( arrSMO ) != 0
+        bars->SMO := arrSMO[ 5 ]
+      endif
+//      Select SMO
+//      find ( kart_->smo )
+//      If Found()
+//        bars->SMO        := smo->name                 // У
+//      Endif
 //      bars->SNILS        := Transform( kart->snils, picture_pf ) // У XXX-XXX-XXX XX
       bars->SNILS        := Transform_SNILS( kart->snils ) // У XXX-XXX-XXX XX
       bars->VID_UD       := lstr( kart_->vid_ud )       // У
@@ -4570,7 +4579,7 @@ function mm_oms_pole()
     'профиль МЗ РФ' ;     // 9
   }
 
-// 29.01.26 настройка рабочего места
+// 11.05.26 настройка рабочего места
 Function nastr_rab_mesto()
 
   Static group_ini := 'RAB_MESTO'
@@ -4656,7 +4665,11 @@ Function nastr_rab_mesto()
     Space( 11 ), {| x| ret_okato_ulica( '', x ) }, ;
     '└> ОКАТО по умолчанию',, ;
     {|| m1wokato == 1 } } )
-  If is_obmen_sds()
+  AAdd( mm_tmp, { 'RAK_MIN', 'N', 1, 0, NIL, ;
+    {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
+    1, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
+    'При редактировании РАК отображать пациентов только со снятиями' } )
+  If .F. //is_obmen_sds()
     AAdd( mm_tmp, { 'e_2', 'C', 1, 0, NIL,, '',, ;
       'Каталоги для обмена информацией с программой Smart Delta Systems:',, ;
       {|| .f. } } )
@@ -4683,7 +4696,8 @@ Function nastr_rab_mesto()
   tmp->oms_pole := Int( Val( a2default( ar, 'oms_pole', '0' ) ) )
   tmp->_okato := a2default( ar, 'okato_umolch', '' )
   tmp->wokato := iif( Empty( tmp->_okato ), 0, 1 )
-  If is_obmen_sds()
+  tmp->rak_min := Int( Val( a2default( ar, 'rak_min', '0' ) ) )
+  If .F. //is_obmen_sds()
     tmp->path1_sds := a2default( ar, 'path1_sds', '' )
     tmp->path2_sds := a2default( ar, 'path2_sds', '' )
   Endif
@@ -4697,9 +4711,10 @@ Function nastr_rab_mesto()
       { group_ini, 'kart_polis',  tmp->kart_polis }, ;
       { group_ini, 'oms_pole',    tmp->oms_pole }, ;
       { group_ini, 'okato_umolch', tmp->_okato }, ;
-      { group_ini, 'open_Excel', tmp->open_Excel } ;
+      { group_ini, 'open_Excel', tmp->open_Excel }, ;
+      { group_ini, 'rak_min',  tmp->rak_min } ;
     }
-    If is_obmen_sds()
+    If .F. //is_obmen_sds()
       AAdd( mm_tmp, { group_ini, 'path1_sds', AllTrim( tmp->path1_sds ) } )
       AAdd( mm_tmp, { group_ini, 'path2_sds', AllTrim( tmp->path2_sds ) } )
     Endif
@@ -4768,7 +4783,7 @@ Function f_read_sc_reader()
 
   Return .t.
 
-//
+// 29.05.26
 Function f_read_sc_polis()
 
   Static max_seconds := 20
@@ -4776,6 +4791,7 @@ Function f_read_sc_polis()
   Static task_polis := 'ReadEPolis.exe'
   Static smsg := 'Неудачная попытка чтения электронного полиса'
   Local fl := .t., t1 := Seconds(), ar, se, buf := save_maxrow()
+  local arrSMO := {}
 
   mywait( 'Чтение электронного полиса' )
   If hb_FileExists( dir_exe() + task_polis )
@@ -4789,7 +4805,7 @@ Function f_read_sc_polis()
     shellexecute( getdesktopwindow(), ;
       'open', ;
       dir_exe() + task_polis, ;
-      "-roi='" + name_reader + "'", ;
+      '-roi="' + name_reader + '"', ; // "-roi='" + name_reader + "'", ;
       , ;
       SW_HIDE )
     t1 := Seconds()
@@ -4825,15 +4841,17 @@ Function f_read_sc_polis()
         arr_epolis[ _EP_IM ], arr_epolis[ _EP_NPOLIS ] )
       fl := func_error( 4, iif( Empty( se ), smsg + '.', se ) )
     Else
-      r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo3', '_SMO' )
-      find ( arr_epolis[ _EP_OKATO ] + PadR( arr_epolis[ _EP_OGRN ], 13 ) )
-      If Found()
-        arr_epolis[ _EP_SMO ] := _smo->smo
-        arr_epolis[ _EP_NAMESMO ] := AllTrim( _smo->name )
+      arrSMO := get_SMO_OKATO_OGRN_f002( arr_epolis[ _EP_OKATO ], PadR( arr_epolis[ _EP_OGRN ], 13 ) )
+      if Len( arrSMO ) > 0
+//      r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo3', '_SMO' ) 
+//      find ( arr_epolis[ _EP_OKATO ] + PadR( arr_epolis[ _EP_OGRN ], 13 ) )
+//      If Found()
+        arr_epolis[ _EP_SMO ] := arrSMO[ 2 ]    //  _smo->smo
+        arr_epolis[ _EP_NAMESMO ] := AllTrim( arrSMO[ 4 ] )     //  AllTrim( _smo->name )
       Else
         func_error( 4, 'Не найдена СМО (ОКАТО=' + arr_epolis[ _EP_OKATO ] + ', ОГРН=' + RTrim( arr_epolis[ _EP_OGRN ] ) + ')' )
       Endif
-      _smo->( dbCloseArea() )
+//      _smo->( dbCloseArea() )
       arr_epolis[ _EP_W      ] := iif( arr_epolis[ _EP_W ] == '1', 'М', 'Ж' )
       arr_epolis[ _EP_DR     ] := xml2date( arr_epolis[ _EP_DR ] )
       arr_epolis[ _EP_D_BEGIN ] := xml2date( arr_epolis[ _EP_D_BEGIN ] )
@@ -4846,7 +4864,7 @@ Function f_read_sc_polis()
   Return fl
 
 // 12.09.25
-Function mo_read_el_polis( /*@*/k)
+Function mo_read_el_polis( /*@*/k )
 
   Local fl := .f., rec := 0, mfio, mdate_r, arr, buf := SaveScreen()
   Private arr_epolis[ _EP_LEN ]

@@ -70,9 +70,6 @@ Function ret_actual_smo( r, c )
   Local i, arr := {}, ret, ret_arr
 
   Default r To T_ROW, c To T_COL -5
-//  For i := 1 To Len( glob_arr_smo )
-//    If glob_arr_smo[ i, 3 ] == 1
-//      AAdd( arr, glob_arr_smo[ i ] )
   For i := 1 To Len( smo_volgograd() )
     If smo_volgograd()[ i, 3 ] == 1
       AAdd( arr, smo_volgograd()[ i ] )
@@ -106,7 +103,7 @@ Function ret_unique_code( _kod, nlen )
 
   Return Val( s )
 
-// 19.01.23 определить лицо старше трудоспособного возраста
+// 22.07.26 определить лицо старше трудоспособного возраста
 Function f_starshe_trudosp( _pol, _date_r, _data, par )
 
   Local v
@@ -117,7 +114,7 @@ Function f_starshe_trudosp( _pol, _date_r, _data, par )
   Elseif par == 3
     v := iif( _pol == "М", 62, 57 ) // по ЗАКОНУ за 2022 год
   Elseif par == 4
-    v := iif( _pol == "М", 63, 58 ) // по ЗАКОНУ за 2023-2024 год
+    v := iif( _pol == "М", 64, 59 ) // по ЗАКОНУ за 2025-2026 год
   Else
     v := iif( _pol == "М", 65, 60 ) // для ТФОМС
   Endif

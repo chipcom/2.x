@@ -61,6 +61,7 @@ mo_version.prg
 .\SECURITY\Users.prg
 .\SECURITY\Roles.prg
 .\SECURITY\security.prg
+.\SECURITY\operators.prg
 
 .\CALENDAR\calendar.prg
 .\CALENDAR\calendar_func.prg
@@ -130,7 +131,7 @@ mo_version.prg
 .\REF\dbMinzdravRF.prg
 
 .\KSG\KSG_func.prg
-.\KSG\defenition_KSG.prg
+#.\KSG\defenition_KSG.prg
 .\KSG\defenition_KSG_2026.prg
 .\KSG\defenition_KIRO.prg
 .\KSG\defenition_KSLP.prg
@@ -258,6 +259,8 @@ mo_version.prg
 .\DISPANSER\disp_nab_diag_usl.prg
 .\DISPANSER\diag_disp_nabl.prg
 .\DISPANSER\mo_st39.prg
+.\DISPANSER\svod_KZVO_children.prg
+.\DISPANSER\writexlsx_inf_children.prg
 
 .\263\mo_263.prg
 .\263\mo_263p.prg
@@ -304,6 +307,7 @@ mo_version.prg
 .\INSURANCE\insurance_companies.prg
 .\INSURANCE\func_smo.prg
 
+.\FUNC_LIB\alphbrow.prg
 .\FUNC_LIB\mng_file.prg
 .\FUNC_LIB\fmanager.prg
 .\FUNC_LIB\g_rlock.prg
@@ -317,6 +321,7 @@ mo_version.prg
 .\FUNC_LIB\reconstr.prg
 .\FUNC_LIB\print1.prg
 .\FUNC_LIB\print2.prg
+.\FUNC_LIB\initbase.prg
 
 .\exchange\create_reestr_main.prg
 .\exchange\rak_XML.prg

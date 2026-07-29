@@ -364,7 +364,7 @@ Function f2_view_r_pr_nas( nKey, oBrow )
 
   Return ret
 
-// 25.02.26
+// 25.06.26
 Function f3_view_r_pr_nas( oBrow )
 
   Static si := 1, snfile := '', sarr_mo, sarr_err, sjmo, sjerr
@@ -377,6 +377,7 @@ Function f3_view_r_pr_nas( oBrow )
     mm_err := { ;
       { 'Не имеет текущего страхования', 708 }, ; // !!!
       { 'Прикрепление к МО отсутствует', 709 }, ; //
+      { 'Пациент пока не закреплен за СМО - счета на МАМОЧКУ', 999 }, ;
       { 'ТФОМС не вернул никакой информации', -99 } } // !!!
   Endif
   If Left( krtr->FNAME, 2 ) == 'MO'
@@ -1425,10 +1426,9 @@ Function f1_k_z_prikreplenie( nKey, oBrow, regim )
     Else
       frt->adres_p := ret_okato_ulica( kart_->adresp, kart_->okatop )
     Endif
-//    s := AllTrim( inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( kart_->smo ) ) ) ) + ', полис '
     s := AllTrim( inieditspr( A__MENUVERT, smo_volgograd(), Int( Val( kart_->smo ) ) ) ) + ', полис '
     s += AllTrim( RTrim( kart_->SPOLIS ) + ' ' + kart_->NPOLIS ) + ' (' + ;
-      AllTrim( inieditspr( A__MENUVERT, mm_vid_polis, kart_->VPOLIS ) ) + ')'
+      AllTrim( inieditspr( A__MENUVERT, mm_vid_polis(), kart_->VPOLIS ) ) + ')'
     frt->smo := s
     frt->ruk_fio := AllTrim( iif( Empty( org->ruk_fio ), org->ruk, org->ruk_fio ) )
     frt->ruk := AllTrim( org->ruk )
@@ -1721,7 +1721,7 @@ Function pripisnoe_naselenie_create_sverka()
   Return Nil
 
 
- // 03.05.26 создать файл(ы) сверки
+ // 11.05.26 создать файл(ы) сверки
 Function pripisnoe_naselenie_create_sverka_NEW_QA2()
 
   Local ii := 0, s, buf := SaveScreen(), fl, af := {}, arr_fio, ta, fl_polis, fl_pasport, flag_povtor 
@@ -1737,6 +1737,7 @@ Function pripisnoe_naselenie_create_sverka_NEW_QA2()
   hGauge := gaugenew(,,, 'Составление списка для включения в файл запроса прик-я', .t. )
   gaugedisplay( hGauge )
   curr := 0
+  r_use( dir_server() + 'human_', , 'HUMAN_' )
   r_use( dir_server() + 'human',dir_server() + 'humankk', 'HUMAN' )
   r_use( dir_server() + 'mo_kfio',, 'KFIO' )
   Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
@@ -1773,25 +1774,30 @@ Function pripisnoe_naselenie_create_sverka_NEW_QA2()
      flag_povtor := .F.
      select HUMAN 
      find ( str(kart->kod,7))
+     select human_
+     goto (human->kod)
+     select HUMAN 
      do while kart->kod == human->kod_k .and. !eof()
-       if year(human->k_data) > 2025 .and. human->tip_h < 4 // пока только данный контроль
-         if human->komu == 0 // только ОМС 
-           flag_povtor := .T.
-           Select TMP
-           Append Blank
-           tmp->kod     := kart->kod
-           tmp->k_data  := human->k_data
-           tmp->kod_hum := human->kod
-           If tmp->( RecNo() ) % 100 == 0
-            @ MaxRow(), 1 Say lstr( tmp->( RecNo() ) ) Color color0
-            If tmp->( RecNo() ) % 2000 == 0
-              Commit
-            Endif
-           Endif 
-         endif 
-       endif  
-       select HUMAN
-       skip 
+      if year(human->k_data) > 2025 .and. human->tip_h < 4 // пока только данный контроль
+        if human_->reestr < 1 // не в реестрах
+          if human->komu == 0 // только ОМС 
+            flag_povtor := .T.
+            Select TMP
+            Append Blank
+            tmp->kod     := kart->kod
+            tmp->k_data  := human->k_data
+            tmp->kod_hum := human->kod
+            If tmp->( RecNo() ) % 100 == 0
+              @ MaxRow(), 1 Say lstr( tmp->( RecNo() ) ) Color color0
+              If tmp->( RecNo() ) % 2000 == 0
+                Commit
+              Endif
+            Endif 
+          endif 
+        endif  
+      endif  
+      select HUMAN
+      skip 
      enddo 
      if flag_povtor .and. glob_mo[ _MO_KOD_TFOMS ] != '805965' // добавка запроса на текущее число и не РДЛ
        Select TMP
