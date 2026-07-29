@@ -789,8 +789,10 @@ Function valid_date_uslugi_drz( get, metap, beginDate, endDate, lenArr, i )
 
   Return .t.
 
-// 28.03.24
+// 28.07.26
 Function f_valid_begdata_drz( get, loc_kod )
+
+  local i
 
   If CToD( get:buffer ) < 0d20240101
     get:varput( get:original )
@@ -799,7 +801,38 @@ Function f_valid_begdata_drz( get, loc_kod )
     Return .f.
   Endif
 
+  If loc_kod == 0
+    For i := 1 To Len( ret_array_drz() ) //- iif( metap == 1, 2, 1 )
+      // на 1-этапе одна услуга не отображается в списке (70.8.1)
+      mvar := 'MDATE' + lstr( i )
+      &mvar := CToD( get:buffer )
+      update_get( mvar )
+    Next
+  Endif
+
   Return .t.
+
+// 28.07.26
+Function f_valid_enddata_drz( get, loc_kod )
+
+  local i
+  local aUsl := ret_array_drz()
+
+  If loc_kod == 0
+    for i := 1 to len( aUsl )
+      if aUsl[ i, 2 ] == '70.9.5' .or. aUsl[ i, 2 ] == '70.9.21' .or. aUsl[ i, 2 ] == '70.9.22'
+        mvar := 'MDATE' + lstr( i )
+        &mvar := CToD( get:buffer )
+        update_get( mvar )
+      endif
+    next i
+//    mvar := 'MDATE' + lstr( Len( ret_array_drz() ) )  // -iif( metap == 1, 1, 0 ) )
+//    &mvar := CToD( get:buffer )
+//    update_get( mvar )
+  Endif
+
+  Return .t.
+
 
 // 31.03.24
 Function is_usluga_vrach_priem( i, arr_uslugi, arr_usl_priem )
