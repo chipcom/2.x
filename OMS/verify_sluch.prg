@@ -24,7 +24,7 @@
 #define USL_SVIDPOM  14   // виды оказываемой медицинской помощи
 #define USL_ZAK_SL   15   // признак оплаты по законченному случаю
 
-// 28.07.26 
+// 30.07.26 
 Function verify_sluch( fl_view, ft )
 
   Local arrUslugi := {} // массив содержаший коды услуг в случае 
@@ -143,7 +143,11 @@ Function verify_sluch( fl_view, ft )
   vozrast := count_years( iif( human_->NOVOR == 0, human->DATE_R, human_->DATE_R2 ), human->N_DATA )
 
   if Empty( otd->LPU_1 )
-    aValidProf := {}
+    if glob_mo()[_MO_KOD_TFOMS] == '804501'
+      aValidProf := get_f034( '34202616601016' )
+    else
+      aValidProf := {}
+    endif
   else
     aValidProf := get_f034( otd->LPU_1 )
   endif

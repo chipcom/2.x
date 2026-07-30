@@ -183,7 +183,7 @@ Function tfoms_hodatajstvo( arr_m, iRefr, par )
 
   Return Nil
 
-// 28.06.26 оформление ходатайства
+// 30.07.26 оформление ходатайства
 Function tfoms_hodatajstvo_new( )
   // Функция отрабатывает 
   // arr_m - временной массив
@@ -229,10 +229,10 @@ Function tfoms_hodatajstvo_new( )
          select kart2
          Goto ( human->kod_k )
          if len(alltrim(kart2->pc3)) > 2 // ошибка от СВЕРКИ
-           // исключаем ошибку  803 - не верный СНИЛС 
-           if alltrim(kart2->pc3) == "803"
+           // исключаем ошибку  803 - не верный СНИЛС - тфомс сделал правки
+           //if alltrim(kart2->pc3) == '803'
              //
-           elseif alltrim(kart2->pc3) == "706" // Застрахованный умер 
+           if alltrim(kart2->pc3) == '706' // Застрахованный умер 
              //    
            else // 709 прикрепление к МО отсутствует 708 - Не имеет текущего страхования
              flag_zap := .T.
