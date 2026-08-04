@@ -32,7 +32,7 @@ Function string_output( sText, lExcel, ws, row, column, fmt )
 
   Return Nil
 
-// 11.05.26 многовариантный поиск
+// 03.08.26 многовариантный поиск
 Function s_mnog_poisk()
 
   Static lcount_uch  := 1
@@ -385,7 +385,7 @@ AAdd( mm_tmp, { 'svo', 'N', 1, 0, NIL, ;
   {| x| menu_reader( x,  mm_da_net, A__MENUVERT ) }, ;
   1, {|| Space( 10 ) }, ;
   'Участник СВО' } )
-AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
+AAdd( mm_tmp, { 'svo2', 'N', 3, 0, NIL, ;
   {| x| menu_reader( x, arr_SVO, A__MENUVERT ) }, ;
   -1, {|| Space( 10 ) }, ;
   'Социальная категория' } )
@@ -2173,7 +2173,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
 
   Return Nil
 
-// 00.06.26
+// 04.08.26
 Static Function s1_mnog_poisk( cv, cf )
 
   Static a_stom_vp := { {}, {}, {} }
@@ -2476,15 +2476,22 @@ Static Function s1_mnog_poisk( cv, cf )
      endif   
   endif  
   if fl .and. mn->svo2 >= 0
+    fl := ( alltrim( kart->pc3 ) == SOCtoString( mn->svo2 ) )  //  StrZero( mn->svo2, 3, 0 ) )
+/*
     if mn->svo2 == 0
       fl := ( alltrim(kart->pc3) == '000' )
     elseif mn->svo2 == 35
       fl := ( alltrim(kart->pc3) == '035' )
     elseif mn->svo2 == 65
       fl := ( alltrim(kart->pc3) == '065' )
-    elseif mn->svo2 == 83
-      fl := ( alltrim(kart->pc3) == '083' )
+    elseif mn->svo2 == 810
+      fl := ( alltrim(kart->pc3) == '810' )
+    elseif mn->svo2 == 813
+      fl := ( alltrim(kart->pc3) == '813' )
+    elseif mn->svo2 == 816
+      fl := ( alltrim(kart->pc3) == '816' )
     endif 
+*/
   endif  
   If fl .and. mn->mi_git > 0
     If mn->mi_git == 1
