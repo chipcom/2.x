@@ -70,14 +70,13 @@ function index_gis_oms( dir_spavoch, working_dir )
 
   return nil
 
-// 25.05.26
+// 04.08.26
 function gis_oms() 
 
   local buf
-  local sbase, org_mcod, tmp_select := Select()
-  local aDbf, k
-
-  LOCAL tmp
+  local tmp_select := Select()
+  LOCAL pDb
+//  local k, aDbf, sbase, org_mcod
 
 #if defined( __HBSCRIPT__HBSHELL )
    rddRegister( 'SQLBASE' )
@@ -85,9 +84,20 @@ function gis_oms()
    hb_SDDSQLITE3_Register()
 #endif
 
-  rddSetDefault( 'SQLMIX' )
+  buf := save_maxrow()
 
-  tmp := rddInfo( RDDI_CONNECT, { 'SQLITE3', dir_exe() + 'gis_mo.db' } )
+  rddSetDefault( 'SQLMIX' )
+  pDb := rddInfo( RDDI_CONNECT, { 'SQLITE3', dir_exe() + 'gis_mo.db' } )
+
+  dbUseArea( .T., , 'select * from f037 where mcod==' + glob_mo()[ _MO_KOD_FFOMS ], 'f037' )
+
+  If f037->( LastRec() ) == 0
+    func_error( 4, 'Пустой справочник лицензий' )
+  Else
+    alpha_browse( 2, 1, 7, 40, 'f1edit_licenses_f037', color0, , , , , , , 'f2edit_licenses_f037', , ;
+      { '═', '░', '═', 'N/BG,W+/N,B/BG,BG+/B,N+/BG,W/N', .t. } )
+  Endif
+  f037->( dbCloseArea() )
 /*
   aDbf := { ;
     { 'N_DOC', 'C', 32, 0 }, ;
@@ -114,47 +124,32 @@ function gis_oms()
   Select tmp_f037
   k := tmp_f037->( LastRec() )
 */
-  dbUseArea( .T., , 'select * from f037 where mcod==' + glob_mo()[ _MO_KOD_FFOMS ], 'tmp_f037' )
-  k := tmp_f037->( LastRec() )
-
-  buf := save_maxrow()
-
-  If k == 0
-    func_error( 4, 'Пустой справочник лицензий' )
-  Else
-    alpha_browse( 2, 1, 7, 40, 'f1edit_licenses', color0, , , , , , , 'f2edit_licenses', , ;
-      { '═', '░', '═', 'N/BG,W+/N,B/BG,BG+/B,N+/BG,W/N', .t. } )
-  Endif
-  tmp_f037->( dbCloseArea() )
 
   rddSetDefault( 'DBFNTX' )
-
   Select ( tmp_select )
-
   rest_box( buf )
 
   return nil
 
-// 30.03.26
-Function f1edit_licenses( oBrow )
+// 04.08.26
+Function f1edit_licenses_f037( oBrow )
 
   Local oColumn
 
-  oColumn := TBColumnNew( 'Номер лицензии', {|| tmp_f037->N_DOC } )
+  oColumn := TBColumnNew( 'Номер лицензии', {|| f037->N_DOC } )
   oBrow:addcolumn( oColumn )
   status_key( '^<Esc>^ выход ^<Enter>^ просмотр' )
   Return Nil
 
-// 30.03.26
-Function f2edit_licenses( nKey, oBrow )
+// 04.08.26
+Function f2edit_licenses_f037( nKey, oBrow )
 
   Local oBr, ret := -1
 
   local aLic := {}
   local aAddr := {}
-  local sbase, tmp_select := Select()
-  local aDbf, k
   local tmpSelect := Select()
+//  local sbase, aDbf, k
 
   oBr := oBrow
   Do Case
@@ -188,22 +183,18 @@ Function f2edit_licenses( nKey, oBrow )
     Select tmp_f038
 */
 
-    dbUseArea( .T., , 'select * from f038 where uidmo==' + tmp_f037->UIDMO + ' group by idaddress', 'tmp_f038' )
+    dbUseArea( .T., , 'select * from f038 where uidmo==' + f037->UIDMO + ' group by idaddress', 'f038' )
 
-    k := tmp_f038->( LastRec() )
-    tmp_f038->( dbGoTop() )
-
-    If k == 0
+    f038->( dbGoTop() )
+    If f038->( LastRec() ) == 0
       func_error( 4, 'Пустой справочник адресов' )
     Else
-      alpha_browse( 4, 2, MaxRow() - 1, 78, 'f1edit_lic_addr', color0, , , , , , , 'f2edit_lic_addr', , ;
+      alpha_browse( 4, 2, MaxRow() - 1, 78, 'f1edit_lic_addr_f038', color0, , , , , , , 'f2edit_lic_addr_f038', , ;
         { '═', '░', '═', 'N/BG,W+/N,B/BG,BG+/B,N+/BG,W/N', .t. } )
     Endif
 
-//    f038->( dbCloseArea() )
-
-    tmp_f038->( dbCloseArea() )
-    Select ( tmp_select )
+    f038->( dbCloseArea() )
+    Select ( tmpSelect )
 
   Case nKey == K_F9
 /*
@@ -257,19 +248,19 @@ altd()
   Endcase
   Return ret
 
-// 30.03.26
-Function f1edit_lic_addr( oBrow )
+// 04.08.26
+Function f1edit_lic_addr_f038( oBrow )
 
   Local oColumn
 
-  oColumn := TBColumnNew( 'Адрес расположения', {|| StrTran( tmp_f038->ADDR, 'Волгоградская область, ', '' ) } )
+  oColumn := TBColumnNew( 'Адрес расположения', {|| StrTran( f038->ADDR, 'Волгоградская область, ', '' ) } )
   oBrow:addcolumn( oColumn )
 
   status_key( '^<Esc>^ выход ^<Enter>^ просмотр отделений' )
   Return Nil
 
-// 30.03.26
-Function f2edit_lic_addr( nKey, oBrow )
+// 04.08.26
+Function f2edit_lic_addr_f038( nKey, oBrow )
 
   Local ret := -1
 
