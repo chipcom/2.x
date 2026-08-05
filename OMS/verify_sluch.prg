@@ -1568,8 +1568,10 @@ Function verify_sluch( fl_view, ft )
       Endif
     Elseif human_2->NPR_DATE > dBegin
       AAdd( ta, '"Дата направления" больше "Даты начала лечения"' )
-    Elseif human_2->NPR_DATE + 60 < dBegin
+    Elseif ( human_2->NPR_DATE + 60 < dBegin ) .and. human_->PROFIL != 137
       AAdd( ta, 'Направлению больше двух месяцев' )
+    Elseif ( human_2->NPR_DATE + 90 < dBegin ) .and. human_->PROFIL == 137
+      AAdd( ta, 'Направлению больше трех месяцев' )
     Endif
     If !eq_any( human_->RSLT_NEW, 314 )
       AAdd( ta, 'в поле "Результат обращения" должно быть "314 Динамическое наблюдение"' )
@@ -2345,8 +2347,10 @@ Function verify_sluch( fl_view, ft )
       Endif
     Elseif human_2->NPR_DATE > dBegin
       AAdd( ta, '"Дата направления на госпитализацию" больше "Даты начала лечения"' )
-    Elseif human_2->NPR_DATE + 60 < dBegin
+    Elseif ( human_2->NPR_DATE + 60 < dBegin ) .and. human_->PROFIL != 137
       AAdd( ta, 'Направлению на госпитализацию больше двух месяцев' )
+    Elseif ( human_2->NPR_DATE + 90 < dBegin ) .and. human_->PROFIL == 137
+      AAdd( ta, 'Направлению госпитализация больше трех месяцев' )
     Endif
   Endif
 
@@ -3492,8 +3496,10 @@ Function verify_sluch( fl_view, ft )
       Endif
     Elseif human_2->NPR_DATE > dBegin
       AAdd( ta, '"Дата направления" больше "Даты начала лечения"' )
-    Elseif human_2->NPR_DATE + 60 < dBegin
+    Elseif ( human_2->NPR_DATE + 60 < dBegin ) .and. human_->PROFIL != 137
       AAdd( ta, 'Направлению больше двух месяцев' )
+    Elseif ( human_2->NPR_DATE + 90 < dBegin ) .and. human_->PROFIL == 137
+      AAdd( ta, 'Направлению больше трех месяцев' )
     Endif
     If !eq_any( human_->RSLT_NEW, 314 )
       AAdd( ta, 'в поле "Результат обращения" должно быть "314 Динамическое наблюдение"' )
@@ -5076,8 +5082,10 @@ Function verify_sluch( fl_view, ft )
     else
       if human_2->NPR_DATE > dBegin
         AAdd( ta, s + '"Дата направления на госпитализацию" не может быть больше "Даты начала лечения"' )
-      Elseif human_2->NPR_DATE + 60 < dBegin
+      Elseif ( human_2->NPR_DATE + 60 < dBegin ) .and. human_->PROFIL != 137
         AAdd( ta, s + 'направлению на госпитализацию не может быть больше двух месяцев' )
+      Elseif ( human_2->NPR_DATE + 90 < dBegin ) .and. human_->PROFIL == 137
+        AAdd( ta, s + 'направлению на госпитализацию не может быть больше трех месяцев' )
       Endif
     endif
 
