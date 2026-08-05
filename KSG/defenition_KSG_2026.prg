@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 10.06.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
+// 02.08.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
 Function defenition_ksg( par, k_data2, lDoubleSluch )
 
   // файлы 'human', 'human_' и 'human_2' открыты и стоят на нужной записи
@@ -321,18 +321,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
   lsex := iif( lpol == 'М', '1', '2' )
 
   llos := {} // ''
-//  If ldnej < 4
-//    AAdd( llos, '1' ) // llos += '1'
-//  Elseif Between( ldnej, 4, 10 )
-//    AAdd( llos, '11' )
-//  Elseif Between( ldnej, 11, 20 )
-//    AAdd( llos, '12' )
-//  Elseif Between( ldnej, 21, 30 )
-//    AAdd( llos, '13' )
-//  Endif
   AAdd( llos, code_duration_K006( lk_data, ldnej ) )
-
-  // aadd(ars, '   ║age=' +lage+ ' sex=' +lsex+ ' los=' +print_array(llos))
 
   nfile := prefixfilerefname( lyear ) + 'k006'
   If Select( 'K006' ) == 0
@@ -424,7 +413,6 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
       k006->( dbSkip() )
     Enddo
 */
-
     if ! Empty( lad_cr )  // присутствует дополнительный критерий
       k006->( dbSeek( typeKSG ) )   //  выберем с пустым диагнозом
       Do While Left( k006->shifr, 2 ) == typeKSG .and. Empty( k006->ds ) .and. ! k006->( Eof() )
@@ -446,7 +434,8 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
             Endif
           Endif
           If fl
-            add_KSG_table( ar_ksg, lk_data, lal, osn_diag, j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
+//            add_KSG_table( ar_ksg, lk_data, lal, osn_diag, j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
+            add_KSG_table( ar_ksg, lk_data, lal, '', j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
           Endif
         endif
         Select K006
@@ -454,9 +443,8 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
       Enddo
     endif
 
-    k006->( dbSeek( typeKSG + PadR( osn_diag, 6 ) ) )   //  find ( typeKSG + PadR( osn_diag, 6 ) )
+    k006->( dbSeek( typeKSG + PadR( osn_diag, 6 ) ) )
     Do While Left( k006->shifr, 2 ) == typeKSG .and. k006->ds == PadR( osn_diag, 6 ) .and. ! k006->( Eof() )
-//      if Empty( AllTrim( k006->sy ) )
         lkoef := k006->kz
         dbSelectArea( lal )
         find ( PadR( k006->shifr, 10 ) )
@@ -531,12 +519,8 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
         Endif
         //
         If fl
-//          If !Empty( k006->sy ) .and. ( i := AScan( amohu, k006->sy ) ) > 0
-//            AAdd( tmp, i )
-//          Endif
           add_KSG_table( ar_ksg, lk_data, lal, osn_diag, j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
         Endif
-//      endif
       Select K006
       k006->( dbSkip() )
     Enddo
@@ -557,15 +541,12 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
       If fl
         sds1 := iif( Empty( k006->ds1 ), sp0, AllTrim( k006->ds1 ) + sp6 ) // соп.диагноз
         sds2 := iif( Empty( k006->ds2 ), sp0, AllTrim( k006->ds2 ) + sp6 ) // диагн.осложнения
-//        ar_ksg := {}
-//        add_KSG_table( ar1, lk_data, lal, osn_diag, j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
         add_KSG_table( ar_ksg, lk_data, lal, osn_diag, j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
       Endif
     Endif
   Endif
 
   // собираем КСГ по манипуляциям (хирургические и комбинированные)
-//  ar_ksg := ar1
   ar_crit := {}
   ar_crit1 := {}
   arr_ad_criteria := getAdditionalCriteria( lk_data )  // загрузим доп. критерии на дату
@@ -576,7 +557,6 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
       Select K006
       Set Order To 2
       k006->( dbSeek( typeKSG + lshifr ) )
-//      Do While Left( k006->shifr, 2 ) == typeKSG .and. k006->sy == PadR( lshifr, 20 ) .and. ! k006->( Eof() )
       Do While Left( k006->shifr, 2 ) == typeKSG .and. AllTrim( k006->sy ) == lshifr .and. ! k006->( Eof() )
         lkoef := k006->kz
         dbSelectArea( lal )
@@ -592,9 +572,6 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
           sds1 := iif( Empty( k006->ds1 ), sp0, AllTrim( k006->ds1 ) + sp6 ) // соп.диагноз
           sds2 := iif( Empty( k006->ds2 ), sp0, AllTrim( k006->ds2 ) + sp6 ) // диагн.осложнения
         Endif
-//        If fl .and. !Empty( k006->ds )
-//          fl := ( AllTrim( k006->ds ) == osn_diag )
-//        Endif
         If fl .and. !Empty( k006->age )
           fl := ( k006->age $ lage )
         Endif
@@ -639,7 +616,6 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
         Endif
         If fl
           add_KSG_table( _a1, lk_data, lal, osn_diag, j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
-//          add_KSG_table( ar_ksg, lk_data, lal, osn_diag, j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
           if Empty( k006->ad_cr )
             AAdd( ar_crit, { '', '--нет критерия--' } )
             AAdd( ar_crit1, '--нет критерия--' )
@@ -695,29 +671,15 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
 //          endif
         endif
 
-// 13.03.26
-//        if ! Empty( human_2->PC3 )  // проверим чтобы найденные КСГ имели нужный доп. критерий
-          for i := len( _a1 ) to 1 step -1
-            if AllTrim( _a1[ i, 10 ] ) != AllTrim( human_2->PC3 )
-              hb_ADel( _a1, i, .t. )
-            endif
-          next
-//        else
-//          for i := len( _a1 ) to 1 step -1
-//            if ! Empty( AllTrim( _a1[ i, 10 ] ) )
-//              hb_ADel( _a1, i, .t. )
-//            endif
-//          next
-//        endif
-//        ASort( _a1, , , {| x, y| iif( x[ 13 ] == y[ 13 ], x[ 3 ] > y[ 3 ], x[ 13 ] > y[ 13 ] ) } )
+        for i := len( _a1 ) to 1 step -1
+          if AllTrim( _a1[ i, 10 ] ) != AllTrim( human_2->PC3 )
+            hb_ADel( _a1, i, .t. )
+          endif
+        next
         ASort( _a1, , , {| x, y| iif( x[ 18 ] == y[ 18 ], x[ 2 ] > y[ 2 ], x[ 18 ] > y[ 18 ] ) } )
-//
-//      elseif Len( _a1 ) == 1
-//        AAdd( ar_ksg, AClone( _a1[ 1 ] ) )
       Endif
 
       If Len( _a1 ) > 0
-//        AAdd( ar_ksg, AClone( _a1[ 1 ] ) )
         for i := 1 to Len( _a1 )
           AAdd( ar_ksg, AClone( _a1[ i ] ) )
         next
@@ -727,12 +689,6 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
   Next
   If Len( ar_ksg ) > 0
     For i := 1 To Len( ar_ksg )
-/*
-      ar_ksg[ i, 2 ] := ret_cena_ksg( ar_ksg[ i, 1 ], lvr, date_usl )
-      If ar_ksg[ i, 2 ] > 0
-        fl_cena := .t.
-      Endif
-*/
       if ! empty( ar_ksg[ i, 10 ] ) // add 01.11.25
         lad_cr := ar_ksg[ i, 10 ]   // add 01.11.25
         m1ad_cr := ar_ksg[ i, 10 ]   // add 01.11.25
@@ -744,16 +700,6 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
 
       endif                     // add 01.11.25
     Next
-/*
-    aHirKSG := AClone( ar_ksg )
-    If Len( aHirKSG ) > 1
-//      ASort( aHirKSG, , , {| x, y| iif( x[ 3 ] == y[ 3 ], x[ 13 ] > y[ 13 ], x[ 3 ] > y[ 3 ] ) } )
-      ASort( aHirKSG, , , {| x, y| iif( x[ 18 ] == y[ 18 ], x[ 2 ] > y[ 2 ], x[ 18 ] > y[ 18 ] ) } )
-    Endif
-    If ( kol_hir := f_put_debug_ksg( 0, aHirKSG, ars ) ) > 1
-      AAdd( ars, ' └─> выбираем КСГ=' + RTrim( aHirKSG[ 1, 1 ] ) + ' [КЗ=' + lstr( aHirKSG[ 1, 3 ] ) + ']' )
-    Endif
-*/
   Endif
 
   if Len( ar_ksg ) == 0
@@ -776,7 +722,6 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
   Endif
   If !Empty( lksg )
     strSoob := ' РЕЗУЛЬТАТ: выбрана КСГ = ' + lksg
-//    lcena := ret_cena_ksg( lksg, lvr, date_usl )
     If Empty( lcena )
       strSoob += ', но не определена цена в справочнике ТФОМС'
       AAdd( arerr, strSoob )
@@ -785,7 +730,6 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
       If !Empty( lkiro )
         vkiro := defenition_kiro( lk_data, lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch )
         If ( vkiro > 0 .and. lk_data < 0d20260101 ) .or. ( lk_data >= 0d20260101 )
-//          lcena := cena_with_kiro( lcena, vkiro, lk_data, lrslt, ltype_ksg, akiro )
           cena_with_kiro( lcena, vkiro, lk_data, lrslt, ltype_ksg, akiro )
           strSoob += '  (КИРО = ' + Str( akiro[ 2 ], 4, 2 ) + ', цена ' + lstr( lcena, 11, 0 ) + 'р.)'
         Endif
@@ -862,16 +806,6 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
         Next
         strSoob += ', цена ' + lstr( lcena, 11, 0 ) + 'р.)'
       Endif
-/*
-      If !Empty( lkiro )
-        vkiro := defenition_kiro( lk_data, lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch )
-        If ( vkiro > 0 .and. lk_data < 0d20260101 ) .or. ( lk_data >= 0d20260101 )
-//          akiro := f_cena_kiro( @lcena, vkiro, lk_data, lrslt, ltype_ksg )
-          lcena := cena_with_kiro( lcena, vkiro, lk_data, lrslt, ltype_ksg, akiro )
-          strSoob += '  (КИРО = ' + Str( akiro[ 2 ], 4, 2 ) + ', цена ' + lstr( lcena, 11, 0 ) + 'р.)'
-        Endif
-      Endif
-*/
       If !Empty( strSoob )
         AAdd( ars, strSoob )
       Endif

@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 29.06.26
+// 30.06.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -326,7 +326,13 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       mo_add_xml_stroke( oSL, 'METOD_HMP', lstr( human_2->METVMP ) )
     Endif
     otd->( dbGoto( human->OTD ) )
-    mo_add_xml_stroke( oSL, 'LPU_1', otd->LPU_1 )
+
+    if glob_mo()[_MO_KOD_TFOMS] == '804501'
+      mo_add_xml_stroke( oSL, 'LPU_1', '34202616601016' )
+    else
+      mo_add_xml_stroke( oSL, 'LPU_1', otd->LPU_1 )
+    endif
+
     If p_tip_reestr == TYPE_REESTR_DISPASER
       mo_add_xml_stroke( oSL, 'MOP', lstr( human->MOP ) )
     endif
@@ -755,12 +761,24 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         Endif
         If p_tip_reestr == TYPE_REESTR_GENERAL
           otd->( dbGoto( hu->OTD ) )
-          mo_add_xml_stroke( oUSL, 'LPU_1', otd->LPU_1 )
+
+          if glob_mo()[_MO_KOD_TFOMS] == '804501'
+            mo_add_xml_stroke( oUSL, 'LPU_1', '34202616601016' )
+          else
+            mo_add_xml_stroke( oUSL, 'LPU_1', otd->LPU_1 )
+          endif
+
           if hu->KOL_RCP < 0 .and. domuslugatfoms( lshifr )
             mo_add_xml_stroke( oUSL, 'PODR', '0' )
           Endif
         else
-          mo_add_xml_stroke( oUSL, 'LPU_1', otd->LPU_1 )
+
+          if glob_mo()[_MO_KOD_TFOMS] == '804501'
+            mo_add_xml_stroke( oUSL, 'LPU_1', '34202616601016' )
+          else
+            mo_add_xml_stroke( oUSL, 'LPU_1', otd->LPU_1 )
+          endif
+
         Endif
         mo_add_xml_stroke( oUSL, 'PROFIL', lstr( hu_->PROFIL ) )
         If p_tip_reestr == TYPE_REESTR_GENERAL
@@ -850,7 +868,13 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         mo_add_xml_stroke( oUSL, 'IDSERV', lstr( idServ ) )   // lstr( ++iusl ) )
         mo_add_xml_stroke( oUSL, 'ID_U', mo_guid( 3, idServ ) )   //  iusl ) )
         mo_add_xml_stroke( oUSL, 'LPU', CODE_LPU )
-        mo_add_xml_stroke( oUSL, 'LPU_1', otd->LPU_1 )
+
+        if glob_mo()[_MO_KOD_TFOMS] == '804501'
+          mo_add_xml_stroke( oUSL, 'LPU_1', '34202616601016' )
+        else
+          mo_add_xml_stroke( oUSL, 'LPU_1', otd->LPU_1 )
+        endif
+
         mo_add_xml_stroke( oUSL, 'PROFIL', lstr( a_otkaz[ j, 4 ] ) )
         Select T21
         if human->K_DATA >= 0d20260101 .and. is_disp_DVN
@@ -909,7 +933,13 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 //        If human_->USL_OK == USL_OK_HOSPITAL .and. is_otd_dep .and. ( ! disable_podrazdelenie_tfoms( human->K_DATA ) )
         otd->( dbGoto( mohu->OTD ) )
 //          f_put_glob_podr( human_->USL_OK, human->K_DATA ) // заполнить код подразделения
-        mo_add_xml_stroke( oUSL, 'LPU_1', otd->LPU_1 )
+
+        if glob_mo()[_MO_KOD_TFOMS] == '804501'
+          mo_add_xml_stroke( oUSL, 'LPU_1', '34202616601016' )
+        else
+          mo_add_xml_stroke( oUSL, 'LPU_1', otd->LPU_1 )
+        endif
+
 //        Endif
         mo_add_xml_stroke( oUSL, 'PROFIL', lstr( mohu->PROFIL ) )
         If p_tip_reestr == TYPE_REESTR_GENERAL

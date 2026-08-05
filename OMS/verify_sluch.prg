@@ -24,7 +24,7 @@
 #define USL_SVIDPOM  14   // виды оказываемой медицинской помощи
 #define USL_ZAK_SL   15   // признак оплаты по законченному случаю
 
-// 28.07.26 
+// 05.08.26 
 Function verify_sluch( fl_view, ft )
 
   Local arrUslugi := {} // массив содержаший коды услуг в случае 
@@ -97,6 +97,7 @@ Function verify_sluch( fl_view, ft )
   local first_2 // первые два символа МО прикрепления
   local arrOKATO := {}
   local mDS_stac := 0     // дневной стационар при стационаре - 1 иначе - 0
+  Local is_81_69 := .f. // наличие услуг телемедицины врач-врач
 //  local cUIDSPMO
 
   Default fl_view To .t.
@@ -143,7 +144,11 @@ Function verify_sluch( fl_view, ft )
   vozrast := count_years( iif( human_->NOVOR == 0, human->DATE_R, human_->DATE_R2 ), human->N_DATA )
 
   if Empty( otd->LPU_1 )
-    aValidProf := {}
+    if glob_mo()[_MO_KOD_TFOMS] == '804501'
+      aValidProf := get_f034( '34202616601016' )
+    else
+      aValidProf := {}
+    endif
   else
     aValidProf := get_f034( otd->LPU_1 )
   endif
@@ -654,6 +659,10 @@ Function verify_sluch( fl_view, ft )
             if AScan( arr_schol_xniz( mk_data ), lshifr ) > 0
               is_2_92_ := .t.
             endif
+            if lshifr == '2.81.69'
+              is_2_81_69 := .t.
+            endif
+
           Endif
         Endif
         Select HU
@@ -1445,6 +1454,8 @@ Function verify_sluch( fl_view, ft )
               AAdd( ta, 'для услуги ' + alltrim_lshifr + ' "дата следующей явки пациента для диспансерного наблюдения" меньше даты окончания лечения' )
             Endif
           endif
+        elseif eq_any( alltrim_lshifr, '2.81.69' ) // телемедицина врач-врач
+            is_2_81_69 := .t.
         Endif
         kvp += hu->kol_1
         hu_->PZTIP := mPZTIP
@@ -2887,7 +2898,7 @@ Function verify_sluch( fl_view, ft )
     .and. Len( a_period_amb ) > 0
     For i := 1 To Len( a_period_amb )
       If a_period_amb[ i, 3 ] == human_->profil .and. ! ( eq_any( human_->profil, 122, 21, 97, 11, 29, 17, 53, 56, 68, 75, 4, 100 ) ) ;// кроме эндокринологии 
-          .and. ! ( a_period_amb[ i, 6 ] .or. is_2_92_ )  // школы ХНИЗ исключаем
+          .and. ! ( a_period_amb[ i, 6 ] .or. is_2_92_ .or. is_2_81_69 )  // школы ХНИЗ исключаем и телемедицина врач-врач
         AAdd( ta, 'данный случай пересекается со случаем амбулаторного лечения' )
         otd->( dbGoto( a_period_amb[ i, 4 ] ) )
         AAdd( ta, '└>с тем же профилем ' + ;
