@@ -24,7 +24,7 @@
 #define USL_SVIDPOM  14   // виды оказываемой медицинской помощи
 #define USL_ZAK_SL   15   // признак оплаты по законченному случаю
 
-// 05.08.26 
+// 06.08.26 
 Function verify_sluch( fl_view, ft )
 
   Local arrUslugi := {} // массив содержаший коды услуг в случае 
@@ -97,7 +97,7 @@ Function verify_sluch( fl_view, ft )
   local first_2 // первые два символа МО прикрепления
   local arrOKATO := {}
   local mDS_stac := 0     // дневной стационар при стационаре - 1 иначе - 0
-  Local is_81_69 := .f. // наличие услуг телемедицины врач-врач
+  Local is_2_81_69 := .f. // наличие услуг телемедицины врач-врач
 //  local cUIDSPMO
 
   Default fl_view To .t.
