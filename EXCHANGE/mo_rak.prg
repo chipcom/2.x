@@ -1088,11 +1088,14 @@ Function f_view_rak_akt_schet_human( k )
 
   Return iif( k == 1, s, v )
 
-// 11.05.26
+// 05.08.26
 Function f1_view_rak_akt_schet_human( nk, ob, regim )
 
-  Local ret := -1, rec, s, s1
+  Local ret := -1, rec := RecNo(), s, s1
   Local arrF006 := getf006()
+  Local flag_AKT_SCHET := .T.
+  Local t_rec 
+  private zap_rak := 0
 
   If !( regim == 'edit' )
     Return ret
@@ -1164,6 +1167,87 @@ Function f1_view_rak_akt_schet_human( nk, ob, regim )
     Set Relation To RecNo() into HUMAN_
     r_use( dir_server() + 'mo_raksh', cur_dir() + 'tmp_raksh', 'RAKSH' )
     Set Relation To FIELD->KOD_H into HUMAN
+    Goto ( rec )
+    ret := 0
+  elseif nk == K_CTRL_F12 .and. Year( human->k_data ) > 2012 .and. currentuser():isadmin() .and. f_esc_enter( 'массовое перевыставление', .t. )
+    // массовое перевыставление
+    Go Top
+    Do While !Eof()
+      ++zap_rak
+      flag_AKT_SCHET := .T.
+      t_rec := RecNo()
+      //  human_->( g_rlock( 'forever' ) )
+      //  human_->OPLATA    := 0 // уберём '2', если отредактировали запись из реестра СП и ТК
+      //  human_->ST_VERIFY := 0 // снова ещё не проверен
+      //  Skip
+      //Enddo
+      //Goto rec1
+      //stat_msg( 'Флаг об ошибке ' + lstr( p_del_error[ 2 ] ) + ' снят со всех пациентов. Войдите в режим "Реестры/Проверка"' )
+      //mybell( 4, OK )
+       s := 0
+       If !Empty( raksh->SANK_MEK )
+         s := raksh->SANK_MEK
+       Elseif !Empty( raksh->SANK_MEE )
+         s := raksh->SANK_MEE
+       Elseif !Empty( raksh->SANK_EKMP )
+         s := raksh->SANK_EKMP
+       Endif
+       If human->cena_1 > 0 .and. Empty( s )
+        func_error( 4, 'Повторное выставление случая невозможно при нулевой сумме отказа' )
+        flag_AKT_SCHET := .F.
+        inkey(1)
+       Elseif !( Round( f_view_rak_akt_schet_human( 2 ), 2 ) == Round( s + raksh->sump, 2 ) .and. raksh->OPLATA == 2 )
+        func_error( 4, 'Повторное выставление случая возможно только для OPLATA = 2 и полного отказа' )
+        flag_AKT_SCHET := .F.
+        inkey(1)
+       Endif
+       if flag_AKT_SCHET
+         If ! currentuser():isadmin()
+          func_error( 4, err_admin() ) 
+          flag_AKT_SCHET := .F.
+          inkey(1)
+         Endif
+         if flag_AKT_SCHET
+          rec := raksh->( RecNo() )
+          s := AllTrim( human->fio ) + ' ' + date_8( human->n_data ) + '-' + date_8( human->k_data ) + ' (' + lstr( f_view_rak_akt_schet_human( 2 ) ) + 'р.)'
+          s1 := 'код дефекта: ' + lstr( raksh->REFREASON )
+          If emptyall( human->cena_1, raksh->SANK_MEK, raksh->SANK_MEE, raksh->SANK_EKMP, raksh->PENALTY ) // скорая помощь
+            s1 += ', санкции ' + inieditspr( A__MENUVERT, arrF006, rak->KONT ) + ': 0р. (СМП)'
+          Endif
+          If !Empty( raksh->SANK_MEK )
+            s1 += ', санкции МЭК: ' + lstr( raksh->SANK_MEK, 15, 2 ) + 'р.'
+          Elseif !Empty( raksh->SANK_MEE )
+            s1 += ', санкции МЭЭ: ' + lstr( raksh->SANK_MEE, 15, 2 ) + 'р.'
+          Elseif !Empty( raksh->SANK_EKMP )
+            s1 += ', санкции ЭКМП: ' + lstr( raksh->SANK_EKMP, 15, 2 ) + 'р.'
+          Endif
+          If !Empty( raksh->PENALTY )
+            s1 += ', сумма штрафов: ' + lstr( raksh->PENALTY, 15, 2 ) + 'р.'
+          Endif
+          If Empty( raksh->NEXT_KOD )
+            If human_->OPLATA == 9
+              func_error( 'Ошибка! Данный случай уже был перевыставлен!' )
+              flag_AKT_SCHET := .F.
+              inkey(1)
+            Else
+              rak_akt_schet_human_add_next( s, s1, rec, raksh->REFREASON , .T. ) 
+            Endif
+          Else
+            // rak_akt_schet_human_del_next( s, s1, rec )
+          Endif
+        endif  
+      endif
+      //
+      Close databases
+      r_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
+      r_use( dir_server() + 'human_', , 'HUMAN_' )
+      r_use( dir_server() + 'human', , 'HUMAN' )
+      Set Relation To RecNo() into HUMAN_
+      r_use( dir_server() + 'mo_raksh', cur_dir() + 'tmp_raksh', 'RAKSH' )
+      Set Relation To FIELD->KOD_H into HUMAN
+      Goto ( t_rec )
+      skip
+    enddo 
     Goto ( rec )
     ret := 0
   Endif
@@ -1246,10 +1330,11 @@ Function f2_view_rak_akt_schet_human()
 
   Return Nil
 
-// 29.03.26 правка по СМО 15.02.19 
-Function rak_akt_schet_human_add_next( s, s1, lrec, tREFREASON  )
+// 05.08.26 правка по СМО 15.02.19 
+Function rak_akt_schet_human_add_next( s, s1, lrec, tREFREASON ,TIP_NEXT )
 
-  Local i, arr1, arr2, mkod, buf := save_maxrow()
+  Local i, arr1, arr2, mkod, buf := save_maxrow(), name_fio := ''
+  default TIP_NEXT to .F. 
 
   glob_perso := raksh->kod_h
   arr1 := { s, ;
@@ -1259,9 +1344,13 @@ Function rak_akt_schet_human_add_next( s, s1, lrec, tREFREASON  )
     'Редактировать новый л/у в режиме "Выбор по акту снятия из СМО"', ;
     '' }
   arr2 := { ' Отказ ', ' Повторное выставление ' }
-  If f_alert( arr1, arr2, 1, 'N+/G*', 'N/G*', 13, , 'N/G*' ) == 2
-    If f_alert( arr1, arr2, 1, 'N+/G*', 'R/G*', 14, , 'N/G*' ) == 2
-      mywait()
+  If iif(tip_next, .T. ,f_alert( arr1, arr2, 1, 'N+/G*', 'N/G*', 13, , 'N/G*' ) == 2)
+    If iif(tip_next, .T. ,f_alert( arr1, arr2, 1, 'N+/G*', 'R/G*', 14, , 'N/G*' ) == 2)
+      if TIP_NEXT 
+      //
+      else  
+        mywait()
+      endif  
       Close databases
       // сначала запоминаем копию листа учёта в массивах
       r_use( dir_server() + 'kartote_',, 'KARTOTE_'  ) // 29.03.26
@@ -1282,7 +1371,6 @@ Function rak_akt_schet_human_add_next( s, s1, lrec, tREFREASON  )
         mnameismo := sn->smo_name
       Endif
       mNAPR_NUM   := get_NAPR_MO( human->kod, _NPR_LECH ) // получить номер направления на лечение, если есть
-
         del_NAPR_MO( human->kod, _NPR_LECH )
       arr_hu := {}
       use_base( 'human_u' )
@@ -1467,6 +1555,7 @@ Function rak_akt_schet_human_add_next( s, s1, lrec, tREFREASON  )
       human->TIP_H    := B_STANDART // лечение завершено
       // human->DATE_OPL := ''
       human->schet    := 0
+      name_fio := human->fio
       //
       Select HUMAN_
       Do While human_->( LastRec() ) < mkod
@@ -1741,8 +1830,15 @@ Function rak_akt_schet_human_add_next( s, s1, lrec, tREFREASON  )
       raksh->DATE_REP  := sys_date
       raksh->NEXT_KOD  := mkod
       Close databases
-      stat_msg( 'Данный лист учёта выставлен повторно' )
-      mybell( 2, OK )
+      if TIP_NEXT
+        stat_msg( alltrim(name_fio)+' данный лист учёта выставлен повторно' )
+        If zap_rak % 100 == 0
+          mybell( 1, OK )
+        endif  
+      else  
+        stat_msg( 'Данный лист учёта выставлен повторно' )
+        mybell( 2, OK )
+      endif  
     Endif
   Endif
   rest_box( buf )
