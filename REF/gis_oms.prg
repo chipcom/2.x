@@ -259,13 +259,13 @@ Function f1edit_lic_addr_f038( oBrow )
   status_key( '^<Esc>^ выход ^<Enter>^ просмотр отделений' )
   Return Nil
 
-// 04.08.26
+// 07.08.26
 Function f2edit_lic_addr_f038( nKey, oBrow )
 
   Local ret := -1
 
-  local sbase, tmp_select := Select()
-  local aDbf, k
+  local tmp_select := Select()
+  local sbase, aDbf, k
 
   Do Case
   CASE nKey == K_LEFT
@@ -273,6 +273,23 @@ Function f2edit_lic_addr_f038( nKey, oBrow )
   CASE nKey == K_RIGHT
     oBrow:right()
   Case nKey == K_ENTER
+
+    dbUseArea( .T., , 'select * from f033', 'f033' )
+//    dbUseArea( .T., , 'select * from f038, f033 where f038.uidspmo = f033.uidspmo and f038.idaddress==' + f038->IDADDRESS, 'tmp_otd' )
+    dbUseArea( .T., , 'select f033.nam_sk, f038.uidspmo, f038.idaddress from f038, f033 where f038.uidspmo = f033.uidspmo and f038.idaddress==' + str( f038->IDADDRESS, 19 ), 'otd' )
+
+    otd->( dbGoTop() )
+    If otd->( LastRec() ) == 0
+      func_error( 4, 'Пустой справочник отделений' )
+    Else
+      alpha_browse( 4, 2, MaxRow() - 1, 78, 'f1edit_addr_otd', color0, , , , , , , 'f2edit_addr_otd', , ;
+        { '═', '░', '═', 'N/BG,W+/N,B/BG,BG+/B,N+/BG,W/N', .t. } )
+    Endif
+
+    otd->( dbCloseArea() )
+    f033->( dbCloseArea() )
+
+/*
     sbase := '_mo_f033'
     r_use( dir_exe() + sbase, cur_dir() + sbase, 'F033' )
 
@@ -313,17 +330,19 @@ Function f2edit_lic_addr_f038( nKey, oBrow )
     Endif
 
     tmp_otd->( dbCloseArea() )
+*/
     Select ( tmp_select )
   Endcase
 
   Return ret
 
-// 30.03.26
+// 07.08.26
 Function f1edit_addr_otd( oBrow )
 
   Local oColumn
 
-  oColumn := TBColumnNew( 'Отделение "ГИС ОМС"', {|| tmp_otd->NAME } )
+//  oColumn := TBColumnNew( 'Отделение "ГИС ОМС"', {|| tmp_otd->NAME } )
+  oColumn := TBColumnNew( 'Отделение "ГИС ОМС"', {|| SubStr( otd->NAM_SK, 1, 50 ) } )
   oBrow:addcolumn( oColumn )
 
   status_key( '^<Esc>^ выход ^<Enter>^ просмотр профилей' )
