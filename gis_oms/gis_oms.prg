@@ -253,7 +253,7 @@ Function f1edit_lic_addr_f038( oBrow )
 
   Local oColumn
 
-  oColumn := TBColumnNew( 'Адрес расположения', {|| StrTran( f038->ADDR, 'Волгоградская область, ', '' ) } )
+  oColumn := TBColumnNew( 'Адрес расположения', {|| Padr( StrTran( f038->ADDR, 'Волгоградская область, ', '' ), 75 ) } )
   oBrow:addcolumn( oColumn )
 
   status_key( '^<Esc>^ выход ^<Enter>^ просмотр отделений' )
@@ -265,7 +265,7 @@ Function f2edit_lic_addr_f038( nKey, oBrow )
   Local ret := -1
 
   local tmp_select := Select()
-  local sbase, aDbf, k
+//  local sbase, aDbf, k
 
   Do Case
   CASE nKey == K_LEFT
@@ -275,7 +275,6 @@ Function f2edit_lic_addr_f038( nKey, oBrow )
   Case nKey == K_ENTER
 
     dbUseArea( .T., , 'select * from f033', 'f033' )
-//    dbUseArea( .T., , 'select * from f038, f033 where f038.uidspmo = f033.uidspmo and f038.idaddress==' + f038->IDADDRESS, 'tmp_otd' )
     dbUseArea( .T., , 'select f033.nam_sk, f038.uidspmo, f038.idaddress from f038, f033 where f038.uidspmo = f033.uidspmo and f038.idaddress==' + str( f038->IDADDRESS, 19 ), 'otd' )
 
     otd->( dbGoTop() )
@@ -341,23 +340,33 @@ Function f1edit_addr_otd( oBrow )
 
   Local oColumn
 
-//  oColumn := TBColumnNew( 'Отделение "ГИС ОМС"', {|| tmp_otd->NAME } )
-  oColumn := TBColumnNew( 'Отделение "ГИС ОМС"', {|| SubStr( otd->NAM_SK, 1, 50 ) } )
+  oColumn := TBColumnNew( 'Отделение "ГИС ОМС"', {|| Padr( otd->NAM_SK, 75 ) } )
   oBrow:addcolumn( oColumn )
 
   status_key( '^<Esc>^ выход ^<Enter>^ просмотр профилей' )
   Return Nil
 
-// 30.03.26
+// 08.08.26
 Function f2edit_addr_otd( nKey, oBrow )
 
   Local oBr, ret := -1
-  local sbase, tmp_select := Select()
-  local aDbf, k
+  local tmp_select := Select()
+//  local sbase, aDbf, k
 
   oBr := oBrow
   Do Case
   Case nKey == K_ENTER
+    dbUseArea( .T., , 'select mpvid, mpusl, mprof from f034 where uidspmo==' + otd->uidspmo + ' and idaddress==' + str( otd->IDADDRESS, 19 ), 'f034' )
+
+    f034->( dbGoTop() )
+    If f034->( LastRec() ) == 0
+      func_error( 4, 'Пустой справочник видов, условий и профилей медицинской помощи' )
+    Else
+      alpha_browse( 9, 2, 20, 78, 'f1edit_otd_f034', color0, , , , , , , 'f2edit_otd_f034', , ;
+        { '═', '░', '═', 'N/BG,W+/N,B/BG,BG+/B,N+/BG,W/N', .t. } )
+    Endif
+    f034->( dbCloseArea() )
+/*
     aDbf := { ;
       { 'OPIS',     'C',  80, 0 }, ;
       { 'IDADDRESS','N',  19, 0 }, ;
@@ -396,24 +405,28 @@ Function f2edit_addr_otd( nKey, oBrow )
         { '═', '░', '═', 'N/BG,W+/N,B/BG,BG+/B,N+/BG,W/N', .t. } )
     Endif
     tmp_f034->( dbCloseArea() )
+*/
     Select ( tmp_select )
   Endcase
 
   Return ret
 
-// 30.03.26
-Function f1edit_otd_mp( oBrow )
+// 08.08.26
+Function f1edit_otd_f034( oBrow )
 
   Local oColumn
 
-  oColumn := TBColumnNew( 'Вид, условия и профиль медицинской помощи в "ГИС ОМС"', {|| tmp_f034->OPIS } )
+  oColumn := TBColumnNew( 'Вид, условия и профиль медицинской помощи в "ГИС ОМС"', ;
+    { || padr( AllTrim( inieditspr( A__MENUVERT, getv008(), f034->MPVID ) ) ;
+      + ', ' + AllTrim( inieditspr( A__MENUVERT, getv006(), f034->MPUSL ) ) ;
+      + ', ' + AllTrim( inieditspr( A__MENUVERT, getv002(), f034->MPROF ) ), 75 ) } )
   oBrow:addcolumn( oColumn )
 
   status_key( '^<Esc>^ выход' )
   Return Nil
 
-// 30.03.26
-Function f2edit_otd_mp( nKey, oBrow )
+// 08.08.26
+Function f2edit_otd_f034( nKey, oBrow )
 
   Local oBr, ret := -1
   local tmp_select := Select()
