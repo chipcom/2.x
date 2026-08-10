@@ -32,7 +32,7 @@ function gis_oms()
   buf := save_maxrow()
 
   rddSetDefault( 'SQLMIX' )
-  pDb := rddInfo( RDDI_CONNECT, { 'SQLITE3', dir_exe() + 'gis_mo.db' } )
+  pDb := rddInfo( RDDI_CONNECT, { 'SQLITE3', dir_exe() + FILE_NAME_SQL } )
 
   dbUseArea( .T., , 'select * from f037 where mcod==' + glob_mo()[ _MO_KOD_FFOMS ], 'f037' )
 

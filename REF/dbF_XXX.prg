@@ -313,7 +313,7 @@ Function getf015()
 // =========== F032 ===================
 //
 // 08.06.26 {_MO_KOD_TFOMS,_MO_SHORT_NAME}
-Function viewf032()
+Function viewf032() 
 
   Local nTop, nLeft, nBottom, nRight
   Local tmp_select := Select()
@@ -561,7 +561,7 @@ Function getf032mo( mCode )
   Endif
   Select( tmp_select )
   Return arr
-
+/*
 // 30.03.26
 function get_f032()
 
@@ -581,7 +581,7 @@ function get_f032()
     Select ( tmp_select )
   endif
   return arr
-
+*/
 // 24.01.26
 function get_f032_prik()
 
@@ -618,7 +618,7 @@ Function ret_uidmo_f032( mcod )
   Select ( tmp_select )
 
   return cUIDMO
-*/
+
 // 06.02.26 вернуть массив из справочника F033
 Function get_f033( mcod )
 
@@ -673,6 +673,7 @@ Function get_f033_with_address( mcod )
   Select ( tmp_select )
   
   return arr
+*/
 
 // 14.04.26 вернуть массив из справочника F034
 Function get_f034( mUIDSPMO )
