@@ -109,6 +109,7 @@ mo_version.prg
 .\FNS\page2.prg
 
 .\gis_oms\gis_oms.prg
+.\gis_oms\gis_oms_func.prg
 
 .\REF\initSpravFFOMS.prg
 .\REF\dbAdditionalCriteria.prg

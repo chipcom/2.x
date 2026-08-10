@@ -601,7 +601,7 @@ function get_f032_prik()
     next
   endif
   return arr
-
+/*
 // 17.01.26 вернуть UIDMO из справочника F032
 Function ret_uidmo_f032( mcod )
 
@@ -618,7 +618,7 @@ Function ret_uidmo_f032( mcod )
   Select ( tmp_select )
 
   return cUIDMO
-
+*/
 // 06.02.26 вернуть массив из справочника F033
 Function get_f033( mcod )
 
