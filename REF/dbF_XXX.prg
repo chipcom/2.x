@@ -673,7 +673,6 @@ Function get_f033_with_address( mcod )
   Select ( tmp_select )
   
   return arr
-*/
 
 // 14.04.26 вернуть массив из справочника F034
 Function get_f034( mUIDSPMO )
@@ -733,3 +732,4 @@ Function get_f034_usl_ok( mUIDSPMO, usl_ok )
 //  endif
 
   return arr
+*/
