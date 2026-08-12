@@ -6,6 +6,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 #include 'tfile.ch'
+#include 'tbox.ch'
 
 #require 'rddsql'
 #require 'sddsqlt3'
@@ -15,8 +16,179 @@
 
 REQUEST SDDSQLITE3, SQLMIX
 
+// 12.08.26 {_MO_KOD_TFOMS,_MO_SHORT_NAME}
+Function viewf032() 
+
+  Local nTop, nLeft, nBottom, nRight
+  Local tmp_select := Select()
+  Local l := 0, fl
+  Local ar
+  Local color_say := 'N/W', color_get := 'W/N*'
+  Local oBox, oBoxRegion
+  Local strRegion := 'Выбор региона'
+  Local lFileCreated := .f.
+  Local retMCOD := { '', Space( 10 ) }
+  Local ar_f010 := getf010()
+  Local selectedRegion := '34'
+  Local sbase := 'mo_add'
+  Local prev_codem := 0, cur_codem := 0
+  Local i, ifi
+  local nRegion := 34
+  local funcColumn, funcView
+  local tmpAlias := 'tF032'
+  local pDb, f032_mcod, f032_namemok, f032_namemop, f032_address
+
+  Private oBoxCompany
+
+  ar := {}
+  For i := 1 To Len( ar_f010 )
+    if between_date( ar_f010[ i, 5 ], ar_f010[ i, 6 ], Date() )
+      AAdd( ar, ar_f010[ i, 1 ] )
+      l := Max( l, Len( ar[ Len( ar ) ] ) )
+    endif
+  Next
+
+  nTop := 4
+  nLeft := 3
+  nBottom := 23
+  nRight := 77
+
+  // окно выбора региона
+  oBoxRegion := tbox():new( nTop, nLeft, nBottom, nRight )
+  oBoxRegion:Caption := 'Выберите регион'
+  oBoxRegion:Frame := BORDER_SINGLE
+
+  // окно полного наименования организации
+  oBoxCompany := tbox():new( 19, 11, 21, 68 )
+  oBoxCompany:Frame := BORDER_NONE
+  oBoxCompany:Color := color5
+
+  // главное окно
+  oBox := Nil // уничтожим окно
+  oBox := tbox():new( 2, 10, 22, 70 )
+  oBox:Color := color_say + ',' + color_get
+  oBox:Frame := BORDER_DOUBLE
+  oBox:MessageLine := '^^ или нач.буква - просмотр;  ^<Esc>^ - выход;  ^<Enter>^ - выбор'
+  oBox:Save := .t.
+
+  oBoxRegion:MessageLine := '^^ или нач.буква - просмотр;  ^<Esc>^ - выход;  ^<Enter>^ - выбор'
+  oBoxRegion:Save := .t.
+  oBoxRegion:view()
+  nRegion := AChoice( oBoxRegion:Top + 1, oBoxRegion:Left + 1, oBoxRegion:Bottom -1, oBoxRegion:Right - 1, ar, , , 34 )
+  If nRegion == 0
+    Select ( tmp_select )
+    Return retMCOD
+  Else
+    selectedRegion  := StrZero( nRegion, 2 )
+  Endif
+
+#if defined( __HBSCRIPT__HBSHELL )
+    rddRegister( 'SQLBASE' )
+    rddRegister( 'SQLMIX' )
+    hb_SDDSQLITE3_Register()
+#endif
+
+  rddSetDefault( 'SQLMIX' )
+  pDb := rddInfo( RDDI_CONNECT, { 'SQLITE3', dir_exe() + FILE_NAME_SQL } )
+
+  dbUseArea( .T., , 'select mcod, namemok, namemop, address, region from f032 where region==' + selectedRegion, 'f032' )
+  f032->( dbGoTop() )
+
+  oBox:Caption := 'Выбор направившей организации'
+  oBox:view()
+
+  funcColumn := 'columnF032' + '(' + 'oBrowse, "' + 'f032' + '")'
+  funcView := 'ViewRecordF032' + '("' + 'f032' + '")'
+
+  If fl := alpha_browse( oBox:Top + 1, oBox:Left + 1, oBox:Bottom -5, oBox:Right - 1, funcColumn, color0, , , , , , funcView, 'controlF032', , { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B' } )
+    // проверяем выбор
+    If ( ifi := hb_AScan( glob_arr_mo(), {| x| x[ _MO_KOD_FFOMS ] == f032->MCOD }, , , .t. ) ) > 0
+      // нашли в файле
+      Alert( 'Медицинское учреждение уже добавлено в справочник!' )
+      f032->( dbCloseArea() )
+      rddSetDefault( 'DBFNTX' )
+    Else
+      f032_mcod := f032->mcod
+      f032_namemok := f032->namemok
+      f032_namemop := f032->namemop
+      f032_address := f032->address
+      f032->( dbCloseArea() )
+      rddSetDefault( 'DBFNTX' )
+      If g_use( dir_server() + sbase, dir_server() + sbase, sbase, , .t., )
+        ( sbase )->( dbGoTop() )
+        Do While ! ( sbase )->( Eof() )
+          prev_codem := ( sbase )->CODEM
+          ( sbase )->( dbSkip() )
+          cur_codem := ( sbase )->CODEM
+          If ( Val( cur_codem ) - Val( prev_codem ) ) != 1
+            ( sbase )->( dbAppend() )
+            ( sbase )->MCOD := f032_mcod
+            ( sbase )->CODEM := Str( Val( prev_codem ) + 1, 6 )
+            ( sbase )->NAMEF := f032_namemop
+            ( sbase )->NAMES := f032_namemok
+            ( sbase )->ADRES := f032_address
+            ( sbase )->DEND := hb_SToD( '20261231' )
+            Exit
+          Endif
+        Enddo
+        ( sbase )->( dbCloseArea() )
+        retMCOD := { Str( Val( prev_codem ) + 1, 6 ), AllTrim( f032_namemok ) }
+      Endif
+    Endif
+  else
+    f032->( dbCloseArea() )
+    rddSetDefault( 'DBFNTX' )
+  Endif
+  selectedRegion := ''
+
+  oBoxRegion := NIL
+  oBoxCompany := nil
+  oBox := nil
+  Select ( tmp_select )
+
+  Return retMCOD
+
+// 06.06.26
+Function controlf032( nkey, oBrow )
+
+  Local ret := -1
+
+  Return ret
+
+// 12.08.26
+Function columnf032( oBrow, al )
+
+  Local oColumn
+
+  oColumn := TBColumnNew( Center( 'Наименование', 50 ), {|| Padr( ( al )->NAMEMOK, 50 ) } )
+  oBrow:addcolumn( oColumn )
+  status_key( '^<Esc>^ - выход; ^<Enter>^ - выбор' )
+
+  Return Nil
+
+// 21.01.21
+Function viewrecordf032( al )
+
+  Local i, arr := {}, count
+
+  If ! oBoxCompany:Visible
+    oBoxCompany:view()
+  Else
+    oBoxCompany:clear()
+  Endif
+  // разобьем полное наменование на подстроки
+  perenos( arr, ( al )->NAMEMOP, oBoxCompany:Width )
+  count := iif( Len( arr ) > oBoxCompany:Height, oBoxCompany:Height, Len( arr ) )
+
+  For i := 1 To count
+    @ oBoxCompany:Top + i - 1, oBoxCompany:Left + 1 Say arr[ i ]
+  Next
+
+  Return Nil
+
+
 // 30.03.26
-function get_f032()
+function get_f032() 
 
   static arr
   Local tmp_select := Select(), pDb
@@ -43,6 +215,26 @@ function get_f032()
     Select ( tmp_select )
   endif
   
+  return arr
+
+// 24.01.26
+function get_f032_prik()
+
+  static arr
+
+  local i, j, loc_m
+  local arr_glob := glob_arr_mo()
+  local arr_f032 := get_f032()
+
+  if HB_ISNIL( arr )
+    arr := {}
+    for i := 1 to len( arr_f032 )
+      loc_m := arr_f032[ i, 2 ]
+      if ( j := ascan( arr_glob, { | x | ( x[ _MO_KOD_FFOMS ] == loc_m ) .and. x[ _MO_IS_UCH ] } ) ) > 0
+        AAdd( arr, { arr_f032[ i, 1 ], arr_f032[ i, 2 ] } )
+      endif
+    next
+  endif
   return arr
 
 // 10.08.26 вернуть UIDMO из справочника F032

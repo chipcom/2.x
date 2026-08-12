@@ -312,6 +312,7 @@ Function getf015()
 
 // =========== F032 ===================
 //
+/*
 // 08.06.26 {_MO_KOD_TFOMS,_MO_SHORT_NAME}
 Function viewf032() 
 
@@ -499,7 +500,7 @@ Function viewrecordf032( al )
   Next
 
   Return Nil
-
+*/
 // 06.06.26
 Function getf032mo( mCode )
 
@@ -581,7 +582,7 @@ function get_f032()
     Select ( tmp_select )
   endif
   return arr
-*/
+
 // 24.01.26
 function get_f032_prik()
 
@@ -601,7 +602,7 @@ function get_f032_prik()
     next
   endif
   return arr
-/*
+
 // 17.01.26 вернуть UIDMO из справочника F032
 Function ret_uidmo_f032( mcod )
 

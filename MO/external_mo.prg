@@ -128,8 +128,6 @@ Function f2get_mo( oBrow )
   oBrow:addcolumn( TBColumnNew( Center( 'Наименование МО', n ), {|| PadR( rg->name, n ) } ) )
   If ppar == 2
     status_key( '^<Esc>^ - выход;  ^<Enter>^ - выбор МО' )
-    // elseif lmo3 == 0
-    // status_key('^<Esc>^ - выход; ^<Enter>^ - выбор; ^<Пробел>^ - очистка'+iif(glob_task==X_263.or.muslovie!=NIL,'','; ^<F3>^ - краткий список'))
   Else
     status_key( '^<Esc>^ - выход; ^<Enter>^ - выбор; ^<Пробел>^ - очистка' + iif( glob_task == X_263 .or. muslovie != NIL, '', '; ^<F3>^ - все МО' ) )
   Endif
@@ -164,7 +162,6 @@ Function f3get_mo( nkey, oBrow )
       rg->kodN := aRet[ 1 ]
       rg->name := aRet[ 2 ]
       rg->mo3 := 0
-//      glob_arr_mo := getmo_mo( '_mo_mo', .t. )
       glob_arr_mo := glob_arr_mo( .t. )
     Endif
     ret := 1
