@@ -117,7 +117,7 @@ Function index_work_dir( dir_spavoch, working_dir, flag )
     mywait( 'Подождите, идет проверка служебных данных в рабочем каталоге...' )
   Endif 
 
-  index_gis_oms( dir_spavoch, working_dir )
+//  index_gis_oms( dir_spavoch, working_dir )
 
   // справочник диагнозов
   sbase := '_mo_mkb'

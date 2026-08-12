@@ -362,16 +362,6 @@ Function get_f034( mUIDSPMO )
       AEval( aTable, { | elem | iif( elem[ 4 ] == mUIDSPMO, AAdd( arr, { Val( elem[ 1 ] ), Val( elem[ 2 ] ), Val( elem[ 3 ] ) } ), ) } )
     Endif
     db := nil
-/*
-    r_use( dir_exe() + '_mo_f034', cur_dir() + '_mo_f034', 'F034' )
-    f034->( dbSeek( mUIDSPMO ) )
-    Do While f034->uidspmo == mUIDSPMO .and. ! f034->( Eof() )
-      AAdd( arr, { f034->MPVID, f034->MPUSL, f034->MPROF } )
-      f034->( dbSkip() )
-    Enddo
-    dbCloseArea()
-    Select ( tmp_select )
-*/
   endif
 
   return arr
@@ -394,3 +384,68 @@ Function get_f034_usl_ok( mUIDSPMO, usl_ok )
   AEval( aF034, { | elem | iif( elem[ 2 ] == usl_ok, AAdd( arr, elem ), ) } )
 
   return arr
+
+/*
+// 06.06.26 
+Function getf032mo( mCode )
+
+  // mCode - код МО по F003
+  Local arr
+  Local tmp_select := Select()
+  Local i // возьмём первое по порядку МО
+//  local dbName := '_mo_f003', indexName := cur_dir() + dbName + 'cod'
+  local dbName := '_mo_f032', indexName := cur_dir() + dbName + 'cod'
+
+  If SubStr( mCode, 1, 2 ) != '34'
+
+    arr := AClone( glob_arr_mo()[ 1 ] )
+    If Empty( mCode ) .or. ( Len( mCode ) != 6 )
+      For i := 1 To Len( arr )
+        If ValType( arr[ i ] ) == 'C'
+          arr[ i ] := Space( 6 ) // и очистим строковые элементы
+        Endif
+      Next
+      Select( tmp_select )
+      Return arr
+    Endif
+
+    arr := Array( _MO_LEN_ARR )
+
+    dbUseArea( .t., 'DBFNTX', dir_exe() + dbName, dbName, .t., .f. )
+    ( dbName )->( dbCreateIndex( indexName, 'MCOD', , NIL ) )
+
+    ( dbName )->( dbGoTop() )
+    If ( dbName )->( dbSeek( mCode ) )
+      arr[ _MO_KOD_FFOMS ]  := ( dbName )->MCOD
+      arr[ _MO_KOD_TFOMS ]  := ''
+      arr[ _MO_FULL_NAME ]  := AllTrim( ( dbName )->NAMEMOP )
+      arr[ _MO_SHORT_NAME ] := AllTrim( ( dbName )->NAMEMOK )
+      arr[ _MO_ADRES ]      := AllTrim( ( dbName )->ADDRESS )
+      arr[ _MO_PROD ]       := ''
+      arr[ _MO_DEND ]       := CToD( '01-01-2021' )
+      arr[ _MO_STANDART ]   := 1
+      arr[ _MO_UROVEN ]     := 1
+      arr[ _MO_IS_MAIN ]    := .t.
+      arr[ _MO_IS_UCH ]     := .t.
+      arr[ _MO_IS_SMP ]     := .t.
+    Endif
+    ( dbName )->( dbCloseArea() )
+  Else
+    arr := AClone( glob_arr_mo()[ 1 ] )
+    For i := 1 To Len( arr )
+      If ValType( arr[ i ] ) == 'C'
+        arr[ i ] := Space( 6 ) // и очистим строковые элементы
+      Endif
+    Next
+    If !Empty( mCode )
+      If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == mCode } ) ) > 0
+        arr := glob_arr_mo()[ i ]
+      Elseif ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_FFOMS ] == mCode } ) ) > 0
+        arr := glob_arr_mo()[ i ]
+      Endif
+    Endif
+  Endif
+  Select( tmp_select )
+
+  Return arr
+*/

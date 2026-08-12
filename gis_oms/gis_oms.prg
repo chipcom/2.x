@@ -383,6 +383,7 @@ Function f2edit_otd_f034( nKey, oBrow )
 
   Return ret
 
+/*
 // 09.04.26 переиндексация справочников ГИС ОМС
 function index_gis_oms( dir_spavoch, working_dir )
 
@@ -437,3 +438,4 @@ function index_gis_oms( dir_spavoch, working_dir )
   dbCloseArea()
 
   return nil
+*/
