@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 15.07.26 добавление или редактирование случая (листа учета)
+// 13.08.26 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -769,15 +769,18 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
 // конец переноса
 // TODO: РАЗОБРАТЬСЯ С ПОЛИКЛИНИКОЙ
       @ ++j, 1 Say 'Направление: дата' Get mNPR_DATE ;
-        When ( m1USL_OK == USL_OK_HOSPITAL .and. M1F14_EKST == 0 ) .or. ( m1USL_OK == USL_OK_DAY_HOSPITAL )
+        When ( m1USL_OK == USL_OK_HOSPITAL .and. M1F14_EKST == 0 ) .or. ( m1USL_OK == USL_OK_DAY_HOSPITAL ) ;
+          .or. ( m1USL_OK == USL_OK_POLYCLINIC )
       @ j, Col() + 1 Say 'из МО' Get mNPR_MO PICTURE '@S20';
         reader {| x| menu_reader( x, { {| k, r, c| f_get_mo( k, r, c ) } }, A__FUNCTION, , , .f. ) } ;
         Color colget_menu ;
-        When ( m1USL_OK == USL_OK_HOSPITAL .and. M1F14_EKST == 0 ) .or. ( m1USL_OK == USL_OK_DAY_HOSPITAL )
+        When ( m1USL_OK == USL_OK_HOSPITAL .and. M1F14_EKST == 0 ) .or. ( m1USL_OK == USL_OK_DAY_HOSPITAL ) ;
+          .or. ( m1USL_OK == USL_OK_POLYCLINIC )
 
       @ j, Col() + 1 Say '№' Get mNAPR_NUM PICTURE '@S20' ;
         Color colget_menu ;
-        When ( m1USL_OK == USL_OK_HOSPITAL .and. M1F14_EKST == 0 ) .or. ( m1USL_OK == USL_OK_DAY_HOSPITAL )  //  m1NAPR_MO != 0
+        When ( m1USL_OK == USL_OK_HOSPITAL .and. M1F14_EKST == 0 ) .or. ( m1USL_OK == USL_OK_DAY_HOSPITAL ) ;  //  m1NAPR_MO != 0
+          .or. ( m1USL_OK == USL_OK_POLYCLINIC )
       //        reader {| x| menu_reader( x, { {| k, r, c| f_get_mo( k, r, c ) } }, A__FUNCTION, , , .f. ) } ;
       //
       @ ++j, 1 Say 'Новорожденный?' Get mnovor ;
