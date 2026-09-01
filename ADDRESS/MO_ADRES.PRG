@@ -4,6 +4,12 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+#require 'rddsql'
+#require 'sddsqlt3'
+
+#include 'simpleio.ch'
+#include 'dbinfo.ch'
+
 Static skod_volg := '18400'
 // УРОВЕНЬ-1 Ter (C-2) код территории
 // Начало территории 18-000-000-000-1 - Наименование территорий
@@ -44,87 +50,27 @@ Static skod_volg := '18400'
   inkey(0)
   return NIL*/
 
-// 11.06.26 переиндексировать все файлы адресного реестра ОКАТО
-Function okato_index( flag )
-
-  Local i
-  Local fl_index := .f.
-  local ;
-    arr_f  := { '_okator', '_okatoo', '_okatos', '_okatoo8', '_okatos8' }, ;
-    arr_i1 := { '_okatr', '_okato', '_okats', '_okato8', '_okats8' }, ;
-    arr_i2 := { '_okatrn', '_okaton', '_okatsn', '_okaton8', '_okatsn8' }
-
-  Default flag To .f.
-
-  For i := 1 To Len( arr_f )
-    If files_time( dir_exe() + arr_f[ i ] + sdbf(), cur_dir() + arr_i1[ i ] + sntx() ) .or. ;
-        files_time( dir_exe() + arr_f[ i ] + sdbf(), cur_dir() + arr_i2[ i ] + sntx() )
-      fl_index := .t.
-      Exit
-    Endif
-  Next
-  
-  fl_index := .t.
-  If flag .or. fl_index
-    For i := 1 To Len( arr_f )
-      r_use( dir_exe() + arr_f[ i ] )
-      oktadindbase( arr_f[ i ] )
-      Use
-    Next
-  Endif
-  Return Nil
-
-//
-Static Function oktadindbase( k )
-
-  k := Lower( k )
-  Do Case
-  Case k == '_okator'
-    Index On FIELD->okato to ( cur_dir() + '_okatr' ) progress
-    Index On FIELD->okato + Upper( SubStr( FIELD->name, 1, 30 ) ) to ( cur_dir() + '_okatrn' ) progress
-  Case k == '_okatoo'
-    Index On FIELD->okato to ( cur_dir() + '_okato' ) progress
-    Index On SubStr( FIELD->okato, 1, 5 ) + Upper( SubStr( FIELD->name, 1, 30 ) ) to ( cur_dir() + '_okaton' ) progress
-  Case k == '_okatos'
-    Index On FIELD->okato to ( cur_dir() + '_okats' ) progress
-    Index On SubStr( FIELD->okato, 1, 8 ) + Upper( SubStr( FIELD->name, 1, 30 ) ) to ( cur_dir() + '_okatsn' ) progress
-  Case k == '_okatoo8'
-    Index On FIELD->okato to ( cur_dir() + '_okato8' ) progress
-    Index On SubStr( FIELD->okato, 1, 5 ) + Upper( SubStr( FIELD->name, 1, 30 ) ) to ( cur_dir() + '_okaton8' ) progress
-  Case k == '_okatos8'
-    Index On FIELD->okato to ( cur_dir() + '_okats8' ) progress
-    Index On SubStr( FIELD->okato, 1, 8 ) + Upper( SubStr( FIELD->name, 1, 30 ) ) to ( cur_dir() + '_okatsn8' ) progress
-  Endcase
-  Return Nil
-
-//
-Static Function oktadusebase( k, _region )
-
-  k := Lower( k )
-  If _region != Nil .and. _region == '18'
-    k += '8'
-  Endif
-  Do Case
-  Case k == '_okator'
-    r_use( dir_exe() + '_okator', { cur_dir() + '_okatr', cur_dir() + '_okatrn' }, 'REGION' )
-  Case k == '_okatoo'
-    r_use( dir_exe() + '_okatoo', { cur_dir() + '_okato', cur_dir() + '_okaton' }, 'OBLAST' )
-  Case k == '_okatos'
-    r_use( dir_exe() + '_okatos', { cur_dir() + '_okats', cur_dir() + '_okatsn' }, 'SELO' )
-  Case k == '_okatoo8'
-    r_use( dir_exe() + '_okatoo8', { cur_dir() + '_okato8', cur_dir() + '_okaton8' }, 'OBLAST' )
-  Case k == '_okatos8'
-    r_use( dir_exe() + '_okatos8', { cur_dir() + '_okats8', cur_dir() + '_okatsn8' }, 'SELO' )
-  Endcase
-  Return Nil
-
 // ввод адреса по ОКАТО в GET'е
 Function get_okato_ulica( kod11, r, c, mas_adr )
 
   Local ret, buf, tmp_help := chm_help_code, tmp_keys
+  local tmp_select, pDb
 
   Private madrs := Space( 120 ), m1adrs := Space( 11 ), madrs1 := Space( 120 ), ;
     mulicadom
+
+  tmp_select := Select()
+
+#if defined( __HBSCRIPT__HBSHELL )
+   rddRegister( 'SQLBASE' )
+   rddRegister( 'SQLMIX' )
+   hb_SDDSQLITE3_Register()
+#endif
+
+  rddSetDefault( 'SQLMIX' )
+  pDb := rddInfo( RDDI_CONNECT, { 'SQLITE3', dir_exe() + FILE_NAME_SQL } )
+
+//  dbUseArea( .T., , 'select * from f037 where mcod==' + glob_mo()[ _MO_KOD_FFOMS ], 'f037' )
 
   If ValType( mas_adr ) == 'A'
     m1adrs := kod11 // или mas_adr[1]
@@ -142,7 +88,45 @@ Function get_okato_ulica( kod11, r, c, mas_adr )
   If ret != NIL
     AAdd( ret, mulicadom ) // добавляем в возврат третим элементом улицу и дом
   Endif
+
+  rddSetDefault( 'DBFNTX' )
+  Select ( tmp_select )
+
   Return ret
+
+//
+Static Function oktadusebase( k, _region )
+
+  local tmp_select, pDb
+
+  k := Lower( k )
+  If _region != Nil .and. _region == '18'
+    k += '8'
+  Endif
+
+#if defined( __HBSCRIPT__HBSHELL )
+   rddRegister( 'SQLBASE' )
+   rddRegister( 'SQLMIX' )
+   hb_SDDSQLITE3_Register()
+#endif
+
+  rddSetDefault( 'SQLMIX' )
+  pDb := rddInfo( RDDI_CONNECT, { 'SQLITE3', dir_exe() + FILE_NAME_SQL } )
+
+  Do Case
+  Case k == '_okator'
+//    r_use( dir_exe() + '_okator', { cur_dir() + '_okatr', cur_dir() + '_okatrn' }, 'REGION' )
+    dbUseArea( .T., , 'select * from okator', 'REGION' )
+  Case k == '_okatoo'
+    r_use( dir_exe() + '_okatoo', { cur_dir() + '_okato', cur_dir() + '_okaton' }, 'OBLAST' )
+  Case k == '_okatos'
+    r_use( dir_exe() + '_okatos', { cur_dir() + '_okats', cur_dir() + '_okatsn' }, 'SELO' )
+  Case k == '_okatoo8'
+    r_use( dir_exe() + '_okatoo8', { cur_dir() + '_okato8', cur_dir() + '_okaton8' }, 'OBLAST' )
+  Case k == '_okatos8'
+    r_use( dir_exe() + '_okatos8', { cur_dir() + '_okats8', cur_dir() + '_okatsn8' }, 'SELO' )
+  Endcase
+  Return Nil
 
 // 07.02.13 ф-ия get-а адреса
 Static Function oktadgetst( r, c )
@@ -150,6 +134,13 @@ Static Function oktadgetst( r, c )
   Local tmp_color, ret, s
 
   Private r1, c1, r2, c2
+  Private pr_adrs := m1adrs, ;
+    mregion := Space( 63 ), m1region := Space( 11 ), ;
+    moblast := Space( 50 ), m1oblast := Space( 11 ), ;
+    mnas_punkt := Space( 39 ), m1nas_punkt := Space( 11 ), ;
+    mstr_adrs := AllTrim( madrs )
+  Private blk_s_adrs := {|| DevPos( r2 -1, c1 + 1 ), ;
+    DevOut( PadC( AllTrim( mstr_adrs ), c2 - c1 -1 ), 'W+/W' ) }
 
   r1 := r + 1
   r2 := r1 + 7
@@ -161,13 +152,6 @@ Static Function oktadgetst( r, c )
   c2 := 77
   box_shadow( r1, c1, r2, c2, 'N+/W', 'Ввод адреса по ОКАТО', 'GR/W' )
   @ r2 -2, c1 Say '╟' + Replicate( '─', c2 - c1 -1 ) + '╢' Color 'N+/W'
-  Private pr_adrs := m1adrs, ;
-    mregion := Space( 63 ), m1region := Space( 11 ), ;
-    moblast := Space( 50 ), m1oblast := Space( 11 ), ;
-    mnas_punkt := Space( 39 ), m1nas_punkt := Space( 11 ), ;
-    mstr_adrs := AllTrim( madrs )
-  Private blk_s_adrs := {|| DevPos( r2 -1, c1 + 1 ), ;
-    DevOut( PadC( AllTrim( mstr_adrs ), c2 - c1 -1 ), 'W+/W' ) }
   If Empty( m1adrs )
     madrs1 := Space( 120 )
   Else  // т.е. редактирование
@@ -177,10 +161,12 @@ Static Function oktadgetst( r, c )
   Endif
   If !Empty( m1adrs )
     oktadusebase( '_okator' )
-    find ( m1region )
+//    find ( m1region )
+    region->( __dbLocate( 'okato==m1region') )
     mregion := PadR( region->name, 63 )
     region->( dbCloseArea() )
     //
+/*
     oktadusebase( '_okatoo' )
     find ( m1oblast )
     moblast := PadR( oblast->name, 50 )
@@ -190,6 +176,7 @@ Static Function oktadgetst( r, c )
     find ( m1nas_punkt )
     mnas_punkt := PadR( selo->name, 39 )
     selo->( dbCloseArea() )
+*/    
   Endif
   //
   Eval( blk_s_adrs )
@@ -199,6 +186,7 @@ Static Function oktadgetst( r, c )
     reader {| x| menu_reader( x, ;
     { {| k, r, c| get_region( k, r, c ) }, 63 }, A__FUNCTION, , , .f. ) } ;
     valid {| g, o| val_adgetst( g, o, 1 ) }
+/*
   @ r1 + 2, c1 + 3 Say 'Район области/Город' Get moblast ;
     reader {| x| menu_reader( x, ;
     { {| k, r, c| get_oblast( k, r, c ) }, 50 }, A__FUNCTION, , , .f. ) } ;
@@ -217,6 +205,7 @@ Static Function oktadgetst( r, c )
     Set Key K_F3 To v_vvod_adres
     s += ';  ^<F3>^ - выбор улицы'
   Endif
+*/
   status_key( s )
   myread()
   If mulicadom != NIL
@@ -568,7 +557,7 @@ Static Function oktadrets( kod11, is_region, open_base )
 Function ret_okato_ulica( _adres, _okato, _region, _par )
 
   Local s
-
+/*
   Default _par To 1
   _adres := AllTrim( CharOne( ' ', _adres ) )
   If _par == 1 // сначала улица
@@ -576,6 +565,7 @@ Function ret_okato_ulica( _adres, _okato, _region, _par )
   Else // в конце улица
     s := oktadrets( _okato, _region ) + iif( Empty( _adres ), '', ' ' + _adres )
   Endif
+*/
   Return iif( Empty( s ), Space( 10 ), s )
 
 // вернуть адрес в массиве
@@ -633,3 +623,56 @@ Function ret_okato_array( kod11, open_base )
     Endif
   Endif
   Return arr_okato
+
+// 11.06.26 переиндексировать все файлы адресного реестра ОКАТО
+Function okato_index( flag )
+
+  Local i
+  Local fl_index := .f.
+  local ;
+    arr_f  := { '_okator', '_okatoo', '_okatos', '_okatoo8', '_okatos8' }, ;
+    arr_i1 := { '_okatr', '_okato', '_okats', '_okato8', '_okats8' }, ;
+    arr_i2 := { '_okatrn', '_okaton', '_okatsn', '_okaton8', '_okatsn8' }
+
+  Default flag To .f.
+
+  For i := 1 To Len( arr_f )
+    If files_time( dir_exe() + arr_f[ i ] + sdbf(), cur_dir() + arr_i1[ i ] + sntx() ) .or. ;
+        files_time( dir_exe() + arr_f[ i ] + sdbf(), cur_dir() + arr_i2[ i ] + sntx() )
+      fl_index := .t.
+      Exit
+    Endif
+  Next
+  
+  fl_index := .t.
+  If flag .or. fl_index
+    For i := 1 To Len( arr_f )
+      r_use( dir_exe() + arr_f[ i ] )
+      oktadindbase( arr_f[ i ] )
+      Use
+    Next
+  Endif
+  Return Nil
+
+//
+Static Function oktadindbase( k )
+
+  k := Lower( k )
+  Do Case
+  Case k == '_okator'
+    Index On FIELD->okato to ( cur_dir() + '_okatr' ) progress
+    Index On FIELD->okato + Upper( SubStr( FIELD->name, 1, 30 ) ) to ( cur_dir() + '_okatrn' ) progress
+  Case k == '_okatoo'
+    Index On FIELD->okato to ( cur_dir() + '_okato' ) progress
+    Index On SubStr( FIELD->okato, 1, 5 ) + Upper( SubStr( FIELD->name, 1, 30 ) ) to ( cur_dir() + '_okaton' ) progress
+  Case k == '_okatos'
+    Index On FIELD->okato to ( cur_dir() + '_okats' ) progress
+    Index On SubStr( FIELD->okato, 1, 8 ) + Upper( SubStr( FIELD->name, 1, 30 ) ) to ( cur_dir() + '_okatsn' ) progress
+  Case k == '_okatoo8'
+    Index On FIELD->okato to ( cur_dir() + '_okato8' ) progress
+    Index On SubStr( FIELD->okato, 1, 5 ) + Upper( SubStr( FIELD->name, 1, 30 ) ) to ( cur_dir() + '_okaton8' ) progress
+  Case k == '_okatos8'
+    Index On FIELD->okato to ( cur_dir() + '_okats8' ) progress
+    Index On SubStr( FIELD->okato, 1, 8 ) + Upper( SubStr( FIELD->name, 1, 30 ) ) to ( cur_dir() + '_okatsn8' ) progress
+  Endcase
+  Return Nil
