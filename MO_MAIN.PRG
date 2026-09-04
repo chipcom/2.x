@@ -593,11 +593,13 @@ Function app_finish()
   Quit
   Return Nil
 
-// 05.06.25
+// 04.08.26
 Function f_end( yes_copy )
 
   Static group_ini := 'RAB_MESTO'
   Local i, spath := '', bSaveHandler := ErrorBlock( {| x| Break( x ) } )
+
+  rddSetDefault( 'DBFNTX' )
 
   Begin Sequence
     write_rest_pp() // записать незаписанные истории болезней из приёмного покоя
