@@ -91,7 +91,8 @@ Function viewf032()
   rddSetDefault( 'SQLMIX' )
   pDb := rddInfo( RDDI_CONNECT, { 'SQLITE3', dir_exe() + FILE_NAME_SQL } )
 
-  dbUseArea( .T., , 'select mcod, namemok, namemop, address, region from f032 where region==' + selectedRegion, 'f032' )
+  dbUseArea( .T., , "select mcod, namemok, namemop, address, region from f032 where region LIKE '" + selectedRegion + "'", 'f032' )
+//  dbUseArea( .T., , 'select mcod, namemok, namemop, address, region from f032 where region==' + selectedRegion, 'f032' )
   f032->( dbGoTop() )
 
   oBox:Caption := 'Выбор направившей организации'
