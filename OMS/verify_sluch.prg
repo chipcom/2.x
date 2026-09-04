@@ -24,7 +24,7 @@
 #define USL_SVIDPOM  14   // виды оказываемой медицинской помощи
 #define USL_ZAK_SL   15   // признак оплаты по законченному случаю
 
-// 03.09.26 
+// 04.09.26 
 Function verify_sluch( fl_view, ft )
 
   Local arrUslugi := {} // массив содержаший коды услуг в случае 
@@ -1182,7 +1182,8 @@ Function verify_sluch( fl_view, ft )
           kol_2_4++
 //        Elseif eq_any( alltrim_lshifr, '2.92.1', '2.92.2', '2.92.3' ) .or. ;
 //          eq_any( alltrim_lshifr, '2.92.4', '2.92.5', '2.92.6', '2.92.7', '2.92.8', '2.92.9', '2.92.10', '2.92.11', '2.92.12', '2.92.13' )
-        elseif eq_any( alltrim_lshifr, '60.17.1', '60.17.2', '60.17.100' ) // дистанционное наблюдение
+        elseif is_usluga_dist_nabl( alltrim_lshifr, mk_data ) // дистанционное наблюдение
+//        elseif eq_any( alltrim_lshifr, '60.17.1', '60.17.2', '60.17.100' ) // дистанционное наблюдение
           kol_60_17_100 += iif( alltrim_lshifr == '60.17.100', 1, 0 )
           if alltrim_lshifr == '60.17.1'
             is_60_17_1 := .t.
@@ -2845,8 +2846,9 @@ Function verify_sluch( fl_view, ft )
                 .and. !( Left( lshifr, 5 ) == '60.3.' ) ;
                 .and. !( Left( lshifr, 6 ) == '60.10.' ) ;
                 .and. is_2_stomat( lshifr, , .t. ) == 0 ;// не стоматология
-                .and. ( lshifr != '60.17.100' ) .and. ( lshifr != '60.17.1' ) .and. ( lshifr != '60.17.2' ) ;// не дистанционное наблюдение
+                .and. ( ! is_usluga_dist_nabl( lshifr, mk_data ) ) ;// не дистанционное наблюдение
                 .and. ( ascan( aSchoolXNIZ, lshifr ) == 0 )   // школы ХНИЗ
+//                .and. ( lshifr != '60.17.100' ) .and. ( lshifr != '60.17.1' ) .and. ( lshifr != '60.17.2' ) ;// не дистанционное наблюдение
 //                .and. ( lshifr != '2.93.2' ) .and. ( lshifr != '2.92.18' )   // школа ХНИЗ грудное вскармливание
               otd->( dbGoto( u_other[ i, 8 ] ) )
               AAdd( ta, 'услуга ' + AllTrim( usl->shifr ) + ' от ' + date_8( mdate ) + ' в случае ' + ;
@@ -2905,7 +2907,8 @@ Function verify_sluch( fl_view, ft )
     .and. Len( a_period_amb ) > 0
     For i := 1 To Len( a_period_amb )
       If a_period_amb[ i, 3 ] == human_->profil .and. ! ( eq_any( human_->profil, 122, 21, 97, 11, 29, 17, 53, 56, 68, 75, 4, 100 ) ) ;// кроме эндокринологии 
-          .and. ! ( a_period_amb[ i, 6 ] .or. is_2_92_ .or. is_2_81_69 )  // школы ХНИЗ исключаем и телемедицина врач-врач
+          .and. ! ( a_period_amb[ i, 6 ] .or. is_2_92_ .or. is_2_81_69 ) ;  // школы ХНИЗ исключаем и телемедицина врач-врач
+          .and. ! ( a_period_amb[ i, 6 ] .or. is_60_17_1 .or. is_60_17_2 .or. ( kol_60_17_100 > 0 ) )  // дистанционное наблюдение
         AAdd( ta, 'данный случай пересекается со случаем амбулаторного лечения' )
         otd->( dbGoto( a_period_amb[ i, 4 ] ) )
         AAdd( ta, '└>с тем же профилем ' + ;
