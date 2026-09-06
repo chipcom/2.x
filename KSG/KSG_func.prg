@@ -2,13 +2,54 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 02.05.26
+// 05.09.26
+function arr_diag_sepsis( mdate )
+
+  local arr
+  local md := mdate
+
+  arr := { 'A02.1', 'A32.7', 'A39.1', 'A39.2', 'A39.4', 'A40.0', 'A40.1', 'A40.2', 'A40.3', 'A40.8', 'A40.9', ;
+    'A41.0', 'A41.1', 'A41.2', 'A41.3', 'A41.4', 'A41.5', 'A41.8', 'A41.9', 'A42.3', 'A48.3', 'B00.7', 'B37.7', ;
+    'B44.0', 'B44.7', 'B45.0', 'B45.1', 'B45.7', 'B48.5', 'R57.2' }
+
+  return arr
+
+// 05.09.26
+function is_diag_sepsis( diag, mdate )
+
+  local lRet := .f.
+  local aSepsis
+
+  default mdate to Date()
+  aSepsis := arr_diag_sepsis( mdate )
+  lRet := ( AScan( aSepsis, diag ) > 0 )
+
+  return lRet
+
+// 06.09.26
+function sepsis_exists_in_array( aDiag, mdate, /*@*/diag )
+
+  local i, lRet := .f.
+
+  default mdate to Date()
+  default diag to ''
+
+  for i := 1 to len( aDiag )
+    if is_diag_sepsis( aDiag[ i ], mdate )
+      diag := aDiag[ i ]
+      lRet := .t.
+    endif
+  next
+
+  return lRet
+
+// 04.09.26
 function add_KSG_table( arr_KSG, mdate, lal, osn_diag, j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
 
   local n_cena_oms, prioritet := 0
   local vkiro, akiro := {}
   local diag3, diag5
-
+ 
   osn_diag := AllTrim( osn_diag )
   diag3 := substr( osn_diag, 1, 3 )
   diag5 := substr( osn_diag, 1, 5 )
@@ -20,7 +61,8 @@ function add_KSG_table( arr_KSG, mdate, lal, osn_diag, j, sds1, sds2, lvr, ldnej
   if substr( k006->los, 1, 1 ) == '1' .and. eq_any( Lower( AllTrim( k006->shifr ) ), 'st25.004', 'ds25.001' )
     prioritet := 1
   endif
-  if ( diag3 == 'L26' .or. eq_any( diag5, 'L08.0', 'L27.0', 'L27.2' ) ) .and. lvr == 1
+
+  if ( diag3 == 'L26' .or. eq_any( diag5, 'L08.0', 'L27.0', 'L27.2' ) ) .and. k006->age == '1'  // lvr == 1
     prioritet := 1
   endif
   if ( diag5 == 'C84.0' ) .and. ;

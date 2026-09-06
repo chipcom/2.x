@@ -5,9 +5,10 @@
 
 function test_init()
 
-//  local aaa
+//  local aaa, diag := ''
+//  local adiag := { 'M01.1', '', '', '', 'A39.1' }
 
-//  aaa := glob_MGI()
+//  aaa := sepsis_exists_in_array( aDiag, , @diag )
 //  altd()
 
   return nil
