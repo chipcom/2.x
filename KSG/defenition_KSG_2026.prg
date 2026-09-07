@@ -88,7 +88,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
       AAdd( osl_diag, human_2->OSL3 )
     Endif
     // проверка сепсиса
-    if ( lSepsis := sepsis_exists_in_array( mdiagnoz, lk_data, @diag_sepsis ) )
+    if ! ( lSepsis := sepsis_exists_in_array( mdiagnoz, lk_data, @diag_sepsis ) )
       lSepsis := sepsis_exists_in_array( osl_diag, lk_data, @diag_sepsis )
     endif
 
@@ -535,7 +535,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
     Enddo
 
 
-    if lSepsis
+    if lSepsis  // 5.5. Особенности формирования КСГ для оплаты случаев лечения сепсиса
       k006->( dbSeek( typeKSG + PadR( diag_sepsis, 6 ) ) )
       Do While Left( k006->shifr, 2 ) == typeKSG .and. k006->ds == PadR( diag_sepsis, 6 ) .and. ! k006->( Eof() )
         lkoef := k006->kz
@@ -565,7 +565,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
         If fl .and. !Empty( k006->los )
           fl := AScan( llos, AllTrim( k006->los ) ) > 0  // (k006->los $ llos)
         Endif
-/*
+//
         If fl
           If Empty( lad_cr ) // в случае нет доп.критерия
             If !Empty( k006->ad_cr ) // а в справочнике есть доп.критерий
@@ -592,7 +592,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
             Endif
           Endif
         Endif
-*/        
+//        
         //
         If fl .and. !Empty( sds1 )
           fl := .f.

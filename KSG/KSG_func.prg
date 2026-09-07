@@ -30,13 +30,15 @@ function is_diag_sepsis( diag, mdate )
 function sepsis_exists_in_array( aDiag, mdate, /*@*/diag )
 
   local i, lRet := .f.
+  local cDiag
 
   default mdate to Date()
   default diag to ''
 
   for i := 1 to len( aDiag )
-    if is_diag_sepsis( aDiag[ i ], mdate )
-      diag := aDiag[ i ]
+    cDiag := AllTrim( aDiag[ i ] )
+    if is_diag_sepsis( cDiag, mdate )
+      diag := cDiag
       lRet := .t.
     endif
   next
