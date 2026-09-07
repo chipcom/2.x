@@ -32,24 +32,46 @@ function check_condition_npr_num( mUsl_ok, mfor_pom )
   return ( mUsl_ok == USL_OK_DAY_HOSPITAL ) .or. ;
     ( mfor_pom == 3 .and. mUsl_ok == USL_OK_HOSPITAL )  // 1
 
-// 11.03.26
-function arr_schol_xniz( mdate )
+// 03.09.26
+function arr_school_xniz( mdate )
 
   local arr := { '2.92.1', '2.92.2', '2.92.3', '2.92.4', '2.92.5', ;
     '2.92.6', '2.92.7', '2.92.8', '2.92.9', '2.92.10', '2.92.11', ;
-    '2.92.12', '2.92.13', '2.92.14', '2.92.15', '2.92.16', '2.92.17', '2.92.18' }
+    '2.92.12', '2.92.13', '2.92.14', '2.92.15', '2.92.16', '2.92.17', '2.92.18', ;
+    '2.93.1', '2.93.2' }
 
   if mdate >= 0d20260101
-    hb_ADel( arr, 7, .t. )
+    hb_ADel( arr, 7, .t. ) // удалим школу ХНИЗ с врожднггыми пороками сердца 2.92.7
   endif
 
   return arr
 
-// 11.03.26
+// 04.09.26
+function arr_dist_nabl( mdate )
+
+  local arr := { '60.17.1', '60.17.2', '60.17.100' }
+  local md := mdate
+
+  return arr
+
+// 04.09.26
+function is_usluga_dist_nabl( shifr, mdate )
+
+  local lRet := .f.
+  local aDist_nabl := arr_dist_nabl( mdate )
+
+  shifr := AllTrim( shifr )
+  if AScan( aDist_nabl, shifr ) > 0
+    lRet := .t.
+  endif
+
+  return lRet
+
+// 03.09.26
 // удаление 3-х первых услуг ( 2.92.1, 2.92.2, 2.92.3 )
 function cut_arr_schol_xniz( mdate )
 
-  local arr := arr_schol_xniz( mdate )
+  local arr := arr_school_xniz( mdate )
 
   hb_ADel( arr, 1, .t. )
   hb_ADel( arr, 1, .t. )

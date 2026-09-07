@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 30.06.26
+// 24.08.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -456,7 +456,8 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       Else
         mo_add_xml_stroke( oSL, 'DS_ONK', '0' )
       Endif
-      If human_->USL_OK == USL_OK_POLYCLINIC .and. human_->povod == 4 // Обязательно, если P_CEL=1.3
+//      If human_->USL_OK == USL_OK_POLYCLINIC .and. human_->povod == 4 // Обязательно, если P_CEL=1.3
+      If human_->USL_OK == USL_OK_POLYCLINIC .and. AllTrim( human_->p_cel ) == '1.3' // Обязательно, если P_CEL=1.3
         s := 1 // состоит
         If adiag_talon[ 1 ] == 2 // ранее
           If adiag_talon[ 2 ] == 1

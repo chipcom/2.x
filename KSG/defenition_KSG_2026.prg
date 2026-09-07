@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 02.08.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
+// 07.09.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
 Function defenition_ksg( par, k_data2, lDoubleSluch )
 
   // файлы 'human', 'human_' и 'human_2' открыты и стоят на нужной записи
@@ -14,13 +14,13 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
   Static ver_year := 0 // последний проверяемый год
   Static sp0, sp1, sp6, sp15
 
-  Local mdiagnoz, aHirKSG := {}, aTerKSG := {}, fl_cena := .f., lvmp, lvidvmp := 0, lstentvmp := 0, ;
-    strSoob, ar1, fl, im, lshifr, ln_data, lk_data, lvr, ldni, ldate_r, lpol, lprofil_k, ;
-    lfio, cenaTer := 0, cenaHir := 0, ars := {}, arerr := {}, ;
+  Local mdiagnoz, lvmp, lvidvmp := 0, ;
+    strSoob, fl, im, lshifr, ln_data, lk_data, lvr, ldni, ldate_r, lpol, lprofil_k, ;
+    lfio, ars := {}, arerr := {}, ;
     lksg := '', lcena := 0, lprofil, ldnej := 0, y := 0, m := 0, d := 0, ;
-    osn_diag := Space( 6 ), sop_diag := {}, osl_diag := {}, tmp, lrslt, akslp, akiro, ;
+    osn_diag := Space( 6 ), sop_diag := {}, osl_diag := {}, lrslt, akslp, akiro, ;
     lad_cr := '', lad_cr1 := '', lis_err := 0, lpar_org := 0, lyear, ;
-    kol_ter := 0, kol_hir := 0, lkoef, fl_reabil, lkiro := 0, lkslp := '', lbartell := '', ;
+    lkoef, fl_reabil, lkiro := 0, lkslp := '', lbartell := '', ;
     s_dializ := 0, ahu := {}, amohu := {}, nfile, ;
     date_usl := SToD( '20210101' )
   local typeKSG  // тип КСГ ( st или ds )
@@ -40,10 +40,13 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
 	local color_say := 'N/W', color_get := 'W/N*'
   local two_letters
   local ltype_ksg := 0
+  local lSepsis := .f., diag_sepsis := ''
+
+//  local fl_cena := .f., lstentvmp := 0, ar1, cenaTer := 0, cenaHir := 0, tmp, kol_ter := 0, kol_hir := 0, 
 
   Default par To 1, sp0 To '', sp1 To Space( 1 ), sp6 To Space( 6 ), sp15 To Space( 20 )
   Default lDoubleSluch To .f.
-  Private pole
+//  Private pole
 
   If par == 1
     uch->( dbGoto( human->LPU ) )
@@ -84,6 +87,10 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
     If !Empty( human_2->OSL3 )
       AAdd( osl_diag, human_2->OSL3 )
     Endif
+    // проверка сепсиса
+    if ! ( lSepsis := sepsis_exists_in_array( mdiagnoz, lk_data, @diag_sepsis ) )
+      lSepsis := sepsis_exists_in_array( osl_diag, lk_data, @diag_sepsis )
+    endif
 
     If uslOkaz < 3 .and. lVMP == 0 .and. f_is_oncology( 1 ) == 2 .and. Empty( lad_cr )
       If Select( 'ONKSL' ) == 0
@@ -340,7 +347,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
 
   // собираем КСГ по осн.диагнозу (терапевтические и комбинированные)
   ar_ksg := {}
-  tmp := {}
+//  tmp := {}
   Select K006
 
   If lprofil == 137   // ЭКО
@@ -472,6 +479,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
         If fl .and. !Empty( k006->los )
           fl := AScan( llos, AllTrim( k006->los ) ) > 0  // (k006->los $ llos)
         Endif
+/*
         If fl
           If Empty( lad_cr ) // в случае нет доп.критерия
             If !Empty( k006->ad_cr ) // а в справочнике есть доп.критерий
@@ -498,6 +506,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
             Endif
           Endif
         Endif
+*/        
         //
         If fl .and. !Empty( sds1 )
           fl := .f.
@@ -524,9 +533,96 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
       Select K006
       k006->( dbSkip() )
     Enddo
+
+
+    if lSepsis  // 5.5. Особенности формирования КСГ для оплаты случаев лечения сепсиса
+      k006->( dbSeek( typeKSG + PadR( diag_sepsis, 6 ) ) )
+      Do While Left( k006->shifr, 2 ) == typeKSG .and. k006->ds == PadR( diag_sepsis, 6 ) .and. ! k006->( Eof() )
+        lkoef := k006->kz
+        dbSelectArea( lal )
+        find ( PadR( k006->shifr, 10 ) )
+        fl := lkoef > 0 .and. between_date( &lal.->DATEBEG, &lal.->DATEEND, date_usl )
+        If fl
+          fl := between_date( k006->DATEBEG, k006->DATEEND, date_usl )
+        Endif
+        If fl
+          sds1 := iif( Empty( k006->ds1 ), sp0, AllTrim( k006->ds1 ) + sp6 ) // соп.диагноз
+          sds2 := iif( Empty( k006->ds2 ), sp0, AllTrim( k006->ds2 ) + sp6 ) // диагн.осложнения
+        Endif
+
+        If fl .and. !Empty( k006->sy )
+          If ( i := AScan( amohu, k006->sy ) ) == 0
+            fl := .f.
+          Endif
+        endif
+
+        If fl .and. !Empty( k006->age )
+          fl := ( k006->age $ lage )
+        Endif
+        If fl .and. !Empty( k006->sex )
+          fl := ( k006->sex == lsex )
+        Endif
+        If fl .and. !Empty( k006->los )
+          fl := AScan( llos, AllTrim( k006->los ) ) > 0  // (k006->los $ llos)
+        Endif
+//
+        If fl
+          If Empty( lad_cr ) // в случае нет доп.критерия
+            If !Empty( k006->ad_cr ) // а в справочнике есть доп.критерий
+              fl := .f.
+            Endif
+          Else // в случае есть доп.критерий
+            If Empty( k006->ad_cr ) // а в справочнике нет доп.критерия
+              fl := .f.
+            Else                  // а в справочнике есть доп.критерий
+              fl := ( AllTrim( lad_cr ) == AllTrim( k006->ad_cr ) )
+            Endif
+          Endif
+        Endif
+        If fl
+          If Empty( lad_cr1 ) // в случае нет доп.критерия2
+            If !Empty( k006->ad_cr1 ) // а в справочнике есть доп.критерий2
+              fl := .f.
+            Endif
+          Else // в случае есть доп.критерий2
+            If Empty( k006->ad_cr1 ) // а в справочнике нет доп.критерия2
+              fl := .f.
+            Else                  // а в справочнике есть доп.критерий2
+              fl := ( lad_cr1 == AllTrim( k006->ad_cr1 ) )
+            Endif
+          Endif
+        Endif
+//        
+        //
+        If fl .and. !Empty( sds1 )
+          fl := .f.
+          For i := 1 To Len( sop_diag )
+            If AllTrim( sop_diag[ i ] ) $ sds1
+              fl := .t.
+              Exit
+            Endif
+          Next
+        Endif
+        If fl .and. !Empty( sds2 )
+          fl := .f.
+          For i := 1 To Len( osl_diag )
+            If AllTrim( osl_diag[ i ] ) $ sds2
+              fl := .t.
+              Exit
+            Endif
+          Next
+        Endif
+        //
+        If fl
+          add_KSG_table( ar_ksg, lk_data, lal, diag_sepsis, j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
+        Endif
+        Select K006
+        k006->( dbSkip() )
+      Enddo
+    endif
   Endif
 
-  ar1 := {}
+//  ar1 := {}
   If uslOkaz == USL_OK_DAY_HOSPITAL .and. !Empty( lad_cr ) .and. lad_cr == 'mgi'
     Select K006
     Locate For k006->ad_cr == PadR( 'mgi', 20 )
@@ -721,7 +817,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
     lksg := ''
   Endif
   If !Empty( lksg )
-    strSoob := ' РЕЗУЛЬТАТ: выбрана КСГ = ' + lksg
+    strSoob := ' РЕЗУЛЬТАТ: выбрана КСГ = ' + AllTrim( lksg )
     If Empty( lcena )
       strSoob += ', но не определена цена в справочнике ТФОМС'
       AAdd( arerr, strSoob )
@@ -731,7 +827,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
         vkiro := defenition_kiro( lk_data, lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch )
         If ( vkiro > 0 .and. lk_data < 0d20260101 ) .or. ( lk_data >= 0d20260101 )
           cena_with_kiro( lcena, vkiro, lk_data, lrslt, ltype_ksg, akiro )
-          strSoob += '  (КИРО = ' + Str( akiro[ 2 ], 4, 2 ) + ', цена ' + lstr( lcena, 11, 0 ) + 'р.)'
+          strSoob += ' (КИРО = ' + Str( akiro[ 2 ], 4, 2 ) + ', цена ' + lstr( lcena, 11, 0 ) + 'р.)'
         Endif
       Endif
 
