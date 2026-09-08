@@ -24,7 +24,7 @@
 #define USL_SVIDPOM  14   // виды оказываемой медицинской помощи
 #define USL_ZAK_SL   15   // признак оплаты по законченному случаю
 
-// 04.09.26 
+// 08.09.26 
 Function verify_sluch( fl_view, ft )
 
   Local arrUslugi := {} // массив содержаший коды услуг в случае 
@@ -2825,6 +2825,7 @@ Function verify_sluch( fl_view, ft )
     Endif
   Endif
   If Len( a_period_stac ) > 0
+    u_other := {}
     Select HU
     find ( Str( human->kod, 7 ) )
     Do While hu->kod == human->kod .and. !hu->( Eof() )
