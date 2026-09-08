@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 07.09.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
+// 08.09.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
 Function defenition_ksg( par, k_data2, lDoubleSluch )
 
   // файлы 'human', 'human_' и 'human_2' открыты и стоят на нужной записи
@@ -479,7 +479,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
         If fl .and. !Empty( k006->los )
           fl := AScan( llos, AllTrim( k006->los ) ) > 0  // (k006->los $ llos)
         Endif
-/*
+
         If fl
           If Empty( lad_cr ) // в случае нет доп.критерия
             If !Empty( k006->ad_cr ) // а в справочнике есть доп.критерий
@@ -506,7 +506,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
             Endif
           Endif
         Endif
-*/        
+        
         //
         If fl .and. !Empty( sds1 )
           fl := .f.
