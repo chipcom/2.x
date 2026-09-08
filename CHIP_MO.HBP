@@ -108,7 +108,9 @@ mo_version.prg
 .\FNS\page1.prg
 .\FNS\page2.prg
 
-.\REF\gis_oms.prg
+.\gis_oms\gis_oms.prg
+.\gis_oms\gis_oms_func.prg
+
 .\REF\initSpravFFOMS.prg
 .\REF\dbAdditionalCriteria.prg
 .\REF\dbO001.prg
@@ -131,8 +133,7 @@ mo_version.prg
 .\REF\dbMinzdravRF.prg
 
 .\KSG\KSG_func.prg
-#.\KSG\defenition_KSG.prg
-.\KSG\defenition_KSG_2026.prg
+.\KSG\defenition_KSG.prg
 .\KSG\defenition_KIRO.prg
 .\KSG\defenition_KSLP.prg
 .\KSG\f_usl_definition_KSG.prg

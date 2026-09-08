@@ -715,7 +715,7 @@ Function update_v60202()     // Заполним информацию о профиле МЗ РФ
     mohu->( dbSkip() )
   enddo
 
-  r_use( dir_exe() + '_mo_f033', , 'F033' )
+//  r_use( dir_exe() + '_mo_f033', , 'F033' )
 
   g_use( dir_server() + 'mo_otd', , 'OTD', , .t., .f. )
   otd->( dbGoTop() )
