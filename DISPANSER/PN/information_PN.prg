@@ -225,44 +225,34 @@ Function f4_inf_dnl_karta( par, _etap )
   ar := np_arr_1_etap( mk_data )[ mperiod ]
   If par == 1
     If iif( _etap == nil, .t., _etap == 1 )
-//      For i := 1 To count_pn_arr_osm - 1
       For i := 1 To Len( arr_PN_osmotr ) - 1
         mvart := 'MTAB_NOMov' + lstr( i )
         mvard := 'MDATEo' + lstr( i )
         fl := .t.
-//        If fl .and. !Empty( np_arr_osmotr[ i, 2 ] )
-//          fl := ( mpol == np_arr_osmotr[ i, 2 ] )
         If fl .and. !Empty( arr_PN_osmotr[ i, 2 ] )
           fl := ( mpol == arr_PN_osmotr[ i, 2 ] )
         Endif
         If fl
-//          fl := ( !Empty( ar[ 4 ] ) .and. AScan( ar[ 4 ], np_arr_osmotr[ i, 1 ] ) > 0 )
           fl := ( !Empty( ar[ 4 ] ) .and. AScan( ar[ 4 ], arr_PN_osmotr[ i, 1 ] ) > 0 )
         Endif
         If fl .and. !emptyany( &mvard, &mvart )
-//          AAdd( arr, { np_arr_osmotr[ i, 3 ], &mvard, '', i, f5_inf_dnl_karta( i ) } )
           AAdd( arr, { arr_PN_osmotr[ i, 3 ], &mvard, '', i, f5_inf_dnl_karta( i ) } )
         Endif
       Next
     Endif
     AAdd( arr, { 'педиатр (врач общей практики)', MDATEp1, '', -1, 1 } )
     If metap == 2 .and. iif( _etap == nil, .t., _etap == 2 )
-//      For i := 1 To count_pn_arr_osm -1
       For i := 1 To Len( arr_PN_osmotr )
         mvart := 'MTAB_NOMov' + lstr( i )
         mvard := 'MDATEo' + lstr( i )
         fl := .t.
-//        If fl .and. !Empty( np_arr_osmotr[ i, 2 ] )
-//          fl := ( mpol == np_arr_osmotr[ i, 2 ] )
         If fl .and. !Empty( arr_PN_osmotr[ i, 2 ] )
           fl := ( mpol == arr_PN_osmotr[ i, 2 ] )
         Endif
         If fl
-//          fl := ( AScan( ar[ 4 ], np_arr_osmotr[ i, 1 ] ) == 0 )
           fl := ( AScan( ar[ 4 ], arr_PN_osmotr[ i, 1 ] ) == 0 )
         Endif
         If fl .and. !emptyany( &mvard, &mvart )
-//          AAdd( arr, { np_arr_osmotr[ i, 3 ], &mvard, '', i, f5_inf_dnl_karta( i ) } )
           AAdd( arr, { arr_PN_osmotr[ i, 3 ], &mvard, '', i, f5_inf_dnl_karta( i ) } )
         Endif
       Next
@@ -327,12 +317,9 @@ Function f4_inf_dnl_karta( par, _etap )
       Endif
     Next
     // добавим '2.4.2' 'скрининг на выявление психич.развития'
-//    i := count_pn_arr_osm  // последний элемент массива
     i := Len( arr_PN_osmotr )  // последний элемент массива
     mvart := 'MTAB_NOMov' + lstr( i )
     mvard := 'MDATEo' + lstr( i )
-//    If ( !Empty( ar[ 4 ] ) .and. AScan( ar[ 4 ], np_arr_osmotr[ i, 1 ] ) > 0 ) .and. !emptyany( &mvard, &mvart )
-//      AAdd( arr, { np_arr_osmotr[ i, 3 ], &mvard, '', i, 21 } )
     If ( !Empty( ar[ 4 ] ) .and. AScan( ar[ 4 ], arr_PN_osmotr[ i, 1 ] ) > 0 ) .and. !emptyany( &mvard, &mvart )
       AAdd( arr, { arr_PN_osmotr[ i, 3 ], &mvard, '', i, 21 } )
     Endif
@@ -443,26 +430,6 @@ Function f21_inf_dnl( par )
       dbCreate( cur_dir() + 'tmp1', adbf )
       Use ( cur_dir() + 'tmp1' ) new
       Index On Str( FIELD->mm, 2 ) to ( cur_dir() + 'tmp1' )
-/*
-      tmp1->( dbAppend() )  //  Append Blank
-      tmp1->mm := 0
-      tmp1->stroke := 'Всего'
-      tmp1->( dbAppend() )  //  Append Blank
-      tmp1->mm := 1
-      tmp1->stroke := '0-14 лет'
-      tmp1->( dbAppend() )  //  Append Blank
-      tmp1->mm := 2
-      tmp1->stroke := 'до 1 г.'
-      tmp1->( dbAppend() )  //  Append Blank
-      tmp1->mm := 3
-      tmp1->stroke := '15-17 л.'
-      tmp1->( dbAppend() )  //  Append Blank
-      tmp1->mm := 4
-      tmp1->stroke := '15-17 юн'
-      tmp1->( dbAppend() )  //  Append Blank
-      tmp1->mm := 5
-      tmp1->stroke := 'школьники'
-*/
       add_inf_dbf_dnl( 'tmp1', 0, 'Всего' )
       add_inf_dbf_dnl( 'tmp1', 1, '0-14 лет' )
       add_inf_dbf_dnl( 'tmp1', 2, 'до 1 г.' )
@@ -571,16 +538,6 @@ Function f21_inf_dnl( par )
       Enddo
       //
       verify_ff( HH -12, .t., sh )
-/*    arr_title := {;
-'────────┬───────────────────────────────────┬───────────────────────────────────', ;
-'        │      Юноши (15-17 лет)            │        Девушки (15-17 лет)        ', ;
-'        ├─────────────────┬─────┬─────┬─────┼─────────────────┬─────┬─────┬─────', ;
-'        │факт осмот.(чел.)│патол│ из  │напр.│факт осмот.(чел.)│патол│ из  │напр.', ;
-'        ├─────┬─────┬─────┤репр.│ гр.6│на II├─────┬─────┬─────┤репр.│ гр.6│на II', ;
-'        │всего│ село│андро│сист.│ село│этап │всего│ село│гинек│сист.│ село│этап ', ;
-'────────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────', ;
-'        │  3  │  4  │  5  │  6  │  7  │  8  │  3  │  4  │  5  │  6  │  7  │  8  ', ;
-'────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────'}*/
       arr_title := { ;
         '───────────────────────────────────────────────────────────────────────┬───────────────────────────────────────────────────────────────────────', ;
         '            Юноши (15-17 лет)                                          │                         Девушки (15-17 лет)                           ', ;
@@ -901,7 +858,6 @@ Function f1_f21_inf_dnl( Loc_kod, kod_kartotek ) // сводная информация
           Endif
           If hu_->PROFIL == 136
             arr[ 18 ] ++
-            // mydebug(,'2------------------------------------------')
           Endif
         Endif
       Endif
@@ -915,8 +871,6 @@ Function f1_f21_inf_dnl( Loc_kod, kod_kartotek ) // сводная информация
     arr[ 16 ] := 1
   Endif
   AAdd( a3, AClone( arr ) )
-  //
-  // aadd(arr,{'12.4.1',m1FIZ_RAZV1})  // 'N',физическое развитие 0-нормальное, с отклонениями: 1-дефицит массы тела, 2-избыток массы тела, 3-низкий рост, 4-высокий рост
   If m1fiz_razv1 == 1
     If fl_ves
       arr[ 22 ] ++
@@ -1306,9 +1260,6 @@ Function inf_dnl_030poo( is_schet )
       Next
       Use
       //
-      // verify_FF(HH-50, .t., sh)
-      // add_string('11. Результаты лечения, медицинской реабилитации и (или) санаторно-курортного')
-      // add_string('    лечения детей до проведения настоящего профилактического осмотра:')
       vkol := 0
       Use ( cur_dir() + 'tmp11' ) index ( cur_dir() + 'tmp11' ) New Alias TMP11
       For i := 1 To 0// 12
@@ -1527,7 +1478,7 @@ Function f2_inf_dnl_030poo( Loc_kod, kod_kartotek ) // сводная информация
   blk_tbl := {| _k| iif( _k < 2, 1, 2 ) }
   blk_tip := {| _k| iif( _k == 0, 2, iif( _k > 1, _k + 1, _k ) ) }
   blk_put_tip := {| _e, _k| iif( _k > _e, _k, _e ) }
-  Private metap := 1, mperiod := 0, mshifr_zs := '', m1lis := 0, ;
+  Private metap := 1, mperiod := 0, mshifr_zs := '', ;
     mkateg_uch, m1kateg_uch := 3, ; // Категория учета ребенка:
     mMO_PR := Space( 10 ), m1MO_PR := Space( 6 ), ; // код МО прикрепления
     mschool := Space( 10 ), m1school := 0, ; // код обр.учреждения
@@ -1580,7 +1531,8 @@ Function f2_inf_dnl_030poo( Loc_kod, kod_kartotek ) // сводная информация
   Private mprivivki1, m1privivki1 := 0, ;
     mprivivki2, m1privivki2 := 0, ;
     mprivivki3 := Space( 100 )
-  Private mvar, m1var, m1lis := 0
+  Private mvar, m1var
+  private m1lis := 0
   //
   For i := 1 To 5
     For k := 1 To 14
@@ -2536,7 +2488,6 @@ Function mnog_poisk_dnl()
         dvn->POLIS := LTrim( kart_->NPOLIS )
         dvn->KOD_SMO := kart_->smo
         dvn->SMO := smo_to_screen( 1 )
-//        dvn->SNILS := iif( Empty( kart->SNILS ), '', Transform( kart->SNILS, picture_pf ) )
         dvn->SNILS := iif( Empty( kart->SNILS ), '', Transform_SNILS( kart->SNILS ) )
         If !Empty( dvn->mo_pr := kart2->mo_pr )
           dvn->MONAME_PR := ret_mo( kart2->mo_pr )[ _MO_SHORT_NAME ]

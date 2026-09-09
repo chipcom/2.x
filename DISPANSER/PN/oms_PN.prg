@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 30.06.26 ПН - добавление или редактирование случая (листа учета)
+// 09.09.26 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -593,7 +593,6 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
             lshifr := AllTrim( ar[ 5 ] )
           Endif
           bukva := ar[ 10 ]
-//          If ( i := AScan( iif( bukva == 'i', np_arr_issled( mk_data ), np_arr_osmotr( mk_data, m1mobilbr ) ), {| x| ValType( x[ 1 ] ) == 'C' .and. x[ 1 ] == lshifr } ) ) > 0
           If ( i := AScan( iif( bukva == 'i', arr_pn_issled, np_arr_osmotr( mk_data, m1mobilbr ) ), {| x| ValType( x[ 1 ] ) == 'C' .and. x[ 1 ] == lshifr } ) ) > 0
             If ValType( ar[ 1 ] ) == 'N' .and. ar[ 1 ] > 0
               p2->( dbGoto( ar[ 1 ] ) )
@@ -819,16 +818,8 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       @ ++j, 1 To j, 78
       @ ++j, 1 Say 'Категория учета ребенка' Get mkateg_uch ;
         reader {| x| menu_reader( x, mm_kateg_uch(), A__MENUVERT, , , .f. ) }
+
       ++j
-/*
-      @ ++j, 1 Say 'Сроки профилактики' Get mn_data ;
-        valid {| g| f_k_data( g, 1 ), ;
-        iif( mvozrast < 18, nil, func_error( 4, 'Это взрослый пациент!' ) ), ;
-        msvozrast := PadR( count_ymd( mdate_r, mn_data ), 40 ), ;
-        .t. ;
-        }
-      @ Row(), Col() + 1 Say '-' Get mk_data valid {| g| f_k_data( g, 2 ) } 
-*/
       @ ++j, 1 Say 'Сроки профилактики' Get mn_data ;
         valid {| g| control_date_disp( g, 1, TIP_LU_PN, kod_kartotek ), ;
         iif( mvozrast < 18, nil, func_error( 4, 'Это взрослый пациент!' ) ), ;
@@ -903,7 +894,6 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
             mvard := 'MDATEi' + lstr( i )
             mvarr := 'MREZi' + lstr( i )
             mvaro := 'MOTKAZi' + lstr( i )
-//            mvarlis := 'MLIS' + lstr( i )
             If Empty( &mvard )
               &mvard := mn_data
             Endif
@@ -966,7 +956,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       Endif
       @ j, 51 Get MDATEp1
       status_key( '^<Esc>^ выход без записи ^<PgUp>^ на 1-ю страницу ^<PgDn>^ на 3-ю страницу' )
-    Elseif num_screen == 3
+    Elseif num_screen == 3 .and. mk_data < 0d20260901
       @ ++j, 1 Say 'Направлен на II этап ?' Get mstep2 ;
         reader {| x| menu_reader( x, mm_step2, A__MENUVERT, , , .f. ) }
       ar := np_arr_1_etap( mk_data, m1mobilbr )[ mperiod ]
@@ -1010,46 +1000,6 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       status_key( '^<Esc>^ выход без записи ^<PgUp>^ на 2-ю страницу ^<PgDn>^ на 4-ю страницу' )
     Elseif num_screen == 4
       j := input_psih_health( j, mdvozrast, mk_data )
-/*
-      @ ++j, 1 Say PadC( 'Оценка психического развития ' + iif( mdvozrast < 5, '(возраст развития):', '' ), 78, '_' )
-      If mdvozrast < 5 .and. mk_data < 0d20250901 // если меньше 5 лет и mk_data < 0d20250901
-        @ ++j, 1 Say 'познавательная функция' Get m1psih11 Pict '99'
-        @ ++j, 1 Say 'моторная функция      ' Get m1psih12 Pict '99'
-        @ --j, 30 Say 'эмоциональная и социальная    ' Get m1psih13 Pict '99'
-        @ ++j, 30 Say 'предречевое и речевое развитие' Get m1psih14 Pict '99'
-      elseif mdvozrast >= 5 .and. mk_data < 0d20250901
-        @ ++j, 1 Say 'психомоторная сфера' Get mpsih21 reader {| x| menu_reader( x, mm_psih2(), A__MENUVERT, , , .f. ) }
-        @ ++j, 1 Say 'интеллект          ' Get mpsih22 reader {| x| menu_reader( x, mm_psih2(), A__MENUVERT, , , .f. ) }
-        @ --j, 40 Say 'эмоц.вегетативная сфера' Get mpsih23 reader {| x| menu_reader( x, mm_psih2(), A__MENUVERT, , , .f. ) }
-        ++j
-      elseif mdvozrast < 5 .and. mk_data >= 0d20250901
-        @ ++j, 1 Say  'познавательная функция ' Get m1psih11 Pict '99'
-        @ j, 28 Say  'моторная функция ' Get m1psih12 Pict '99'
-        @ j, 50 Say 'речевое развитие    ' Get m1psih14 Pict '99'
-        @ ++j, 1 Say 'нар.когнитивные ф-ции ' Get mpsih24 reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
-        @ ++j, 1 Say  'эмоциональные нарушения' Get mpsih26 reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
-        @ --j, 40 Say 'нар. учебные навыки   ' Get mpsih25 reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
-        @ ++j, 40 Say 'предречевое развитие   ' Get mpsih27 reader {| x| menu_reader( x, mm_activ(), A__MENUVERT, , , .f. ) }
-
-        @ ++j, 1 Say 'понимание речи         ' Get mpsih28 reader {| x| menu_reader( x, mm_partial(), A__MENUVERT, , , .f. ) }
-        @ ++j, 1 Say 'активная речь          ' Get mpsih29 reader {| x| menu_reader( x, mm_used(), A__MENUVERT, , , .f. ) }
-        @ --j, 40 Say 'нар.коммуникатив. нав. ' Get mpsih30 reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
-        @ ++j, 40 Say 'сенсорное развитие    ' Get mpsih31 reader {| x| menu_reader( x, mm_sensor(), A__MENUVERT, , , .f. ) }
-
-      elseif mdvozrast >= 5 .and. mk_data >= 0d20250901
-        @ ++j, 1 Say 'внешний вид              ' Get mpsih32 reader {| x| menu_reader( x, mm_view_obraz(), A__MENUVERT, , , .f. ) }
-        @ j, 45 Say  'доступен к контакту' Get mpsih33 reader {| x| menu_reader( x, mm_contact(), A__MENUVERT, , , .f. ) }
-        @ ++j, 1 Say 'фон настроения           ' Get mpsih34 reader {| x| menu_reader( x, mm_nastroenie(), A__MENUVERT, , , .f. ) }
-        @ j, 45 Say  'обманы восприятия' Get mpsih35 reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
-        @ ++j, 1 Say 'интеллектуальная функция ' Get mpsih36 reader {| x| menu_reader( x, mm_intelect(), A__MENUVERT, , , .f. ) }
-        @ j, 45 Say  'нарушения когнитивных функций' Get mpsih37 reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
-        @ ++j, 1 Say 'нарушение учебных навыков' Get mpsih38 reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
-        @ j, 45 Say  'суицидальные наклонности' Get mpsih39 reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
-        @ ++j, 1 Say 'самоповреждения          ' Get mpsih40 reader {| x| menu_reader( x, mm_self_harm(), A__MENUVERT, , , .f. ) }
-        @ j, 45 Say  'социальная сфера' Get mpsih41 reader {| x| menu_reader( x, mm_socium(), A__MENUVERT, , , .f. ) }
-      Endif
-*/
-//      ++j
       If mpol == 'М'
         @ ++j, 1 Say 'Половая формула мальчика: P' Get m141p Pict '9'
         @ j, Col() Say ', Ax' Get m141ax Pict '9'
@@ -1270,12 +1220,6 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         Next
       Next
       @ ++j, 1 To j, 78
-//      If m1step2 == 2  // направлен и отказался от 2-го этапа
-//        @ ++j, 1 Say 'Признак подозрения на злокачественное новообразование' Get mDS_ONK ;
-//          reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
-//        @ ++j, 1 Say 'Направления при подозрении на ЗНО' Get mnapr_onk ;
-//          reader {| x| menu_reader( x, { {| k, r, c| fget_napr_zno( k, r, c ) } }, A__FUNCTION, , , .f. ) }   // when m1ds_onk == 0
-//      Endif
       dispans_napr( mk_data, @j, .f., , glob_otd[ 4 ] )  // вызов заполнения блока направлений
 
       @ ++j, 1 To j, 78
@@ -1452,7 +1396,6 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
           not_audio_s := .f.
         Endif
         If _fl_ .and. not_audio_s /*.and. np_arr_issled( mk_data )[i, 4] == 0 // не гормон*/
-//          m1var := 'm1lis' + lstr( i )
           If Empty( &mvard )
             fl := func_error( 4, 'Не введена дата иссл-ия "' + arr_pn_issled[ i, 3 ] + '"' )
           Elseif metap == 2 .and. &mvard > d12
@@ -1774,8 +1717,6 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       RestScreen( buf )
       message_save_LU()
       mywait( 'Ждите. Производится запись листа учёта...' )
-//      m1lis := 0
-//      arr_lis2 := {}
       arr_usl_dop := {}
       arr_usl_otkaz := {}
       // добавим педиатра I этапа
@@ -1837,7 +1778,6 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         m1prvs   := arr_osm2[ i, 2 ]
         m1assis  := arr_osm2[ i, 3 ]
         m1PROFIL := arr_osm2[ i, 4 ]
-        // MKOD_DIAG := padr(arr_osm2[i, 6], 6)
         For i := 1 To Len( arr_osm2 )
           If ValType( arr_osm2[ i, 5 ] ) == 'C'
             lshifr := AllTrim( arr_osm2[ i, 5 ] )

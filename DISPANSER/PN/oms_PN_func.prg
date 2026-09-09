@@ -90,14 +90,12 @@ Function add_pediatr_pn( _pv, _pa, _date, _diag, mpol, mdef_diagnoz, mobil )
   Default mobil To 0
 
   AFill( arr, 0 )
-  // Select P2
   p2->( dbSeek( Str( _pv, 5 ) ) )
   If p2->( Found() )
     arr[ 1 ] := p2->kod
     arr[ 2 ] := -ret_new_spec( p2->prvs, p2->prvs_new )
   Endif
   If !Empty( _pa )
-    // Select P2
     p2->( dbSeek( Str( _pa, 5 ) ) )
     If p2->( Found() )
       arr[ 3 ] := p2->kod
@@ -117,7 +115,6 @@ Function add_pediatr_pn( _pv, _pa, _date, _diag, mpol, mdef_diagnoz, mobil )
     arr[ 6 ] := mdef_diagnoz
   Else
     arr[ 6 ] := _diag
-    // Select MKB_10
     mkb_10->( dbSeek( PadR( arr[ 6 ], 6 ) ) )
     If mkb_10->( Found() ) .and. !Empty( mkb_10->pol ) .and. !( mkb_10->pol == mpol )
       func_error( 4, 'Несовместимость диагноза по полу ' + arr[ 6 ] )
@@ -159,7 +156,6 @@ Function ret_shifr_zs_pn( _period, mdata )
     Case _period == 2
       lshifr := '72.2.39' // 1 месяц
     Case _period == 3
-//      lshifr := iif( m1lis > 0, '72.2.41', '72.2.40' ) // 2 мес
       lshifr := '72.2.40' // 2 мес
     Case _period == 4
       lshifr := '72.2.43' // 3 месяца
@@ -167,40 +163,31 @@ Function ret_shifr_zs_pn( _period, mdata )
       lshifr := '72.2.42' // 4мес, 5мес, 6мес, 7мес, 8мес, 9мес, 10мес, 11мес, 1год3мес, 1год6мес
     Case _period == 13
       If AScan( np_arr_1_etap( mdata )[ _period, 4 ], '2.85.21' ) > 0  // если есть офтальмолог
-//        lshifr := iif( m1lis > 0, '72.2.65', '72.2.64' ) // 12 месяцев с 1 сентября
         lshifr := '72.2.64' // 12 месяцев с 1 сентября
       Else
-//        lshifr := iif( m1lis > 0, '72.2.45', '72.2.44' ) // 12 месяцев
         lshifr := '72.2.44' // 12 месяцев
       Endif
     Case _period == 16
       lshifr := '72.2.46' // 2 года
     Case _period == 17
-//      lshifr := iif( m1lis > 0, '72.2.48', '72.2.47' ) // 3 года
       lshifr := '72.2.47' // 3 года
     Case eq_any( _period, 18, 19, 22, 23, 25, 26 )
       lshifr := '72.2.49' // 4 года, 5 лет, 8 лет, 9 лет, 11 лет, 12лет
     Case _period == 20
-//      lshifr := iif( m1lis > 0, '72.2.51', '72.2.50' ) // 6 лет
       lshifr := '72.2.50' // 6 лет
     Case _period == 21
-//      lshifr := iif( m1lis > 0, '72.2.53', '72.2.52' ) // 7 лет
       lshifr := '72.2.52' // 7 лет
     Case _period == 24
-//      lshifr := iif( m1lis > 0, '72.2.55', '72.2.54' ) // 10 лет
       lshifr := '72.2.54' // 10 лет
     Case _period == 27
       lshifr := '72.2.56' // 13 лет
     Case _period == 28
       lshifr := '72.2.57' // 14 лет
     Case _period == 29
-//      lshifr := iif( m1lis > 0, '72.2.59', '72.2.58' ) // 15 лет
       lshifr := '72.2.58' // 15 лет
     Case _period == 30
-//      lshifr := iif( m1lis > 0, '72.2.61', '72.2.60' ) // 16 лет
       lshifr := '72.2.60' // 16 лет
     Case _period == 31
-//      lshifr := iif( m1lis > 0, '72.2.63', '72.2.62' ) // 17 лет
       lshifr := '72.2.62' // 17 лет
     Endcase
   Endif
@@ -246,14 +233,10 @@ Function fget_spec_deti( k, r, c, a_spec )
     tmp_ga->( dbGoTop() )   //  Go Top
     Do While !tmp_ga->( Eof() )
       If ( i := AScan( as, Int( Val( tmp_ga->kod ) ) ) ) > 0
-//        Select SDVN
-//        Append Blank
         sdvn->( dbAppend() )
         sdvn->name := AfterAtNum( '.', tmp_ga->name, 1 )
         sdvn->kod := tmp_ga->kod
         s := ''
-//        Select TMP_GA
-//        rec := RecNo()
         rec := tmp_ga->( RecNo() )
         Do While ! Empty( tmp_ga->kod_up )
           tmp_ga->( dbSeek( tmp_ga->kod_up ) )    //  find ( tmp_ga->kod_up )
@@ -263,7 +246,6 @@ Function fget_spec_deti( k, r, c, a_spec )
             Exit
           Endif
         Enddo
-//        Goto ( rec )
         tmp_ga->( dbGoto( rec ) )
         sdvn->name1 := s
       Endif
@@ -952,7 +934,7 @@ Function is_osmotr_pn( ausl, _period, arr, _etap, _pol, mdata, mobil )
   Elseif ( i := AScan( np_arr_osmotr_kdp2(), {| x| x[ 2 ] == lshifr } ) ) > 0
     lshifr := np_arr_osmotr_kdp2()[ i, 1 ]
   Endif
-  For i := 1 To Len( arr_PN_osmotr )  // count_pn_arr_osm
+  For i := 1 To Len( arr_PN_osmotr )
     If _etap == 1 .or. fl_profil
       If ValType( arr_PN_osmotr[ i, 4 ] ) == 'N'
         If arr_PN_osmotr[ i, 4 ] == ausl[ 3 ]
@@ -975,9 +957,6 @@ Function is_osmotr_pn( ausl, _period, arr, _etap, _pol, mdata, mobil )
   Next
   If fl
     s := '"' + lshifr + '.' + arr_PN_osmotr[ i, 3 ] + '"'
-//    If _etap == 1 .and. ( AScan( np_arr_1_etap( mdata, mobil )[ _period, 4 ], lshifr ) == 0 )
-//      AAdd( arr, 'Некорректный возрастной период пациента для ' + s )
-//    Endif
     If !Empty( arr_PN_osmotr[ i, 2 ] ) .and. !( arr_PN_osmotr[ i, 2 ] == _pol )
       AAdd( arr, 'Несовместимость по полу в услуге ' + s )
     Endif
@@ -1011,7 +990,7 @@ Function is_1_etap_pn( ausl, _period, _etap, mdata, mobil )
   Elseif ( i := AScan( np_arr_osmotr_kdp2(), {| x| x[ 2 ] == lshifr } ) ) > 0
     lshifr := np_arr_osmotr_kdp2()[ i, 1 ]
   Endif
-  For i := 1 To Len( arr_PN_osmotr )  // count_pn_arr_osm
+  For i := 1 To Len( arr_PN_osmotr )
     If _etap == 1 .or. fl_profil
       If ValType( arr_PN_osmotr[ i, 4 ] ) == 'N'
         If arr_PN_osmotr[ i, 4 ] == ausl[ 3 ]
@@ -1265,103 +1244,6 @@ Function f2_inf_dnl_karta( Loc_kod, kod_kartotek, lvozrast )
     frd->( Eval( blk, s ) )
   Next
   rep_psih_health_and_sex( lvozrast, mk_data, TIP_LU_PN )
-/*
-  fl := ( lvozrast < 5 )
-  s := st + '13. Оценка психического развития (состояния):'
-  frd->( Eval( blk, s ) )
-  if mk_data < 0d20250901
-    s := st + '13.1. Для детей в возрасте 0 - 4 лет:'
-    frd->( Eval( blk, s ) )
-    s := st + 'познавательная функция (возраст развития) ' + iif( !fl, '________', ub + st + lstr( m1psih11 ) + st + ue ) + ';'
-    frd->( Eval( blk, s ) )
-    s := st + 'моторная функция (возраст развития) ' + iif( !fl, '________', ub + st + lstr( m1psih12 ) + st + ue ) + ';'
-    frd->( Eval( blk, s ) )
-    s := st + 'эмоциональная и социальная (контакт с окружающим миром) функции (возраст развития) ' + iif( !fl, '________', ub + st + lstr( m1psih13 ) + st + ue ) + ';'
-    frd->( Eval( blk, s ) )
-    s := st + 'предречевое и речевое развитие (возраст развития) ' + iif( !fl, '________', ub + st + lstr( m1psih14 ) + st + ue ) + '.'
-    frd->( Eval( blk, s ) )
-    fl := ( lvozrast > 4 )
-    s := st + '13.2. Для детей в возрасте 5 - 17 лет:'
-    frd->( Eval( blk, s ) )
-    s := st + '13.2.1. Психомоторная сфера: ' + f3_inf_dds_karta( mm_psih2(), iif( fl, m1psih21, -1 ),, ub, ue )
-    frd->( Eval( blk, s ) )
-    s := st + '13.2.2. Интеллект: ' + f3_inf_dds_karta( mm_psih2(), iif( fl, m1psih22, -1 ),, ub, ue )
-    frd->( Eval( blk, s ) )
-    s := st + '13.2.3. Эмоционально-вегетативная сфера: ' + f3_inf_dds_karta( mm_psih2(), iif( fl, m1psih23, -1 ),, ub, ue )
-    frd->( Eval( blk, s ) )
-  else
-    s := st + '13.1. Для детей в возрасте 0 - 4 лет:'
-    frd->( Eval( blk, s ) )
-    s := st + 'познавательная функция (возраст развития) ' + iif( !fl, '________', ub + st + lstr( m1psih11 ) + st + ue ) + ';'
-    frd->( Eval( blk, s ) )
-    s := st + 'нарушение когнитивных функций ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_danet(), m1psih24 ) + st + ue ) + ';'
-    frd->( Eval( blk, s ) )
-    s := st + 'нарушение учебных навыков ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_danet(), m1psih25 ) + st + ue ) + ';'
-    frd->( Eval( blk, s ) )
-    s := st + 'моторная функция (возраст развития) ' + iif( !fl, '________', ub + st + lstr( m1psih12 ) + st + ue ) + ';'
-    frd->( Eval( blk, s ) )
-    s := st + 'эмоциональные нарушения ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_danet(), m1psih26 ) + st + ue ) + ';'
-    frd->( Eval( blk, s ) )
-    s := st + 'предречевое развитие ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_activ(), m1psih27 ) + st + ue ) + '.'
-    frd->( Eval( blk, s ) )
-    s := st + 'речевое развитие (возраст развития) ' + iif( !fl, '________', ub + st + lstr( m1psih14 ) + st + ue ) + '.'
-    frd->( Eval( blk, s ) )
-    s := st + 'понимание речи ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_partial(), m1psih28 ) + st + ue ) + '.'
-    frd->( Eval( blk, s ) )
-    s := st + 'активная речь ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_used(), m1psih29 ) + st + ue ) + '.'
-    frd->( Eval( blk, s ) )
-    s := st + 'нарушение коммуникативных навыков ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_danet(), m1psih30 ) + st + ue ) + '.'
-    frd->( Eval( blk, s ) )
-    s := st + 'сенсорное развитие ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_sensor(), m1psih31 ) + st + ue ) + '.'
-    frd->( Eval( blk, s ) )
-    fl := ( lvozrast > 4 )
-    s := st + '13.2. Для детей в возрасте 5 - 17 лет:'
-    frd->( Eval( blk, s ) )
-    s := st + 'внешний вид ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_view_obraz(), m1psih32 ) + st + ue ) + ';'
-    frd->( Eval( blk, s ) )
-    s := st + 'доступен к контакту ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_contact(), m1psih33 ) + st + ue ) + ';'
-    frd->( Eval( blk, s ) )
-    s := st + 'фон настроения ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_nastroenie(), m1psih34 ) + st + ue ) + ';'
-    frd->( Eval( blk, s ) )
-    s := st + 'обманы восприятия ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_danet(), m1psih35 ) + st + ue ) + ';'
-    frd->( Eval( blk, s ) )
-    s := st + 'интеллектуальная функция ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_intelect(), m1psih36 ) + st + ue ) + ';'
-    frd->( Eval( blk, s ) )
-    s := st + 'нарушения когнитивных функций ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_danet(), m1psih37 ) + st + ue ) + ';'
-    frd->( Eval( blk, s ) )
-    s := st + 'нарушение учебных навыков ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_danet(), m1psih38 ) + st + ue ) + ';'
-    frd->( Eval( blk, s ) )
-    s := st + 'суицидальные наклонности ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_danet(), m1psih39 ) + st + ue ) + ';'
-    frd->( Eval( blk, s ) )
-    s := st + 'самоповреждения ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_self_harm(), m1psih40 ) + st + ue ) + ';'
-    frd->( Eval( blk, s ) )
-    s := st + 'социальная сфера ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_socium(), m1psih41 ) + st + ue ) + '.'
-    frd->( Eval( blk, s ) )
-  endif
-  fl := ( mpol == 'М' .and. lvozrast > 9 )
-  s := st + '14. Оценка полового развития (с 10 лет):'
-  frd->( Eval( blk, s ) )
-  s := st + '14.1. Половая формула мальчика: Р ' + iif( !fl .or. m141p == 0, '________', ub + st + lstr( m141p ) + st + ue )
-  s += ' Ах ' + iif( !fl .or. m141ax == 0, '________', ub + st + lstr( m141ax ) + st + ue )
-  s += ' Fa ' + iif( !fl .or. m141fa == 0, '________', ub + st + lstr( m141fa ) + st + ue ) + '.'
-  frd->( Eval( blk, s ) )
-  fl := ( mpol == 'Ж' .and. lvozrast > 9 )
-  s := st + '14.2. Половая формула девочки: Р ' + iif( !fl .or. m142p == 0, '________', ub + st + lstr( m142p ) + st + ue )
-  s += ' Ах ' + iif( !fl .or. m142ax == 0, '________', ub + st + lstr( m142ax ) + st + ue )
-  s += ' Ma ' + iif( !fl .or. m142ma == 0, '________', ub + st + lstr( m142ma ) + st + ue )
-  s += ' Me ' + iif( !fl .or. m142me == 0, '________', ub + st + lstr( m142me ) + st + ue ) + ';'
-  frd->( Eval( blk, s ) )
-  s := st + 'характеристика менструальной функции: menarhe ('
-  s += iif( !fl .or. m142me1 == 0, '________', ub + st + lstr( m142me1 ) + st + ue ) + ' лет, '
-  s += iif( !fl .or. m142me2 == 0, '________', ub + st + lstr( m142me2 ) + st + ue ) + ' месяцев); '
-  If fl .and. emptyall( m142p, m142ax, m142ma, m142me, m142me1, m142me2 )
-    m1142me3 := m1142me4 := m1142me5 := -1
-  Endif
-  s += 'menses (характеристика): ' + f3_inf_dds_karta( mm_142me3(), iif( fl, m1142me3, -1 ),, ub, ue, .f. )
-  s += ', ' + f3_inf_dds_karta( mm_142me4(), iif( fl, m1142me4, -1 ),, ub, ue, .f. )
-  s += ', ' + f3_inf_dds_karta( mm_142me5(), iif( fl, m1142me5, -1 ), ' и ', ub, ue )
-  frd->( Eval( blk, s ) )
-*/
   s := st + '15. Состояние здоровья до проведения настоящего профилактического осмотра:'
   frd->( Eval( blk, s ) )
   If lvozrast < 14
@@ -1548,52 +1430,11 @@ Function f2_inf_dnl_karta( Loc_kod, kod_kartotek, lvozrast )
   s := Left( s, Len( s ) -1 ) + '; установлена впервые (дата) ' + iif( Empty( minvalid3 ), Replicate( '_', 15 ), ub + full_date( minvalid3 ) + ue )
   s += '; дата последнего освидетельствования ' + iif( Empty( minvalid4 ), Replicate( '_', 15 ), ub + full_date( minvalid4 ) + ue ) + '.'
   frd->( Eval( blk, s ) )
-/*s := st+'16.7.1. Заболевания, обусловившие возникновение инвалидности:'
-frd->(eval(blk,s))
-mm_invalid5[6, 1] := 'болезни крови, кроветворных органов и отдельные нарушения, вовлекающие иммунный механизм;'
-mm_invalid5[7, 1] := 'болезни эндокринной системы, расстройства питания и нарушения обмена веществ,'
-atail(mm_invalid5)[1] := 'последствия травм, отравлений и других воздействий внешних причин)'
-s := st+'(' + f3_inf_DDS_karta(mm_invalid5,m1invalid5,' ',ub,ue)
-frd->(eval(blk,s))
-s := st+'16.7.2.Виды нарушений в состоянии здоровья:'
-frd->(eval(blk,s))
-s := st + f3_inf_DDS_karta(mm_invalid6(),m1invalid6,'; ',ub,ue)
-frd->(eval(blk,s))
-s := st+'16.7.3. Индивидуальная программа реабилитации ребенка-инвалида:'
-frd->(eval(blk,s))
-s := st+'дата назначения: '+iif(empty(minvalid7), replicate('_', 15), ub + full_date(minvalid7)+ue)+';'
-frd->(eval(blk,s))
-s := st+'выполнение на момент диспансеризации: ' + f3_inf_DDS_karta(mm_invalid8(),m1invalid8,,ub,ue)
-frd->(eval(blk,s))*/
   s := st + '16.8. Группа состояния здоровья: ' + f3_inf_dds_karta( mm_gruppa, mGRUPPA,, ub, ue )
   frd->( Eval( blk, s ) )
   s := st + '16.9. Медицинская группа для занятий физической культурой: '
   s += f3_inf_dds_karta( mm_gr_fiz, m1GR_FIZ,, ub, ue )
   frd->( Eval( blk, s ) )
-/*s := st+'16.10'+'. Проведение профилактических прививок:'
-frd->(eval(blk,s))
-s := st
-for j := 1 to len(mm_privivki1())
-  if m1privivki1 == mm_privivki1()[j, 2]
-    s += ub
-  endif
-  s += mm_privivki1()[j, 1]
-  if m1privivki1 == mm_privivki1()[j, 2]
-    s += ue
-  endif
-  if mm_privivki1()[j, 2] == 0
-    s += '; '
-  else
-    s += ': ' + f3_inf_DDS_karta(mm_privivki2(),iif(m1privivki1==mm_privivki1()[j, 2],m1privivki2,-1),,ub,ue,.f.)+'; '
-  endif
-next
-s += 'нуждается в проведении вакцинации (ревакцинации) с указанием наименования прививки (нужное подчеркнуть): '
-if m1privivki1 > 0 .and. !empty(mprivivki3)
-  s += ub+alltrim(mprivivki3)+ue
-endif
-frd->(eval(blk,s))
-s := replicate('_',sh)+'.'
-frd->(eval(blk,s))*/
   s := st + '17. Рекомендации по формированию здорового образа жизни, режиму дня, питанию, физическому развитию, иммунопрофилактике, занятиям физической культурой: '
   k := 3
   If !Empty( mrek_form )
@@ -1625,21 +1466,6 @@ frd->(eval(blk,s))*/
   Use ( fr_data + '1' ) New Alias FRD1
   dbCreate( fr_data + '2', adbf )
   Use ( fr_data + '2' ) New Alias FRD2
-/*arr := f4_inf_DNL_karta(1)
-for i := 1 to len(arr)
-  select FRD1
-  append blank
-  frd1->name := arr[i, 1]
-  frd1->data := full_date(arr[i, 2])
-next
-arr := f4_inf_DNL_karta(2)
-for i := 1 to len(arr)
-  select FRD2
-  append blank
-  frd2->name := arr[i, 1]
-  frd2->data := full_date(arr[i, 2])
-  frd2->rezu := arr[i, 3]
-next*/
   //
   Close databases
   call_fr( 'mo_030pou17' )
