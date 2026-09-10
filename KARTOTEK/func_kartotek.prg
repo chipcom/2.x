@@ -388,7 +388,8 @@ Function get_fio_kart( k, r, c )
 // 06.03.26
 Function _f_fio_kart()
 
-  Return PadR( AllTrim( mfio ) + ' ' + iif( mpol == 'Œ', '(Œ)', '(†)' ), 49 )
+//  Return PadR( AllTrim( mfio ) + ' ' + iif( mpol == 'Œ', '(Œ)', '(†)' ), 49 )
+  Return PadR( AllTrim( mfio ) + ' ' + iif( mpol == 'Œ', '(Œ)', '(†)' ), 35 )
 
 // 30.12.24
 function check_input_INN( get )
