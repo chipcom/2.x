@@ -24,7 +24,7 @@
 #define USL_SVIDPOM  14   // виды оказываемой медицинской помощи
 #define USL_ZAK_SL   15   // признак оплаты по законченному случаю
 
-// 08.09.26 
+// 10.09.26 
 Function verify_sluch( fl_view, ft )
 
   Local arrUslugi := {} // массив содержаший коды услуг в случае 
@@ -145,11 +145,11 @@ Function verify_sluch( fl_view, ft )
   vozrast := count_years( iif( human_->NOVOR == 0, human->DATE_R, human_->DATE_R2 ), human->N_DATA )
 
   if Empty( otd->LPU_1 )
-    if glob_mo()[_MO_KOD_TFOMS] == '804501'
-      aValidProf := get_f034( '34202616601016' )
-    else
+//    if glob_mo()[_MO_KOD_TFOMS] == '804501'
+//      aValidProf := get_f034( '34202616601016' )
+//    else
       aValidProf := {}
-    endif
+//    endif
   else
     aValidProf := get_f034( otd->LPU_1 )
   endif
@@ -187,7 +187,8 @@ Function verify_sluch( fl_view, ft )
   aSchoolXNIZ := arr_school_xniz( mk_data )
 
   // проверка отделения
-  if ! glob_mo()[_MO_KOD_TFOMS] == '804501' .and. Empty( otd->LPU_1 ) // без РУСАЛа
+//  if ! glob_mo()[_MO_KOD_TFOMS] == '804501' .and. Empty( otd->LPU_1 ) // без РУСАЛа
+  if Empty( otd->LPU_1 )
     AAdd( ta, 'для отделения ' + AllTrim( otd->short_name ) + ' не выбрано "Структурное подразделение по ГИС ОМС"' )
   endif
 
@@ -902,7 +903,8 @@ Function verify_sluch( fl_view, ft )
       Endif
       otd->( dbGoto( hu->OTD ) )
       // проверка отделения для услуги
-      if ! glob_mo()[_MO_KOD_TFOMS] == '804501' .and. Empty( otd->LPU_1 ) // без РУСАЛа
+//      if ! glob_mo()[_MO_KOD_TFOMS] == '804501' .and. Empty( otd->LPU_1 ) // без РУСАЛа
+      if Empty( otd->LPU_1 )
         AAdd( ta, 'для отделения ' + AllTrim( otd->short_name ) + ', где оказана услуга ' + AllTrim( lshifr ) + ' не выбрано "Структурное подразделение по ГИС ОМС"' )
       endif
       hu->( g_rlock( 'forever' ) )
@@ -1772,7 +1774,8 @@ Function verify_sluch( fl_view, ft )
     Endif
     otd->( dbGoto( mohu->OTD ) )
     // проверка отделения для услуги
-    if ! glob_mo()[_MO_KOD_TFOMS] == '804501' .and. Empty( otd->LPU_1 ) // без РУСАЛа
+//    if ! glob_mo()[_MO_KOD_TFOMS] == '804501' .and. Empty( otd->LPU_1 ) // без РУСАЛа
+    if Empty( otd->LPU_1 )
       AAdd( ta, 'для отделения ' + AllTrim( otd->short_name ) + ', где оказана услуга ' + AllTrim( lshifr ) + ' не выбрано "Структурное подразделение по ГИС ОМС"' )
     endif
     mohu->( g_rlock( 'forever' ) )
