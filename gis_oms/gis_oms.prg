@@ -15,7 +15,7 @@
 
 REQUEST SDDSQLITE3, SQLMIX
 
-// 04.08.26
+// 10.09.26
 function gis_oms() 
 
   local buf
@@ -34,7 +34,11 @@ function gis_oms()
   rddSetDefault( 'SQLMIX' )
   pDb := rddInfo( RDDI_CONNECT, { 'SQLITE3', dir_exe() + FILE_NAME_SQL } )
 
-  dbUseArea( .T., , 'select * from f037 where mcod==' + glob_mo()[ _MO_KOD_FFOMS ], 'f037' )
+  if glob_mo()[ _MO_KOD_FFOMS ] == '340342' // для РУСАЛа
+    dbUseArea( .T., , 'select * from f037 where mcod==340177', 'f037' )
+  else
+    dbUseArea( .T., , 'select * from f037 where mcod==' + glob_mo()[ _MO_KOD_FFOMS ], 'f037' )
+  endif
 
   If f037->( LastRec() ) == 0
     func_error( 4, 'Пустой справочник лицензий' )
@@ -86,7 +90,7 @@ Function f1edit_licenses_f037( oBrow )
   status_key( '^<Esc>^ выход ^<Enter>^ просмотр' )
   Return Nil
 
-// 04.08.26
+// 10.09.26
 Function f2edit_licenses_f037( nKey, oBrow )
 
   Local oBr, ret := -1
@@ -128,7 +132,12 @@ Function f2edit_licenses_f037( nKey, oBrow )
     Select tmp_f038
 */
 
-    dbUseArea( .T., , 'select * from f038 where uidmo==' + f037->UIDMO + ' group by idaddress', 'f038' )
+    if glob_mo()[ _MO_KOD_FFOMS ] == '340342' // для РУСАЛа
+      dbUseArea( .T., , 'select * from f038 where uidmo==34202616601 group by idaddress', 'f038' )
+//      dbUseArea( .T., , 'select * from f038 where uidmo==34202616601', 'f038' )
+    else
+      dbUseArea( .T., , 'select * from f038 where uidmo==' + f037->UIDMO + ' group by idaddress', 'f038' )
+    endif
 
     f038->( dbGoTop() )
     If f038->( LastRec() ) == 0
