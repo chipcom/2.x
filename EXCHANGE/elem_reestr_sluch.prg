@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 24.08.26
+// 10.09.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -327,11 +327,11 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
     Endif
     otd->( dbGoto( human->OTD ) )
 
-    if glob_mo()[_MO_KOD_TFOMS] == '804501'
-      mo_add_xml_stroke( oSL, 'LPU_1', '34202616601016' )
-    else
+//    if glob_mo()[_MO_KOD_TFOMS] == '804501'
+//      mo_add_xml_stroke( oSL, 'LPU_1', '34202616601016' )
+//    else
       mo_add_xml_stroke( oSL, 'LPU_1', otd->LPU_1 )
-    endif
+//    endif
 
     If p_tip_reestr == TYPE_REESTR_DISPASER
       mo_add_xml_stroke( oSL, 'MOP', lstr( human->MOP ) )
@@ -763,22 +763,22 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         If p_tip_reestr == TYPE_REESTR_GENERAL
           otd->( dbGoto( hu->OTD ) )
 
-          if glob_mo()[_MO_KOD_TFOMS] == '804501'
-            mo_add_xml_stroke( oUSL, 'LPU_1', '34202616601016' )
-          else
+//          if glob_mo()[_MO_KOD_TFOMS] == '804501'
+//            mo_add_xml_stroke( oUSL, 'LPU_1', '34202616601016' )
+//          else
             mo_add_xml_stroke( oUSL, 'LPU_1', otd->LPU_1 )
-          endif
+//          endif
 
           if hu->KOL_RCP < 0 .and. domuslugatfoms( lshifr )
             mo_add_xml_stroke( oUSL, 'PODR', '0' )
           Endif
         else
 
-          if glob_mo()[_MO_KOD_TFOMS] == '804501'
-            mo_add_xml_stroke( oUSL, 'LPU_1', '34202616601016' )
-          else
+//          if glob_mo()[_MO_KOD_TFOMS] == '804501'
+//            mo_add_xml_stroke( oUSL, 'LPU_1', '34202616601016' )
+//          else
             mo_add_xml_stroke( oUSL, 'LPU_1', otd->LPU_1 )
-          endif
+//          endif
 
         Endif
         mo_add_xml_stroke( oUSL, 'PROFIL', lstr( hu_->PROFIL ) )
@@ -870,11 +870,11 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         mo_add_xml_stroke( oUSL, 'ID_U', mo_guid( 3, idServ ) )   //  iusl ) )
         mo_add_xml_stroke( oUSL, 'LPU', CODE_LPU )
 
-        if glob_mo()[_MO_KOD_TFOMS] == '804501'
-          mo_add_xml_stroke( oUSL, 'LPU_1', '34202616601016' )
-        else
+//        if glob_mo()[_MO_KOD_TFOMS] == '804501'
+//          mo_add_xml_stroke( oUSL, 'LPU_1', '34202616601016' )
+//        else
           mo_add_xml_stroke( oUSL, 'LPU_1', otd->LPU_1 )
-        endif
+//        endif
 
         mo_add_xml_stroke( oUSL, 'PROFIL', lstr( a_otkaz[ j, 4 ] ) )
         Select T21
@@ -935,11 +935,11 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         otd->( dbGoto( mohu->OTD ) )
 //          f_put_glob_podr( human_->USL_OK, human->K_DATA ) // заполнить код подразделения
 
-        if glob_mo()[_MO_KOD_TFOMS] == '804501'
-          mo_add_xml_stroke( oUSL, 'LPU_1', '34202616601016' )
-        else
+//        if glob_mo()[_MO_KOD_TFOMS] == '804501'
+//          mo_add_xml_stroke( oUSL, 'LPU_1', '34202616601016' )
+//        else
           mo_add_xml_stroke( oUSL, 'LPU_1', otd->LPU_1 )
-        endif
+//        endif
 
 //        Endif
         mo_add_xml_stroke( oUSL, 'PROFIL', lstr( mohu->PROFIL ) )
