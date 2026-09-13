@@ -1,4 +1,5 @@
 // различные функции для КСГ - KSG_func.prg
+#include 'common.ch'
 #include 'function.ch'
 #include 'chip_mo.ch'
 
@@ -263,3 +264,25 @@ Function f_put_arr_ksg( cLine )
   RestScreen( buf )
   
   Return Nil
+
+// 12.09.26
+function is_usluga_rody( shifr, mdate )
+
+  static aHash
+
+  default mdate to Date()
+
+  shifr := Upper( AllTrim( shifr ) )
+  if HB_ISNIL( aHash )
+    aHash := hb_Hash()
+    hb_HSet( aHash, 'B01.001.006', .f. )
+    hb_HSet( aHash, 'B01.001.009', .f. )
+    hb_HSet( aHash, 'B02.001.002', .f. )
+    hb_HSet( aHash, 'A16.20.007', .f. )
+    hb_HSet( aHash, 'A16.20.015', .f. )
+    hb_HSet( aHash, 'A16.20.023', .f. )
+    hb_HSet( aHash, 'A16.20.024', .f. )
+    hb_HSet( aHash, 'A16.20.030', .f. )
+  endif
+
+  return hb_hHaskey( aHash, shifr )

@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 08.09.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
+// 11.09.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
 Function defenition_ksg( par, k_data2, lDoubleSluch )
 
   // файлы 'human', 'human_' и 'human_2' открыты и стоят на нужной записи
@@ -648,7 +648,8 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
   arr_ad_criteria := getAdditionalCriteria( lk_data )  // загрузим доп. критерии на дату
 
   For im := 1 To Len( amohu )
-    If !Empty( lshifr := AllTrim( amohu[ im ] ) )
+    If !Empty( lshifr := AllTrim( amohu[ im ] ) ) ;
+        .and. ! ( between_diag( osn_diag, 'O00', 'O99' ) .and. is_usluga_rody( amohu[ im ], date_usl ) ) // для родов
       _a1 := {}
       Select K006
       Set Order To 2
