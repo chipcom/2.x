@@ -24,7 +24,7 @@
 #define USL_SVIDPOM  14   // виды оказываемой медицинской помощи
 #define USL_ZAK_SL   15   // признак оплаты по законченному случаю
 
-// 10.09.26 
+// 14.09.26 
 Function verify_sluch( fl_view, ft )
 
   Local arrUslugi := {} // массив содержаший коды услуг в случае 
@@ -657,7 +657,6 @@ Function verify_sluch( fl_view, ft )
               AAdd( a_dializ, { human->n_data, human->k_data, human_->USL_OK, human->OTD, 3 } ) // диализы не в кругл.стационаре
               Exit
             Endif 
-//            if AScan( arr_school_xniz( mk_data ), lshifr ) > 0
             if AScan( aSchoolXNIZ, lshifr ) > 0
               is_2_92_ := .t.
             endif
@@ -1193,7 +1192,6 @@ Function verify_sluch( fl_view, ft )
             is_60_17_2 := .t.
           endif
         Elseif AScan( aSchoolXNIZ, alltrim_lshifr ) > 0
-//        Elseif AScan( arr_school_xniz( mk_data ), alltrim_lshifr ) > 0
           shifr_2_92 := alltrim_lshifr
           is_2_92_ := .t.
           mpovod := 10 // 3.0
@@ -1203,10 +1201,11 @@ Function verify_sluch( fl_view, ft )
           Elseif vozrast < 18 .and. eq_any( alltrim_lshifr, '2.92.1', '2.92.2' )
             AAdd( ta, 'услуга ' + alltrim_lshifr + ' оказывается только взрослым' )
           Endif
-        Elseif alltrim_lshifr == '2.93.1'
-          kol_2_93_1++
-        Elseif alltrim_lshifr == '2.93.2'
-          kol_2_93_2++
+          if alltrim_lshifr == '2.93.1'
+            kol_2_93_1++
+          Elseif alltrim_lshifr == '2.93.2'
+            kol_2_93_2++
+          endif
         Elseif left_lshifr_5 == '2.76.'
           mpovod := 7 // 2.3
           mIDPC := '2.3'
@@ -3142,7 +3141,6 @@ Function verify_sluch( fl_view, ft )
         Endif
       Next
       If Len( arr_prvs ) > 1 .and. !is_gisto .and. ( AScan( aSchoolXNIZ, '2.92.18' ) == 0 )
-//      If Len( arr_prvs ) > 1 .and. !is_gisto .and. ( AScan( arr_school_xniz( mk_data ), '2.92.18' ) == 0 )
         AAdd( ta, 'в случае использованы разные специальности врачей' )
       Endif
     Endif
@@ -3178,7 +3176,6 @@ Function verify_sluch( fl_view, ft )
     If kol_2_93_2 > 0 .and. ! is_2_92_
       AAdd( ta, 'в случае небходима + одна из услуг ' + cut_arr_schol_xniz( mk_data ) )
     Endif
-
     If is_2_92_
       check_school_xniz( mk_data, shifr_2_92, vozrast, kol_dney, kol_2_93_1, kol_2_93_2, human_->RSLT_NEW, human_->ISHOD_NEW, ta )
       // конец проверки школ диабета и НХИЗ
