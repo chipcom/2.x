@@ -39,13 +39,13 @@ function get_array_PZ( mYear)
   endif
   return arr
 
-// 13.11.25
+// 15.09.26
 FUNCTION initPZarray()
 
   LOCAL arrPZ
   LOCAL i, nYear, sbase, file_index
   
-  FOR nYear := 2018 TO WORK_YEAR
+  FOR nYear := BEGIN_YEAR TO WORK_YEAR
     sbase :=  prefixFileRefName( nYear ) + 'unit'  // справочник на конкретный год
     if exists_file_TFOMS( nYear, 'unit')
       arrPZ := get_array_PZ( nYear )
@@ -57,9 +57,9 @@ FUNCTION initPZarray()
         index on str( FIELD->code, 3 ) to ( cur_dir() + sbase )
       endif
       FOR i := 1 TO Len( arrPZ )
-        unit->( dbSeek( Str( arrPZ[ i, PZ_ARRAY_CODE ], 3 ) ) ) // find ( Str( arrPZ[ i, PZ_ARRAY_CODE ], 3 ) )
+        unit->( dbSeek( Str( arrPZ[ i, PZ_ARRAY_CODE ], 3 ) ) )
         IF unit->( Found() ) .AND. !( unit->pz == arrPZ[ i, PZ_ARRAY_ID ] .AND. unit->ii == i )
-            G_RLock( forever )
+            G_RLock( 'forever' )
             unit->pz := arrPZ[ i, PZ_ARRAY_ID ]
             unit->ii := i
         ENDIF
