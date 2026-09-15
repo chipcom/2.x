@@ -15,17 +15,20 @@ Function pz_statist( k )
   Default k To 1
   Do Case
   Case k == 1
-    mas_pmt := { 'По ~одному счету', ;
+    mas_pmt := { ;
+      'По ~одному счету', ;
       'По ~счетам за отчётный период', ;
       'По счетам по дате окончания ~лечения', ;
       'По ~невыписанным счетам', ;
       '~Расчёт потребности в фин.обеспечении' }
-    mas_msg := { 'Статистика по конкретному счету', ;
+    mas_msg := { ;
+      'Статистика по конкретному счету', ;
       'Статистика по счетам за отчётный период времени (кратный месяцу)', ;
       'Статистика по счетам с выборкой по дате окончания лечения', ;
       'Статистика по невыписанным счетам', ;
       'Расчёт потребности в финансовом обеспечении выполнения объёмов мед.помощи' }
-    mas_fun := { 'pz_statist(11)', ;
+    mas_fun := { ;
+      'pz_statist(11)', ;
       'pz_statist(12)', ;
       'pz_statist(13)', ;
       'pz_statist(14)', ;
@@ -58,7 +61,7 @@ Function pz1statist( par, par2 )
   Local buf := SaveScreen(), fl_exit := .f., fl := .t., a_otd := {}, ;
     name_file := cur_dir() + 'plan_z.txt', arr_m, ta[ 2 ], arr_title, ;
     sh := 80, HH := 60, reg_print := 2, ;
-    mstr_crb, ltrud, lplan, lcount_uch, lcount_otd, mismo
+    mstr_crb, ltrud, lplan, lcount_uch, lcount_otd
   Local sbase, i, k, j
   local strOut, iOutput
   local adbf
@@ -142,7 +145,8 @@ Function pz1statist( par, par2 )
   If arr_m[ 6 ] < 0d20200101
     Return func_error( 4, 'Отчётный период должен быть не ранее 2020 года' )
   Endif
-  mas_pmt := { 'Список ~отделений (план-заказ)', ;
+  mas_pmt := { ;
+    'Список ~отделений (план-заказ)', ;
     'Вывод списка ~услуг (план-заказ)', ;
     '~Службы + услуги (список услуг)', ;
     'Наработка по ~врачам (список услуг)' }
@@ -202,7 +206,8 @@ Function pz1statist( par, par2 )
     lExcel := iif( iOutput == 2, .t., .f. )
   Endif
 
-  adbf := { { 'kod', 'N', 4, 0 }, ;
+  adbf := { ;
+    { 'kod', 'N', 4, 0 }, ;
     { 'kod1', 'N', 4, 0 }, ;
     { 'shifr', 'C', 10, 0 }, ;
     { 'u_name', 'C', 255, 0 }, ;
@@ -217,16 +222,17 @@ Function pz1statist( par, par2 )
   dbCreate( cur_dir() + 'tmp', adbf )
   Use ( cur_dir() + 'tmp' ) new
   If su > 2
-    Index On Str( kod, 4 ) to ( cur_dir() + 'tmp' )
+    Index On Str( FIELD->kod, 4 ) to ( cur_dir() + 'tmp' )
   Else
-    Index On shifr to ( cur_dir() + 'tmp' )
+    Index On FIELD->shifr to ( cur_dir() + 'tmp' )
   Endif
   If su == 4  // Наработка по врачам (список услуг)
     dbCreate( cur_dir() + 'tmp1', adbf )
     Use ( cur_dir() + 'tmp1' ) new
-    Index On Str( kod, 4 ) + Str( kod1, 4 ) to ( cur_dir() + 'tmp1' )
+    Index On Str( FIELD->kod, 4 ) + Str( FIELD->kod1, 4 ) to ( cur_dir() + 'tmp1' )
   Endif
-  adbf := { { 'otd', 'N', 3, 0 }, ;
+  adbf := { ;
+    { 'otd', 'N', 3, 0 }, ;
     { 'uch', 'N', 3, 0 }, ;
     { 'kol1', 'N', 7, 0 }, ;
     { 'kol2', 'N', 7, 0 }, ;
@@ -240,20 +246,20 @@ Function pz1statist( par, par2 )
     { 'kol10', 'N', 7, 0 } }
   dbCreate( cur_dir() + 'tmpo', adbf )
   Use ( cur_dir() + 'tmpo' ) new
-  Index On Str( otd, 3 ) to ( cur_dir() + 'tmpo' )
+  Index On Str( FIELD->otd, 3 ) to ( cur_dir() + 'tmpo' )
   dbCreate( cur_dir() + 'tmpok', { { 'otd', 'N', 3, 0 }, { 'kod_k', 'N', 7, 0 } } )
   Use ( cur_dir() + 'tmpok' ) new
-  Index On Str( otd, 3 ) + Str( kod_k, 7 ) to ( cur_dir() + 'tmpok' )
+  Index On Str( FIELD->otd, 3 ) + Str( FIELD->kod_k, 7 ) to ( cur_dir() + 'tmpok' )
   dbCreate( cur_dir() + 'tmpos', { { 'otd', 'N', 3, 0 }, { 'kod', 'N', 7, 0 } } )
   Use ( cur_dir() + 'tmpos' ) new
-  Index On Str( otd, 3 ) + Str( kod, 7 ) to ( cur_dir() + 'tmpos' )
+  Index On Str( FIELD->otd, 3 ) + Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmpos' )
   r_use( dir_server() + 'mo_su', , 'MOSU' )
   r_use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
-  Set Relation To u_kod into MOSU
+  Set Relation To FIELD->u_kod into MOSU
   r_use( dir_server() + 'uslugi', , 'USL' )
   r_use( dir_server() + 'human_u_', , 'HU_' )
   r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
-  Set Relation To u_kod into USL, To RecNo() into HU_
+  Set Relation To FIELD->u_kod into USL, To RecNo() into HU_
   afillall( as, 0 )
   s_stac := sdstac := s_amb := skt := ssmp := suet := sstoim := 0
   waitstatus( '<Esc> - прервать поиск' ) ; mark_keys( { '<Esc>' } )
@@ -273,7 +279,6 @@ Function pz1statist( par, par2 )
       If Inkey() == K_ESC
         fl_exit := .t. ; Exit
       Endif
-//      If f_usl_schet_akt( human_->oplata ) .and. iif( v_deti == 1, .t., human->VZROS_REB > 0 )
       If f_usl_schet_akt( human_->oplata ) .and. iif( lAdult, .t., human->VZROS_REB > 0 )
         f1pz1statist( a_otd, 1 )
       Endif
@@ -351,13 +356,14 @@ Function pz1statist( par, par2 )
             If iif( par2 == 1, .t., Between( human->k_data, arr_m[ 5 ], arr_m[ 6 ] ) ) ;
                 .and. f_usl_schet_akt( human_->oplata ) ;
                 .and. iif( lAdult, .t., human->VZROS_REB > 0 )
-//                .and. iif( v_deti == 1, .t., human->VZROS_REB > 0 )
             f1pz1statist( a_otd, 1 )
             Endif
             Select HUMAN
             Skip
           Enddo
-          If fl_exit ; exit ; Endif
+          If fl_exit
+            exit
+          Endif
         Endif
       Endif
       Select SCHET
@@ -371,11 +377,11 @@ Function pz1statist( par, par2 )
     Do While human->tip_h < B_SCHET .and. !Eof()
       updatestatus()
       If Inkey() == K_ESC
-        fl_exit := .t. ; Exit
+        fl_exit := .t.
+        Exit
       Endif
       If Between( human->k_data, arr_m[ 5 ], arr_m[ 6 ] ) .and. AScan( arr_zn, human->tip_h ) > 0 ;
           .and. iif( lAdult, .t., human->VZROS_REB > 0 )
-          // .and. iif( v_deti == 1, .t., human->VZROS_REB > 0 )
         If human_->reestr == 0
           fl := AScan( arr_rees_no, 1 ) > 0
         Else
@@ -435,14 +441,12 @@ Function pz1statist( par, par2 )
     fmtCellNumberRub := workbook_add_format( workbook )
     format_set_align( fmtCellNumberRub, LXW_ALIGN_RIGHT )
     format_set_align( fmtCellNumberRub, LXW_ALIGN_VERTICAL_CENTER )
-//    format_set_border( fmtCellNumberRub, LXW_BORDER_THIN )
     format_set_num_format( fmtCellNumberRub, '#,##0.00' )
 
     
     fmtCellNumberZero := workbook_add_format( workbook )
     format_set_align( fmtCellNumberZero, LXW_ALIGN_RIGHT )
     format_set_align( fmtCellNumberZero, LXW_ALIGN_VERTICAL_CENTER )
-//    format_set_border( fmtCellNumberZero, LXW_BORDER_THIN )
     format_set_num_format( fmtCellNumberZero, '#,##' )
 
     wsCommon_format_header := workbook_add_format( workbook )
@@ -454,15 +458,13 @@ Function pz1statist( par, par2 )
     fmtWSCellNumberZero := workbook_add_format( workbook )
     format_set_align( fmtWSCellNumberZero, LXW_ALIGN_RIGHT )
     format_set_align( fmtWSCellNumberZero, LXW_ALIGN_VERTICAL_CENTER )
-//    format_set_border( fmtWSCellNumberZero, LXW_BORDER_THIN )
     format_set_num_format( fmtWSCellNumberZero, '#,##' )
-
 
     row := 0
     column := 0
     rowWS := 0
     columnWS := 0
-    worksheet_write_string( wsCommon, row++, column, hb_StrToUTF8( 'дата печати ' + date_8( sys_date ) + ' ' + hour_min( Seconds() ) ) ) //, header )
+    worksheet_write_string( wsCommon, row++, column, hb_StrToUTF8( 'дата печати ' + date_8( sys_date ) + ' ' + hour_min( Seconds() ) ) )
     arrOutput := arr_titleN_uch( st_a_uch, lcount_uch )
     For i := 1 To Len( arrOutput )
       worksheet_merge_range( wsCommon, row, column, row, 8, '', wsCommon_format_wrap )
@@ -622,7 +624,7 @@ Function pz1statist( par, par2 )
         if lExcel
           worksheet_merge_range( wsCommon, row, 0, row, 5, '' ) //, wsCommon_format_wrap )
           worksheet_write_string( wsCommon, row, 0, ;
-            hb_StrToUTF8( luapz2016[ i, 1 ] ) ) //, header )
+            hb_StrToUTF8( luapz2016[ i, 1 ] ) )
         else
           s := PadL( luapz2016[ i, 1 ], 42 )
         endif
@@ -658,7 +660,7 @@ Function pz1statist( par, par2 )
       worksheet_write_string( wsCommon, row, 0, ;
         hb_StrToUTF8( 'Всего листов учета' ), wsCommon_String_Right )
       worksheet_write_number( wsCommon, row, 7, ;
-        k ) //, header )
+        k )
       worksheet_write_number( wsCommon, row++, 8, ;
         sstoim, fmtCellNumberRub )
 
@@ -685,8 +687,7 @@ Function pz1statist( par, par2 )
           if lExcel
             worksheet_merge_range( wsCommon, row, 0, row, 5, '' ) //, wsCommon_format_wrap )
             worksheet_write_string( wsCommon, row, 0, ;
-              hb_StrToUTF8( f14tf_array()[ i ] ) ) //, header )
-//              hb_StrToUTF8( ta[ 1 ] ) ) //, header )
+              hb_StrToUTF8( f14tf_array()[ i ] ) )
           else
             add_string( PadR( ta[ 1 ], 49 ) + Str( as[ i, 1 ], 7, 0 ) )
           endif
@@ -694,14 +695,13 @@ Function pz1statist( par, par2 )
           if lExcel
             worksheet_merge_range( wsCommon, row, 0, row, 5, '' ) //, wsCommon_format_wrap )
             worksheet_write_string( wsCommon, row, 0, ;
-              hb_StrToUTF8( f14tf_array()[ i ] ) ) //, header )
-//              hb_StrToUTF8( ta[ 1 ] ) ) //, header )
+              hb_StrToUTF8( f14tf_array()[ i ] ) )
             worksheet_write_number( wsCommon, row, 6, ;
-              as[ i, 1 ] ) //, header )
+              as[ i, 1 ] )
             worksheet_write_number( wsCommon, row, 7, ;
               as[ i, 2 ], fmtCellNumberZero )
             worksheet_write_number( wsCommon, row++, 8, ;
-              as[ i, 3 ] ) //, header )
+              as[ i, 3 ] )
           else
             add_string( PadR( ta[ 1 ], 49 ) + Str( as[ i, 1 ], 7, 0 ) + ;
               umest_val( as[ i, 2 ], 9, 2 ) + ;
@@ -754,11 +754,11 @@ Function pz1statist( par, par2 )
     n1 := 30
     r_use( dir_server() + 'mo_uch', , 'UCH' )
     r_use( dir_server() + 'mo_otd', , 'OTD' )
-    Set Relation To kod_lpu into UCH
+    Set Relation To FIELD->kod_lpu into UCH
     Select TMPO
     Set Index To
     dbEval( {|| otd->( dbGoto( tmpo->otd ) ), tmpo->uch := otd->kod_lpu } )
-    Set Relation To otd into OTD
+    Set Relation To FIELD->otd into OTD
     Index On Upper( uch->name ) + Str( uch, 3 ) + Upper( otd->name ) + Str( otd, 3 ) to ( cur_dir() + 'tmpo' )
     old_uch := 0
     Go Top
@@ -776,7 +776,7 @@ Function pz1statist( par, par2 )
         Endif
         if lExcel
           worksheet_write_string( worksheet, rowWS++, 0, ;
-            hb_StrToUTF8( Upper( uch->name ) ) ) //, header )
+            hb_StrToUTF8( Upper( uch->name ) ) )
         else
           add_string( Upper( uch->name ) )
           add_string( Replicate( '═', sh ) )
@@ -793,7 +793,7 @@ Function pz1statist( par, par2 )
       if lExcel
         columnWS := 0
         worksheet_write_string( worksheet, rowWS, columnWS++, ;
-          hb_StrToUTF8( otd->name ) ) //, header )
+          hb_StrToUTF8( otd->name ) )
         worksheet_write_number( worksheet, rowWS, columnWS++, ;
           k, fmtCellNumberZero )
         worksheet_write_number( worksheet, rowWS, columnWS++, ;
@@ -901,14 +901,14 @@ Function pz1statist( par, par2 )
               strOut := ' (' + lstr( tmp->kol1 ) + ')'
               if lExcel
                 worksheet_write_string( worksheet, rowWS, columnWS++, ;
-                  hb_StrToUTF8( strOut ) ) //, header )
+                  hb_StrToUTF8( strOut ) )
               else
                 s += PadR( strOut, 9 )
               endif
             Else
               if lExcel
                 worksheet_write_string( worksheet, rowWS, columnWS++, ;
-                  hb_StrToUTF8( '' ) ) //, header )
+                  hb_StrToUTF8( '' ) )
               else
                 s += Space( 9 )
               endif
@@ -955,7 +955,7 @@ Function pz1statist( par, par2 )
               worksheet_write_string( worksheet, rowWS, 1, ;
                 hb_StrToUTF8( 'в т.ч. ' + AllTrim( arr_lp[ j, 2, k, 1 ] ) ), wsCommon_String_Right )
               worksheet_write_number( worksheet, rowWS, 2, ;
-                arr_lp[ j, 2, k, 2 ] ) //, header )
+                arr_lp[ j, 2, k, 2 ] )
             else
               s := Space( 10 ) + 'в т.ч. ' + AllTrim( arr_lp[ j, 2, k, 1 ] )
               If Len( s ) > n1
@@ -968,7 +968,7 @@ Function pz1statist( par, par2 )
             If !Empty( arr_lp[ j, 2, k, 3 ] )
               if lExcel
                 worksheet_write_string( worksheet, rowWS, 3, ;
-                  hb_StrToUTF8( ' (' + lstr( arr_lp[ j, 2, k, 3 ] ) + ')' ) ) //, header )
+                  hb_StrToUTF8( ' (' + lstr( arr_lp[ j, 2, k, 3 ] ) + ')' ) )
               else
                 s += ' (' + lstr( arr_lp[ j, 2, k, 3 ] ) + ')'
               endif
@@ -992,11 +992,12 @@ Function pz1statist( par, par2 )
       Set Relation To kod into USL
       r_use( dir_server() + 'slugba', dir_server() + 'slugba', 'SL' )
       Select USL
-      Set Relation To Str( slugba, 3 ) into SL
+      Set Relation To Str( FIELD->slugba, 3 ) into SL
       Select TMP
       Index On Str( usl->slugba, 3 ) + fsort_usl( usl->shifr ) to ( cur_dir() + 'tmp' )
       old_s := -999
-      ssl := Array( 3 ) ; AFill( ssl, 0 )
+      ssl := Array( 3 )
+      AFill( ssl, 0 )
       Go Top
       Do While !Eof()
         columnWS := 0
@@ -1009,7 +1010,7 @@ Function pz1statist( par, par2 )
           If old_s > -999
             if lExcel
               worksheet_write_string( worksheet, rowWS, 1, ;
-                hb_StrToUTF8( 'Итого по службе:' ) ) //, header )
+                hb_StrToUTF8( 'Итого по службе:' ) )
               worksheet_write_number( worksheet, rowWS, 2, ;
                 ssl[ 1 ], fmtCellNumberZero )
             else
@@ -1026,7 +1027,7 @@ Function pz1statist( par, par2 )
             Endif
             if lExcel
               worksheet_write_number( worksheet, rowWS++, 4, ;
-                ssl[ 3 ] ) //, header )
+                ssl[ 3 ] )
             else
               s += put_kope( ssl[ 3 ], 14 )
               add_string( s )
@@ -1046,9 +1047,9 @@ Function pz1statist( par, par2 )
         Endif
         if lExcel
           worksheet_write_string( worksheet, rowWS, 0, ;
-            hb_StrToUTF8( usl->shifr ) ) //, header )
+            hb_StrToUTF8( usl->shifr ) )
           worksheet_write_string( worksheet, rowWS, 1, ;
-            hb_StrToUTF8( usl->name ) ) //, header )
+            hb_StrToUTF8( usl->name ) )
           worksheet_write_number( worksheet, rowWS, 2, ;
             tmp->kol, fmtCellNumberZero )
         else
@@ -1085,7 +1086,6 @@ Function pz1statist( par, par2 )
         tmp_xls->u_name := tmp->u_name
         tmp_xls->kol    := tmp->kol
         tmp_xls->sum    := tmp->sum
-        // {'kol1', 'N', 7, 0}, ;
         Select TMP
         Skip
         if lExcel
@@ -1096,7 +1096,7 @@ Function pz1statist( par, par2 )
         strOut := 'Итого по службе:'
         if lExcel
           worksheet_write_string( worksheet, rowWS, 1, ;
-            hb_StrToUTF8( strOut ) ) //, header )
+            hb_StrToUTF8( strOut ) )
           worksheet_write_number( worksheet, rowWS, 2, ;
             ssl[ 1 ], fmtCellNumberZero )
         else
@@ -1198,11 +1198,11 @@ Function pz1statist( par, par2 )
       r_use( dir_server() + 'uch_pers', dir_server() + 'uch_pers', 'UCHP' )
     Endif
     Select TMP1
-    Set Relation To kod1 into USL
-    Index On Str( kod, 4 ) + fsort_usl( usl->shifr ) to ( cur_dir() + 'tmp1' )
+    Set Relation To FIELD->kod1 into USL
+    Index On Str( FIELD->kod, 4 ) + fsort_usl( usl->shifr ) to ( cur_dir() + 'tmp1' )
     g_use( dir_server() + 'mo_pers', , 'PERSO' )
     Select TMP
-    Set Relation To kod into PERSO
+    Set Relation To FIELD->kod into PERSO
     Index On Upper( perso->fio ) to ( cur_dir() + 'tmp' )
     Go Top
     Do While !Eof()
@@ -1307,7 +1307,7 @@ Function pz1statist( par, par2 )
           If fl_plan
             if lExcel
               worksheet_write_string( worksheet, rowWS, columnWS++, ;
-                hb_StrToUTF8( '' ) ) //, header )
+                hb_StrToUTF8( '' ) )
             else
               s += Space( 5 )
             endif
@@ -1527,10 +1527,10 @@ Function f1pz1statist( arr_otd, par )
                   AAdd( arr_lp, { lshifr, {} } ) ; i := Len( arr_lp )
                 Endif
                 If ( i1 := AScan( arr_lp[ i, 2 ], {| x| x[ 1 ] == s } ) ) == 0
-                  AAdd( arr_lp[ i, 2 ], { s, 0, 0 } ) ; i1 := Len( arr_lp[ i, 2 ] )
+                  AAdd( arr_lp[ i, 2 ], { s, 0, 0 } )
+                  i1 := Len( arr_lp[ i, 2 ] )
                 Endif
                 arr_lp[ i, 2, i1, 2 ] += mkol
-                // arr_lp[i, 2,i1, 3] ++
               Endif
               If eq_any( Left( lshifr, 4 ), '2.3.', '2.6.', '2.60', '1.11', '55.1' )
                 s := inieditspr( A__MENUVERT, getv002(), hu_->PROFIL )
@@ -1562,8 +1562,6 @@ Function f1pz1statist( arr_otd, par )
               lalunit := 'MOUNIT'   // 29.12.2022
               dbSelectArea( lalunit )
               Set Order To 2  // 2 23.12.21 == 1
-              // find (str(i16, 3))
-              // if &lalunit.->c_t == 2 // план-заказ подсчитывается по случаю
               t_vrem := &lalunit.->code
               If eq_any( t_vrem, 511, 317, 261, 262, 318, 319, 320, 321 )
                 apz2016[ i16, 3 ] := 0
@@ -1629,7 +1627,6 @@ Function f1pz1statist( arr_otd, par )
   Endif
   If su == 1  // Список отделений (план-заказ)
     For i := 1 To Len( au_su1 )
-      // aadd(au_su1,{hu->otd,human->kod_k,human->kod,k,mkol,muet})
       Select TMPO
       find ( Str( au_su1[ i, 1 ], 3 ) )
       If !Found()
@@ -1674,25 +1671,27 @@ Function f1pz1statist( arr_otd, par )
 // 14.05.24
 Function pz2statist( arr_m, par2, lAdult )
 
-  Local begin_date, end_date, buf := save_maxrow(), fl := .f., mstr_crb, mismo
+  Local begin_date, end_date, buf := save_maxrow(), fl := .f., mstr_crb
+  Local adbf
 
   begin_date := arr_m[ 7 ]
   end_date := arr_m[ 8 ]
   //
   mywait()
   //
-  adbf := { { 'KOMU',   'N',     1,     0 }, ; // от 0 до 5
-    { 'STR_CRB',   'N',     2,     0 }, ; // код стр.компании, комитета и т.п.
-    { 'NKOMU',   'C',    35,     0 }, ;
-    { 'IFIN',   'N',     1,     0 }, ;
-    { 'SMO',   'C',     5,     0 }, ; // код СМО
-    { 'KOL_BOLN',   'N',     6,     0 }, ;
-    { 'SUMMA',   'N',    13,     2 }, ;
-    { 'is',   'N',     1,     0 } }
+  adbf := { ;
+    { 'KOMU',     'N',     1,     0 }, ; // от 0 до 5
+    { 'STR_CRB',  'N',     2,     0 }, ; // код стр.компании, комитета и т.п.
+    { 'NKOMU',    'C',    35,     0 }, ;
+    { 'IFIN',     'N',     1,     0 }, ;
+    { 'SMO',      'C',     5,     0 }, ; // код СМО
+    { 'KOL_BOLN', 'N',     6,     0 }, ;
+    { 'SUMMA',    'N',    13,     2 }, ;
+    { 'is',       'N',     1,     0 } }
   dbCreate( cur_dir() + 'tmp_smo', adbf )
   Use ( cur_dir() + 'tmp_smo' ) New Alias TMP
-  Index On Str( komu, 1 ) + Str( str_crb, 2 ) + smo to ( cur_dir() + 'tmp_smo1' )
-  Index On nkomu to ( cur_dir() + 'tmp_smo2' )
+  Index On Str( FIELD->komu, 1 ) + Str( FIELD->str_crb, 2 ) + FIELD->smo to ( cur_dir() + 'tmp_smo1' )
+  Index On FIELD->nkomu to ( cur_dir() + 'tmp_smo2' )
   Set Index to ( cur_dir() + 'tmp_smo1' ), ( cur_dir() + 'tmp_smo2' )
   If par2 == 2
     r_use( dir_server() + 'human_', , 'HUMAN_' )
@@ -1774,7 +1773,6 @@ Function pz2statist( arr_m, par2, lAdult )
         Do While human->schet == schet->kod .and. !Eof()
           If Between( human->k_data, arr_m[ 5 ], arr_m[ 6 ] ) ;
               .and. iif( lAdult, .t., human->VZROS_REB > 0 )
-//              .and. iif( v_deti == 1, .t., human->VZROS_REB > 0 )
             Select TMP
             find ( Str( mkomu, 1 ) + Str( mstr_crb, 2 ) + msmo )
             If !Found()
@@ -1906,18 +1904,18 @@ Function pz_raschet_potr()
     { 'kol4', 'N', 11, 2 };
     } )
   Use ( cur_dir() + 'tmp' ) new
-  Index On shifr + Str( vr, 1 ) + Str( tarif, 10, 2 ) to ( cur_dir() + 'tmp' )
+  Index On FIELD->shifr + Str( FIELD->vr, 1 ) + Str( FIELD->tarif, 10, 2 ) to ( cur_dir() + 'tmp' )
   r_use( dir_server() + 'uslugi', , 'USL' )
   r_use( dir_server() + 'human_u_', , 'HU_' )
   r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
-  Set Relation To u_kod into USL, To RecNo() into HU_
+  Set Relation To FIELD->u_kod into USL, To RecNo() into HU_
   r_use( dir_server() + 'human_', , 'HUMAN_' )
   r_use( dir_server() + 'human', dir_server() + 'humans', 'HUMAN' )
   Set Relation To RecNo() into HUMAN_
   r_use( dir_server() + 'schet_', , 'SCHET_' )
   r_use( dir_server() + 'schet', , 'SCHET' )
   Set Relation To RecNo() into SCHET_
-  Index On pdate + nomer_s to ( cur_dir() + 'tmp_sch' ) ;
+  Index On FIELD->pdate + FIELD->nomer_s to ( cur_dir() + 'tmp_sch' ) ;
     For emptyall( schet_->NREGISTR, schet_->IS_DOPLATA ) .and. ;
     Int( Val( schet_->smo ) ) > 34000 .and. schet_->nyear == arr_m[ 1 ] .and. ;
     Between( date_reg_schet(), arr_m[ 5 ], arr_m[ 6 ] )
@@ -2079,7 +2077,7 @@ Function pz_raschet_potr()
 
     row := 0
     column := 0
-    worksheet_write_string( worksheet, row++, column, hb_StrToUTF8( 'дата печати ' + date_8( sys_date ) + ' ' + hour_min( Seconds() ) ) ) //, header )
+    worksheet_write_string( worksheet, row++, column, hb_StrToUTF8( 'дата печати ' + date_8( sys_date ) + ' ' + hour_min( Seconds() ) ) )
     row++
     worksheet_set_row(worksheet, row, 49, NIL)
     worksheet_merge_range( worksheet, row, column, row, 8, '', fmt_zagolovok )
@@ -2158,7 +2156,6 @@ Function pz_raschet_potr()
         hb_StrToUTF8( 'Общее количество УЕТ:' ),  )
       worksheet_write_number( worksheet, row++, 7, ;
         suet, )
-//        add_string( 'Общее количество УЕТ:  ' + AllTrim( str_0( suet, 13, 2 ) ) )
     Endif
 
     worksheet := workbook_add_worksheet( workbook, hb_StrToUTF8( 'Список' ) )
