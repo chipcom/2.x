@@ -17,8 +17,8 @@ function getMzrf798()
   if len(_arr) == 0
     db := openSQL_DB()
     cmdText := 'SELECT id, name, nameEng, comment FROM mzrf798'
-    aTable := sqlite3_get_table(db, cmdText)
-    if len(aTable) > 1
+    aTable := sqlite3_get_table( db, cmdText )
+    if len( aTable ) > 1
       for nI := 2 to Len( aTable )
         aadd(_arr, { val( aTable[ nI, 1 ] ), alltrim( aTable[ nI, 2 ] ), ;
             alltrim( aTable[ nI, 3 ] ), alltrim( aTable[ nI, 4 ] ) } )
@@ -63,8 +63,8 @@ function getM003()
   if len( arr ) == 0
     db := openSQL_DB()
     cmdText := 'SELECT id, profile FROM m003'
-    aTable := sqlite3_get_table(db, cmdText)
-    if len(aTable) > 1
+    aTable := sqlite3_get_table( db, cmdText )
+    if len( aTable ) > 1
       for nI := 2 to Len( aTable )
         aadd( arr, { alltrim( aTable[ nI, 2 ] ), val( aTable[ nI, 1 ] ), 0d20260101, 0d22221231 } )
       next

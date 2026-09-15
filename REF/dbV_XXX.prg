@@ -689,8 +689,8 @@ Function getv020()
 
 // =========== V021 ===================
 //
-// 26.01.23 вернуть массив по справочнику ФФОМС V021.xml
-Function getv021()
+// 15.09.26 вернуть массив по справочнику ФФОМС V021.xml
+Function getv021() 
 
   // V021.xml - Классификатор медицинских специальностей (должностей) (MedSpec)
   // 1 - SPECNAME(C)  2 - IDSPEC(N)  3 - DATEBEG(D)  4 - DATEEND(D)  5 - POSTNAME(C)  6 - IDPOST_MZ(C)
@@ -712,7 +712,8 @@ Function getv021()
       'idpost_mz, ' + ;
       'datebeg, ' + ;
       'dateend ' + ;
-      'FROM v021 WHERE dateend == "    -  -  "' )
+      'FROM v021 WHERE dateend == "    -  -  "' + ;
+      'group by idspec' )
     If Len( aTable ) > 1
       For nI := 2 To Len( aTable )
         AAdd( _arr, { AllTrim( aTable[ nI, 2 ] ), Val( aTable[ nI, 1 ] ), CToD( aTable[ nI, 5 ] ), CToD( aTable[ nI, 6 ] ), AllTrim( aTable[ nI, 3 ] ), AllTrim( aTable[ nI, 4 ] ) } )

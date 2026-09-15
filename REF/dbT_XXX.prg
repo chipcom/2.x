@@ -14,7 +14,7 @@ Function loadt005()
   Static _arr
   Static time_load
   Local db
-  Local aTable, row
+  Local aTable, row, j
   Local nI
 
   // T005 - Перечень ошибок ТФОМС
@@ -98,7 +98,7 @@ Function loadt007()
   Static _arr
   Static time_load
   Local db
-  Local aTable, row
+  Local aTable
   Local nI
 
   // T007 - Перечень

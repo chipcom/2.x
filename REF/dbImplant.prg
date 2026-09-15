@@ -8,25 +8,25 @@ function get_implantant()
   local aTable
   local nI
 
-  if len(_arr) == 0
-    Set(_SET_DATEFORMAT, 'yyyy-mm-dd')
+  if len( _arr ) == 0
+    Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
     db := openSQL_DB()
-    aTable := sqlite3_get_table(db, 'SELECT ' + ;
+    aTable := sqlite3_get_table( db, 'SELECT ' + ;
     'id, ' + ;
     'rzn, ' + ;
     'parent, ' + ;
     'name, ' + ;
     'type ' + ;
-    'FROM implantant WHERE rzn <> 0')
-    if len(aTable) > 1
+    'FROM implantant WHERE rzn <> 0' )
+    if len( aTable ) > 1
       for nI := 2 to Len( aTable )
-        aadd(_arr, {str(val(aTable[nI, 2]), 6) + ' ' + alltrim(aTable[nI, 4]), val(aTable[nI, 2]), ;
-          dBegin, dEnd, val(aTable[nI, 1]), val(aTable[nI, 3]), alltrim(aTable[nI, 5])})
+        aadd( _arr, { str( val( aTable[ nI, 2 ] ), 6 ) + ' ' + alltrim( aTable[ nI, 4 ] ), val(aTable[ nI, 2 ] ), ;
+          dBegin, dEnd, val( aTable[ nI, 1 ] ), val( aTable[ nI, 3 ] ), alltrim(aTable[ nI, 5 ] ) } )
       next
     endif
     db := nil
-    Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
-    asort(_arr,,,{|x, y| x[1] < y[1] })
+    Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
+    asort( _arr, , , { | x, y | x[ 1 ] < y[ 1 ] } )
   endif
 
   return _arr

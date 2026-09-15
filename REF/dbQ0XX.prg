@@ -3,7 +3,7 @@
 #require 'hbsqlit3'
 
 // 22.12.22 вернуть массив с описанием категории проверки по идентификатору категории проверки из справочника ФФОМС Q017.xml
-function getCategoryCheckErrorByID_Q017(idCategory)
+function getCategoryCheckErrorByID_Q017( idCategory )
   // idError - идентификатор категории проверки
   // arr[1] - наименование категории проверки
   // arr[2] - комментарий
@@ -20,34 +20,34 @@ function getCategoryCheckErrorByID_Q017(idCategory)
 
   local db
   local stmt 
-  local category := alltrim(upper(idCategory))
+  local category := alltrim( upper( idCategory ) )
   local aRet := {}
 
   db := openSQL_DB()
 
-  stmt := sqlite3_prepare(db, 'SELECT id_ktest, nam_ktest, comment, datebeg, dateend FROM q017 WHERE id_ktest == :id_ktest')
-  sqlite3_bind_text(stmt, 1, category)
-  Set(_SET_DATEFORMAT, 'yyyy-mm-dd')
-  do while sqlite3_step(stmt) == SQLITE_ROW
-    AAdd(aRet, hb_Utf8ToStr(sqlite3_column_blob(stmt, 2), 'RU866'))
-    AAdd(aRet, hb_Utf8ToStr(sqlite3_column_blob(stmt, 3), 'RU866'))
-    AAdd(aRet, ctod(sqlite3_column_text(stmt, 4)))
-    AAdd(aRet, ctod(sqlite3_column_text(stmt, 5)))
-    AAdd(aRet, sqlite3_column_text(stmt, 1))
+  stmt := sqlite3_prepare( db, 'SELECT id_ktest, nam_ktest, comment, datebeg, dateend FROM q017 WHERE id_ktest == :id_ktest' )
+  sqlite3_bind_text( stmt, 1, category )
+  Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
+  do while sqlite3_step( stmt ) == SQLITE_ROW
+    AAdd( aRet, hb_Utf8ToStr( sqlite3_column_blob( stmt, 2 ), 'RU866' ) )
+    AAdd( aRet, hb_Utf8ToStr( sqlite3_column_blob( stmt, 3 ), 'RU866' ) )
+    AAdd( aRet, ctod( sqlite3_column_text( stmt, 4 ) ) )
+    AAdd( aRet, ctod( sqlite3_column_text( stmt, 5 ) ) )
+    AAdd( aRet, sqlite3_column_text( stmt, 1 ) )
   enddo
-  Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
+  Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
 
-  sqlite3_clear_bindings(stmt)
-  sqlite3_finalize(stmt)
+  sqlite3_clear_bindings( stmt )
+  sqlite3_finalize( stmt )
 
   db := nil
 
-  if len(aRet) == 0
-    AAdd(aRet, 'Неизвестная категория проверки с идентификатором: ' + category)
-    AAdd(aRet, '')
-    AAdd(aRet, ctod('  /  /    '))
-    AAdd(aRet, ctod('  /  /    '))
-    AAdd(aRet, '')
+  if len( aRet ) == 0
+    AAdd( aRet, 'Неизвестная категория проверки с идентификатором: ' + category )
+    AAdd( aRet, '' )
+    AAdd( aRet, ctod( '  /  /    ' ) )
+    AAdd( aRet, ctod( '  /  /    ' ) )
+    AAdd( aRet, '' )
   endif
 
   return aRet
@@ -58,14 +58,14 @@ function loadQ015()
   static _arr
   static time_load
   local db
-  local aTable, row
+  local aTable
   local nI
 
-  if timeout_load(@time_load)
+  if timeout_load( @time_load )
     _arr := {}
-    Set(_SET_DATEFORMAT, 'yyyy-mm-dd')
+    Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
     db := openSQL_DB()
-    aTable := sqlite3_get_table(db, 'SELECT ' + ;
+    aTable := sqlite3_get_table( db, 'SELECT ' + ;
         'id_test, ' + ;
         'id_el, ' + ;
         'nsi_obj, ' + ;
@@ -75,22 +75,22 @@ function loadQ015()
         'comment, ' + ;
         'datebeg, ' + ;
         'dateend ' + ;
-        'FROM q015')
-    if len(aTable) > 1
+        'FROM q015' )
+    if len( aTable ) > 1
       for nI := 2 to Len( aTable )
-        aadd(_arr, {alltrim(aTable[nI, 2]), alltrim(aTable[nI, 1]), alltrim(aTable[nI, 3]), ;
-            alltrim(aTable[nI, 4]), alltrim(aTable[nI, 5]), alltrim(aTable[nI, 6]), ;
-            alltrim(aTable[nI, 7]), ctod(aTable[nI, 8]), ctod(aTable[nI,9])})
+        aadd(_arr, { alltrim( aTable[ nI, 2 ] ), alltrim( aTable[ nI, 1 ] ), alltrim( aTable[ nI, 3 ] ), ;
+            alltrim( aTable[ nI, 4 ] ), alltrim( aTable[ nI, 5 ] ), alltrim( aTable[ nI, 6 ] ), ;
+            alltrim( aTable[ nI, 7 ] ), ctod( aTable[ nI, 8 ] ), ctod( aTable[ nI,9 ] ) } )
       next
     endif
-    Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
+    Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
     db := nil
 
   endif
   return _arr
 
 // 22.12.22 вернуть массив с описанием технологиеского правила реализации ФЛК из справочника ФФОМС Q015.xml
-function getRuleCheckErrorByID_Q015(idRule)
+function getRuleCheckErrorByID_Q015( idRule )
   // idRule - идентификатор правила проверки
   // arr[1] - наименование категории проверки
   // arr[2] - Код объекта НСИ, на соответствие с которым осуществляется проверка значения элемента (id_el)
@@ -129,52 +129,52 @@ function getRuleCheckErrorByID_Q015(idRule)
 
   local db
   local stmt 
-  local rule := alltrim(upper(idRule))
+  local rule := alltrim( upper( idRule ) )
   local aRet := {}
 
   db := openSQL_DB()
 
-  stmt := sqlite3_prepare(db, 'SELECT id_test, id_el, nsi_obj, nsi_el, usl_test, val_el, comment, datebeg, dateend FROM q015 WHERE id_test == :id_test')
-  sqlite3_bind_text(stmt, 1, rule)
-  Set(_SET_DATEFORMAT, 'yyyy-mm-dd')
-  do while sqlite3_step(stmt) == SQLITE_ROW
-    AAdd(aRet, sqlite3_column_text(stmt, 2))
-    AAdd(aRet, sqlite3_column_text(stmt, 3))
-    AAdd(aRet, sqlite3_column_text(stmt, 4))
-    AAdd(aRet, hb_Utf8ToStr(sqlite3_column_blob(stmt, 5), 'RU866'))
-    if  len(alltrim(hb_Utf8ToStr(sqlite3_column_blob(stmt, 6), 'RU866'))) > 2
-      AAdd(aRet, hb_Utf8ToStr(sqlite3_column_blob(stmt, 6), 'RU866'))
+  stmt := sqlite3_prepare( db, 'SELECT id_test, id_el, nsi_obj, nsi_el, usl_test, val_el, comment, datebeg, dateend FROM q015 WHERE id_test == :id_test' )
+  sqlite3_bind_text( stmt, 1, rule )
+  Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
+  do while sqlite3_step( stmt ) == SQLITE_ROW
+    AAdd( aRet, sqlite3_column_text( stmt, 2 ) )
+    AAdd( aRet, sqlite3_column_text( stmt, 3 ) )
+    AAdd( aRet, sqlite3_column_text( stmt, 4 ) )
+    AAdd( aRet, hb_Utf8ToStr( sqlite3_column_blob( stmt, 5 ), 'RU866' ) )
+    if  len( alltrim( hb_Utf8ToStr( sqlite3_column_blob( stmt, 6 ), 'RU866' ) ) ) > 2
+      AAdd( aRet, hb_Utf8ToStr( sqlite3_column_blob( stmt, 6 ), 'RU866' ) )
     else
-      AAdd(aRet, alltrim(sqlite3_column_text(stmt, 2))+"  "+alltrim(sqlite3_column_text(stmt, 4)))
+      AAdd( aRet, alltrim( sqlite3_column_text( stmt, 2 ) ) + "  " + alltrim( sqlite3_column_text( stmt, 4 ) ) )
     endif     
-    AAdd(aRet, hb_Utf8ToStr(sqlite3_column_blob(stmt, 7), 'RU866'))
-    AAdd(aRet, ctod(sqlite3_column_text(stmt, 8)))
-    AAdd(aRet, ctod(sqlite3_column_text(stmt, 9)))
-    AAdd(aRet, sqlite3_column_text(stmt, 1))
+    AAdd( aRet, hb_Utf8ToStr( sqlite3_column_blob( stmt, 7 ), 'RU866' ) )
+    AAdd( aRet, ctod( sqlite3_column_text( stmt, 8 ) ) )
+    AAdd( aRet, ctod( sqlite3_column_text( stmt, 9 ) ) )
+    AAdd( aRet, sqlite3_column_text( stmt, 1 ) )
   enddo
-  Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
+  Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
 
-  sqlite3_clear_bindings(stmt)
-  sqlite3_finalize(stmt)
+  sqlite3_clear_bindings( stmt )
+  sqlite3_finalize( stmt )
 
   db := nil
 
-  if len(aRet) == 0
-    AAdd(aRet, 'Неизвестное правило проверки с идентификатором: ' + rule)
-    AAdd(aRet, '')
-    AAdd(aRet, '')
-    AAdd(aRet, '')
-    AAdd(aRet, '')
-    AAdd(aRet, '')
-    AAdd(aRet, ctod('  /  /    '))
-    AAdd(aRet, ctod('  /  /    '))
-    AAdd(aRet, '')
+  if len( aRet ) == 0
+    AAdd( aRet, 'Неизвестное правило проверки с идентификатором: ' + rule )
+    AAdd( aRet, '' )
+    AAdd( aRet, '' )
+    AAdd( aRet, '' )
+    AAdd( aRet, '' )
+    AAdd( aRet, '' )
+    AAdd( aRet, ctod( '  /  /    ' ) )
+    AAdd( aRet, ctod( '  /  /    ' ) )
+    AAdd( aRet, '' )
   endif
 
   return aRet
 
 // 22.12.22 вернуть массив с описанием технологиеского правила реализации ФЛК из справочника ФФОМС Q016.xml
-function getRuleCheckErrorByID_Q016(idRule)
+function getRuleCheckErrorByID_Q016( idRule )
   // idRule - идентификатор правила проверки
   // arr[1] - наименование категории проверки
   // arr[2] - Код объекта НСИ, на соответствие с которым осуществляется проверка значения элемента
@@ -214,40 +214,40 @@ function getRuleCheckErrorByID_Q016(idRule)
   
   local db
   local stmt 
-  local rule := alltrim(upper(idRule))
+  local rule := alltrim( upper( idRule ) )
   local aRet := {}
 
   db := openSQL_DB()
 
-  stmt := sqlite3_prepare(db, 'SELECT id_test, id_el, nsi_obj, nsi_el, usl_test, val_el, comment, datebeg, dateend FROM q016 WHERE id_test == :id_test')
-  sqlite3_bind_text(stmt, 1, rule)
-  Set(_SET_DATEFORMAT, 'yyyy-mm-dd')
-  do while sqlite3_step(stmt) == SQLITE_ROW
-    AAdd(aRet, sqlite3_column_text(stmt, 2))
-    AAdd(aRet, sqlite3_column_text(stmt, 3))
-    AAdd(aRet, sqlite3_column_text(stmt, 4))
-    AAdd(aRet, hb_Utf8ToStr(sqlite3_column_blob(stmt, 5), 'RU866'))
-    AAdd(aRet, hb_Utf8ToStr(sqlite3_column_blob(stmt, 6), 'RU866'))
-    AAdd(aRet, hb_Utf8ToStr(sqlite3_column_blob(stmt, 7), 'RU866'))
-    AAdd(aRet, ctod(sqlite3_column_text(stmt, 8)))
-    AAdd(aRet, ctod(sqlite3_column_text(stmt, 9)))
-    AAdd(aRet, sqlite3_column_text(stmt, 1))
+  stmt := sqlite3_prepare( db, 'SELECT id_test, id_el, nsi_obj, nsi_el, usl_test, val_el, comment, datebeg, dateend FROM q016 WHERE id_test == :id_test' )
+  sqlite3_bind_text( stmt, 1, rule )
+  Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
+  do while sqlite3_step( stmt ) == SQLITE_ROW
+    AAdd( aRet, sqlite3_column_text( stmt, 2 ) )
+    AAdd( aRet, sqlite3_column_text( stmt, 3 ) )
+    AAdd( aRet, sqlite3_column_text( stmt, 4 ) )
+    AAdd( aRet, hb_Utf8ToStr( sqlite3_column_blob( stmt, 5 ), 'RU866' ) )
+    AAdd( aRet, hb_Utf8ToStr( sqlite3_column_blob( stmt, 6 ), 'RU866' ) )
+    AAdd( aRet, hb_Utf8ToStr( sqlite3_column_blob( stmt, 7 ), 'RU866' ) )
+    AAdd( aRet, ctod( sqlite3_column_text( stmt, 8 ) ) )
+    AAdd( aRet, ctod( sqlite3_column_text( stmt, 9 ) ) )
+    AAdd( aRet, sqlite3_column_text( stmt, 1 ) )
   enddo
-  Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
+  Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
 
-  sqlite3_clear_bindings(stmt)
-  sqlite3_finalize(stmt)
+  sqlite3_clear_bindings( stmt )
+  sqlite3_finalize( stmt )
 
   db := nil
-  if len(aRet) == 0
-      AAdd(aRet, 'Неизвестное правило проверки с идентификатором: ' + rule)
-      AAdd(aRet, '')
-      AAdd(aRet, '')
-      AAdd(aRet, '')
-      AAdd(aRet, '')
-      AAdd(aRet, '')
-      AAdd(aRet, ctod('  /  /    '))
-      AAdd(aRet, ctod('  /  /    '))
-      AAdd(aRet, '')
+  if len( aRet ) == 0
+      AAdd( aRet, 'Неизвестное правило проверки с идентификатором: ' + rule )
+      AAdd( aRet, '' )
+      AAdd( aRet, '' )
+      AAdd( aRet, '' )
+      AAdd( aRet, '' )
+      AAdd( aRet, '' )
+      AAdd( aRet, ctod( '  /  /    ' ) )
+      AAdd( aRet, ctod( '  /  /    ' ) )
+      AAdd( aRet, '' )
   endif
   return aRet
