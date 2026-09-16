@@ -8,7 +8,7 @@
 #define MAX_REC_REESTR_RDL 5000
 #define BASE_ISHOD_RZD 500
 
-// 15.11.25
+// 16.09.26
 Function verify_oms( arr_m, fl_view )
   
   // Возврат: arrKolSl (массив)
@@ -36,8 +36,8 @@ Function verify_oms( arr_m, fl_view )
     Return arrKolSl
   Endif
 
-  If arr_m[ 1 ] <= 2018
-    func_error( 4, 'Случай ранее 2019 года.' )
+  If arr_m[ 1 ] <= BEGIN_YEAR
+    func_error( 4, 'Случай ранее ' + Str( BEGIN_YEAR, 4 ) + ' года.' )
     // Return Nil
     Return arrKolSl
   Endif
@@ -143,7 +143,7 @@ Function verify_oms( arr_m, fl_view )
       Elseif ko == 2 .and. human_->oplata == 2 .and. human_->ST_VERIFY < 5
         // не проверять вернувшихся из ТФОМС с ошибкой
       Else
-        If arr_m[ 1 ] > 2018
+        If arr_m[ 1 ] >= BEGIN_YEAR
           fl := verify_sluch( fl_view, ft )
         Endif
         If fl

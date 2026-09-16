@@ -44,7 +44,7 @@ Function r_use_base( sBase, lAlias, lUseIndex )
   // lUseIndex - использовать индексные файлы, .t. - да (по умолчанию), .f. - нет
   Return use_base( sBase, lAlias, , .t., lUseIndex )
 
-// 01.05.25 закрывает пакеты алиасов
+// 16.09.26 закрывает пакеты алиасов
 Function close_use_base( sBase )
 
   Local countYear, lAlias
@@ -56,11 +56,9 @@ Function close_use_base( sBase )
       kart_->( dbCloseArea() )
       kart->( dbCloseArea() )
     endif
-//  elseIf ! SubStr( sBase, 1, 4 ) == 'lusl' // проверим, что алиас открыт и выйдем если нет, пока lusl, luslc, luslf
-//    Return Nil
   elseIf SubStr( sBase, 1, 4 ) == 'lusl' //  для lusl, luslc и luslf
     If Select( sBase ) != 0
-      For countYear := 2018 To WORK_YEAR
+      For countYear := BEGIN_YEAR To WORK_YEAR
         lAlias := sBase + iif( countYear == WORK_YEAR, '', SubStr( Str( countYear, 4 ), 3 ) )
         If exists_file_tfoms( countYear, SubStr( sBase, 2 ) )
           If ( lAlias )->( Used() )
@@ -74,7 +72,7 @@ Function close_use_base( sBase )
 //    Return Nil
 //  Endif
 
-//  For countYear := 2018 To WORK_YEAR
+//  For countYear := BEGIN_YEAR To WORK_YEAR
 //    lAlias := sBase + iif( countYear == WORK_YEAR, '', SubStr( Str( countYear, 4 ), 3 ) )
 //    If exists_file_tfoms( countYear, SubStr( sBase, 2 ) )
 //      If ( lAlias )->( Used() )
@@ -129,7 +127,7 @@ Function existsnsifile( sbase, vYear )
 
   Return fl
 
-// 01.05.25
+// 16.09.26
 Function use_base( sBase, lAlias, lExcluUse, lREADONLY, lUseIndex )
 
   // sBase - 
@@ -151,7 +149,7 @@ Function use_base( sBase, lAlias, lExcluUse, lREADONLY, lUseIndex )
     If ( lExistHash := ISNIL( exists_year_tfoms ) )
       exists_year_tfoms := hb_Hash()
     Endif
-    For countYear := 2018 To WORK_YEAR
+    For countYear := BEGIN_YEAR To WORK_YEAR
       If exists_file_tfoms( countYear, 'usl' )
         hb_HSet( exists_year_tfoms, countYear, .t. )
         fName := prefixfilerefname( countYear ) + SubStr( sbase, 2 )
@@ -170,7 +168,7 @@ Function use_base( sBase, lAlias, lExcluUse, lREADONLY, lUseIndex )
       Endif
     Next
   Case sBase == 'luslc'
-    For countYear := 2018 To WORK_YEAR
+    For countYear := BEGIN_YEAR To WORK_YEAR
       If exists_file_tfoms( countYear, 'uslc' )
         fName := prefixfilerefname( countYear ) + SubStr( sbase, 2 )
         fname_add := prefixfilerefname( countYear ) + SubStr( sbase, 2, 3 ) + 'u'
@@ -191,7 +189,7 @@ Function use_base( sBase, lAlias, lExcluUse, lREADONLY, lUseIndex )
       Endif
     Next
   Case sBase == 'luslf'
-    For countYear := 2018 To WORK_YEAR
+    For countYear := BEGIN_YEAR To WORK_YEAR
       If exists_file_tfoms( countYear, 'uslf' )
         fName := prefixfilerefname( countYear ) + SubStr( sbase, 2 )
         lAlias := sBase + iif( countYear == WORK_YEAR, '', SubStr( Str( countYear, 4 ), 3 ) )
