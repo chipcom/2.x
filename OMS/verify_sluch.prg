@@ -24,7 +24,7 @@
 #define USL_SVIDPOM  14   // виды оказываемой медицинской помощи
 #define USL_ZAK_SL   15   // признак оплаты по законченному случаю
 
-// 14.09.26 
+// 16.09.26 
 Function verify_sluch( fl_view, ft )
 
   Local arrUslugi := {} // массив содержаший коды услуг в случае 
@@ -590,7 +590,7 @@ Function verify_sluch( fl_view, ft )
       fl2 := overlap_diapazon( human->n_data, human->k_data, dBegin, dEnd ) // перекрывается диапазон лечения
       fl3 := .t.
       k := 0
-      If is_alldializ() .and. ( fl1 .or. fl2 ) .and. Year( human->k_data ) > 2018 // прошлый год не смотрим вообще
+      If is_alldializ() .and. ( fl1 .or. fl2 ) .and. Year( human->k_data ) >= BEGIN_YEAR // прошлый год не смотрим вообще
         Select HU
         find ( Str( human->kod, 7 ) )
         Do While hu->kod == human->kod .and. !hu->( Eof() )
@@ -616,7 +616,7 @@ Function verify_sluch( fl_view, ft )
           AAdd( a_dializ, { human->n_data, human->k_data, human_->USL_OK, human->OTD, k } ) // диализы не в кругл.стационаре
         Endif
       Endif
-      If k < 2 .and. fl2 .and. fl3 .and. iif( is_alldializ(), Year( human->k_data ) > 2018, .t. ) .and. ! ( reserveKSG_1 .or. reserveKSG_2 ) // с учетом возможных вложенных двойных случаев
+      If k < 2 .and. fl2 .and. fl3 .and. iif( is_alldializ(), Year( human->k_data ) >= BEGIN_YEAR, .t. ) .and. ! ( reserveKSG_1 .or. reserveKSG_2 ) // с учетом возможных вложенных двойных случаев
         AAdd( a_srok_lech, { human->n_data, human->k_data, human_->USL_OK, human->OTD, k } )
       Endif
     Endif

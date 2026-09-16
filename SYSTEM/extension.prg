@@ -9,7 +9,7 @@
 
 static hExistsFilesNSI  // переменная используется в exists_file_TFOMS(...), array_exists_files_TFOMS(...) и fill_exists_files_TFOMS(...)
 
-// 12.03.23
+// 16.09.26
 function array_exists_files_TFOMS( nYear )
   return hExistsFilesNSI[ nYear ]
   
@@ -18,7 +18,7 @@ function exists_file_TFOMS( nYear, nameTFOMS )
 
   local ret := .f., arr, i
 
-  if nYear >= 2018
+  if nYear >= BEGIN_YEAR
     arr := hExistsFilesNSI[ nYear ]
     if ( i := ascan(arr, { | x | x[ 1 ] == lower( alltrim( nameTFOMS ) ) } ) ) > 0
       ret := arr[ i, 2 ]
@@ -33,7 +33,7 @@ function value_public_is_VMP( nYear )
   cVar := 'is_' + substr( str( nYear, 4 ), 3 ) + '_VMP'
   return __mvGet( cVar )
 
-// 26.09.23
+// 16.09.26
 function fill_exists_files_TFOMS( working_dir )
   local counterYear, prefix, arr
   local cDbf := '.dbf'
@@ -41,7 +41,7 @@ function fill_exists_files_TFOMS( working_dir )
 
   if isnil( hExistsFilesNSI )
     hExistsFilesNSI := hb_Hash()
-    for counterYear = 2018 to WORK_YEAR
+    for counterYear = BEGIN_YEAR to WORK_YEAR
       arr := {}
       prefix := working_dir + prefixFileRefName( counterYear )
       aadd(arr, { 'vmp_usl', hb_FileExists( prefix + 'vmp_usl' + cDbf ) } )
@@ -94,7 +94,7 @@ function aliasIsAlreadyUse( cAlias )
   select( save_sel )
   return we_opened_it
 
-// 18.03.23 
+// 16.09.26 
 Function create_name_alias( cVarAlias, in_date )
   // cVarAlias - строка с начальными символами алиаса
   // in_date - дата на которую необходимо сформировать алиас
@@ -103,18 +103,18 @@ Function create_name_alias( cVarAlias, in_date )
   // проверим входные параметры
   if valtype( in_date ) == 'D'
     valYear := year( in_date )
-  elseif valtype( in_date ) == 'N' .and. in_date >= 2018 .and. in_date < WORK_YEAR
+  elseif valtype( in_date ) == 'N' .and. in_date >= BEGIN_YEAR .and. in_date < WORK_YEAR
     valYear := in_date
   else
     return ret
   endif
-  if ( ( valYear == WORK_YEAR ) .or. ( valYear < 2018 ) )
+  if ( ( valYear == WORK_YEAR ) .or. ( valYear < BEGIN_YEAR ) )
     return ret
   endif
   ret += substr( str( valYear, 4 ), 3 )
   return ret
 
-// 04.11.21
+// 16.09.26
 // вернуть префикс справочного файла для года
 function prefixFileRefName( in_date )
   local valYear
@@ -122,14 +122,14 @@ function prefixFileRefName( in_date )
   // проверим входные параметры
   if valtype( in_date ) == 'D'
     valYear := year( in_date )
-  elseif valtype( in_date ) == 'N' .and. in_date >= 2018 .and. in_date <= WORK_YEAR
+  elseif valtype( in_date ) == 'N' .and. in_date >= BEGIN_YEAR .and. in_date <= WORK_YEAR
     valYear := in_date
   else
     valYear := WORK_YEAR
   endif
   return '_mo' + substr( str( valYear, 4, 0 ), 4, 1 )
 
-// 23.12.21
+// 16.09.26
 // вернуть строку из двух последних цифр для года
 function last_digits_year( in_date )
   local valYear
@@ -137,7 +137,7 @@ function last_digits_year( in_date )
   // проверим входные параметры
   if valtype( in_date ) == 'D'
     valYear := year( in_date )
-  elseif valtype( in_date ) == 'N' .and. in_date >= 2018 .and. in_date <= WORK_YEAR
+  elseif valtype( in_date ) == 'N' .and. in_date >= BEGIN_YEAR .and. in_date <= WORK_YEAR
     valYear := in_date
   else
     valYear := WORK_YEAR
