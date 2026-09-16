@@ -724,6 +724,34 @@ Function getv021()
   Endif
   Return _arr
 
+// 16.09.26
+function list_ocupation_V021( code )
+
+  local arr, sCode
+  Local db
+  Local aTable
+  Local nI
+
+  arr := {}
+  sCode := AllTrim( Str( code ) )
+  Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
+  db := opensql_db()
+  aTable := sqlite3_get_table( db, 'SELECT ' + ;
+    'idspec, ' + ;
+    'postname, ' + ;
+    'idpost_mz, ' + ;
+    'dateend ' + ;
+    'FROM v021 WHERE dateend == "    -  -  " and idpost_mz != 1 and idspec LIKE ' + sCode )
+  If Len( aTable ) > 1
+    For nI := 2 To Len( aTable )
+      AAdd( arr, { AllTrim( aTable[ nI, 2 ] ), Val( aTable[ nI, 1 ] ), AllTrim( aTable[ nI, 3 ] ) } )
+    Next
+  Endif
+  Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
+  db := nil
+
+  return arr
+
 // 27.02.23 вернуть массив описывающий специальность
 Function doljbyspec_v021( idspec )
 

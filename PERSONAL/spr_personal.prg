@@ -22,7 +22,8 @@ Function edit_pers()
       str_find, muslovie;
       }
     If use_base( 'mo_pers' )
-      Index On iif( kod > 0, '1', '0' ) + Upper( fio ) to ( cur_dir() + 'tmp_pers' )
+altd()
+      Index On iif( FIELD->kod > 0, '1', '0' ) + Upper( FIELD->fio ) to ( cur_dir() + 'tmp_pers' )
       Set Index to ( cur_dir() + 'tmp_pers' ), ( dir_server() + 'mo_pers' )
       find ( str_find )
       If !Found()
@@ -46,9 +47,7 @@ Function f1edit_pers( oBrow )
 
   Static ak := { '   ', '¢à.', 'áà.', '¬«.', '¯à.' }
   Local oColumn, nf := 27, n := 19, ;
-    blk := {|| iif( between_date( dbegin, dend ), ;
-    iif( P2->tab_nom > 0, { 1, 2 }, { 5, 6 } ), ;
-    { 3, 4 } ) }
+    blk := {|| iif( between_date( dbegin, dend ), iif( P2->tab_nom > 0, { 1, 2 }, { 5, 6 } ), { 3, 4 } ) }
 
   oColumn := TBColumnNew( Center( '”.ˆ.Ž.', nf ), {|| Left( P2->fio, nf ) } )
   oColumn:colorBlock := blk
@@ -56,7 +55,6 @@ Function f1edit_pers( oBrow )
   oColumn := TBColumnNew( '’ ¡.ü', {|| put_val( P2->tab_nom, 5 ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
-//  oColumn := TBColumnNew( PadC( '‘ˆ‹‘', 14 ), {|| Transform( p2->SNILS, picture_pf ) } )
   oColumn := TBColumnNew( PadC( '‘ˆ‹‘', 14 ), {|| Transform_SNILS( p2->SNILS ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
@@ -82,25 +80,27 @@ Function f1edit_pers( oBrow )
 // 12.09.25
 Function f2edit_pers( nKey, oBrow )
 
-  Static gmenu_kateg := { { '¢à ç                ', 1 }, ;
+  Static gmenu_kateg := { ;
+    { '¢à ç                ', 1 }, ;
     { 'áà¥¤­¨© ¬¥¤.¯¥àá®­ «', 2 }, ;
     { '¬« ¤è¨© ¬¥¤.¯¥àá®­ «', 3 }, ;
     { '¯à®ç¨¥              ', 4 } }
-  Static menu_vr_kateg := { { '¡¥§ ª â¥£®à¨¨   ', 0 }, ;
+  Static menu_vr_kateg := { ;
+    { '¡¥§ ª â¥£®à¨¨   ', 0 }, ;
     { '2- ï ª â¥£®à¨ï  ', 1 }, ;
     { '1- ï ª â¥£®à¨ï  ', 2 }, ;
     { '¢ëáè ï ª â¥£®à¨ï', 3 } }
-  Static osn_sovm := { { '®á­®¢­ ï à ¡®â ', 0 }, ;
+  Static osn_sovm := { ;
+    { '®á­®¢­ ï à ¡®â ', 0 }, ;
     { 'á®¢¬¥é¥­¨¥     ', 1 } }
-  Local buf, fl := .f., rec, j, k, tmp_color, mkod, r, ret := -1
-  local i, max_nom, iSort, s
-//  local name_file := cur_dir() + 'personal.txt'
+  Local buf, fl := .f., rec, j, k, tmp_color, mkod, r, s, ret := -1
   local typeSort := { ;
     '¯® ä ¬¨«¨¨          ', ;
     '¯® â ¡¥«ì­®¬ã ­®¬¥àã', ;
     '¯® á¯¥æ¨ «ì­®áâ¨    ', ;
     '¯® ®â¤¥«¥­¨î        ' ;
   }
+//  local i, max_nom, iSort
 
   Do Case
   Case nKey == K_F2
@@ -139,65 +139,7 @@ Function f2edit_pers( nKey, oBrow )
     buf := save_maxrow()
     
     spr_personal( 1, j )
-/*    mywait()
-    fp := FCreate( name_file )
-    n_list := 1
-    tek_stroke := 0
-    sh := 81
-    HH := 60
-    add_string( '' )
-    add_string( Center( '‘¯¨á®ª à ¡®â îé¥£® ¯¥àá®­ «  á â ¡¥«ì­ë¬¨ ­®¬¥à ¬¨', sh ) )
-    add_string( '' )
-    If j == 1
-      Set Order To 1
-      find ( str_find )
-    Else
-      Set Order To 2
-      Go Top
-    Endif
 
-    Do While !Eof()
-      If iif( j == 2, kod > 0, .t. ) .and. between_date( dbegin, dend )
-        verify_ff( HH, .t., sh )
-        s := Str( p2->tab_nom, 5 ) + ;
-          iif( Empty( p2->svod_nom ), Space( 7 ), PadL( '(' + lstr( p2->svod_nom ) + ')', 7 ) ) + ;
-          ' ' + PadR( p2->fio, 35 ) + ' ' + Transform( p2->SNILS, picture_pf ) + ' ' + ;
-          ret_tmp_prvs( p2->prvs, p2->prvs_new )
-        add_string( s )
-      Endif
-      Skip
-    Enddo
-
-    Set Order To 2
-    Go Bottom
-    max_nom := p2->tab_nom
-    verify_ff( HH - 3, .t., sh )
-    add_string( Replicate( '=', sh ) )
-    add_string( Center( '‘¯¨á®ª á¢®¡®¤­ëå â ¡¥«ì­ëå ­®¬¥à®¢:', sh ) )
-    s := ''
-    k := 0
-    For i := 1 To max_nom
-      find ( Str( i, 5 ) )
-      If !Found()
-        s += lstr( i ) + ', '
-        If Len( s ) > sh
-          verify_ff( HH, .t., sh )
-          add_string( s )
-          s := ''
-          If ++k > 10
-            add_string( '...' )
-            Exit
-          Endif
-        Endif
-      Endif
-    Next
-    If !Empty( s )
-      add_string( s )
-    Endif
-    Set Order To 1
-    FClose( fp )
-    viewtext( name_file, , , , .t., , , 2 )
-*/
     rest_box( buf )
     Goto ( rec )
   Case nKey == K_INS .or. ( nKey == K_ENTER .and. kod > 0 )
@@ -398,17 +340,17 @@ Function f2edit_pers( nKey, oBrow )
     If !fl
       mywait( s + 'kas_pl_u' )
       r_use( dir_server() + 'kas_pl_u', , 'HU' ) // ¯à®¢¥à¨âì Š ááã
-      Index On Str( kod_vr, 4 ) to ( cur_dir() + 'tmp_hu' ) For kod_vr > 0
+      Index On Str( FIELD->kod_vr, 4 ) to ( cur_dir() + 'tmp_hu' ) For FIELD->kod_vr > 0
       find ( Str( k, 4 ) )
       fl := Found()
       hu->( dbCloseArea() )
       If !fl
         mywait( s + 'kas_ort' )
         r_use( dir_server() + 'kas_ort', , 'HU' )
-        Index On Str( kod_vr, 4 ) to ( cur_dir() + 'tmp_hu' ) For kod_vr > 0
+        Index On Str( FIELD->kod_vr, 4 ) to ( cur_dir() + 'tmp_hu' ) For FIELD->kod_vr > 0
         find ( Str( k, 4 ) )
         If !( fl := Found() )
-          Index On Str( kod_tex, 4 ) to ( cur_dir() + 'tmp_hu' ) For kod_tex > 0
+          Index On Str( FIELD->kod_tex, 4 ) to ( cur_dir() + 'tmp_hu' ) For FIELD->kod_tex > 0
           find ( Str( k, 4 ) )
           fl := Found()
         Endif
@@ -428,7 +370,7 @@ Function f2edit_pers( nKey, oBrow )
   Endcase
   Return ret
 
-// 27.02.23
+// 16.09.23
 Function set_prvs( get, regim )
 
   // regim - ¬¥áâ® ¢ë§®¢ , (1 - ¢ë¡®à mprvs, 2 - ¢ë¡®à mprvs_021)
@@ -438,16 +380,16 @@ Function set_prvs( get, regim )
     prvs := iif( ValType( m1prvs ) == 'C', Val( m1prvs ), m1prvs )
     m1prvs_021 := prvs_v015_to_v021( prvs )
     mprvs_021 := PadR( inieditspr( A__MENUVERT, getv021(), m1prvs_021 ), 40 )
-    mname_dolj := PadR( doljbyspec_v021( m1prvs_021 ), 30 )
+//    mname_dolj := PadR( doljbyspec_v021( m1prvs_021 ), 30 )
     update_get( 'mprvs_021' )
-    update_get( 'mname_dolj' )
+//    update_get( 'mname_dolj' )
   Elseif regim == 2
     prvs_021 := m1prvs_021
     m1PRVS := prvs_v021_to_v015( prvs_021 )
     mprvs  := PadR( ret_tmp_prvs( 0, m1prvs ), 40 )
-    mname_dolj := PadR( doljbyspec_v021( prvs_021 ), 30 )
+//    mname_dolj := PadR( doljbyspec_v021( prvs_021 ), 30 )
     update_get( 'mprvs' )
-    update_get( 'mname_dolj' )
+//    update_get( 'mname_dolj' )
   Endif
   Return fl
 
@@ -590,7 +532,7 @@ function spr_personal( type_report, type_sort )
     Endif
   elseif type_report == 2
     r_use( dir_server() + 'mo_pers',, 'P2' )
-    Index On Upper( fio ) to ( cur_dir() + 'tmp_pers' ) For kod > 0
+    Index On Upper( FIELD->fio ) to ( cur_dir() + 'tmp_pers' ) For FIELD->kod > 0
   endif
 
   mywait()
@@ -617,7 +559,6 @@ function spr_personal( type_report, type_sort )
         AAdd( aRow, put_val( p2->tab_nom, 5 ) )
         AAdd( aRow, iif( Empty( p2->svod_nom ), Space( 5 ), PadL( '(' + lstr( p2->svod_nom ) + ')', 5 ) ) + ;
           ' ' + AllTrim( p2->fio ) )
-//        AAdd( aRow, Transform( p2->SNILS, picture_pf ) )
         AAdd( aRow, Transform_SNILS( p2->SNILS ) )
         AAdd( aRow, ret_tmp_prvs( p2->prvs, p2->prvs_new ) )
       Endif
@@ -664,49 +605,3 @@ function spr_personal( type_report, type_sort )
   endif
   viewtext( name_file, , , , .t., , , 2 )
   return nil
-
-// 07.03.21 á¯¨á®ª ¯¥àá®­ « 
-/* Function spr_personal() 
-
-  Local sh := 80, HH := 57, fl := .t., s
-
-  mywait()
-  fp := FCreate( cur_dir() + 'spisok' + stxt() )
-  n_list := 1
-  tek_stroke := 0
-  add_string( '' )
-  add_string( Center( '‘¯¨á®ç­ë© á®áâ ¢ ¯¥àá®­ «  á â ¡¥«ì­ë¬¨ ­®¬¥à ¬¨', sh ) )
-  add_string( '' )
-  add_string( Center( AllTrim( glob_uch[ 2 ] ) + ' (' + AllTrim( glob_otd[ 2 ] ) + ')', sh ) )
-  add_string( PadL( date_8( sys_date ) + '£.', sh ) )
-  If r_use( dir_server() + 'mo_pers',, 'PERSO' )
-    Index On Upper( fio ) to ( cur_dir() + 'tmp_pers' ) For kod > 0
-    Do While !Eof()
-      If fl .or. tek_stroke > HH
-        If !fl
-          add_string( Chr( 12 ) )
-          tek_stroke := 0
-          n_list++
-          next_list( sh )
-        Endif
-        add_string( 'ÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ' )
-        add_string( '’ ¡.ü³                       ”.ˆ.Ž.                     ³ ‘¯¥æ¨ «ì­®áâì        ' )
-        add_string( 'ÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ' )
-      Endif
-      fl := .f.
-      s := put_val( perso->tab_nom, 5 ) + ;
-        iif( Empty( perso->svod_nom ), Space( 5 ), PadL( '(' + lstr( perso->svod_nom ) + ')', 5 ) ) + ;
-        ' ' + PadR( AllTrim( perso->fio ), 45 )
-      If !emptyall( perso->prvs, perso->prvs_new )
-        s += ' ' + ret_tmp_prvs( perso->prvs, perso->prvs_new )
-      Endif
-      add_string( s )
-      Select PERSO
-      Skip
-    Enddo
-  Endif
-  Close databases
-  FClose( fp )
-  viewtext( 'spisok' + stxt(),,,,,,, 2 )
-  Return Nil
-*/
