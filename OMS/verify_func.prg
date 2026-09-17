@@ -214,6 +214,11 @@ Function checkrslt_ishod( result, ishod, arr )
 
   Return nil
 
+// 17.09.26
+function check_PN_prescription()
+
+  return iif( ( m1dopo_na > 0 ) .or. ( m1napr_v_mo > 0 ), .t., .f. )
+
 // 17.09.21 проверка секции направлений пациента
 Function checksectionprescription( arr )
 

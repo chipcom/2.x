@@ -24,7 +24,7 @@
 #define USL_SVIDPOM  14   // виды оказываемой медицинской помощи
 #define USL_ZAK_SL   15   // признак оплаты по законченному случаю
 
-// 16.09.26 
+// 17.09.26 
 Function verify_sluch( fl_view, ft )
 
   Local arrUslugi := {} // массив содержаший коды услуг в случае 
@@ -3938,9 +3938,14 @@ Function verify_sluch( fl_view, ft )
           ++k
         Endif
       Next
-      If metap == 1 .and. k > 20
+      If dEnd >= 0d20260901 .and. k > 20 .and. ! check_PN_prescription()
+        AAdd( ta, 'срок ПН должен составлять не более 20 рабочих дней (у Вас ' + lstr( k ) + ')' )
+      elseIf dEnd >= 0d20260901 .and. k > 45 .and. check_PN_prescription()
+        AAdd( ta, 'срок ПН с дополнительными назначениями должен составлять не более 45 рабочих дней (у Вас ' + lstr( k ) + ')' )
+//      If metap == 1 .and. k > 20
+      elseif dEnd < 0d20260901 .and. metap == 1 .and. k > 20
         AAdd( ta, 'срок ПН I этапа должен составлять 20 рабочих дней (у Вас ' + lstr( k ) + ')' )
-      Elseif metap == 2 .and. k > 45
+      Elseif dEnd < 0d20260901 .and. metap == 2 .and. k > 45
         AAdd( ta, 'срок ПН I и II этапа должен составлять 45 рабочих дней (у Вас ' + lstr( k ) + ')' )
       Endif
       // проверим, выполнены обязательные услуги (и наоборот)
