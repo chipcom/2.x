@@ -109,6 +109,7 @@ Function getadditionalcriteria( dateSl )
       aCriteria := loadcriteria20( yearSl )
       hCriteria[ yearSl ] := aCriteria
       retCriteria := aCriteria
+/*
     Elseif yearSl == 2019
       // поместим в ХЭШ-массив
       aCriteria := loadcriteria19( yearSl )
@@ -119,6 +120,7 @@ Function getadditionalcriteria( dateSl )
       aCriteria := loadcriteria18( yearSl )
       hCriteria[ yearSl ] := aCriteria
       retCriteria := aCriteria
+*/
     Endif
   Endif
 
@@ -173,7 +175,7 @@ Function loadcriteria20( val_year )
   Select( tmp_select )
 
   Return retCriteria
-
+/*
 // 14.10.24
 Function loadcriteria19( val_year )
 
@@ -216,3 +218,4 @@ Function loadcriteria18( val_year )
   Endif
   Select( tmp_select )
   Return retCriteria
+*/

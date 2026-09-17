@@ -98,7 +98,7 @@ Function files_nsi_exists( dir_file )
   Endif
   Return lRet
 
-// 03.06.26 проверка и переиндексирование справочников ТФОМС
+// 17.09.26 проверка и переиндексирование справочников ТФОМС
 Function index_work_dir( dir_spavoch, working_dir, flag )
 
   Local fl := .t., i, buf := save_maxrow()
@@ -138,7 +138,7 @@ Function index_work_dir( dir_spavoch, working_dir, flag )
   Use
 
   If flag
-    For countYear = 2018 To WORK_YEAR
+    For countYear = BEGIN_YEAR To WORK_YEAR
       fl := dep_index_and_fill( countYear, dir_spavoch, working_dir, flag )  // справочник отделений на countYear год
       fl := usl_index( countYear, dir_spavoch, working_dir, flag )    // справочник услуг ТФОМС на countYear год
       fl := uslc_index( countYear, dir_spavoch, working_dir, flag )   // цены на услуги на countYear год
