@@ -1636,7 +1636,7 @@ Function ne_real()
 // 04.02.26 //24.01.19 Æ‚ÁÒ‚ î-åèè
 Function report_f_mpp()
 
-  Local begin_date, end_date, buf := SaveScreen(), arr_m, i, j, k, k1, k2, is_rebenok, is_inogoro, ;
+  Local buf := SaveScreen(), arr_m, i, j, k, k1, k2, is_rebenok, is_inogoro, ;
     lshifr1, koef, mvid, mour, fl_exit := .f., mkol, musl, d2_year, ar, arr_profil, ii, fl_K
 
   If ( arr_m := year_month(, , , 4 ) ) == NIL

@@ -3675,8 +3675,10 @@ Function i_stac_sl_profil()
   RestScreen( buf )
   If LastKey() == K_ESC
     Return Nil
-  Elseif !Between( arr_m[ 1 ], 2018, 2024 )
-    Return func_error( 4, 'Данный отчёт работает только с 2018-24 годами' )
+//  Elseif !Between( arr_m[ 1 ], 2018, 2024 )
+//    Return func_error( 4, 'Данный отчёт работает только с 2018-24 годами' )
+  Elseif !Between( arr_m[ 1 ], 2020, 2024 )
+    Return func_error( 4, 'Данный отчёт работает только с 2020-24 годами' )
   Else
     begin_date := dtoc4( arr_m[ 5 ] )
     end_date := dtoc4( arr_m[ 6 ] )
@@ -3684,13 +3686,14 @@ Function i_stac_sl_profil()
     mark_keys( { '<Esc>' } )
     //
     kds := kdr := 10
-    If arr_m[ 1 ] == 2019 .and. arr_m[ 3 ] == 12
-      kds := 17 // дата регистрации по 17.01.20
-      kdr := 21 // по какую дату РАК сумма к оплате 21.01.20
-    Elseif arr_m[ 1 ] == 2018 .and. arr_m[ 3 ] == 12
-      kds := 21
-      kdr := 22
-    Elseif arr_m[ 1 ] == 2020 .and. arr_m[ 3 ] == 12
+//    If arr_m[ 1 ] == 2019 .and. arr_m[ 3 ] == 12
+//      kds := 17 // дата регистрации по 17.01.20
+//      kdr := 21 // по какую дату РАК сумма к оплате 21.01.20
+//    Elseif arr_m[ 1 ] == 2018 .and. arr_m[ 3 ] == 12
+//      kds := 21
+//      kdr := 22
+//    Elseif arr_m[ 1 ] == 2020 .and. arr_m[ 3 ] == 12
+    if arr_m[ 1 ] == 2020 .and. arr_m[ 3 ] == 12
       kds := 21
       kdr := 22
     Elseif arr_m[ 1 ] == 2022 .and. arr_m[ 3 ] == 12

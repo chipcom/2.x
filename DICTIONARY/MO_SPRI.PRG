@@ -732,7 +732,7 @@ Function v_nulusluga()
   viewtext( n_file, , , , , , , 2 )
   Return Nil
 
-// 30.05.23 даты смены цен
+// 17.09.26 даты смены цен
 Function usl1tfoms()
 
   Local k, buf := save_maxrow(), name_file := cur_dir() + 'uslugi.txt', sh := 80, HH := 60, ;
@@ -745,7 +745,7 @@ Function usl1tfoms()
   Index On DToS( FIELD->data ) to ( cur_dir() + 'tmp' )
   use_base( 'luslc' )
 
-  For i := 2018 To WORK_YEAR
+  For i := BEGIN_YEAR To WORK_YEAR
     tmpAlias := create_name_alias( 'LUSLC', i )
     If ! ( tmpAlias )->( Used() )
       Loop
@@ -1012,7 +1012,7 @@ Function f_spr_usl_adres_podr()
   Endif
   Return ret_arr
 
-// 22.04.26
+// 17.09.26
 Function usl2tfoms()
 
   Static sdate
@@ -1031,7 +1031,7 @@ Function usl2tfoms()
   If mdate == NIL
     Return Nil
   Endif
-  If ( lyear := Year( mdate ) ) < 2018
+  If ( lyear := Year( mdate ) ) < BEGIN_YEAR
     Return func_error( 4, 'Вы запрашиваете слишком старую информацию' )
   Endif
   If lyear > WORK_YEAR
@@ -1247,7 +1247,7 @@ Function f_ret_kz_ksg( lkz, lkslp, lkiro, typeKSG )
   Endif
   Return s
 
-// 08.02.23
+// 17.09.26
 Function usl3tfoms()
 
   Local i, k, buf := save_maxrow(), name_file := cur_dir() + 'uslugi.txt', ;
@@ -1259,7 +1259,7 @@ Function usl3tfoms()
       sys_date ) ) == NIL
     Return Nil
   Endif
-  If ( lyear := Year( mdate ) ) < 2018
+  If ( lyear := Year( mdate ) ) < BEGIN_YEAR
     Return func_error( 4, 'Вы запрашиваете слишком старую информацию' )
   Endif
   If lyear > WORK_YEAR

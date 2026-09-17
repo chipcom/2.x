@@ -57,10 +57,11 @@ function code_services_VMP( nYear )
     hb_HSet( arrVMP, 2022, '1.21.' )
     hb_HSet( arrVMP, 2021, '1.20.' )
     hb_HSet( arrVMP, 2020, '1.12.' )
-    hb_HSet( arrVMP, 2019, '1.12.' )
-    hb_HSet( arrVMP, 2018, '1.12.' )
+//    hb_HSet( arrVMP, 2019, '1.12.' )
+//    hb_HSet( arrVMP, 2018, '1.12.' )
   endif
-  return iif( nYear < 2018, '', arrVMP[ nYear ])
+//  return iif( nYear < 2018, '', arrVMP[ nYear ])
+  return iif( nYear < 2020, '', arrVMP[ nYear ])
 
 // 08.04.26
 function isServiceVMP( lshifr, mdate )

@@ -70,7 +70,7 @@ Function edit_spr_uslugi( k )
   Endif
   Return Nil
 
-// 30.05.23
+// 17.09.26
 Function f1_uslugi()
 
   Local arr_block, buf := SaveScreen(), str_sem := 'Редактирование услуг'
@@ -94,7 +94,7 @@ Function f1_uslugi()
   Endif
   If !( Type( 'arr_date_usl' ) == 'A' )
     Public arr_date_usl := {}
-    For i := 2018 To WORK_YEAR
+    For i := BEGIN_YEAR To WORK_YEAR
       tmpAlias := create_name_alias( 'LUSLC', i )
       If ! ( tmpAlias )->( Used() )
         Loop
