@@ -764,8 +764,8 @@ Function f1get_spec_dvn( nKey, oBrow, regim )
 
   Return 0
 
-// 25.03.26 рабочая ли услуга ДВН в зависимости от этапа, возраста и пола
-Function f_is_usl_oms_sluch_dvn( mdata, mobil, i, _etap, _vozrast, _pol, /*@*/_diag,/*@*/_otkaz,/*@*/_ekg)
+// 17.09.26 рабочая ли услуга ДВН в зависимости от этапа, возраста и пола
+Function f_is_usl_oms_sluch_dvn( mdata, mobil, i, _etap, _vozrast, _pol, /*@*/_diag, /*@*/_otkaz, /*@*/_ekg )
 
   Local fl := .f., ars := {}, ar, aTemp
 
@@ -791,8 +791,8 @@ Function f_is_usl_oms_sluch_dvn( mdata, mobil, i, _etap, _vozrast, _pol, /*@*/_d
   Endif
   If eq_any( _etap, 1, 3 ) .and. ar[ 5 ] == 1 .and. ( ( AScan( ars, '4.20.1' ) == 0 ) .or. ( AScan( ars, '4.20.701' ) == 0 ) )
     _otkaz := 1 // можно ввести отказ
-    If ValType( ar[ 2 ] ) == 'C' .and. eq_ascan( ars, '7.57.3', '7.61.3', '4.1.12', ;
-        '7.57.703', '7.61.703', '4.1.712', '4.1.713' )
+    If ValType( ar[ 2 ] ) == 'C' .and. eq_ascan( ars, '7.61.3', '4.1.12', ;
+        '7.61.703', '4.1.712', '4.1.713', '7.57.3', '7.57.703', '7.57.704', '7.57.706', '7.57.708', '7.57.709' )
       _otkaz := 2 // можно ввести невозможность
       If ( AScan( ars, '4.1.12' ) > 0 ) .or. ( AScan( ars, '4.1.712' ) > 0 ) .or. ( AScan( ars, '4.1.713' ) > 0 ) // взятие мазка
         _otkaz := 3 // заменить на приём фельдшера-акушера
