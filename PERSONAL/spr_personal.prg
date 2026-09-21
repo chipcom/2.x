@@ -22,7 +22,6 @@ Function edit_pers()
       str_find, muslovie;
       }
     If use_base( 'mo_pers' )
-altd()
       Index On iif( FIELD->kod > 0, '1', '0' ) + Upper( FIELD->fio ) to ( cur_dir() + 'tmp_pers' )
       Set Index to ( cur_dir() + 'tmp_pers' ), ( dir_server() + 'mo_pers' )
       find ( str_find )
