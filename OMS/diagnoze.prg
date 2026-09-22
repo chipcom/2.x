@@ -603,7 +603,7 @@ Function when_diag()
 
   Return .t.
 
-// 10.09.26 вывести наименование диагноза при вводе случая
+// 22.09.26 вывести наименование диагноза при вводе случая
 Function diag_screen( k, arr_d, lUp )
 
   Static buf_d
@@ -612,7 +612,7 @@ Function diag_screen( k, arr_d, lUp )
   Default lUp To .f.
 
 //  r := iif( lUp, 5, 12 )
-  r := iif( lUp, 5, 13 )
+  r := iif( lUp, 5, 14 )
   If Type( 'row_diag_screen' ) == 'N' .and. row_diag_screen > 0
     r := row_diag_screen
   Endif
