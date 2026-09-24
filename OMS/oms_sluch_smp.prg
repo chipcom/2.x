@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 07.04.26 СМП - добавление или редактирование случая (листа учета)
+// 24.09.26 СМП - добавление или редактирование случая (листа учета)
 Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -238,15 +238,6 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
     m1brig := 0, mbrig, mm_brig, ;
     m1spec := 1, mspec, ;
     mprer_b := Space( 28 ), m1prer_b := 0, ; // прерывание беременности
-    mm1prer_b := { { 'по медицинским показаниям   ', 1 }, ;
-      { 'НЕ по медицинским показаниям', 2 } }, ;
-    mm2prer_b := { { 'постановка на учёт по берем.', 1 }, ;
-      { 'продолжение наблюдения      ', 0 } }, ;
-    mm3prer_b := { { 'отсутствие болевого синдрома', 0 }, ;
-      { 'острая боль                 ', 1 }, ;
-      { 'постоянная некупирующ. боль ', 2 }, ;
-      { 'другая постоянная боль      ', 3 }, ;
-      { 'боль неуточнённая           ', 4 } }, ;
     mtip, m1tip := 0, ;
     musluga, m1usluga := 0, ;
     mm_usluga := { ;
@@ -256,7 +247,24 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
     m1VIDPOM := iif( tip_lu == TIP_LU_SMP, 21, 11 ), ;
     m1PROFIL := iif( tip_lu == TIP_LU_SMP, 84, 160 ), ;
     m1IDSP   := iif( tip_lu == TIP_LU_SMP, 24, 41 )
-  Private mm_prer_b := mm2prer_b
+/*
+    mm1prer_b := { ;
+      { 'по медицинским показаниям   ', 1 }, ;
+      { 'НЕ по медицинским показаниям', 2 } ;
+    }, ;
+    mm2prer_b := { ;
+      { 'постановка на учёт по берем.', 1 }, ;
+      { 'продолжение наблюдения      ', 0 } ;
+    }, ;
+    mm3prer_b := { ;
+      { 'отсутствие болевого синдрома', 0 }, ;
+      { 'острая боль                 ', 1 }, ;
+      { 'постоянная некупирующ. боль ', 2 }, ;
+      { 'другая постоянная боль      ', 3 }, ;
+      { 'боль неуточнённая           ', 4 } ;
+    }, ;
+*/
+  Private mm_prer_b := mm2prer_b()
   //
   AEval( getv009(), {| x| iif( x[ 5 ] == m1USL_OK, AAdd( mm_rslt, x ), nil ) } )
   AEval( getv012(), {| x| iif( x[ 5 ] == m1USL_OK, AAdd( mm_ishod, x ), nil ) } )
@@ -471,7 +479,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
     mMO_PR := AllTrim( inieditspr( A__MENUVERT, get_f032_prik(), m1MO_PR ) )
   endif
   If ibrm > 0
-    mm_prer_b := iif( ibrm == 1, mm1prer_b, iif( ibrm == 2, mm2prer_b, mm3prer_b ) )
+    mm_prer_b := iif( ibrm == 1, mm1prer_b(), iif( ibrm == 2, mm2prer_b(), mm3prer_b() ) )
     If ibrm == 1 .and. m1prer_b == 0
       mprer_b := Space( 28 )
     Else
@@ -662,7 +670,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
       reader {| x| menu_reader( x, mm_prer_b, A__MENUVERT, , , .f. ) } ;
       when {|| diag_screen( 2 ), ;
       ibrm := f_oms_beremenn( mkod_diag, MN_DATA ), ;
-      mm_prer_b := iif( ibrm == 1, mm1prer_b, iif( ibrm == 2, mm2prer_b, mm3prer_b ) ), ;
+      mm_prer_b := iif( ibrm == 1, mm1prer_b(), iif( ibrm == 2, mm2prer_b(), mm3prer_b() ) ), ;
       ( ibrm > 0 ) }
     //
     @ ++j, 1 Say 'Результат обращения' Get mrslt ;

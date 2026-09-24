@@ -24,7 +24,7 @@
 #define USL_SVIDPOM  14   // виды оказываемой медицинской помощи
 #define USL_ZAK_SL   15   // признак оплаты по законченному случаю
 
-// 22.09.26 
+// 24.09.26 
 Function verify_sluch( fl_view, ft )
 
   Local arrUslugi := {} // массив содержаший коды услуг в случае 
@@ -724,7 +724,6 @@ Function verify_sluch( fl_view, ft )
     Endif
   Endif
 
-/*
   s := ''
   If l_mdiagnoz_fill .and. f_oms_beremenn( mdiagnoz[ 1 ], human->k_data ) == 3 .and. Between( human_2->pn2, 1, 4 )
     s := 'R52.' + { '0', '1', '2', '9' }[ human_2->pn2 ]
@@ -743,13 +742,14 @@ Function verify_sluch( fl_view, ft )
               &pole := s  // самый последний - перезапишем
             Endif
           Else
+/*
             &pole := ''   // остальные - очистим
+*/
           Endif
         Endif
       Next
     Endif
   Endif
-*/
 
   //
   d := human->k_data - human->n_data

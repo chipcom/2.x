@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 13.08.26 добавление или редактирование случая (листа учета)
+// 24.09.26 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -141,24 +141,26 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     mokato, m1okato := '',  mismo, m1ismo := '',  mnameismo := Space( 100 ), ;
     mvidpolis, m1vidpolis := 1, mspolis := Space( 10 ),  mnpolis := Space( 20 ), ;
     m1_l_z := st_l_z, m_l_z, ;             // лечение завершено ?
+    mm_p_per := { ;
+      { 'Поступил самостоятельно', 1 }, ;
+      { 'Доставлен СМП', 2 }, ;
+      { 'Перевод из другой МО', 3 }, ;
+      { 'Перевод внутри МО', 4 } }
+/*
     mm1prer_b := { ;
       { 'по медицинским показаниям   ', 1 }, ;
       { 'НЕ по медицинским показаниям', 2 } }, ;
     mm2prer_b := { ;
       { 'постановка на учёт по берем.', 1 }, ;
       { 'продолжение наблюдения      ', 0 } }, ;
-    mm3prer_b := { ;
+    mm3prer_b := { ; 
       { 'отсутствие болевого синдрома', 0 }, ;
       { 'острая боль                 ', 1 }, ;
       { 'постоянная некупирующ. боль ', 2 }, ;
       { 'другая постоянная боль      ', 3 }, ;
       { 'боль неуточнённая           ', 4 } }, ;
-    mm_p_per := { ;
-      { 'Поступил самостоятельно', 1 }, ;
-      { 'Доставлен СМП', 2 }, ;
-      { 'Перевод из другой МО', 3 }, ;
-      { 'Перевод внутри МО', 4 } }
-  Private mm_prer_b := mm2prer_b
+*/
+  Private mm_prer_b := mm2prer_b()
 
   Private mTab_Number := 0
   Private mNMSE, m1NMSE := CHIP_NO  // направление на МСЭ
@@ -657,7 +659,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   endif
 
   If ibrm > 0
-    mm_prer_b := iif( ibrm == 1, mm1prer_b, iif( ibrm == 2, mm2prer_b, mm3prer_b ) )
+    mm_prer_b := iif( ibrm == 1, mm1prer_b(), iif( ibrm == 2, mm2prer_b(), mm3prer_b() ) )
     If ibrm == 1 .and. m1prer_b == 0
       mprer_b := Space( 28 )
     Else
@@ -841,7 +843,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       @ j, 51 Get mprer_b ;
         reader {| x| menu_reader( x, mm_prer_b, A__MENUVERT, , , .f. ) } ;
         when {|| ibrm := f_oms_beremenn( mkod_diag, MK_DATA ), ;
-        mm_prer_b := iif( ibrm == 1, mm1prer_b, iif( ibrm == 2, mm2prer_b, mm3prer_b ) ), ;
+        mm_prer_b := iif( ibrm == 1, mm1prer_b(), iif( ibrm == 2, mm2prer_b(), mm3prer_b() ) ), ;
         ( ibrm > 0 ) }
       //
       ++j

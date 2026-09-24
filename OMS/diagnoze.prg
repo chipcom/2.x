@@ -734,7 +734,7 @@ Function f_oms_beremenn( sdiag, dateSL )
   Endif
   Return k
 
-// 27.05.23
+// 24.09.26
 Function f_valid_beremenn( sdiag, dateSL )
 
   Local k
@@ -742,7 +742,7 @@ Function f_valid_beremenn( sdiag, dateSL )
   Default dateSL To sys_date
   If ( ibrm := f_oms_beremenn( sdiag, dateSL ) ) > 0
     SetPos( rdiag, 26 )
-    mm_prer_b := iif( ibrm == 1, mm1prer_b, iif( ibrm == 2, mm2prer_b, mm3prer_b ) )
+    mm_prer_b := iif( ibrm == 1, mm1prer_b(), iif( ibrm == 2, mm2prer_b(), mm3prer_b() ) )
     If ibrm == 1
       DispOut( 'прерывание беременности', cDataCGet )
       If !Between( m1prer_b, 0, 2 )
