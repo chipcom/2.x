@@ -197,7 +197,6 @@ Function f2edit_licenses_f037( nKey, oBrow )
     f033->( dbCloseArea() )
     Select( tmpSelect )
 
-altd()
 */
   Endcase
   Return ret

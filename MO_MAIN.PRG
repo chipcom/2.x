@@ -188,8 +188,6 @@ Procedure Main( ... )
   tmp := HB_DTOT( Date() )
   tmp := HB_TTOD( tmp )
 
-// altd()
-
   f_main( r, is_local_version, a_parol )
   f_end()
   Return

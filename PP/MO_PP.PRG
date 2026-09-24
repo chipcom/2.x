@@ -8,7 +8,7 @@
 Function begin_task_ppokoj()
 
   Static n_zapusk := 0
-  Local i, ar, fl := .t.
+  Local ar, fl := .t.
 
   If n_zapusk == 0
     ++n_zapusk
@@ -30,251 +30,6 @@ Function begin_task_ppokoj()
     fl := .f.
   Endif
   Return fl
-
-//
-Function pp_nastr( k )
-
-  Static sk := 1, mas_pmt
-  Local str_sem, mas_msg, mas_fun, j, n
-
-  Default k To 0
-  Do Case
-  Case k == 0
-    mas_pmt := { 'Экран ввода карточки пациента', ;
-      'Экран ввода истории болезни', ;
-      'Общие настройки', ;
-      'Рабочее место' }
-    mas_msg := { 'Настройка экрана ввода карточки пациента в картотеке (в задаче "Приёмный покой")', ;
-      'Настройка экрана ввода истории болезни', ;
-      'Общие настройки работы с задачей "Приёмный покой"', ;
-      'Настройка рабочего места оператора в задаче "Приёмный покой"' }
-    mas_fun := { 'pp_nastr(1)', ;
-      'pp_nastr(2)', ;
-      'pp_nastr(3)', ;
-      'pp_nastr(4)' }
-    popup_prompt( T_ROW, T_COL + 5, sk, mas_pmt, mas_msg, mas_fun )
-  Case k == 1
-    If currentuser():isadmin()
-      ne_real()
-    Else
-      func_error( 4, err_admin() )
-    Endif
-  Case k == 2
-    If currentuser():isadmin()
-      pp_nastr_ist_bol()
-    Else
-      func_error( 4, err_admin() )
-    Endif
-  Case k == 3
-    If currentuser():isadmin()
-      f1nastr_all( mas_pmt[ k ], X_PPOKOJ )
-    Else
-      func_error( 4, err_admin() )
-    Endif
-  Case k == 4
-    pp_nastr_rab_mesto()
-  Endcase
-  If k > 0
-    sk := k
-  Endif
-  Return Nil
-
-// 25.03.18
-Function _pp_nastr( k )
-
-  Static file_mem := 'pp_nastr'
-  Local mm_tmp, smsg
-
-  If k == 0 // инициализация файла и переменных
-    mm_tmp := { ;  // справочник настроек приемного покоя
-    { 'IST_BOL',     'N',     1,     0 }, ; // нумерация истории болезни
-    { 'N_IST_BOL',   'N',     6,     0 }, ; // последний номер истории болезни
-    { 'FILE_6',   'C',    12,     0 }, ; // шаблон согласия на обработку перс.данных
-    { 'FILE_7',   'C',    12,     0 }, ; // шаблон листа учета
-    { 'FILE_8',   'C',    12,     0 }, ; // шаблон истории болезни
-    { 'FILE_9',   'C',    12,     0 }, ; // шаблон стат.карты
-    { 'FILE_12',   'C',    12,     0 }, ; // шаблон титул истоии болезни
-    { 'FILE_XX',   'C',     3,     0 };  // маска личных шаблонов приёмного покоя
-    }
-    reconstruct( dir_server() + file_mem, mm_tmp,,, .t. )
-    If Type( 'pp_IST_BOL' ) == 'N'
-      // второй раз зашли
-    Else
-      Public pp_IST_BOL    := 1, ;
-        pp_N_IST_BOL  := 0, ;
-        pp_FILE_6     := '', ;
-        pp_FILE_7     := 'LU_STAC', ;
-        pp_FILE_8     := 'IST_BOL', ;
-        pp_FILE_9     := 'F066', ;
-        pp_FILE_12    := 'MO_025uA5_2', ;
-        pp_FILE_XX    := 'SMO'
-    Endif
-    g_use( dir_server() + file_mem,, 'MV' )
-    If LastRec() == 0
-      addrecn()
-      mv->IST_BOL := pp_IST_BOL // да
-    Else
-      g_rlock( forever )
-    Endif
-    If Empty( mv->file_7 )
-      mv->file_7 := pp_FILE_7
-    Endif
-    If Empty( mv->file_8 )
-      mv->file_8 := pp_FILE_8
-    Endif
-    If Empty( mv->file_9 )
-      mv->file_9 := pp_FILE_9
-    Endif
-    If Empty( mv->file_XX )
-      mv->file_XX := pp_FILE_XX
-    Endif
-    If Empty( mv->file_12 )
-      mv->file_12 := pp_FILE_12
-    Endif
-    Use
-  Elseif k == 1
-    r_use( dir_server() + file_mem,, 'MV' )
-    pp_IST_BOL    := mv->IST_BOL
-    pp_N_IST_BOL  := mv->N_IST_BOL
-    pp_FILE_6     := AllTrim( mv->FILE_6 )
-    pp_FILE_7     := AllTrim( mv->FILE_7 )
-    pp_FILE_8     := AllTrim( mv->FILE_8 )
-    pp_FILE_9     := AllTrim( mv->FILE_9 )
-    pp_FILE_12    := AllTrim( mv->FILE_12 )
-    pp_FILE_XX    := AllTrim( mv->FILE_XX )
-    Use
-  Endif
-  Return Nil
-
-// настройка экрана ввода истории болезни
-Function pp_nastr_ist_bol()
-
-  Local ar, mm_tmp := {}, smsg, buf
-
-  If tools_ini_pp( 1, 0, 0, .t. )
-    smsg := 'настройкам экрана ввода истории болезни'
-    buf := save_maxrow()
-    mywait()
-    Close databases
-    Delete file tmp.dbf
-    AAdd( mm_tmp, { 'NOVOR', 'N', 1, 0, NIL, ;
-      {| x| menu_reader( x, mm_danet(), A__MENUVERT ) }, ;
-      0, {| x| inieditspr( A__MENUVERT, mm_danet(), x ) }, ;
-      'Вводить новорожденного' } )
-    AAdd( mm_tmp, { 'e_01', 'C', 1, 0, NIL, ;
-      NIL, ;
-      '', NIL, ;
-      'Список наиболее часто встречающихся направляющих МО',, ;
-      {|| .f. } } )
-    AAdd( mm_tmp, { 'KEM_NAPR', 'C', 1500, 0, NIL, ;
-      {| x| menu_reader( x, { {| k, r, c| inp_bit_mo( k, r, c ) } }, A__FUNCTION ) }, ;
-      '', {| x| ini_ed_mo( x ) }, ;
-      '==>' } )
-    AAdd( mm_tmp, { 'POB_D_LEK', 'N', 1, 0, NIL, ;
-      {| x| menu_reader( x, mm_danet(), A__MENUVERT ) }, ;
-      0, {| x| inieditspr( A__MENUVERT, mm_danet(), x ) }, ;
-      'Вводить побочное действие лекарств' } )
-    AAdd( mm_tmp, { 'KOD_VR', 'N', 1, 0, NIL, ;
-      {| x| menu_reader( x, mm_danet(), A__MENUVERT ) }, ;
-      0, {| x| inieditspr( A__MENUVERT, mm_danet(), x ) }, ;
-      'Вводить табельный номер врача приёмного отделения' } )
-    AAdd( mm_tmp, { 'TRAVMA', 'N', 1, 0, NIL, ;
-      {| x| menu_reader( x, mm_danet(), A__MENUVERT ) }, ;
-      0, {| x| inieditspr( A__MENUVERT, mm_danet(), x ) }, ;
-      'Вводить вид травмы' } )
-    AAdd( mm_tmp, { 'NE_ZAK', 'N', 1, 0, NIL, ;
-      {| x| menu_reader( x, mm_danet(), A__MENUVERT ) }, ;
-      0, {| x| inieditspr( A__MENUVERT, mm_danet(), x ) }, ;
-      'Запрещать ввод, если не закончено лечение по предыдущему случаю' } )
-    init_base( cur_dir() + 'tmp',, mm_tmp, 0 )
-    Use ( cur_dir() + 'tmp' ) new
-    Append Blank
-    tmp->NOVOR     := pp_NOVOR
-    tmp->KEM_NAPR  := pp_KEM_NAPR
-    tmp->POB_D_LEK := pp_POB_D_LEK
-    tmp->KOD_VR    := pp_KOD_VR
-    tmp->TRAVMA    := pp_TRAVMA
-    tmp->NE_ZAK    := pp_NE_ZAK
-    Close databases
-    If f_edit_spr( A__EDIT, mm_tmp, smsg, 'g_use(cur_dir()+"tmp",,,.t.,.t.)', 0, 1 ) > 0
-      Use ( cur_dir() + 'tmp' ) new
-      pp_NOVOR     := tmp->NOVOR
-      pp_KEM_NAPR  := RTrim( tmp->KEM_NAPR )
-      pp_POB_D_LEK := tmp->POB_D_LEK
-      pp_KOD_VR    := tmp->KOD_VR
-      pp_TRAVMA    := tmp->TRAVMA
-      pp_NE_ZAK    := tmp->NE_ZAK
-      tools_ini_pp( 2, 0, 0 )
-    Endif
-    Close databases
-    rest_box( buf )
-  Endif
-  Return Nil
-
-//
-Function pp_nastr_rab_mesto()
-
-  Static group_ini := 'PP_RAB_MESTO'
-  Static mm_prn_svod := { { 'Elita 12cpi', 2 }, ;
-    { 'Condensed 17cpi', 3 } }, ;
-    mm_list_066 := { { 'на обеих сторонах листа', 0 }, ;
-    { 'на одной стороне листа ', 1 } }, ;
-    mm_dos_fast := { { 'через шаблоны DOS      ', 0 }, ;
-    { 'через отчёты FastReport', 1 } }
-  Local ar, mm_tmp := {}, smsg, buf, old_ib
-
-  smsg := 'настройкам рабочего места приёмного покоя'
-  buf := save_maxrow()
-  mywait()
-  Close databases
-  Delete file tmp.dbf
-  ar := getinisect( tmp_ini(), group_ini )
-  If pp_IST_BOL == 1 // да
-    AAdd( mm_tmp, { 'n_ist_bol', 'N', 6, 0, NIL, ;
-      NIL, ;
-      0, NIL, ;
-      'Номер последней введенной истории болезни (мед.карты)' } )
-    AAdd( mm_tmp, { 'e_date_01', 'C', 1, 0, NIL, ;
-      NIL, ;
-      ' ', NIL, ;
-      Replicate( '-', 78 ),, ;
-      {|| .f. } } )
-  Endif
-  AAdd( mm_tmp, { 'prn_svod', 'N', 1, 0, NIL, ;
-    {| x| menu_reader( x, mm_prn_svod, A__MENUVERT ) }, ;
-    0, {| x| inieditspr( A__MENUVERT, mm_prn_svod, x ) }, ;
-    'Режим печати сводов по направившим ЛПУ и по столам' } )
-  AAdd( mm_tmp, { 'dos_fast', 'N', 1, 0, NIL, ;
-    {| x| menu_reader( x, mm_dos_fast, A__MENUVERT ) }, ;
-    0, {| x| inieditspr( A__MENUVERT, mm_dos_fast, x ) }, ;
-    'Каким образом печатать документы' } )
-  init_base( cur_dir() + 'tmp',, mm_tmp, 0 )
-  Use ( cur_dir() + 'tmp' ) new
-  Append Blank
-  If pp_IST_BOL == 1 // да
-    r_use( dir_server() + 'pp_nastr',, 'MV' )
-    old_ib := tmp->N_IST_BOL := mv->N_IST_BOL
-  Endif
-  tmp->PRN_SVOD   := Int( Val( a2default( ar, 'PRN_SVOD',  '3' ) ) )
-  tmp->dos_fast   := Int( Val( a2default( ar, 'dos_fast',  '0' ) ) )
-  Close databases
-  If f_edit_spr( A__EDIT, mm_tmp, smsg, 'g_use(cur_dir()+"tmp",,,.t.,.t.)', 0, 1 ) > 0
-    Use ( cur_dir() + 'tmp' ) new
-    If pp_IST_BOL == 1 .and. old_ib != tmp->N_IST_BOL
-      g_use( dir_server() + 'pp_nastr',, 'MV' )
-      g_rlock( forever )
-      pp_N_IST_BOL := mv->N_IST_BOL := tmp->N_IST_BOL
-    Endif
-    memPPsvod     := tmp->PRN_SVOD
-    memPPdos_fast := tmp->dos_fast
-    setinivar( tmp_ini(), { ;
-      { group_ini, 'PRN_SVOD',  tmp->PRN_SVOD  }, ;
-      { group_ini, 'dos_fast',  tmp->dos_fast  };
-      } )
-  Endif
-  Close databases
-  rest_box( buf )
-  Return Nil
 
 // 09.07.26
 Function f_pp_stol()
@@ -365,17 +120,17 @@ Function f1pp_perevod()
     AllTrim( inieditspr( A__POPUPMENU, dir_server() + 'mo_uch', hu->lpu ) ) + ')', 58 ) Color color8
   //
   dbCreate( cur_dir() + 'tmp', { ;
-    { 'rec_per',   'N',     7,     0 }, ;
-    { 'N_DATA',   'D',     8,     0 }, ; // дата перевода
-  { 'N_TIME',   'C',     5,     0 }, ; // время перевода
-  { 'LPU',   'N',     3,     0 }, ; // код учреждения
-  { 'OTD',   'N',     3,     0 }, ; // код отделения
-  { 'STOL',   'N',     3,     0 }, ; // стол
-    { 'DATE_VVOD',   'D',     8,     0 }, ; // дата ввода данных
-  { 'KOD_P',   'C',     1,     0 };  // код пользователя
+    { 'rec_per',  'N', 7, 0 }, ;
+    { 'N_DATA',   'D', 8, 0 }, ; // дата перевода
+    { 'N_TIME',   'C', 5, 0 }, ; // время перевода
+    { 'LPU',      'N', 3, 0 }, ; // код учреждения
+    { 'OTD',      'N', 3, 0 }, ; // код отделения
+    { 'STOL',     'N', 3, 0 }, ; // стол
+    { 'DATE_VVOD','D', 8, 0 }, ; // дата ввода данных
+    { 'KOD_P',    'C', 1, 0 };  // код пользователя
     } )
   Use ( cur_dir() + 'tmp' ) new
-  Index On DToS( n_data ) + n_time to ( cur_dir() + 'tmp' ) descending
+  Index On DToS( FIELD->n_data ) + FIELD->n_time to ( cur_dir() + 'tmp' ) descending
   Append Blank
   tmp->rec_per   := 0
   tmp->N_DATA    := hu->N_DATA
@@ -622,10 +377,12 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
     find ( Str( kod_kartotek, 7 ) )
     Do While hu->kod_k == kod_kartotek .and. !Eof()
       If Empty( hu->k_data ) .and. hu->is_gospit == 0
-        fl := 1 ; Exit
+        fl := 1
+        Exit
       Endif
       If hu->ishod2 == 6
-        fl := 2 ; Exit
+        fl := 2
+        Exit
       Endif
       Skip
     Enddo
@@ -639,55 +396,57 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
   Private mdate_r, m1vzros_reb
   Private ;
     MKOD := Loc_kod,; // код (номер записи)
-  MKOD_K := kod_kartotek,; // код по картотеке
-  MKOD_H := 0,; // код по БД human
-  MREG_LECH,; // 1-стационарно, 2,3,4-дневной стационар
-  M1REG_LECH := st_reg_lech,; // 1-стационарно, 2,3,4-дневной стационар
-  MUCH_DOC := Space( 10 ),; // номер медицинской карты
-  M1FIO_KART := 1, MFIO_KART := Space( 50 ), ;
+    MKOD_K := kod_kartotek,; // код по картотеке
+    MKOD_H := 0,; // код по БД human
+    MREG_LECH,; // 1-стационарно, 2,3,4-дневной стационар
+    M1REG_LECH := st_reg_lech,; // 1-стационарно, 2,3,4-дневной стационар
+    MUCH_DOC := Space( 10 ),; // номер медицинской карты
+    M1FIO_KART := 1, MFIO_KART := Space( 50 ), ;
     mfio, mpol, ;
     m1novor := 0, mnovor, mcount_reb := 0, ;
     mDATE_R2 := CToD( '' ), mpol2 := ' ', ;
     MPPRAB_NERAB, M1PPRAB_NERAB := 0,; // социальный статус 5-работающий, 6-неработающий
-  MKATEGOR, M1KATEGOR := 11,; // от 1 до ...
-  m1company := 0, mcompany, mm_company, ;
+    MKATEGOR, M1KATEGOR := 11,; // от 1 до ...
+    m1company := 0, mcompany, mm_company, ;
     msmo := '', rec_inogSMO := 0, ;
     mokato, m1okato := '', mismo, m1ismo := '', mnameismo := Space( 100 ), ;
     mkomu, M1KOMU := 0, M1STR_CRB := 0, ; // 0-ОМС,1-компании,3-комитеты/МО,5-личный счет
-  MVID_OPL, M1VID_OPL := 1,; // вид оплаты (1-ОМС,2-бюджет,3-платные,4-ДМС,5-другое)
-  MKEM_NAPR := Space( 10 ),; // кем направлен (справочник ЛПУ)
-  M1KEM_NAPR := '',; // кем направлен (справочник ЛПУ)
-  MKEM_DOST, M1KEM_DOST := 0,; // кем доставлен
-  MPOB_D_LEK := Space( 100 ),; // побочное действие лекарств
-  MDIAG_NAPR := Space( 100 ),; // диагноз направившего учреждения
-  MDIAG_PR_P := Space( 100 ),; // диагноз приемного отделения
-  MVRACH := Space( 30 ),; // фамилия и инициалы врача приёмного покоя
-  M1VRACH := st_vrach, MTAB_NOM := 0, ; // код, таб.№ врача приёмного покоя
-  MSOST_OP, M1SOST_OP := 0,; // 0-нет,1-алкогольное,2-наркотическое
-  MGOSPIT0, M1GOSPIT0 := 0,; // 0-первичн.,1-повторн.
-  MGOSPIT1, M1GOSPIT1 := 0,; // 0-плановое,1-экстренное
-  MGOSPIT2, M1GOSPIT2 := 0,; // 1-6часов,2-7\24часа,0-24часа\и\более
-  MTRAVMA, M1TRAVMA := 0,; // тип травмы
-  Much, M1uch := glob_uch[ 1 ],; // код учреждения
-  MOTD, M1OTD := glob_otd[ 1 ],; // код отделения
-  MN_DATA := sys_date,; // дата поступления
-  MN_TIME := hour_min( Seconds() ),; // время поступления
+    MVID_OPL, M1VID_OPL := 1,; // вид оплаты (1-ОМС,2-бюджет,3-платные,4-ДМС,5-другое)
+    MKEM_NAPR := Space( 10 ),; // кем направлен (справочник ЛПУ)
+    M1KEM_NAPR := '',; // кем направлен (справочник ЛПУ)
+    MKEM_DOST, M1KEM_DOST := 0,; // кем доставлен
+    MPOB_D_LEK := Space( 100 ),; // побочное действие лекарств
+    MDIAG_NAPR := Space( 100 ),; // диагноз направившего учреждения
+    MDIAG_PR_P := Space( 100 ),; // диагноз приемного отделения
+    MVRACH := Space( 30 ),; // фамилия и инициалы врача приёмного покоя
+    M1VRACH := st_vrach, MTAB_NOM := 0, ; // код, таб.№ врача приёмного покоя
+    MSOST_OP, M1SOST_OP := 0,; // 0-нет,1-алкогольное,2-наркотическое
+    MGOSPIT0, M1GOSPIT0 := 0,; // 0-первичн.,1-повторн.
+    MGOSPIT1, M1GOSPIT1 := 0,; // 0-плановое,1-экстренное
+    MGOSPIT2, M1GOSPIT2 := 0,; // 1-6часов,2-7\24часа,0-24часа\и\более
+    MTRAVMA, M1TRAVMA := 0,; // тип травмы
+    Much, M1uch := glob_uch[ 1 ],; // код учреждения
+    MOTD, M1OTD := glob_otd[ 1 ],; // код отделения
+    MN_DATA := sys_date,; // дата поступления
+    MN_TIME := hour_min( Seconds() ),; // время поступления
     MIS_GOSPIT, M1IS_GOSPIT := 0,; // госпитализирован?
-  MPR_GOSPIT, M1PR_GOSPIT := 0,; // почему не госпитализирован?
-  MSTOL, M1STOL := 0,; // стол
-  MG_DATA := sys_date,; // дата госпитализации
-  MG_TIME := hour_min( Seconds() ),; // время госпитализации
+    MPR_GOSPIT, M1PR_GOSPIT := 0,; // почему не госпитализирован?
+    MSTOL, M1STOL := 0,; // стол
+    MG_DATA := sys_date,; // дата госпитализации
+    MG_TIME := hour_min( Seconds() ),; // время госпитализации
     MK_DATA := CToD( '' ),; // дата окончания лечения
-  MK_TIME := Space( 5 ),; // время выписки
-  MKOJKO_DNI := 0,; // продолжительность госпитализации
-  MISHOD1, M1ISHOD1 := 0,;
+    MK_TIME := Space( 5 ),; // время выписки
+    MKOJKO_DNI := 0,; // продолжительность госпитализации
+    MISHOD1, M1ISHOD1 := 0,;
     MISHOD2, M1ISHOD2 := 0,;
     MBOLNICH, M1BOLNICH := 0,; // больничный (0-нет,1-да,2-по уходу)
-  MDATE_B_1   := CToD( '' ),; // дата начала больничного
-  MDATE_B_2   := CToD( '' ),; // дата окончания больничного
-  mrodit_dr   := CToD( '' ),; // дата рождения родителя
-  mrodit_pol  := ' ',; // пол родителя
-  arr_perevod := {}
+    MDATE_B_1   := CToD( '' ),; // дата начала больничного
+    MDATE_B_2   := CToD( '' ),; // дата окончания больничного
+    mrodit_dr   := CToD( '' ),; // дата рождения родителя
+    mrodit_pol  := ' ',; // пол родителя
+    arr_perevod := {}, ;
+    mMO_PR := Space( 6 )  // МО прикрепления
+
   _pp_nastr( 1 ) // перечитать номер последней истории болезни
   If pp_ist_bol == 1
     MUCH_DOC := PadR( lstr( pp_n_ist_bol + 1 ), 10 ) // номер медицинской карты
@@ -822,7 +581,7 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
   Endif
   Close databases
   Private gl_arr := { ;  // для битовых полей
-  { 'vid_opl', 'N', 3, 0,,,, {| x| inieditspr( A__MENUBIT, menu_vid_opl(), x ) } }, ;
+    { 'vid_opl', 'N', 3, 0,,,, {| x| inieditspr( A__MENUBIT, menu_vid_opl(), x ) } }, ;
     { 'pprab_nerab', 'N', 10, 0,,,, {| x| inieditspr( A__MENUBIT, mmpp_rab(), x ) } };
     }
   much := inieditspr( A__POPUPMENU, dir_server() + 'mo_uch', m1uch )
@@ -889,7 +648,7 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
   Do While .t.
     j := 0
     //
-    ++j; @ j, 1 Say 'ФИО' Get mfio_kart ;
+    @ ++j, 1 Say 'ФИО' Get mfio_kart ;
       reader {| x| menu_reader( x, { {| k, r, c| get_fio_kart( k, r, c ) } }, A__FUNCTION,,, .f. ) } ;
       valid {| g, o| update_get( 'mkomu' ), update_get( 'mcompany' ) }
     ++j
@@ -911,24 +670,24 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
       Endif
     Endif
     //
-    ++j ; @ j, 1 Say 'Режим лечения' Get mreg_lech ;
+    @ ++j, 1 Say 'Режим лечения' Get mreg_lech ;
       reader {| x| menu_reader( x, mmpp_regim(), A__MENUVERT,,, .f. ) }
     //
-    ++j ; @ j, 1 Say '№ истории болезни' Get much_doc Picture '@!'
+    @ ++j, 1 Say '№ истории болезни' Get much_doc Picture '@!'
     If pp_kod_vr == 1
       @ j, Col() + 1 Say 'Врач приёмного отд-ия' Get MTAB_NOM Pict '99999' ;
         valid {| g| v_kart_vrach( g ) }
       @ j, Col() + 1 Get mvrach When .f. Color color14
     Endif
-    ++j ; @ j, 1 Say 'Категория льготности' Get mkategor ;
+    @ ++j, 1 Say 'Категория льготности' Get mkategor ;
       reader {| x| menu_reader( x, mmpp_kategor(), A__MENUVERT,,, .f. ) }
     //
-    ++j ; @ j, 1 Say 'Вид оплаты' Get mvid_opl ;
+    @ ++j, 1 Say 'Вид оплаты' Get mvid_opl ;
       reader {| x| menu_reader( x, menu_vid_opl(), A__MENUBIT,,, .f. ) }
     @ j, 40 Say 'Статус' Get mpprab_nerab ;
       reader {| x| menu_reader( x, mmpp_rab(), A__MENUBIT,,, .f. ) }
     //
-    ++j ; @ j, 1 Say 'Принадлежность счета' Get mkomu ;
+    @ ++j, 1 Say 'Принадлежность счета' Get mkomu ;
       reader {| x| menu_reader( x, mm_komu(), A__MENUVERT,,, .f. ) } ;
       valid {| g, o| f_valid_komu( g, o ), ;
       iif( m1komu == 0, mcompany := old_name_smo, nil ), ;
@@ -938,21 +697,21 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
       When eq_any( m1komu, 1, 3 )
     //
     If glob_mo[ _MO_KOD_TFOMS ] == '711001' // РЖД
-      ++j ; @ j, 1 Say 'Кем направлен' Get mkem_dost ;
+      @ ++j, 1 Say 'Кем направлен' Get mkem_dost ;
         reader {| x| menu_reader( x, mmpp_kem1dost(), A__MENUVERT,,, .f. ) }
     Else
-      ++j ; @ j, 1 Say 'Кем доставлен' Get mkem_dost ;
+      @ ++j, 1 Say 'Кем доставлен' Get mkem_dost ;
         reader {| x| menu_reader( x, mmpp_kem_dost(), A__MENUVERT,,, .f. ) }
     Endif
-    ++j ; @ j, 1 Say 'Направившая МО' Get mkem_napr ;
+    @ ++j, 1 Say 'Направившая МО' Get mkem_napr ;
       reader {| x| menu_reader( x, { {| k, r, c| f_get_mo( k, r, c ) } }, A__FUNCTION,,, .f. ) }
-    ++j ; @ j, 1 Say 'Диагноз направившей МО :' Get MDIAG_NAPR Pict '@S52'
-    ++j ; @ j, 1 Say 'Диагноз приёмного отд. :' Get MDIAG_PR_P Pict '@S52'
+    @ ++j, 1 Say 'Диагноз направившей МО :' Get MDIAG_NAPR Pict '@S52'
+    @ ++j, 1 Say 'Диагноз приёмного отд. :' Get MDIAG_PR_P Pict '@S52'
     ++j
     If pp_POB_D_LEK == 1
       @ j, 1 Say 'Побочное дейст.лекарств:' Get MPOB_D_LEK Pict '@S52'
     Endif
-    ++j ; @ j, 1 Say 'Доставлен в сост.опьянения' Get MSOST_OP ;
+    @ ++j, 1 Say 'Доставлен в сост.опьянения' Get MSOST_OP ;
       reader {| x| menu_reader( x, menu_sost_op(), A__MENUVERT,,, .f. ) }
     @ j, Col() Say ',' Get MGOSPIT2 ;
       reader {| x| menu_reader( x, menu2gospit(), A__MENUVERT,,, .f. ) }
@@ -962,24 +721,24 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
       @ j, 1 Say 'Вид травмы' Get mtravma ;
         reader {| x| menu_reader( x, mmpp_travma(), A__MENUVERT,,, .f. ) }
     Endif
-    ++j ; @ j, 1 Say 'ЛПУ' Get much ;
+    @ ++j, 1 Say 'ЛПУ' Get much ;
       reader {| x| menu_reader( x, { {| k, r, c| ret_uch_otd( k, r, c ) } }, A__FUNCTION,,, .f. ) }
     @ j, 37 Say 'Отделение' Get motd When .f.
-    ++j ; @ j, 1 Say 'Дата поступления' Get mn_data Valid valid_date_postup()
+    @ ++j, 1 Say 'Дата поступления' Get mn_data Valid valid_date_postup()
     @ j, Col() Say ', время' Get mn_time Pict pict_time Valid valid_date_postup()
-    ++j ; @ j, 1 Say 'Госпитализирован' Get mis_gospit ;
+    @ ++j, 1 Say 'Госпитализирован' Get mis_gospit ;
       reader {| x| menu_reader( x, mm_gospit, A__MENUVERT,,, .f. ) } ;
       valid {| g, o| pp_valid_gospit( g, o ) }
     @ j, Col() + 3 Say '?' Get mpr_gospit ;
       reader {| x| menu_reader( x, mmpp_pr_gospit(), A__MENUVERT,,, .f. ) } ;
       When m1is_gospit == 1
-    ++j ; @ j, 1 Say 'Госпит. по поводу дан.забол. в тек.году' Get mgospit0 ;
+    @ ++j, 1 Say 'Госпит. по поводу дан.забол. в тек.году' Get mgospit0 ;
       reader {| x| menu_reader( x, menu0gospit(), A__MENUVERT,,, .f. ) } ;
       When m1is_gospit == 0
     @ j, Col() Say ',' Get mgospit1 ;
       reader {| x| menu_reader( x, mm_ekst(), A__MENUVERT,,, .f. ) } ;
       When m1is_gospit == 0
-    ++j ; @ j, 1 Say 'Дата госпитализации' Get mg_data ;
+    @ ++j, 1 Say 'Дата госпитализации' Get mg_data ;
       When m1is_gospit == 0
     @ j, Col() Say ', время' Get mg_time Pict pict_time ;
       When m1is_gospit == 0
@@ -987,16 +746,16 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
       reader {| x| menu_reader( x, { dir_server() + 'mo_ppst' }, A__POPUPEDIT,,, .f. ) } ;
       When m1is_gospit == 0
     If Loc_kod > 0 .and. m1is_gospit == 0  // режим редактирования
-      ++j ; @ j, 1 Say 'Дата выписки (смерти)' Color color8 Get mk_data ;
+      @ ++j, 1 Say 'Дата выписки (смерти)' Color color8 Get mk_data ;
         valid {| g| pp_val_k_data( g ) }
       @ j, Col() Say ', время' Color color8  Get mk_time Pict pict_time ;
         When !Empty( mk_data )
-      ++j ; @ j, 1 Say 'Исход' Color color8  Get mishod1 ;
+      @ ++j, 1 Say 'Исход' Color color8  Get mishod1 ;
         reader {| x| menu_reader( x, mmpp1ishod(), A__MENUVERT,,, .f. ) }
       @ j, 40 Say 'Результат' Color color8  Get mishod2 ;
         reader {| x| menu_reader( x, mmpp2ishod(), A__MENUVERT,,, .f. ) }
       //
-      ++j; @ j, 1 Say 'Больничный' Color color8  Get mbolnich ;
+      @ ++j, 1 Say 'Больничный' Color color8  Get mbolnich ;
         reader {| x| menu_reader( x, menu_bolnich, A__MENUVERT,,, .f. ) } ;
         valid {| g, o| f_valid_bolnich( g, o ) }
       @ j, Col() + 1 Say '==> с' Color color8  Get mdate_b_1 When m1bolnich > 0
@@ -1011,7 +770,7 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
           valid {| g| mrodit_pol $ 'МЖ' } ;
           When m1bolnich == 2
       Endif
-      ++j ; @ j, 1 Say 'Продолжительность госпитализации (койко-дней)' Color color8 ;
+      @ ++j, 1 Say 'Продолжительность госпитализации (койко-дней)' Color color8 ;
         Get MKOJKO_DNI Picture '999'
     Endif
     count_edit := myread(, @pos_read, ++k_read )
@@ -1166,15 +925,17 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
         // если в задаче ОМС не выполняется ОТВЕТСТВЕННАЯ операция
         If !g_sislock( sem_vagno_task()[ X_OMS ] )
           r_use( dir_server() + 'kartote_',, 'KART_' )
+          r_use( dir_server() + 'kartote2',, 'KART2' )
           r_use( dir_server() + 'kartotek',, 'KART' )
-          Set Relation To RecNo() into KART_
+          Set Relation To RecNo() into KART_, RecNo() into KART2
+//          Set Relation To RecNo() into KART_
           r_use( dir_server() + 'mo_kismo',, 'KSN' )
           g_use( dir_server() + 'mo_hismo',, 'HSN' )
           use_base( 'human' )
           f_write_pp_oms( mkod )
         Else // иначе запишем код истории болезни в промежуточный файл
           g_use( dir_server() + 'mo_ppadd',, 'PPA' )
-          Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ppad' )
+          Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_ppad' )
           find ( Str( mkod, 7 ) )
           If !Found()
             addrec( 7 )
@@ -1198,7 +959,7 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
         ru->( dbCloseArea() )
       Endif
       write_work_oper( glob_task, OPER_LIST, iif( Loc_kod == 0, 1, 2 ), 1, count_edit )
-      Close databases
+      dbCloseAll()
       If Loc_kod > 0 .and. flag_OMS .and. OLD_IS_GOSPIT == 0 .and. OLD_IS_GOSPIT != M1IS_GOSPIT
         stat_msg( 'Т.к. пациент более не госпитализирован, удалите лист учёта в подзадаче ОМС' ) ; mybell( 10, OK )
       Endif
@@ -1258,7 +1019,7 @@ Function f_find_pp_oms()
   Enddo
   If Len( arr ) > 0 // запишем коды истории болезни в промежуточный файл
     g_use( dir_server() + 'mo_ppadd',, 'PPA' )
-    Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ppad' )
+    Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_ppad' )
     For i := 1 To Len( arr )
       find ( Str( arr[ i ], 7 ) )
       If !Found()
@@ -1274,7 +1035,7 @@ Function f_find_pp_oms()
   rest_box( buf )
   Return Nil
 
-// 17.01.26 записать заголовок листа учёта
+// 24.09.26 записать заголовок листа учёта
 Function f_write_pp_oms( mkod )
 
   Local fl, ldata, lUSL_OK, ret_kod_h := 0
@@ -1405,6 +1166,7 @@ Function f_write_pp_oms( mkod )
   human->bolnich   := hu->bolnich
   human->date_b_1  := iif( hu->bolnich == 0, '', dtoc4( hu->date_b_1 ) )
   human->date_b_2  := iif( hu->bolnich == 0, '', dtoc4( hu->date_b_2 ) )
+  human->MO_PR     := code_TFOMS_to_FFOMS( kart2->mo_pr )
   human_->RODIT_DR := iif( hu->bolnich < 2, CToD( '' ), hu->rodit_dr )
   human_->RODIT_POL := iif( hu->bolnich < 2, '', hu->rodit_pol )
   human_->TRAVMA   := pp_travma_travma( hu->travma )
@@ -1440,7 +1202,7 @@ Function f_write_pp_oms( mkod )
   human_2->P_PER := iif( eq_any( hu->KEM_DOST, 1, 2 ), 2, 1 ) // {'Поступил самостоятельно',1},{'Доставлен СМП',2},;
   If AllTrim( human_->SMO ) == '34'
     Select KSN
-    Index On Str( kod, 7 ) to ( cur_dir() + 'tmpkismo' )
+    Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmpkismo' )
     find ( Str( human->kod_k, 7 ) )
     If Found()
       Select HSN
@@ -1452,7 +1214,7 @@ Function f_write_pp_oms( mkod )
   dbUnlockAll()
   Return ret_kod_h
 
-// 10.09.25 записать незаписанные истории болезней из приёмного покоя
+// 24.09.26 записать незаписанные истории болезней из приёмного покоя
 Function write_rest_pp()
 
   Local i, k, arr := {}, bSaveHandler, buf := save_maxrow()
@@ -1466,8 +1228,10 @@ Function write_rest_pp()
         // если в задаче ОМС не выполняется ОТВЕТСТВЕННАЯ операция
         If !g_sislock( sem_vagno_task()[ X_OMS ] )
           r_use( dir_server() + 'kartote_',, 'KART_' )
+          r_use( dir_server() + 'kartote2',, 'KART2' )
           r_use( dir_server() + 'kartotek',, 'KART' )
-          Set Relation To RecNo() into KART_
+          Set Relation To RecNo() into KART_, RecNo() into KART2
+//          Set Relation To RecNo() into KART_
           r_use( dir_server() + 'mo_kismo',, 'KSN' )
           g_use( dir_server() + 'mo_hismo',, 'HSN' )
           use_base( 'human' )
@@ -1490,7 +1254,7 @@ Function write_rest_pp()
               Commit
             Endif
           Next
-          Close databases
+          dbCloseAll()
         Endif
         g_sminus( f_name_task( X_OMS ) )  // минус 1 пользователь (вышел из задачи ОМС)
       Endif
@@ -1671,7 +1435,8 @@ Function ppokoj_kart( k )
   import_kart_from_sds()
   // ///////////////////////////////////////////////////
   Private tmp, name_reader := ''
-  ar := getinivar( tmp_ini(), { { 'polikl1','s_regim','1' }, ;
+  ar := getinivar( tmp_ini(), { ;
+    { 'polikl1','s_regim','1' }, ;
     { 'polikl1','s_shablon', '' }, ;
     { 'polikl1','s_polis','' }, ;
     { 'polikl1','s_snils','' }, ;
@@ -1857,7 +1622,8 @@ Function ppokoj_kart( k )
       Endif
     Endif
   Endif
-  setinisect( tmp_ini(), 'polikl1', { { 's_regim',lstr( s_regim ) }, ;
+  setinisect( tmp_ini(), 'polikl1', { ;
+    { 's_regim',lstr( s_regim ) }, ;
     { 's_shablon', s_shablon    }, ;
     { 's_polis',s_polis      }, ;
     { 's_snils',s_snils      } } )
@@ -1872,6 +1638,7 @@ Function view_human_pp( regim, lkod )
   Local buf := SaveScreen(), i, mkod := 0, k, l_color, t_arr[ BR_LEN ], ;
     fl := .f., mtitul, ind2, arr_blk, fl_schet := .f., str_sem, ;
     fl_ret := .f., tmp_help, fl_perevod, fl_human
+
   Default lkod To glob_perso_pp
   Private mr1 := T_ROW, pp_regim := regim, blk_open
   pr_kod_pp := NIL
@@ -1974,7 +1741,7 @@ Function view_human_pp( regim, lkod )
               Set Order To 0
               Goto ( mkod )
               g_use( dir_server() + 'mo_ppadd',, 'PPA' )
-              Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ppad' )
+              Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_ppad' )
               find ( Str( hu->kod, 7 ) )
               If Found()
                 deleterec( .t. )
@@ -2119,6 +1886,7 @@ Function f2_v_human_pp( nkey, oBrow )
   Local buf := SaveScreen(), buf1, rec1 := RecNo(), ret := -1, fl, ch, ;
     arr, ap, i, j, k, s, lfio, sExt, mmo_pr, s1
   Local lnomer, l1nomer, muchastok, mdate_r, luchast
+
   If pp_regim == 1 .and. eq_any( nkey, K_F5, K_F6, K_F7, K_F8, K_F9, K_F10, K_F12 )
     _pp_nastr( 1 ) // перечитать имена шаблонов
     delfrfiles()
@@ -2150,18 +1918,18 @@ Function f2_v_human_pp( nkey, oBrow )
       { 'srok_polis', 'C', 10, 0 }, ;
       { 'snils',      'C', 14, 0 }, ;
       { 'pol',        'C',  1, 0 }, ;     // ВНИМАНИЕ 50
-    { 'poll',       'C', 15, 0 }, ;
+      { 'poll',       'C', 15, 0 }, ;
       { 'date_r',     'D',  8, 0 }, ;     // c10
-    { 'count_ymd',  'C', 90, 0 }, ;
+      { 'count_ymd',  'C', 90, 0 }, ;
       { 'kategor',    'C', 40, 0 }, ;
       { 'vid_ud',     'C', 30, 0 }, ;
       { 'ser',        'C', 10, 0 }, ;
       { 'nom',        'C', 10, 0 }, ;
       { 'kogdavyd',   'D',  8, 0 }, ;     // c10
-    { 'kemvyd',     'C', 150, 0 }, ;
+      { 'kemvyd',     'C', 150, 0 }, ;
       { 'adres',      'C', 200, 0 }, ;     // 120
-    { 'adresp',     'C', 200, 0 }, ;     // 120
-    { 'mr_dol',     'C', 50, 0 }, ;
+      { 'adresp',     'C', 200, 0 }, ;     // 120
+      { 'mr_dol',     'C', 50, 0 }, ;
       { 'phone',      'C', 90, 0 }, ;
       { 'rab_nerab',  'C', 20, 0 }, ;
       { 'vzros_reb',  'C', 20, 0 }, ;
@@ -2207,7 +1975,7 @@ Function f2_v_human_pp( nkey, oBrow )
       { 'pr_mo',      'C',  6, 0 }, ;
       { 'pr_nam_mo',  'C', 150, 0 }, ;
       { 'pr_kod_tf',  'C', 10, 0 }, ;  // заплатка для шаблона карты
-    { 'name_org',   'C', 255, 0 }, ;
+      { 'name_org',   'C', 255, 0 }, ;
       { 'adres_org',  'C', 255, 0 }, ;
       { 'ogrn',       'C', 15, 0 }, ;
       { 'okpo',       'C', 12, 0 }, ;
@@ -2231,8 +1999,8 @@ Function f2_v_human_pp( nkey, oBrow )
       { 'gorodp',     'C', 50, 0 }, ;
       { 'nas_pp',     'C', 50, 0 }, ;
       { 'adresL',     'C', 200, 0 }, ; // {'phone',      'C', 15, 0},;
-    { 'phones',     'C', 50, 0 }, ; // {'gorod_selo', 'C', 50, 0},;
-    { 'ser_polis',  'C', 10, 0 }, ;
+      { 'phones',     'C', 50, 0 }, ; // {'gorod_selo', 'C', 50, 0},;
+      { 'ser_polis',  'C', 10, 0 }, ;
       { 'nom_polis',  'C', 20, 0 }, ;
       { 'smo',        'C', 100, 0 }, ;
       { 'kod_lgot',   'C',  2, 0 }, ;
@@ -2241,10 +2009,10 @@ Function f2_v_human_pp( nkey, oBrow )
       { 'nom_doc',    'C', 20, 0 }, ;
       { 'zanyat',     'C', 255, 0 }, ;
       { 'invalid',    'C', 100, 0 }, ; // пусто  {'mr_dol',     'C', 50, 0},;
-    { 'perv_priem', 'C', 50, 0 }, ; // пусто
-    { 'registrato', 'C', 50, 0 }, ;
+      { 'perv_priem', 'C', 50, 0 }, ; // пусто
+      { 'registrato', 'C', 50, 0 }, ;
       { 'time_regi',  'C', 50, 0 }, ; // пусто
-    { 'adrespL',    'C', 200, 0 }, ;
+      { 'adrespL',    'C', 200, 0 }, ;
       { 'platel',     'C', 100, 0 }, ;
       { 'platel1',    'C', 100, 0 }, ;
       { 'bukva',      'C',  1, 0 }, ;
@@ -2410,12 +2178,12 @@ Function f2_v_human_pp( nkey, oBrow )
       mm_company := AClone( smo_volgograd() )
     Elseif m1komu == 1 // Прочие компании
       r_use( dir_server() + 'str_komp' )
-      Index On Upper( name ) To tmp_comp For !Between( tfoms, 44, 47 )
+      Index On Upper( FIELD->name ) To tmp_comp For !Between( FIELD->tfoms, 44, 47 )
       dbEval( {|| AAdd( mm_company, { AllTrim( name ), kod } ) } )
       str_komp->( dbCloseArea() )
     Elseif m1komu == 3 // Комитеты/МО
       r_use( dir_server() + 'komitet' )
-      Index On Upper( name ) To tmp_comp
+      Index On Upper( FIELD->name ) To tmp_comp
       dbEval( {|| AAdd( mm_company, { AllTrim( name ), kod } ) } )
       komitet->( dbCloseArea() )
     Endif
@@ -2937,7 +2705,7 @@ Function f2_v_human_pp( nkey, oBrow )
   Return ret
 
 //
-Static Function f1f2_v_human( i )
+Function f1f2_v_human( i )
 
   Local fl := .t.
 
@@ -2957,7 +2725,7 @@ Static Function f1f2_v_human( i )
   Return Nil
 
 //
-Static Function fill_fr_ist_bol()
+Function fill_fr_ist_bol()
 
   Local sh := 83, i, k, arr[ 2 ]
   Private sb1 := '<b>', sb2 := '</b>'
@@ -3017,7 +2785,7 @@ Static Function fill_fr_ist_bol()
   Return Nil
 
 //
-Static Function f1_fill_fr_ist_bol( s1, s2, sh )
+Function f1_fill_fr_ist_bol( s1, s2, sh )
 
   Local i, j, k, arr[ 2 ]
 

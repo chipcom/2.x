@@ -269,6 +269,7 @@ mo_version.prg
 
 .\PP\mo_pp.prg
 .\PP\mo_ppi.prg
+.\PP\mo_pp_setup.prg
 
 .\SYSTEM\cpru866m.c
 .\SYSTEM\cpru1251m.c
