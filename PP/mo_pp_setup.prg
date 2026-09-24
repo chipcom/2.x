@@ -90,7 +90,7 @@ Function _pp_nastr( k )
       addrecn()
       mv->IST_BOL := pp_IST_BOL // да
     Else
-      g_rlock( forever )
+      g_rlock( 'forever' )
     Endif
     If Empty( mv->file_7 )
       mv->file_7 := pp_FILE_7
@@ -241,7 +241,7 @@ Function pp_nastr_rab_mesto()
     Use ( cur_dir() + 'tmp' ) new
     If pp_IST_BOL == 1 .and. old_ib != tmp->N_IST_BOL
       g_use( dir_server() + 'pp_nastr',, 'MV' )
-      g_rlock( forever )
+      g_rlock( 'forever' )
       pp_N_IST_BOL := mv->N_IST_BOL := tmp->N_IST_BOL
     Endif
     memPPsvod     := tmp->PRN_SVOD

@@ -271,7 +271,7 @@ Function f2pp_perevod( nKey, oBrow, regim )
               per->kod := glob_perso_pp
             Else
               Goto ( rec )
-              g_rlock( forever )
+              g_rlock( 'forever' )
             Endif
             per->N_DATA    := mn_data
             per->N_TIME    := mn_time
@@ -826,7 +826,7 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
               ++k
             Enddo
             Select MV
-            g_rlock( forever )
+            g_rlock( 'forever' )
             mv->n_ist_bol := k
             mv->( dbCloseArea() )
             MUCH_DOC := lstr( k )
@@ -844,7 +844,7 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
       Set Order To 1
       If Loc_kod > 0
         find ( Str( Loc_kod, 7 ) )
-        g_rlock( forever )
+        g_rlock( 'forever' )
       Else
         add1rec( 7 )
         mkod := RecNo()
@@ -1073,7 +1073,7 @@ Function f_write_pp_oms( mkod )
     Enddo
     If ret_kod_h > 0 // запишем ссылку на лист учёта в БД приёмного покоя
       Select HU
-      g_rlock( forever )
+      g_rlock( 'forever' )
       hu->TIP_H := 1      // 1-human,2-hum_p,3-...
       hu->KOD_H := ret_kod_h // код по БД human
       If hu->IS_GOSPIT == 0 .and. Empty( hu->G_DATA ) // 0-госпитализирован и не заполнена дата госпитализации
@@ -1105,7 +1105,7 @@ Function f_write_pp_oms( mkod )
     ret_kod_h := human->kod
     // запишем ссылку на лист учёта в БД приёмного покоя
     Select HU
-    g_rlock( forever )
+    g_rlock( 'forever' )
     hu->TIP_H := 1      // 1-human,2-hum_p,3-...
     hu->KOD_H := human->kod // код по БД human
     If hu->IS_GOSPIT == 0 .and. Empty( hu->G_DATA ) // 0-госпитализирован и не заполнена дата госпитализации
@@ -1126,7 +1126,7 @@ Function f_write_pp_oms( mkod )
     Endif
     If fl
       Select HUMAN
-      g_rlock( forever )
+      g_rlock( 'forever' )
     Else
       Return ret_kod_h
     Endif
@@ -1136,14 +1136,14 @@ Function f_write_pp_oms( mkod )
     Append Blank
   Enddo
   Goto ( human->kod )
-  g_rlock( forever )
+  g_rlock( 'forever' )
   //
   Select HUMAN_2
   Do While human_2->( LastRec() ) < human->kod
     Append Blank
   Enddo
   Goto ( human->kod )
-  g_rlock( forever )
+  g_rlock( 'forever' )
   //
   human->kod_k     := hu->KOD_K
   human->FIO       := kart->fio       // Ф.И.О. больного
@@ -1244,7 +1244,7 @@ Function write_rest_pp()
               Select PPA
               Goto ( arr[ i, 2 ] )
               If ppa->kod_h != k
-                g_rlock( forever )
+                g_rlock( 'forever' )
                 ppa->kod_h := k // записать на всякий случай
                 Unlock
               Endif
