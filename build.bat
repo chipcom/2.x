@@ -1,5 +1,22 @@
+@echo off
+
+set "MO_PATH=d:\_mo\2.x"
+
+if exist "%MO_PATH%\ver_date.ch" (
+    copy "%MO_PATH%\ver_date.ch" "%MO_PATH%\ver_date._ch" /a
+)
+
 echo #DEFINE _DATA_VER + "%DATE%" > ver_date.ch
+
 c:\Harbour\bin\hbmk2 chip_mo.hbp -comp=mingw
+
+if errorlevel 1 (
+    del "%MO_PATH%\ver_date.ch"
+    rename ver_date._ch ver_date.ch
+    echo Ошибка построения проекта.
+    exit /b 1
+)
+
 copy chip_mo.exe d:\_mo\_arc
 copy D:\_MO\2.x\_TEMPLATE\*.shb  d:\_mo\_arc
 copy D:\_MO\2.x\_TEMPLATE\*.frm  d:\_mo\_arc
