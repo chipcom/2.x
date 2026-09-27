@@ -242,7 +242,7 @@ Function f1_impxml_from_lis( name_file )
             Exit
           Endif
         Enddo
-        If !Empty( aerr := f2_impxml_from_lis( arr ) )
+        If !Empty( aerr := f2_impxml_from_lis( arr ) ) 
           fl_exit := .t.
           Exit
         Endif
@@ -649,12 +649,18 @@ Function f2_import_from_lis( par )
       Elseif arr_order[ j, LISS_USL, i, LISU_SHIFR ] == '4.11.739'
         i_739 := i
       Endif
+   
       arr_order[ j, LISS_USL, i, LISU_DATE ] := CToD( arr_order[ j, LISS_USL, i, LISU_DATE ] )
       If Empty( arr_order[ j, LISS_USL, i, LISU_DATE ] )
         AAdd( aerr, 'Некорректная дата услуги у пациента' )
         AAdd( aerr, 'PAT=' + arr_pac[ LIS_KOD_AK ] + ' "' + mfio + '" (ORDER=' + lstr( arr_order[ j, LISS_KOD ] ) + ')' )
         Return aerr
       Endif
+      // 27.09.2026
+      if arr_order[ j, LISS_USL, i, LISU_SHIFR ] == '4.17.705' .and. arr_order[ j, LISS_USL, i, LISU_DATE ] > stod( '20260831' )
+        arr_order[ j, LISS_USL, i, LISU_SHIFR ] := '60.16.2'
+      endif  
+      //
       If Empty( arr_order[ j, LISS_NDATA ] )
         arr_order[ j, LISS_NDATA ] := arr_order[ j, LISS_KDATA ] := arr_order[ j, LISS_USL, i, LISU_DATE ]
       Else
