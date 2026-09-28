@@ -1,6 +1,9 @@
 @echo off
 
 set "MO_PATH=d:\_mo\2.x"
+set "MO_PATH_TEMP=d:\_mo\temp\tempdev"
+
+rmdir "%MO_PATH_TEMP%" /s /q
 
 if exist "%MO_PATH%\ver_date.ch" (
     copy "%MO_PATH%\ver_date.ch" "%MO_PATH%\ver_date._ch" /a
@@ -16,6 +19,8 @@ if errorlevel 1 (
     echo Ошибка построения проекта.
     exit /b 1
 )
+
+del "%MO_PATH%\ver_date._ch"
 
 copy chip_mo.exe d:\_mo\_arc
 copy D:\_MO\2.x\_TEMPLATE\*.shb  d:\_mo\_arc
