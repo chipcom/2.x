@@ -281,6 +281,7 @@ mo_version.prg
 .\SYSTEM\plugins.prg
 .\SYSTEM\system.prg
 .\SYSTEM\func_path.prg
+.\SYSTEM\ping.prg
 
 .\ORDER\mo_omsp.prg
 

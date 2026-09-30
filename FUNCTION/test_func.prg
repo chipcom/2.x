@@ -8,7 +8,7 @@ function test_init()
 //  local aaa, diag := ''
 //  local adiag := { 'M01.1', '', '', '', 'A39.1' }
 
-//  aaa := sepsis_exists_in_array( aDiag, , @diag )
+//  aaa := hb_ping()
 //  altd()
 
   return nil
