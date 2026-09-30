@@ -15,33 +15,34 @@ function checkVersionInternet( row, oldVersion )
   local aVersion, arr := {}
   local oBox := nil, max := 0
   local nLeft, nRight, key, i
-  local buf := save_maxrow()
+  local buf
 
-  mywait('Подождите, идет проверка наличия новой версии программы...')
+  buf := save_maxrow()
+  mywait( 'Подождите, идет проверка наличия новой версии программы...' )
 
   fileFromFTP( fileVersion )
-  rest_box(buf)
+  rest_box( buf )
 
-  if (aVersion := readVersion( fileVersion )) != nil
+  if ( aVersion := readVersion( fileVersion ) ) != nil
     if ControlVersion( aVersion, oldVersion )
-      AAdd(arr, 'Доступна новая версия программы:')
-      AAdd(arr, 'текущая версия: ' + fs_version( oldVersion ) )
-      AAdd(arr, 'новая версия:   ' + fs_version( aVersion ) )
+      AAdd( arr, 'Доступна новая версия программы:' )
+      AAdd( arr, 'текущая версия: ' + fs_version( oldVersion ) )
+      AAdd( arr, 'новая версия:   ' + fs_version( aVersion ) )
 
-      max := maxLenStringInArray(arr)
-      nLeft := 40 - (max / 2) - 2
-      nRight := 40 + (max / 2) + 2
-      oBox := TBox():New( row, nLeft, row + len(arr) + 3, nRight )
+      max := maxLenStringInArray( arr )
+      nLeft := 40 - ( max / 2 ) - 2
+      nRight := 40 + ( max / 2 ) + 2
+      oBox := TBox():New( row, nLeft, row + len( arr ) + 3, nRight )
       oBox:Color := 'N/W' + ',' + 'N+/W'
       oBox:Frame := BORDER_DOUBLE
       oBox:MessageLine := '^<любая клавиша>^ - продолжить работу; ^F2^ - новое в програме'
       oBox:Save := .t.
   
       oBox:View()
-      for i := 1 to len(arr)
-        @ row + i + 1, nLeft + 2 say arr[i]
+      for i := 1 to len( arr )
+        @ row + i + 1, nLeft + 2 say arr[ i ]
       next
-      key := inkey(0)
+      key := inkey( 0 )
       if key == K_F2
         fileFromFTP( readMe )
         view_file_in_Viewer( readMe )
@@ -53,6 +54,7 @@ function checkVersionInternet( row, oldVersion )
 
 //
 function fileFromFTP( fileName )
+
   local cServer   := CUSTOM_FTP
   local cUser     := VERSION_US
   local cPassword := VERSION_PASS
@@ -75,6 +77,7 @@ function fileFromFTP( fileName )
   
 // 25.03.24
 function fileToFTP( fileName, strPath )
+
   local cServer   := CUSTOM_FTP
   local cUser     := UPLOAD_USER
   local cPassword := UPLOAD_PASS
@@ -107,6 +110,7 @@ function fileToFTP( fileName, strPath )
     
 //
 function readVersion( fileVersion )
+
   local nHandle, i, j, tStr, cNum := '', cAlpha := ''
   local aStr, aVer := {}
 
@@ -114,23 +118,23 @@ function readVersion( fileVersion )
     return nil
   endif
   aStr := hb_ATokens( FReadStr( nHandle, 100 ), '.' )
-  if len(aStr) == 3
+  if len( aStr ) == 3
     for i := 1 to 3
       if i < 3
-        AAdd(aVer, val(aStr[i]))
+        AAdd( aVer, val( aStr[ i ] ) )
       else
-        tStr := aStr[i]
-        for j := 1 to len(tStr)
-          if IsDigit( SubStr(tStr, j, 1) )
-            cNum += SubStr(tStr, j, 1)
+        tStr := aStr[ i ]
+        for j := 1 to len( tStr )
+          if IsDigit( SubStr( tStr, j, 1 ) )
+            cNum += SubStr( tStr, j, 1 )
           else
-            cAlpha += SubStr(tStr, j, 1)
+            cAlpha += SubStr( tStr, j, 1 )
           endif
         next
-        AAdd(aVer, val(cNum))
+        AAdd( aVer, val( cNum ) )
       endif
     next
   endif
-  AAdd(aVer, cAlpha)
+  AAdd( aVer, cAlpha )
   FClose( nHandle )  
   return aVer

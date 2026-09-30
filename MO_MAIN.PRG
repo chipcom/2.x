@@ -26,7 +26,7 @@ Dynamic f1forma_792_MIAC
 Dynamic monitoring_vid_pom
 Dynamic b_25_perinat_2
 
-// 20.02.26
+// 30.09.26
 Procedure Main( ... )
 
   Local r, s, is_create := .f., is_copy := .f., is_index := .f.
@@ -120,9 +120,9 @@ Procedure Main( ... )
 
   a_parol := inp_password_bay( is_local_version, is_create )
 
-  index_work_dir( dir_exe(), cur_dir(), .f. )    // checkFilesTFOMS() переименовал
+//  index_work_dir( dir_exe(), cur_dir(), .f. )
 
-  initpzarray()
+//  initpzarray()
 
   hb_main_curOrg := torganizationdb():getorganization()
 
@@ -144,9 +144,14 @@ Procedure Main( ... )
     Endif
   Endif
   //
-  checkversioninternet( r + 3, _version() )
 
-//  illegal_stad_kod()  // проверка стадии онкозаболеваний
+  if hb_ping()  // проверка доступности сайта
+    checkversioninternet( r + 3, _version() ) // проверка версии
+  endif
+
+  index_work_dir( dir_exe(), cur_dir(), .f. )
+
+  initpzarray()
 
   init_first() // начальная инициализация программы (переменных, массивов,...)
 

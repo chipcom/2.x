@@ -306,7 +306,6 @@ Function init_program()
   Public mm_kdp2 := { { 'в МО', 0 }, { 'КДП2', 1 }, { 'РДЛ ', 2 } }
   // инициализация справочника специальностей в виде DBF-файла
   init_tmp_prvs(, .t. )
-  // InitSpravOthers()
   
   Public dvn_arr_usl := AClone( dvn_arr_usl( 0d20180101 ) )
   Public count_dvn_arr_usl := Len( dvn_arr_usl )

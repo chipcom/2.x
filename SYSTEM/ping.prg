@@ -1,9 +1,9 @@
 #include 'versionFTP.ch'
 
-function HB_PING( URL ) 
+function hb_ping( URL ) 
 
-  local wRet := .t. 
-  local hSocket 
+  local wRet := .t.
+  local hSocket
   local errString := ''
    
    
@@ -13,7 +13,7 @@ function HB_PING( URL )
   endif
 
   hSocket := hb_inetCreate( 2000 )
-  hb_inetConnect( URL, 21, hSocket )
+  hb_inetConnect( URL, CONTROL_PORT, hSocket )
     if hb_inetErrorCode( hSocket ) # 0 
         wret:=.f. 
     endif 

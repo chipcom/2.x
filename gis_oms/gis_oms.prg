@@ -21,7 +21,6 @@ function gis_oms()
   local buf
   local tmp_select := Select()
   LOCAL pDb
-//  local k, aDbf, sbase, org_mcod
 
 #if defined( __HBSCRIPT__HBSHELL )
    rddRegister( 'SQLBASE' )
@@ -47,32 +46,6 @@ function gis_oms()
       { '═', '░', '═', 'N/BG,W+/N,B/BG,BG+/B,N+/BG,W/N', .t. } )
   Endif
   f037->( dbCloseArea() )
-/*
-  aDbf := { ;
-    { 'N_DOC', 'C', 32, 0 }, ;
-    { 'IDMO',  'C', 17, 0 }, ;
-    { 'UIDMO', 'C', 17, 0 }, ;
-    { 'MCOD',  'C',  6, 0 } ;
-  }
-  dbCreate( cur_dir() + 'tmp_f037', aDbf )
-  Use ( cur_dir() + 'tmp_f037' ) new
-
-  sbase := '_mo_f037'
-  org_mcod := glob_mo()[ _MO_KOD_FFOMS ]
-  r_use( dir_exe() + sbase, cur_dir() + sbase, 'F037' )
-  f037->( dbGoTop() )
-  do while f037->MCOD == org_mcod .and. ! f037->( Eof() )
-    tmp_f037->( dbAppend() )
-    tmp_f037->N_DOC := AllTrim( f037->N_DOC )
-    tmp_f037->IDMO := f037->IDMO
-    tmp_f037->UIDMO := f037->UIDMO
-    tmp_f037->MCOD := f037->MCOD
-    f037->( dbSkip() )
-  enddo
-  f037->( dbCloseArea() )
-  Select tmp_f037
-  k := tmp_f037->( LastRec() )
-*/
 
   rddSetDefault( 'DBFNTX' )
   Select ( tmp_select )
@@ -98,39 +71,10 @@ Function f2edit_licenses_f037( nKey, oBrow )
   local aLic := {}
   local aAddr := {}
   local tmpSelect := Select()
-//  local sbase, aDbf, k
 
   oBr := oBrow
   Do Case
   Case nKey == K_ENTER
-/*
-    aDbf := { ;
-      { 'ADDR',     'C', 250, 0 }, ;
-      { 'IDADDRESS','N',  19, 0 }, ;
-      { 'N_DOC',    'C',  32, 0 }, ;
-      { 'UIDMO',    'C',  17, 0 }, ;
-      { 'UIDSPMO',  'C',  17, 0 } ;
-    }
-    dbCreate( cur_dir() + 'tmp_f038', aDbf, , .t., 'tmp_f038' )
-    Index ON str( FIELD->IDADDRESS, 19 ) to ( cur_dir() + 'tmp_f038' )
-
-    sbase := '_mo_f038'
-    r_use( dir_exe() + sbase, cur_dir() + sbase, 'F038' )
-    f038->( dbSeek( tmp_f037->UIDMO ) )
-    do while f038->UIDMO == tmp_f037->UIDMO .and. ! f038->( Eof() )
-      tmp_f038->( dbSeek( str( f038->IDADDRESS, 19 ) ) )
-      if ! tmp_f038->( Found() )
-        tmp_f038->( dbAppend() )
-        tmp_f038->ADDR := AllTrim( SubStr( f038->ADDR, 9 ) )
-        tmp_f038->N_DOC := AllTrim( f038->N_DOC )
-        tmp_f038->IDADDRESS := f038->IDADDRESS
-        tmp_f038->UIDMO := f038->UIDMO
-        tmp_f038->UIDSPMO := f038->UIDSPMO
-      endif
-      f038->( dbSkip() )
-    enddo
-    Select tmp_f038
-*/
 
     if glob_mo()[ _MO_KOD_FFOMS ] == '340342' // для РУСАЛа
       dbUseArea( .T., , 'select * from f038 where uidmo==34202616601 group by idaddress', 'f038' )
@@ -151,53 +95,7 @@ Function f2edit_licenses_f037( nKey, oBrow )
     Select ( tmpSelect )
 
   Case nKey == K_F9
-/*
-    // сохранием лицензию
-    AAdd( aLic, { tmp_f037->N_DOC, tmp_f037->IDMO,tmp_f037->UIDMO, tmp_f037->MCOD } )
 
-    // сохраним адреса по лицензии
-    sbase := '_mo_f038'
-    r_use( dir_exe() + sbase, cur_dir() + sbase, 'F038' )
-    f038->( dbSeek( tmp_f037->UIDMO ) )
-    do while f038->UIDMO == tmp_f037->UIDMO .and. ! f038->( Eof() )
-      if AScan( aAddr, { | x | x[ 2 ] == f038->IDADDRESS } ) == 0  //  ! tmp_f038->( Found() )
-        AAdd( aAddr, { f038->UIDMO, f038->IDADDRESS, f038->UIDSPMO, AllTrim( f038->ADDR ), AllTrim( f038->N_DOC ) } )
-      endif
-      f038->( dbSkip() )
-    enddo
-    Select( tmpSelect )
-    f038->( dbCloseArea() )
-    // сохраним отделения
-    sbase := '_mo_f033'
-    r_use( dir_exe() + sbase, cur_dir() + sbase, 'F033' )
-
-//    select f038
-//    Set Index To
-//    Index ON str( FIELD->IDADDRESS, 19 ) to ( cur_dir() + 'tmp_f038_addr' )
-//    aDbf := { ;
-//      { 'IDADDRESS','N',  19, 0 }, ;
-//      { 'UIDMO',    'C',  17, 0 }, ;
-//      { 'UIDSPMO',  'C',  17, 0 }, ;
-//      { 'NAME',     'C',  80, 0 } ;
-//    }
-//    dbCreate( cur_dir() + 'tmp_otd', aDbf, , .t., 'tmp_otd' )
-    select f038
-    f038->( dbSeek( str( tmp_f038->IDADDRESS, 19 ) ) )
-    do while f038->IDADDRESS == tmp_f038->IDADDRESS .and. ! f038->( Eof() )
-      tmp_otd->( dbAppend() )
-      tmp_otd->UIDSPMO := f038->UIDSPMO
-      tmp_otd->UIDMO := f038->UIDMO
-      tmp_otd->IDADDRESS := f038->IDADDRESS
-      f033->( dbSeek( f038->UIDSPMO ))
-      if f033->( Found() )
-        tmp_otd->NAME := f033->NAM_SK
-      endif
-      f038->( dbSkip() )
-    enddo
-    f033->( dbCloseArea() )
-    Select( tmpSelect )
-
-*/
   Endcase
   Return ret
 
@@ -218,7 +116,6 @@ Function f2edit_lic_addr_f038( nKey, oBrow )
   Local ret := -1
 
   local tmp_select := Select()
-//  local sbase, aDbf, k
 
   Do Case
   CASE nKey == K_LEFT
@@ -241,48 +138,6 @@ Function f2edit_lic_addr_f038( nKey, oBrow )
     otd->( dbCloseArea() )
     f033->( dbCloseArea() )
 
-/*
-    sbase := '_mo_f033'
-    r_use( dir_exe() + sbase, cur_dir() + sbase, 'F033' )
-
-    select f038
-    Set Index To
-    Index ON str( FIELD->IDADDRESS, 19 ) to ( cur_dir() + 'tmp_f038_addr' )
-    aDbf := { ;
-      { 'IDADDRESS','N',  19, 0 }, ;
-      { 'UIDMO',    'C',  17, 0 }, ;
-      { 'UIDSPMO',  'C',  17, 0 }, ;
-      { 'NAME',     'C',  80, 0 } ;
-    }
-    dbCreate( cur_dir() + 'tmp_otd', aDbf, , .t., 'tmp_otd' )
-    select f038
-    f038->( dbSeek( str( tmp_f038->IDADDRESS, 19 ) ) )
-    do while f038->IDADDRESS == tmp_f038->IDADDRESS .and. ! f038->( Eof() )
-      tmp_otd->( dbAppend() )
-      tmp_otd->UIDSPMO := f038->UIDSPMO
-      tmp_otd->UIDMO := f038->UIDMO
-      tmp_otd->IDADDRESS := f038->IDADDRESS
-      f033->( dbSeek( f038->UIDSPMO ))
-      if f033->( Found() )
-        tmp_otd->NAME := f033->NAM_SK
-      endif
-      f038->( dbSkip() )
-    enddo
-    f033->( dbCloseArea() )
-
-    Select tmp_otd
-    k := tmp_otd->( LastRec() )
-    tmp_otd->( dbGoTop() )
-
-    If k == 0
-      func_error( 4, 'Пустой справочник отделений' )
-    Else
-      alpha_browse( 6, 5, 20, 75, 'f1edit_addr_otd', color0, , , , , , , 'f2edit_addr_otd', , ;
-        { '═', '░', '═', 'N/BG,W+/N,B/BG,BG+/B,N+/BG,W/N', .t. } )
-    Endif
-
-    tmp_otd->( dbCloseArea() )
-*/
     Select ( tmp_select )
   Endcase
 
@@ -304,7 +159,6 @@ Function f2edit_addr_otd( nKey, oBrow )
 
   Local oBr, ret := -1
   local tmp_select := Select()
-//  local sbase, aDbf, k
 
   oBr := oBrow
   Do Case
@@ -319,46 +173,6 @@ Function f2edit_addr_otd( nKey, oBrow )
         { '═', '░', '═', 'N/BG,W+/N,B/BG,BG+/B,N+/BG,W/N', .t. } )
     Endif
     f034->( dbCloseArea() )
-/*
-    aDbf := { ;
-      { 'OPIS',     'C',  80, 0 }, ;
-      { 'IDADDRESS','N',  19, 0 }, ;
-      { 'UIDSPMO',  'C',  17, 0 }, ;
-      { 'MPVID',    'N',   4, 0 }, ;
-      { 'MPUSL',    'N',   2, 0 }, ;
-      { 'MPROF',    'N',   3, 0 } ;
-    }
-    dbCreate( cur_dir() + 'tmp_f034', aDbf, , .t., 'tmp_f034' )
-
-    sbase := '_mo_f034'
-    r_use( dir_exe() + sbase, cur_dir() + sbase, 'F034' )
-    f034->( dbSeek( tmp_otd->UIDSPMO + str( tmp_otd->IDADDRESS, 19 ) ) )
-    do while f034->IDADDRESS == tmp_otd->IDADDRESS .and. f034->UIDSPMO == tmp_otd->UIDSPMO .and. ! f034->( Eof() )
-      tmp_f034->( dbAppend() )
-      tmp_f034->UIDSPMO   := f034->UIDSPMO
-      tmp_f034->IDADDRESS := f034->IDADDRESS
-      tmp_f034->MPVID     := f034->MPVID
-      tmp_f034->MPUSL     := f034->MPUSL
-      tmp_f034->MPROF     := f034->MPROF
-      tmp_f034->OPIS      := AllTrim( inieditspr( A__MENUVERT, getv008(), f034->MPVID ) ) ;
-        + ', ' + AllTrim( inieditspr( A__MENUVERT, getv006(), f034->MPUSL ) ) ;
-        + ', ' + AllTrim( inieditspr( A__MENUVERT, getv002(), f034->MPROF ) )
-      f034->( dbSkip() )
-    enddo
-    f034->( dbCloseArea() )
-    Select tmp_f034
-    k := tmp_f034->( LastRec() )
-    tmp_f034->( dbGoTop() )
-
-    If k == 0
-      func_error( 4, 'Пустой справочник видов, условий и профилей медицинской помощи' )
-    Else
-      //ret := fget_tmp_f034( r, c, , 'Выбор профиля' )
-      alpha_browse( 9, 2, 20, 78, 'f1edit_otd_mp', color0, , , , , , , 'f2edit_otd_mp', , ;
-        { '═', '░', '═', 'N/BG,W+/N,B/BG,BG+/B,N+/BG,W/N', .t. } )
-    Endif
-    tmp_f034->( dbCloseArea() )
-*/
     Select ( tmp_select )
   Endcase
 
@@ -390,60 +204,3 @@ Function f2edit_otd_f034( nKey, oBrow )
   Endcase
 
   Return ret
-
-/*
-// 09.04.26 переиндексация справочников ГИС ОМС
-function index_gis_oms( dir_spavoch, working_dir )
-
-  local sbase, org_mcod
-  local mIDMO, mUIDMO
-
-  org_mcod := glob_mo()[ _MO_KOD_FFOMS ]
-
-  // справочник F032
-  sbase := '_mo_f032'
-  r_use( dir_spavoch + sbase, , 'F032' )
-  Index On FIELD->MCOD to ( working_dir + sbase ) ;
-    For FIELD->MCOD == org_mcod
-//    For Substr( FIELD->MCOD, 1, 2 ) == '34'
-//  f032->( dbGoTop() )
-  if ! f032->( Eof() ) .and. ! f032->( Bof() )
-    mIDMO   := f032->IDMO
-    mUIDMO  := f032->UIDMO
-  endif
-  dbCloseArea()
-  
-  // справочник F031
-  sbase := '_mo_f031'
-  r_use( dir_spavoch + sbase, , 'F031' )
-  Index On FIELD->IDMO to ( working_dir + sbase ) ;
-    For FIELD->IDMO == mIdmo
-  dbCloseArea()
-
-  // справочник F033
-  sbase := '_mo_f033'
-  r_use( dir_spavoch + sbase, , 'F033' )
-  Index ON FIELD->UIDSPMO to ( working_dir + sbase ) FOR SubStr( FIELD->UIDSPMO, 1, 11 ) == AllTrim( mUIDMO )
-  dbCloseArea()
-
-  // справочник F034
-  sbase := '_mo_f034'
-  r_use( dir_spavoch + sbase, , 'F034' )
-  Index ON FIELD->UIDSPMO + Str( FIELD->IDADDRESS, 19 ) to ( working_dir + sbase )
-  dbCloseArea()
-
-  // справочник F037
-//  aLic := {}
-  sbase := '_mo_f037'
-  r_use( dir_spavoch + sbase, , 'F037' )
-  Index ON FIELD->MCOD to ( working_dir + sbase ) FOR FIELD->MCOD == org_mcod
-  dbCloseArea()
-
-  // справочник F038
-  sbase := '_mo_f038'
-  r_use( dir_spavoch + sbase, , 'F038' )
-  Index ON FIELD->UIDMO to ( working_dir + sbase )
-  dbCloseArea()
-
-  return nil
-*/
