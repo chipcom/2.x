@@ -24,7 +24,7 @@
 #define USL_SVIDPOM  14   // виды оказываемой медицинской помощи
 #define USL_ZAK_SL   15   // признак оплаты по законченному случаю
 
-// 24.09.26 
+// 02.10.26 
 Function verify_sluch( fl_view, ft )
 
   Local arrUslugi := {} // массив содержаший коды услуг в случае 
@@ -4347,9 +4347,9 @@ Function verify_sluch( fl_view, ft )
                 If lshifr == '4.1.12' // Осмотр акушеркой, взятие мазка (соскоба)
                   a_4_20_1[ 1 ] := ar[ 10 ]
                 Endif
-                If ar[ 10 ] == 1
+                If ar[ 10 ] == 1 .and. iif( ValType( aDvn_arr_usl[ i, 3 ] ) == 'N', aDvn_arr_usl[ i, 3 ] == metap, AScan( aDvn_arr_usl[ i, 3 ], metap ) > 0 )
                   ++kol_d_otkaz
-                  If is_disp_19 .and. eq_any( lshifr, '4.8.4', '4.14.66', '7.57.3', '2.3.1', '2.3.3', '4.1.12', '4.20.1', '4.20.2' )
+                  If eq_any( lshifr, '4.8.4', '4.14.66', '7.57.3', '2.3.1', '2.3.3', '4.1.12', '4.20.1', '4.20.2' )
                     ++kol_ob_otkaz // кол-во отказов от обязательных услуг
                   Endif
                   is_usluga_dvn( { lshifr, ar[ 9 ], ar[ 4 ], ar[ 2 ] }, mv, ta, metap, mpol, kod_spec_ter, aDvn_arr_umolch, aDvn_arr_usl )

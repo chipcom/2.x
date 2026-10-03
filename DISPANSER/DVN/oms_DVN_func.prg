@@ -2,6 +2,7 @@
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
+#include 'chip_dispanser.ch'
 
 // 27.03.26
 Function is_usluga_dvn( ausl, _vozrast, arr, _etap, _pol, _spec_ter, arr_umolch, arr_usl )
@@ -42,9 +43,9 @@ Function is_usluga_dvn( ausl, _vozrast, arr, _etap, _pol, _spec_ter, arr_umolch,
       endif
       if fl
         s := '"' + lshifr + '.' + arr_usl[ i, 1 ] + '"'
-        if eq_any( _etap, 1, 4, 5 )
+        if eq_any( _etap, DVN_I_ETAP, 4, 5 )
           j := iif( _pol == 'М', 6, 7 )
-          if _etap > 1 .and. len( arr_usl[ i ] ) > 12
+          if _etap > DVN_I_ETAP .and. len( arr_usl[ i ] ) > 12
             j := iif( _pol == 'М', 13, 14 )
           endif
           if valtype( arr_usl[i, j]) == 'N'
@@ -83,7 +84,7 @@ Function is_usluga_dvn( ausl, _vozrast, arr, _etap, _pol, _spec_ter, arr_umolch,
         endif
         as := aclone( arr_usl[ i, 11 ] )
         // "Измерение внутриглазного давления","3.4.9"
-        if _etap == 1 .and. as[ 1 ] == 1112 .and. _spec_ter > 0
+        if _etap == DVN_I_ETAP .and. as[ 1 ] == 1112 .and. _spec_ter > 0
           aadd( as, _spec_ter ) // добавить спец-ть терапевта
         endif
         exit
@@ -770,8 +771,8 @@ Function f_is_usl_oms_sluch_dvn( mdata, mobil, i, _etap, _vozrast, _pol, /*@*/_d
   Local fl := .f., ars := {}, ar, aTemp
 
   aTemp := dvn_arr_usl( mdata, mobil )
-  if mdata >= 0d20260101 .and. _etap == 2
-//  if _etap == 2
+  if mdata >= 0d20260101 .and. _etap == DVN_II_ETAP
+//  if _etap == DVN_II_ETAP
     aTemp := del_usl_10_3_713_I_etap( aTemp )
   endif
   ar := aTemp[ i ]
@@ -789,7 +790,7 @@ Function f_is_usl_oms_sluch_dvn( mdata, mobil, i, _etap, _vozrast, _pol, /*@*/_d
   Else
     ars := AClone( ar[ 2 ] )
   Endif
-  If eq_any( _etap, 1, 3 ) .and. ar[ 5 ] == 1 .and. ( ( AScan( ars, '4.20.1' ) == 0 ) .or. ( AScan( ars, '4.20.701' ) == 0 ) )
+  If eq_any( _etap, DVN_I_ETAP, DVN_PROF_OSMOTR ) .and. ar[ 5 ] == 1 .and. ( ( AScan( ars, '4.20.1' ) == 0 ) .or. ( AScan( ars, '4.20.701' ) == 0 ) )
     _otkaz := 1 // можно ввести отказ
     If ValType( ar[ 2 ] ) == 'C' .and. eq_ascan( ars, '7.61.3', '4.1.12', ;
         '7.61.703', '4.1.712', '4.1.713', '7.57.3', '7.57.703', '7.57.704', '7.57.706', '7.57.708', '7.57.709' )
@@ -799,8 +800,8 @@ Function f_is_usl_oms_sluch_dvn( mdata, mobil, i, _etap, _vozrast, _pol, /*@*/_d
       Endif
     Endif
   Endif
-  If fl .and. eq_any( _etap, 1, 4, 5 )
-    If _etap == 1
+  If fl .and. eq_any( _etap, DVN_I_ETAP, 4, 5 )
+    If _etap == DVN_I_ETAP
       i := iif( _pol == 'М', 6, 7 )
     Elseif Len( ar ) < 14
       Return .f.
@@ -816,7 +817,7 @@ Function f_is_usl_oms_sluch_dvn( mdata, mobil, i, _etap, _vozrast, _pol, /*@*/_d
       fl := AScan( ar[ i ], _vozrast ) > 0
     Endif
   Endif
-  If fl .and. eq_any( _etap, 2, 3 )
+  If fl .and. eq_any( _etap, DVN_II_ETAP, DVN_PROF_OSMOTR )
     i := iif( _pol == 'М', 6, 7 )
     If ValType( ar[ i ] ) == 'N'
       fl := ( ar[ i ] != 0 )
@@ -1002,11 +1003,11 @@ Function ret_ndisp( lkod_h, lkod_k, /*@*/new_etap, /*@*/msg )
           msg := 'В ' + lstr( Year( mn_data ) ) + ' году уже проведена диспансеризации 1 раз в 2 года'
         Endcase
       Next
-      If eq_any( new_etap, 1, 2 ) .and. new_etap != metap
+      If eq_any( new_etap, DVN_I_ETAP, DVN_II_ETAP ) .and. new_etap != metap
         If i1 == 0
-          new_etap := 1 // делаем 1 этап
+          new_etap := DVN_I_ETAP // делаем 1 этап
         Elseif i2 == 0
-          new_etap := 2 // делаем 2 этап
+          new_etap := DVN_II_ETAP // делаем 2 этап
         Endif
       Endif
       If i1 > 0 .and. i2 > 0
@@ -1027,10 +1028,10 @@ Function ret_ndisp( lkod_h, lkod_k, /*@*/new_etap, /*@*/msg )
         msg := 'Диспансеризация I этапа (раз в 2 года) закончилась ' + date_8( ar[ 1, i4, 2 ] ) + 'г.!'
       Endif
     Endif
-  Else // if new_etap == 3
+  Else // if new_etap == DVN_PROF_OSMOTR
     If Empty( ar[ 1 ] ) // в этом году ещё ничего не делали
       If Empty( ar[ 2 ] ) // посмотрим прошлый год
-        // оставляем 3
+        // оставляем DVN_PROF_OSMOTR
       Elseif AScan( ar[ 2 ], {| x| x[ 1 ] == 3 } ) > 0 // профилактика была в прошлом году
         If is_dostup_2_year
           new_etap := 4 // сразу разрешаем дисп-ию 1 раз в 2 года, т.к. в прошлом
