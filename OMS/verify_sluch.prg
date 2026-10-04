@@ -4,6 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 #include 'tfile.ch'
+#include 'chip_dispanser.ch'
 
 #define BASE_ISHOD_RZD 500  //
 
@@ -24,7 +25,7 @@
 #define USL_SVIDPOM  14   // виды оказываемой медицинской помощи
 #define USL_ZAK_SL   15   // признак оплаты по законченному случаю
 
-// 02.10.26 
+// 04.10.26 
 Function verify_sluch( fl_view, ft )
 
   Local arrUslugi := {} // массив содержаший коды услуг в случае 
@@ -4138,7 +4139,7 @@ Function verify_sluch( fl_view, ft )
       s += ' ' + AllTrim( au_lu_ne[ i, 3 ] )
       AAdd( ta, 'неверная услуга "' + s + '" от ' + date_8( au_lu_ne[ i, 4 ] ) + 'г.' )
     Next
-    metap := 3
+    metap := DVN_PROF_OSMOTR  //  3
     If Between( human->ishod, 201, 205 )
       metap := human->ishod -200
       license_for_dispans( 1, dBegin, ta )
@@ -4146,7 +4147,7 @@ Function verify_sluch( fl_view, ft )
       AAdd( ta, 'диспансеризацию/профилактику взрослых надо вводить через специальный экран ввода' )
     Endif
     If m1veteran == 1
-      If metap == 3
+      If metap == DVN_PROF_OSMOTR
         AAdd( ta, 'профилактику взрослых не проводят ветеранам ВОВ (блокадникам)' )
       Else
         mdvozrast := ret_vozr_dvn_veteran( mdvozrast, dEnd )
@@ -4154,8 +4155,8 @@ Function verify_sluch( fl_view, ft )
     Endif
     is_prof_disp := .f.
     // если это профосмотр
-    If metap == 3 .and. AScan( ret_arr_vozrast_dvn( dEnd ), mdvozrast ) > 0 // а возраст диспансеризации
-      metap := 1 // превращаем в диспансеризацию
+    If metap == DVN_PROF_OSMOTR .and. AScan( ret_arr_vozrast_dvn( dEnd ), mdvozrast ) > 0 // а возраст диспансеризации
+      metap := DVN_I_ETAP // превращаем в диспансеризацию
       is_prof_disp := .t.
     Endif
     For i := 1 To Len( a_disp )
@@ -4164,13 +4165,13 @@ Function verify_sluch( fl_view, ft )
           date_8( a_disp[ i, 2 ] ) + '-' + date_8( a_disp[ i, 3 ] ) )
       Endif
     Next
-    If metap == 2 .and. AScan( a_disp, {| x| x[ 1 ] == 1 } ) == 0
+    If metap == DVN_II_ETAP .and. AScan( a_disp, {| x| x[ 1 ] == 1 } ) == 0
       AAdd( ta, 'это II этап диспансеризации, но отсутствует случай I этапа диспансеризации' )
     Elseif metap == 5 .and. AScan( a_disp, {| x| x[ 1 ] == 4 } ) == 0
       AAdd( ta, 'это II этап диспансеризации, но отсутствует случай I этапа диспансеризации раз в 2 года' )
     Endif
     aDvn_arr_usl := dvn_arr_usl( dEnd, m1mobilbr )
-    if metap == 2
+    if metap == DVN_II_ETAP
       aDvn_arr_usl := del_usl_10_3_713_I_etap( aDvn_arr_usl )
     endif
     aDvn_arr_umolch := dvn_arr_umolch( dEnd, m1mobilbr )
@@ -4182,14 +4183,14 @@ Function verify_sluch( fl_view, ft )
     For i := 1 To Len( aDvn_arr_usl )
       fl_ekg := .f.
       i_otkaz := 0
-      If f_is_usl_oms_sluch_dvn( human->k_data, m1mobilbr, i, metap, iif( metap == 3 .and. !is_disp_19, mvozrast, mdvozrast ), mpol, , @i_otkaz, @fl_ekg )
+      If f_is_usl_oms_sluch_dvn( human->k_data, m1mobilbr, i, metap, iif( metap == DVN_PROF_OSMOTR .and. !is_disp_19, mvozrast, mdvozrast ), mpol, , @i_otkaz, @fl_ekg )
         arr1[ i, 2 ] := 1
         arr1[ i, 3 ] := i_otkaz
         arr1[ i, 5 ] := iif( fl_ekg, 1, 0 ) // 1 - необязательный возраст
       Endif
     Next
     For i := 1 To Len( aDvn_arr_umolch )
-      If f_is_umolch_sluch_dvn( i, metap, iif( metap == 3 .and. !is_disp_19, mvozrast, mdvozrast ), mpol )
+      If f_is_umolch_sluch_dvn( i, metap, iif( metap == DVN_PROF_OSMOTR .and. !is_disp_19, mvozrast, mdvozrast ), mpol )
         arr2[ i, 2 ] := 1
       Endif
     Next
@@ -4213,11 +4214,11 @@ Function verify_sluch( fl_view, ft )
         Next
       Endif
       If fl
-        if metap == 2
+        if metap == DVN_II_ETAP
           aDvn_arr_usl := del_usl_10_3_713_I_etap( aDvn_arr_usl )
         endif
         For i := 1 To Len( aDvn_arr_usl )
-          If metap == 2 .and. ValType( aDvn_arr_usl[ i, 2 ] ) == 'C' .and. aDvn_arr_usl[ i, 2 ] == lshifr
+          If metap == DVN_II_ETAP .and. ValType( aDvn_arr_usl[ i, 2 ] ) == 'C' .and. aDvn_arr_usl[ i, 2 ] == lshifr
             s := '"' + aDvn_arr_usl[ i, 2 ] + ' ' + aDvn_arr_usl[ i, 1 ] + '"'
             If ValType( aDvn_arr_usl[ i, 3 ] ) == 'N'
               If aDvn_arr_usl[ i, 3 ] != 2
@@ -4272,16 +4273,16 @@ Function verify_sluch( fl_view, ft )
     is_1_den := is_last_den := .f.
     zs := kvp := 0
     oth_usl := ''
-    mv := iif( metap == 3 .and. !is_disp_19, mvozrast, mdvozrast )
+    mv := iif( metap == DVN_PROF_OSMOTR .and. !is_disp_19, mvozrast, mdvozrast )
     kod_spec_ter := 0
-    If eq_any( metap, 1, 4 )
+    If eq_any( metap, DVN_I_ETAP, 4 )
       For i := 1 To Len( au_lu )
         If eq_any( au_lu[ i, 3 ], 97, 57, 42 ) // профиль терапевт (врач общей практики)
           kod_spec_ter := au_lu[ i, 4 ]  // специальность терапевта (врача общей практики)
           Exit
         Endif
       Next
-    Elseif eq_any( metap, 2, 5 ) // поверка на обязательное сочетание услуг второго этапа
+    Elseif eq_any( metap, DVN_II_ETAP, 5 ) // поверка на обязательное сочетание услуг второго этапа
       ar := Array( Len( dvn_2_etap() ), 2 )
       afillall( ar, 0 )
       For i := 1 To Len( au_lu )
@@ -4362,10 +4363,10 @@ Function verify_sluch( fl_view, ft )
         Endif
       Next j
     Endif
-    If kol_ob_otkaz > 0 .and. metap == 1 .and. !is_prof_disp
+    If kol_ob_otkaz > 0 .and. metap == DVN_I_ETAP .and. !is_prof_disp
       AAdd( ta, 'некорректно записан случай профоосмотра в год диспансеризации - отредактируйте' )
     Endif
-    If !eq_any( metap, 2, 5 ) // проверим, выполнены обязательные услуги (и наоборот)
+    If !eq_any( metap, DVN_II_ETAP, 5 ) // проверим, выполнены обязательные услуги (и наоборот)
       For i := 1 To Len( aDvn_arr_usl )
         s := '"' + iif( ValType( aDvn_arr_usl[ i, 2 ] ) == 'C', aDvn_arr_usl[ i, 2 ] + ' ', '' )
         s += aDvn_arr_usl[ i, 1 ] + '"'
@@ -4437,17 +4438,17 @@ Function verify_sluch( fl_view, ft )
       Endif
       If is_usluga_dvn( au_lu[ i ], mv, ta, metap, mpol, kod_spec_ter, aDvn_arr_umolch, aDvn_arr_usl ) ;
           .or. ( substr( au_lu[ i, 1 ], 1, 5 ) == '72.7.' )
-        If ( mk_data >= 0d20260101 ) .and. metap == 1 .and. !eq_any( Left( lshifr, 5 ), '4.20.', '2.90.', '70.7.' )
+        If ( mk_data >= 0d20260101 ) .and. metap == DVN_I_ETAP .and. !eq_any( Left( lshifr, 5 ), '4.20.', '2.90.', '70.7.' )
           ++kol_d_usl
-        elseif ( mk_data < 0d20260101 ) .and. metap == 1 .and. Empty( hu->u_cena ) .and. !eq_any( Left( lshifr, 5 ), '4.20.', '2.90.' )
+        elseif ( mk_data < 0d20260101 ) .and. metap == DVN_I_ETAP .and. Empty( hu->u_cena ) .and. !eq_any( Left( lshifr, 5 ), '4.20.', '2.90.' )
           ++kol_d_usl
-        Elseif metap == 3 .and. !( eq_any( lshifr, '56.1.14', '56.1.724', '56.1.728' ) )
+        Elseif metap == DVN_PROF_OSMOTR .and. !( eq_any( lshifr, '56.1.14', '56.1.724', '56.1.728' ) )
           ++kol_d_usl
         Endif
         If dBegin == au_lu[ i, 2 ]
           is_1_den := .t.
         Endif
-        If metap == 2
+        If metap == DVN_II_ETAP
           If eq_any( lshifr, '7.2.701', '7.2.702', '7.2.703', '7.2.704', '7.2.705' )
             ++kkt
           Endif
@@ -4455,7 +4456,7 @@ Function verify_sluch( fl_view, ft )
             ++kzad
           Endif
         Endif
-        If !eq_any( metap, 2, 5 ) .and. au_lu[ i, 2 ] < dBegin .and. !eq_any( lshifr, '4.20.1', '4.20.2' )
+        If !eq_any( metap, DVN_II_ETAP, 5 ) .and. au_lu[ i, 2 ] < dBegin .and. !eq_any( lshifr, '4.20.1', '4.20.2' )
           If is_disp_19
             If Year( au_lu[ i, 2 ] ) < Year( dBegin ) // кол-во услуг без отказа выполнены ранее
               ++kol_n_date                 // начала проведения диспансеризации и не принадлежат текущему календарному году
@@ -4464,7 +4465,7 @@ Function verify_sluch( fl_view, ft )
             ++kol_n_date // учтена ранее оказанная услуга
           Endif
         Endif
-        If eq_any( metap, 2, 5 ) .and. au_lu[ i, 2 ] < dBegin
+        If eq_any( metap, DVN_II_ETAP, 5 ) .and. au_lu[ i, 2 ] < dBegin
           AAdd( ta, s + ' не попадает в диапазон лечения' )
         Elseif Left( lshifr, 2 ) == '2.' .and. eq_any( au_lu[ i, 3 ], 97, 57, 42 )
           If au_lu[ i, 2 ] != dEnd
@@ -4518,16 +4519,16 @@ Function verify_sluch( fl_view, ft )
       AAdd( ta, 'не разрешается совместно применять ректосигмоколоноскопию и ректороманоскопию' )
     Endif
     If AScan( ret_arr_vozrast_dvn( dEnd ), mdvozrast ) > 0
-      If metap > 2
+      If metap > DVN_II_ETAP
         AAdd( ta, 'в ' + lstr( mdvozrast ) + s_let( mdvozrast ) + ' проводится диспансеризация, а проведена профилактика' )
       Endif
     Else
-      If eq_any( metap, 1, 2 )
+      If eq_any( metap, DVN_I_ETAP, DVN_II_ETAP )
         AAdd( ta, 'в ' + lstr( mvozrast ) + s_let( mvozrast ) + ' проводится профилактика, а проведена диспансеризация' )
       Endif
     Endif
     Do Case
-    Case metap == 1 .or. ( metap == 3 .and. is_disp_19 )
+    Case metap == DVN_I_ETAP .or. ( metap == DVN_PROF_OSMOTR .and. is_disp_19 )
       If zs > 1
         AAdd( ta, 'в листе учета более одной услуги "законченный случай"' )
       Elseif emptyall( zs, k700 ) .and. !is_disp_19
@@ -4561,17 +4562,17 @@ Function verify_sluch( fl_view, ft )
       Else
         AAdd( ta, 'слишком много отказов-' + lstr( kol_d_otkaz ) + ' услуг-' + lstr( kol_d_usl ) )
       Endif
-    Case metap == 4
-      If zs > 1
-        AAdd( ta, 'в листе учета более одной услуги "законченный случай"' )
-      Elseif emptyall( zs, k700 )
-        AAdd( ta, 'в листе учета нет услуг с ценой' )
-      Endif
-    Case eq_any( metap, 2, 5 )
+//    Case metap == 4
+//      If zs > 1
+//        AAdd( ta, 'в листе учета более одной услуги "законченный случай"' )
+//      Elseif emptyall( zs, k700 )
+//        AAdd( ta, 'в листе учета нет услуг с ценой' )
+//      Endif
+    Case eq_any( metap, DVN_II_ETAP, 5 )
       If zs > 0
         AAdd( ta, 'для II этапа ДВН не должно быть услуг "законченный случай"' )
       Endif
-    Case metap == 3 .and.  !is_disp_19
+    Case metap == DVN_PROF_OSMOTR .and.  !is_disp_19
       If zs > 1
         AAdd( ta, 'в листе учета более одной услуги "законченный случай"' )
       Endif
@@ -4593,7 +4594,7 @@ Function verify_sluch( fl_view, ft )
     If !is_last_den
       AAdd( ta, 'последний врачебный осмотр должен быть оказан в последний день лечения' )
     Endif
-    If metap != 3 .and. eq_any( human_->RSLT_NEW, 317, 318, 355, 356 )
+    If metap != DVN_PROF_OSMOTR .and. eq_any( human_->RSLT_NEW, 317, 318, 355, 356 )
       adiag_talon := Array( 16 )
       For i := 1 To 16
         adiag_talon[ i ] := Int( Val( SubStr( human_->DISPANS, i, 1 ) ) )

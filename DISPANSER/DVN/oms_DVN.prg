@@ -5,7 +5,7 @@
 #include 'chip_mo.ch'
 #include 'chip_dispanser.ch'
 
-// 02.07.26 ДВН - добавление или редактирование случая (листа учета)
+// 04.10.26 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -375,7 +375,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       ret_ndisp( Loc_kod, kod_kartotek )
       aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr )
 
-      if metap == 2
+      if metap == DVN_II_ETAP
         aDvn_arr_usl := del_usl_10_3_713_I_etap( aDvn_arr_usl )
       endif
 
@@ -439,7 +439,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
     aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr )
 
-    if metap == 2
+    if metap == DVN_II_ETAP
       aDvn_arr_usl := del_usl_10_3_713_I_etap( aDvn_arr_usl )
     endif
 
@@ -448,14 +448,14 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
     If metap == 4
       func_error( 4, 'Это диспансеризация раз в 2 года - преобразуем в обычную диспансеризацию' )
-      metap := 1
+      metap := DVN_I_ETAP
     Elseif metap == 5
       func_error( 4, 'Это второй этап диспансеризации раз в 2 года - удалите этот случай!' )
       dbCloseAll()
       Return Nil
     Endif
 
-    If Between( metap, 1, 5 )
+    If Between( metap, DVN_I_ETAP, 5 )
       mm_gruppa := { mm_gruppaD1, mm_gruppaD2, mm_gruppaP, mm_gruppaD4, mm_gruppaD2 }[ metap ]
       If ( i := AScan( mm_gruppa, {| x | x[ 3 ] == m1rslt } ) ) > 0
         m1GRUPPA := mm_gruppa[ i, 2 ]
@@ -550,7 +550,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     Enddo
 
     r_use( dir_server() + 'mo_pers', , 'P2' )
-    If metap == 1 .and. Between( m1GRUPPA, 11, 14 ) .and. m1p_otk == 1
+    If metap == DVN_I_ETAP .and. Between( m1GRUPPA, 11, 14 ) .and. m1p_otk == 1
       m1GRUPPA += 10
     Endif
     For i := 1 To len( aDvn_arr_usl )
@@ -725,7 +725,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   ret_ndisp( Loc_kod, kod_kartotek )
   if lRep_etap
-    metap := 3
+    metap := DVN_PROF_OSMOTR
     mndisp    := inieditspr( A__MENUVERT, mm_ndisp_dvn(), metap )
   endif
   //
@@ -746,7 +746,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   Do While .t.
     dbCloseAll()
     DispBegin()
-    If metap == 2 .and. num_screen == 2
+    If metap == DVN_II_ETAP .and. num_screen == 2
       hS := 30
       wS := 80
     Elseif num_screen == 3
@@ -757,7 +757,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       wS := 80
     Endif
     SetMode( hS, wS )
-    str_head := ' случая ' + iif( metap == 3, 'профосмотра', 'диспансеризации ' + str( metap, 1 ) + ' этапа' ) + ' взрослого населения'
+    str_head := ' случая ' + iif( metap == DVN_PROF_OSMOTR, 'профосмотра', 'диспансеризации ' + str( metap, 1 ) + ' этапа' ) + ' взрослого населения'
     If Loc_kod == 0
       str_head := 'Добавление' + str_head
     Else
@@ -810,7 +810,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         valid {| g | f_k_data( g, 2 ), ;
         ret_ndisp( Loc_kod, kod_kartotek ) ;
         }
-      If eq_any( metap, 3, 4 ) .and. is_dostup_2_year
+      If eq_any( metap, DVN_PROF_OSMOTR, 4 ) .and. is_dostup_2_year
         @ Row(), Col() + 7 Get mndisp /*color color14*/ reader { | x | menu_reader(x, mm_ndisp1, A__MENUVERT, , , .f. ) } ;
         valid {|| metap := m1ndisp, .t. }
       Else
@@ -889,7 +889,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       Endif
 
       aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr )
-      if metap == 2
+      if metap == DVN_II_ETAP
         aDvn_arr_usl := del_usl_10_3_713_I_etap( aDvn_arr_usl )
       endif
       aDvn_arr_umolch := dvn_arr_umolch( MK_DATA, m1mobilbr )
@@ -905,7 +905,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       For i := 1 To len( aDvn_arr_usl )
         fl_diag := .f.
         i_otkaz := 0
-        If f_is_usl_oms_sluch_dvn( MK_DATA, m1mobilbr, i, metap, iif( metap == 3 .and. !is_disp_19, mvozrast, mdvozrast ), mpol, @fl_diag, @i_otkaz )
+        If f_is_usl_oms_sluch_dvn( MK_DATA, m1mobilbr, i, metap, iif( metap == DVN_PROF_OSMOTR .and. !is_disp_19, mvozrast, mdvozrast ), mpol, @fl_diag, @i_otkaz )
           If fl_diag .and. fl_vrach
 
             @ ++j, 1 Say '────────────────────────────────────────────┬─────┬─────┬───────────' Color color8
@@ -959,7 +959,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
     Elseif num_screen == 3 // третий экран диагнозы и результаты ДВН
       if lRep_etap
-        metap := 3
+        metap := DVN_PROF_OSMOTR
       endif
       mm_gruppa := { mm_gruppaD1, mm_gruppaD2, mm_gruppaP, mm_gruppaD4, mm_gruppaD2 }[ metap ]
       mgruppa := inieditspr( A__MENUVERT, mm_gruppa, m1gruppa )
@@ -1063,7 +1063,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       @ j, 67 Get mdndispans5 When m1dispans5 == 1
       //
       @ ++j, 1 Say Replicate( '─', 78 ) Color color1
-      If eq_any( metap, 1, 3 ) .and. mdvozrast < 65
+      If eq_any( metap, DVN_I_ETAP, DVN_PROF_OSMOTR ) .and. mdvozrast < 65
         @ ++j, 1 Say iif( mdvozrast < 40, 'Относительный', 'Абсолютный' ) + ' суммарный сердечно-сосудистый риск' Get mssr Pict '99' ;
           valid {|| iif( Between( mssr, 0, 47 ), , func_error( 4, 'Неразумное значение суммарного сердечно-сосудистого риска' ) ), .t. }
         @ Row(), Col() Say '%'
@@ -1175,7 +1175,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         Loop
       Endif
       If m1veteran == 1
-        If metap == 3
+        If metap == DVN_PROF_OSMOTR
           func_error( 4, 'Профилактику взрослых не проводят ветеранам ВОВ (блокадникам)' )
           Loop
         Endif
@@ -1184,7 +1184,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         Loop
       Endif
       //
-      mdef_diagnoz := iif( metap == 2, 'Z01.8 ', 'Z00.8 ' )
+      mdef_diagnoz := iif( metap == DVN_II_ETAP, 'Z01.8 ', 'Z00.8 ' )
       r_use( dir_exe() + '_mo_mkb', cur_dir() + '_mo_mkb', 'MKB_10' )
       r_use( dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'P2' )
       num_screen := 2
@@ -1209,9 +1209,9 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         fl_diag := .f.
         fl_ekg := .f.
         i_otkaz := 0
-        If f_is_usl_oms_sluch_dvn( MK_DATA, m1mobilbr, i, metap, iif( metap == 3 .and. !is_disp_19, mvozrast, mdvozrast ), mpol, @fl_diag, @i_otkaz, @fl_ekg )
+        If f_is_usl_oms_sluch_dvn( MK_DATA, m1mobilbr, i, metap, iif( metap == DVN_PROF_OSMOTR .and. !is_disp_19, mvozrast, mdvozrast ), mpol, @fl_diag, @i_otkaz, @fl_ekg )
           mvart := 'MTAB_NOMv' + lstr( i )
-          If Empty( &mvart ) .and. ( eq_any( metap, 2, 5 ) .or. fl_ekg ) // ЭКГ, не введён врач
+          If Empty( &mvart ) .and. ( eq_any( metap, DVN_II_ETAP, 5 ) .or. fl_ekg ) // ЭКГ, не введён врач
             Loop                                                 // и необязательный возраст
           Endif
           ar := aDvn_arr_usl[ i ]
@@ -1391,7 +1391,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
                 arr_osm1[ i, 5 ] := aDvn_arr_usl[ i, 12, j, 1 ] // ar[ 2, j ]  //  шифр услуги
               endif
               If i == len( aDvn_arr_usl ) // последняя услуга из массива - терапевт
-                If eq_any( metap, 2, 5 )
+                If eq_any( metap, DVN_II_ETAP, 5 )
                   If eq_any( arr_osm1[ i, 2 ], 2002, -206 ) // специальность-фельдшер
                     fl := func_error( 4, 'Фельдшер не может заменить терапевта на II этапе диспансеризации' )
                   Endif
@@ -1537,7 +1537,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         Loop
       Endif
       i_56_1_723 := 0
-      If eq_any( metap, 2, 5 )
+      If eq_any( metap, DVN_II_ETAP, 5 )
         If ku < 2
           If !is_disp_19 .and. ( i_56_1_723 := AScan( arr_osm1, {| x | ValType( x[ 5 ] ) == 'C' .and. x[ 5 ] == '56.1.723' } ) ) > 0
             // одно индивидуальное или групповое углубленное профилактическое консультирование - '56.1.723'
@@ -1553,7 +1553,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       Endif
       fl := .t.
       If emptyany( arr_osm1[ len( arr_osm1 ), 1 ], arr_osm1[ len( arr_osm1 ), 9 ] )
-        If metap == 2 .and. i_56_1_723 > 0
+        If metap == DVN_II_ETAP .and. i_56_1_723 > 0
           If !( arr_osm1[ i_56_1_723, 9 ] == mn_data .and. arr_osm1[ i_56_1_723, 9 ] == mk_data )
             fl := func_error( 4, 'Начало и окончание должно равняться дате углубленного профилактич.консультирования' )
           Elseif lrslt_1_etap == 353 // Направлен на 2 этап, предварительно присвоена II группа здоровья
@@ -1565,7 +1565,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
             fl := func_error( 4, 'Результатом 1-го этапа должна быть II группа (и направлен на 2-ой этап)' )
             num_screen := 3
           Endif
-        Elseif metap == 2 .and. i_56_1_723 == 0
+        Elseif metap == DVN_II_ETAP .and. i_56_1_723 == 0
           fl := func_error( 4, 'Не введён приём терапевта (врача общей практики)' )
         Endif
       Elseif ( arr_osm1[ len( arr_osm1 ), 9 ] < mk_data ) .and. ( MK_DATA < 0d20260101 )
@@ -1707,13 +1707,13 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       is_prazdnik := f_is_prazdnik_dvn( mn_data )
       m1assis := arr_osm1[ len( arr_osm1 ), 3 ]
       i_zs := 0
-      If eq_any( metap, 2, 5 )
+      If eq_any( metap, DVN_II_ETAP, 5 )
         i := len( arr_osm1 )
         m1vrach  := arr_osm1[ i, 1 ]
         m1prvs   := arr_osm1[ i, 2 ]
         m1assis  := arr_osm1[ i, 3 ]
         m1PROFIL := arr_osm1[ i, 4 ]
-      elseif  eq_any( metap, 1, 3, 4 )
+      elseif  eq_any( metap, DVN_I_ETAP, DVN_PROF_OSMOTR, 4 )
         i := Len( arr_osm1 )
         m1vrach  := arr_osm1[ i, 1 ]
         m1prvs   := arr_osm1[ i, 2 ]
@@ -1726,14 +1726,14 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
           arr_osm1[ i, 2 ] := arr_osm1[ i -1, 2 ]
           arr_osm1[ i, 3 ] := arr_osm1[ i -1, 3 ]
           arr_osm1[ i, 4 ] := 151 // для кода ЗС - мед.осмотрам профилактическим
-          arr_osm1[ i, 5 ] := ret_shifr_zs_dvn( metap, iif( metap == 3 .and. !is_disp_19, mvozrast, mdvozrast ), mpol, mk_data )
+          arr_osm1[ i, 5 ] := ret_shifr_zs_dvn( metap, iif( metap == DVN_PROF_OSMOTR .and. !is_disp_19, mvozrast, mdvozrast ), mpol, mk_data )
           arr_osm1[ i, 6 ] := arr_osm1[ i -1, 6 ]
           arr_osm1[ i, 9 ] := mn_data
           arr_osm1[ i, 10 ] := 0
         endif
       Endif
       For i := 1 To Len( aDvn_arr_umolch )
-        If f_is_umolch_sluch_dvn( i, metap, iif( metap == 3 .and. !is_disp_19, mvozrast, mdvozrast ), mpol )
+        If f_is_umolch_sluch_dvn( i, metap, iif( metap == DVN_PROF_OSMOTR .and. !is_disp_19, mvozrast, mdvozrast ), mpol )
           ++kol_d_usl
           AAdd( arr_osm1, Array( 11 ) )
           j := Len( arr_osm1 )
@@ -1747,7 +1747,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
           arr_osm1[ j, 10 ] := 0
         Endif
       Next
-      If eq_any( metap, 1, 3, 4 ) // если первый этап, проверим на 85%
+      If eq_any( metap, DVN_I_ETAP, DVN_PROF_OSMOTR, 4 ) // если первый этап, проверим на 85%
         not_zs := .f.
         kol := kol_otkaz := kol_n_date := kol_ob_otkaz := 0
         For i := 1 To Len( arr_osm1 )
@@ -1791,7 +1791,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
           k := dvn_85()[ i, 1 ] - dvn_85()[ i, 2 ] // 15%
           If kol_n_date + kol_otkaz <= k // отказы + ранее оказано менее 15%
             // выставляем по законченному случаю
-            If kol_ob_otkaz > 0 .and. metap == 1 // надо переделать в профосмотр !!!!!
+            If kol_ob_otkaz > 0 .and. metap == DVN_I_ETAP // надо переделать в профосмотр !!!!!
               // замена услуг
               zamena_usl_dvn_to_prof( arr_osm1 )
               for j := 1 to len( arr_osm1 ) // удаляем краткое профилактическое консультирование
@@ -1799,7 +1799,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
                   hb_ADel( arr_osm1, j, .t. )
                 endif
               next
-              metap := 3
+              metap := DVN_PROF_OSMOTR
               if eq_any( m1rslt, 355, 357 ) // IIIа группа
                 m1rslt := 373
                 m1gruppa := 3
@@ -1960,7 +1960,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       AEval( adiag_talon, {| x | s += Str( x, 1 ) } )
       human_->DISPANS   := s
       human_->STATUS_ST := ''
-      human_->POVOD     := iif( metap == 3, 5, 6 )
+      human_->POVOD     := iif( metap == DVN_PROF_OSMOTR, 5, 6 )
       // human_->TRAVMA    := m1travma
       human_->VPOLIS    := m1vidpolis
       human_->SPOLIS    := LTrim( mspolis )
@@ -1973,18 +1973,18 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       human_->VIDPOM    := m1VIDPOM
       human_->PROFIL    := m1PROFIL
       if human->K_DATA >= 0d20260101
-        if metap == 1 .or. metap == 3
+        if metap == DVN_I_ETAP .or. metap == DVN_PROF_OSMOTR
           human_->IDSP      := 29 // за посещение
-        elseif metap == 2
+        elseif metap == DVN_II_ETAP
           human_->IDSP      := 30 // За обращение (законченный случай) в поликлинике
         else
         endif
       else
-        if metap == 1
+        if metap == DVN_I_ETAP
           human_->IDSP      := 11 // Дополнительная диспансеризация
-        elseif metap == 2
+        elseif metap == DVN_II_ETAP
           human_->IDSP      := 11 // За обращение (законченный случай) в поликлинике
-        elseif metap == 3
+        elseif metap == DVN_PROF_OSMOTR
           human_->IDSP      := 30 // За обращение (законченный случай) в поликлинике
         else
         endif
