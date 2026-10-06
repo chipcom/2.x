@@ -576,6 +576,19 @@ Function dispans_napr( mk_data, /*@*/j, lAdult, lFull, nType_lu )
   @ j, 73 Get mtab_v_reab Pict '99999' ;
     valid {| g| iif( ( mtab_v_reab == 0 ) .and. v_kart_vrach( g ), func_error( 4, strNeedTabNumber ), .t. ) } ;
     When m1napr_reab > 0  //  .and. m1DS_ONK == 0
+
+
+    // направлен на санаторно-курортное лечение
+    If lAdult
+      @ ++j, 1 Say 'Направлен на санаторно-курортное лечение' Get msank_na ;
+        reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+        valid {|| iif( m1sank_na == 0, mtab_v_sanat := 0, ), update_get( 'mtab_v_sank' ) } when m1DS_ONK == 0
+      @ j, 73 Get mtab_v_sanat Pict '99999' ;
+        valid {| g| iif( ( mtab_v_sanat == 0 ) .and. v_kart_vrach( g ), func_error( 4, strNeedTabNumber ), .t. ) } ;
+        when m1sank_na > 0  //  .and. m1DS_ONK == 0
+    Endif
+
+
   Return Nil
 
 // 27.06.23
