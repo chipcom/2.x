@@ -2,6 +2,7 @@
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
+#include 'chip_dispanser.ch'
 
 // 09.09.26 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
@@ -90,7 +91,8 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     m1MOP := 1, mMOP  // место обращения (посещения) tmp_V040
 //
   //
-  Private metap := 1, mperiod := 0, mshifr_zs := '', mnapr_onk := Space( 10 ), m1napr_onk := 0, ;
+  private metap := PN_I_ETAP
+  Private mperiod := 0, mshifr_zs := '', mnapr_onk := Space( 10 ), m1napr_onk := 0, ;
     mkateg_uch, m1kateg_uch := 3, ; // Категория учета ребенка:
     mmesto_prov := Space( 10 ), m1mesto_prov := 0, ; // место проведения
     mMO_PR := Space( 10 ), m1MO_PR := st_mo_pr, ; // код МО прикрепления
@@ -440,7 +442,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     Private &mvar := mm_otkaz[ 1, 2 ]
   Next
 
-    If metap == 2
+    If metap == PN_II_ETAP
       m1step2 := 1
     Endif
     //
@@ -518,7 +520,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     Endif
     If Len( larr_p ) > 1 // если осмотр педиатра I этапа позднее педиатра II этапа
       ASort( larr_p,,, {| x, y| x[ 2 ] < y[ 2 ] } )
-      If metap == 1
+      If metap == PN_I_ETAP
         ASize( larr_p, 1 ) // отрезать лишние приёмы
       Else
         Do While Len( larr_p ) > 2 // когда педиатр I этапа введён как две услуги (2.3.* и 2.91.*)
@@ -574,7 +576,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       Next
     Next
     read_arr_pn( Loc_kod, .t., mk_data )
-    If metap == 1 .and. m1p_otk == 1
+    If metap == PN_I_ETAP .and. m1p_otk == 1
       m1step2 := 2
     Endif
     If ValType( arr_usl_otkaz ) == 'A'
@@ -1367,7 +1369,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       max_date1 := max_date2 := mn_data
       d12 := mn_data -1
       k := 0
-      If metap == 2
+      If metap == PN_II_ETAP
         Do While++d12 <= mk_data
           If is_work_day( d12 )
             If++k == 20
@@ -1398,7 +1400,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         If _fl_ .and. not_audio_s /*.and. np_arr_issled( mk_data )[i, 4] == 0 // не гормон*/
           If Empty( &mvard )
             fl := func_error( 4, 'Не введена дата иссл-ия "' + arr_pn_issled[ i, 3 ] + '"' )
-          Elseif metap == 2 .and. &mvard > d12
+          Elseif metap == PN_II_ETAP .and. &mvard > d12
             fl := func_error( 4, 'Дата иссл-ия "' + arr_pn_issled[ i, 3 ] + '" не в I-ом этапе (> 20 дней)' )
           Elseif Empty( &mvart ) .and. arr_pn_issled[ i, 1 ] != '4.29.2' // исследование уровня холестерина в крови
             fl := func_error( 4, 'Не введен врач в иссл-ии "' + arr_pn_issled[ i, 3 ] + '"' )
@@ -1473,7 +1475,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
           mvarz := 'MKOD_DIAGo' + lstr( i )
           If Empty( &mvard )
             fl := func_error( 4, 'Не введена дата осмотра I этапа "' + np_arr_osmotr( mk_data, m1mobilbr )[ i, 3 ] + '"' )
-          Elseif metap == 2 .and. &mvard > d12
+          Elseif metap == PN_II_ETAP .and. &mvard > d12
             fl := func_error( 4, 'Дата осмотра "' + np_arr_osmotr( mk_data, m1mobilbr )[ i, 3 ] + '" не в I-ом этапе (> 20 дней)' )
           Elseif Empty( &mvart )
             fl := func_error( 4, 'Не введен врач в осмотре I этапа "' + np_arr_osmotr( mk_data, m1mobilbr )[ i, 3 ] + '"' )
@@ -1530,14 +1532,14 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         fl := func_error( 4, 'Не введён педиатр (врач общей практики) в осмотрах I этапа' )
       Elseif MDATEp1 < max_date1
         fl := func_error( 4, 'Педиатр (врач общей практики) на I этапе должен проводить осмотр последним!' )
-      Elseif metap == 2 .and. MDATEp1 > d12
+      Elseif metap == PN_II_ETAP .and. MDATEp1 > d12
         fl := func_error( 4, 'Дата осмотра педиатра I этапа не умещается в 20 рабочих дней' )
       Endif
       If !fl
         Loop
       Endif
       m1p_otk := 0
-      metap := 1
+      metap := PN_I_ETAP
       arr_osm2 := Array( count_pn_arr_osm, 10 )
       afillall( arr_osm2, 0 )
       If m1step2 == 2 // направлен на 2-ой этап, но отказался
@@ -1546,7 +1548,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         num_screen := 3
         fl := .t.
         If !emptyany( MTAB_NOMpv2, MDATEp2 )
-          metap := 2
+          metap := PN_II_ETAP
         Endif
         ku := 0
         For i := 1 To count_pn_arr_osm
@@ -1572,7 +1574,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
               fl := func_error( 4, 'Не введена дата осмотра II этапа "' + np_arr_osmotr( mk_data, m1mobilbr )[ i, 3 ] + '"' )
             Elseif !emptyany( &mvard, &mvart )
               ++ku
-              metap := 2
+              metap := PN_II_ETAP
               if ( &mvard <= MDATEp1 )
                 fl := func_error( 4, 'Дата осмотра II этапа "' + np_arr_osmotr( mk_data, m1mobilbr )[ i, 3 ] + '" внутри I этапа' )
               Endif
@@ -1622,7 +1624,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
             Exit
           Endif
         Next
-        If fl .and. metap == 2
+        If fl .and. metap == PN_II_ETAP
           If emptyany( MTAB_NOMpv2, MDATEp2 )
             fl := func_error( 4, 'Не введён педиатр (врач общей практики) в осмотрах II этапа' )
           Elseif MDATEp1 == MDATEp2
@@ -1759,7 +1761,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       m1assis  := arr_osm1[ i, 3 ]
       m1PROFIL := arr_osm1[ i, 4 ]
       // MKOD_DIAG := padr(arr_osm1[i, 6], 6)
-      If ! is_otkaz .and. mk_data < 0d20250901 .and. metap != 2  // добавляем код ЗС до 01.09.25
+      If ! is_otkaz .and. mk_data < 0d20250901 .and. metap != PN_II_ETAP  // добавляем код ЗС до 01.09.25
         AAdd( arr_usl_dop, Array( 10 ) )
         j := Len( arr_usl_dop )
         arr_usl_dop[ j, 1 ] := m1vrach
@@ -1770,7 +1772,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         arr_usl_dop[ j, 6 ] := MKOD_DIAG
         arr_usl_dop[ j, 9 ] := mn_data
       Endif
-      if metap == 2
+      if metap == PN_II_ETAP
         // добавим педиатра II этапа
         AAdd( arr_osm2, add_pediatr_pn( MTAB_NOMpv2, MTAB_NOMpa2, MDATEp2, MKOD_DIAGp2, mpol, mdef_diagnoz, m1mobilbr ) )
         i := Len( arr_osm2 )
@@ -1810,7 +1812,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       glob_podr := ''
       glob_otd_dep := 0
 
-      if mk_data < 0d20250901 .and. metap != 2
+      if mk_data < 0d20250901 .and. metap != PN_II_ETAP
         for i := 1 to len( arr_usl_dop )
           If ValType( arr_usl_dop[ i, 5 ] ) == 'C' .and. Left( arr_usl_dop[ i, 5 ], 5 ) == '2.85.'
             if AllTrim( arr_usl_dop[ i, 5 ] ) == '2.85.14'
@@ -1925,7 +1927,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       human_->USL_OK    := m1USL_OK
       human_->VIDPOM    := m1VIDPOM
       human_->PROFIL    := m1PROFIL
-      human_->IDSP      := iif( metap == 1, 17, 1 )
+      human_->IDSP      := iif( metap == PN_I_ETAP, 17, 1 )
       human_->NPR_MO    := ''
       human_->FORMA14   := '0000'
       human_->KOD_DIAG0 := ''

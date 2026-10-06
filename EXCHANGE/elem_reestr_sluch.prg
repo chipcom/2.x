@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 10.09.26
+// 06.10.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -270,10 +270,11 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         mo_add_xml_stroke( oSLUCH, 'FOR_POM', '3' ) // 3 - плановая
         mo_add_xml_stroke( oSLUCH, 'LPU', CODE_LPU )
         mo_add_xml_stroke( oSLUCH, 'VBR', iif( m1mobilbr == 0, '0', '1' ) )
-        If eq_any( human->ishod, 301, 302, 203 )
+//        If eq_any( human->ishod, 301, 302, 203 )
+        If human->ishod == 203
           s := '2.1' // Медицинский осмотр
         Else
-          s := '2.2' // Диспансеризация
+          s := '2.2' // Диспансеризация и профилактический осмотр
         Endif
         mo_add_xml_stroke( oSLUCH, 'P_CEL', s )
         mo_add_xml_stroke( oSLUCH, 'P_OTK', iif( m1p_otk == 0, '0', '1' ) ) // Признак отказа
