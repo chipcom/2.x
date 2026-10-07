@@ -5,8 +5,8 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 06.10.26
-Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
+// 07.10.26
+Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear, povtor )
 
   Local oZAP
   Local oSL, oSLUCH
@@ -188,21 +188,23 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       oZAP := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'ZAP' ) )
       mo_add_xml_stroke( oZAP, 'N_ZAP', lstr( rhum->REES_ZAP ) )
       // запишем номер позиции в реестре счетов в БД
-      human_->( dbRLock() )
-      human_->REES_ZAP := rhum->REES_ZAP
-      human_->REES_NUM := 1 //  отправляем 1-й раз
-      human_->SCHET_ZAP := rhum->REES_ZAP
-      if human_->KOD_UP == 0
-        human_->SCHET_NUM := 0 //  отправляем 1-й раз
-      else
-        human_->SCHET_NUM := 1 //  повторная отправка
-      endif
-      human_->( dbUnlock() )
-      if isl == 2
-        human_3->( dbRLock() )
-        human_3->REES_ZAP := rhum->REES_ZAP
-        human_3->( dbUnlock() )
-      endif 
+      if povtor == 0 // первичное выставление    
+        human_->( dbRLock() )
+        human_->REES_ZAP := rhum->REES_ZAP
+        human_->REES_NUM := 1 //  отправляем 1-й раз
+        human_->SCHET_ZAP := rhum->REES_ZAP
+        if human_->KOD_UP == 0
+          human_->SCHET_NUM := 0 //  отправляем 1-й раз
+        else
+          human_->SCHET_NUM := 1 //  повторная отправка
+        endif
+        human_->( dbUnlock() )
+        if isl == 2
+          human_3->( dbRLock() )
+          human_3->REES_ZAP := rhum->REES_ZAP
+          human_3->( dbUnlock() )
+        endif
+      endif   
       mo_add_xml_stroke( oZAP, 'PR_NOV', iif( human_->SCHET_NUM > 0, '1', '0' ) ) // если попал в счёт 2-й раз и т.д.
 
       // заполним сведения о пациенте для XML-документа
@@ -732,9 +734,11 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         endif
 
         hu_->( g_rlock( 'forever' ) )
-        ++idServ                  // увеличим число услуг в реестре случаев
-        hu_->REES_ZAP := idServ   //   ++idServ
-        hu_->SCHET_ZAP := idServ  //    ++idServ
+        if povtor == 0 // первичное
+          ++idServ                  // увеличим число услуг в реестре случаев
+          hu_->REES_ZAP := idServ   //   ++idServ
+          hu_->SCHET_ZAP := idServ  //    ++idServ
+        endif  
 
         // заполним сведения об услугах для XML-документа
         oUSL := oSL:add( hxmlnode():new( 'USL' ) )
@@ -856,9 +860,11 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       // заполним сведения об услугах для XML-документа
       For j := 1 To Len( a_otkaz )
 
-        ++idServ                  // увеличим число услуг в реестре случаев
-        hu_->REES_ZAP := idServ   //   ++idServ
-        hu_->SCHET_ZAP := idServ  //    ++idServ
+        if povtor == 0 // первичное выствление
+          ++idServ                  // увеличим число услуг в реестре случаев
+          hu_->REES_ZAP := idServ   //   ++idServ
+          hu_->SCHET_ZAP := idServ  //    ++idServ
+        endif
 
         if human->K_DATA >= 0d20260101 // .and. is_disp_DVN
 //          usl_zamena := get_zamenauslugi_dvn( human->K_DATA, a_otkaz[ j, 1 ] )
@@ -866,8 +872,13 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         endif
 
         oUSL := oSL:add( hxmlnode():new( 'USL' ) )
-        mo_add_xml_stroke( oUSL, 'IDSERV', lstr( idServ ) )   // lstr( ++iusl ) )
-        mo_add_xml_stroke( oUSL, 'ID_U', mo_guid( 3, idServ ) )   //  iusl ) )
+        if povtor == 0 // первичное выставление
+          mo_add_xml_stroke( oUSL, 'IDSERV', lstr( idServ ) )   // lstr( ++iusl ) )
+          mo_add_xml_stroke( oUSL, 'ID_U', mo_guid( 3, idServ ) )   //  iusl ) )
+        else
+          mo_add_xml_stroke( oUSL, 'IDSERV', lstr( hu_->REES_ZAP ) )   // lstr( ++iusl ) )
+          mo_add_xml_stroke( oUSL, 'ID_U', mo_guid( 3, hu_->REES_ZAP ) )   //  iusl ) )
+        endif   
         mo_add_xml_stroke( oUSL, 'LPU', CODE_LPU )
 
 //        if glob_mo()[_MO_KOD_TFOMS] == '804501'

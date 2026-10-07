@@ -112,13 +112,14 @@ Function read_from_tf()
   Endif
   Return fl
 
-// 07.04.26 чтение в память и анализ XML-файла
+// 04.10.26 чтение в память и анализ XML-файла
 Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
 
   Local is_err_FLK_26
   Local nTypeFile := 0, mkod_reestr, aerr := {}, j, oXmlDoc, ;
     nCountWithErr := 0, go_to_schet := .f., go_to_akt := .f., ;
     go_to_rpd := .f., nerror, buf := save_maxrow()
+  Local tip_error := 0
 
   nTypeFile := arr_XML_info[ 1 ]
   mkod_reestr := arr_XML_info[ 7 ]
@@ -144,6 +145,7 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
     cTimeBegin := hour_min( Seconds() ), ;
     mXML_REESTR := 0, mdate_schet, is_err_FLK := .f.
   Private cFileProtokol := cReadFile + stxt()
+ // Private TIP_ERROR := 0
 //  private mkod_reestr := 0,   
   StrFile( Space( 10 ) + 'Протокол обработки файла: ' + cFile + hb_eol(), cFileProtokol )
   StrFile( Space( 10 ) + full_date( sys_date ) + 'г. ' + cTimeBegin + hb_eol(), cFileProtokol, .t. )
@@ -183,7 +185,7 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
 
       StrFile( hb_eol() + 'Тип файла: протокол ФЛК (форматно-логического контроля) нового образца' + hb_eol() + hb_eol(), cFileProtokol, .t. )
 
-      If read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol )
+      If read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol, @TIP_ERROR )
       else
       Endif
 
@@ -272,7 +274,11 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
         rees->( dbRLock() )
         rees->RES_TFOMS := 3  // 3-ошибка в записях реестра
         rees->( dbUnlock() )
-
+        //
+        if TIP_ERROR == 0 // нет КРИТИЧЕСКИХ ошибок в реестре
+          reestr26_POVTOR(arr_XML_info[ 7 ])  
+        endif  
+        //
       elseif is_err_FLK_26 == 2  // ошибки есть на весь файл
         e_use( dir_server() + 'mo_rees', , 'REES' ) 
         rees->( dbGoto( arr_XML_info[ 7 ] ) )

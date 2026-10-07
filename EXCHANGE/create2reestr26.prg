@@ -5,8 +5,8 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 03.05.26 создание XML-файлов реестра
-Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
+// 04.10.26 создание XML-файлов реестра
+Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort , povtor)
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, code_reestr, mb, me, nsh
   Local i, j
@@ -23,42 +23,49 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
   local sk, begin_rees, end_rees
   local aBukva
 
+  default povtor to 0
+
   private idServ  // Порядковый номер записи о медицинской услуге для всего Реестра случаев
 
   begin_rees := mem_beg_rees
   end_rees := mem_end_rees
   //
-  For i := 1 To 5 // создадим privet переменные для диспансеризации
-    sk := lstr( i )
-    pole_diag := 'mdiag' + sk
-    pole_1dispans := 'm1dispans' + sk
-    pole_dn_dispans := 'mdndispans' + sk
-    Private &pole_diag := Space( 6 )
-    Private &pole_1dispans := 0
-    Private &pole_dn_dispans := CToD( '' )
-  Next
-  waitstatus( 'Составление реестров счетов...' )
-  nsh := f_mb_me_nsh( _nyear, @mb, @me )
+  if povtor == 0 // первичное выставление
+    For i := 1 To 5 // создадим privet переменные для диспансеризации
+      sk := lstr( i )
+      pole_diag := 'mdiag' + sk
+      pole_1dispans := 'm1dispans' + sk
+      pole_dn_dispans := 'mdndispans' + sk
+      Private &pole_diag := Space( 6 )
+      Private &pole_1dispans := 0
+      Private &pole_dn_dispans := CToD( '' )
+    Next
+    waitstatus( 'Составление реестров счетов...' )
+    nsh := f_mb_me_nsh( _nyear, @mb, @me )
+  endif  
 
-  // соберем БУКВЫ СЧЕТОВ
-  aBukva := {}
-  INDEX ON ( FIELD->BUKVA ) TO ( 'mem:bukva' ) FOR FIELD->PLUS unique
-  tmp->( dbGoTop() )
-  while ! tmp->( Eof() )
-    if AScan( aBukva, tmp->BUKVA ) == 0
-      AAdd( aBukva, tmp->BUKVA )
+  if povtor == 0 // первичное выставление
+    // соберем БУКВЫ СЧЕТОВ
+    aBukva := {}
+    INDEX ON ( FIELD->BUKVA ) TO ( 'mem:bukva' ) FOR FIELD->PLUS unique
+    tmp->( dbGoTop() )
+    while ! tmp->( Eof() )
+      if AScan( aBukva, tmp->BUKVA ) == 0
+        AAdd( aBukva, tmp->BUKVA )
+      endif
+      tmp->( dbSkip() )
+    end do
+    tmp->( ordListClear() )
+    hb_vfErase( 'mem:bukva.ntx' )  /* освободим память от индексного файла */
+    tmp->( dbGoTop() )
+  endif
+
+  if povtor == 0 // первичное выставление
+    if reg_sort == 1 
+      INDEX ON FIELD->BUKVA + Upper( human->fio ) + DToS( tmp->k_data ) TO ( 'mem:tmp' ) FOR FIELD->plus
+    else
+      INDEX ON FIELD->BUKVA + Str( FIELD->pz, 2 ) + Str( 10000000 - FIELD->cena_1, 11, 2 ) TO ( 'mem:tmp' ) FOR FIELD->plus
     endif
-    tmp->( dbSkip() )
-  end do
-  tmp->( ordListClear() )
-  hb_vfErase( 'mem:bukva.ntx' )  /* освободим память от индексного файла */
-  tmp->( dbGoTop() )
-
-
-  if reg_sort == 1 
-    INDEX ON FIELD->BUKVA + Upper( human->fio ) + DToS( tmp->k_data ) TO ( 'mem:tmp' ) FOR FIELD->plus
-  else
-    INDEX ON FIELD->BUKVA + Str( FIELD->pz, 2 ) + Str( 10000000 - FIELD->cena_1, 11, 2 ) TO ( 'mem:tmp' ) FOR FIELD->plus
   endif
 
   use_base( 'lusl' )
@@ -97,7 +104,14 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
   g_use( dir_server() + 'mo_onkus', dir_server() + 'mo_onkus', 'ONKUS' )
   g_use( dir_server() + 'mo_onkle', dir_server() + 'mo_onkle', 'ONKLE' )
   g_use( dir_server() + 'human_2', , 'HUMAN_2' )
-  dbSelectArea( 'HUMAN' )
+  if povtor == 0 // первичное выставление
+    dbSelectArea( 'HUMAN' )
+  else
+    r_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
+    Set Order To 2
+    r_use( dir_server() + 'human_',, 'HUMAN_' )
+    r_use( dir_server() + 'human',, 'HUMAN' )
+  endif     
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To FIELD->kod_k into KART
   r_use( dir_exe() + '_mo_t2_v1', , 'T21' )
   INDEX ON FIELD->shifr to ( cur_dir() + 'tmp_t21' )
@@ -106,33 +120,20 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
   INDEX ON FIELD->shifr + Str( FIELD->ks, 1 ) to ( cur_dir() + '_mo_mkb' )
   g_use( dir_server() + 'mo_xml', , 'MO_XML' )
   g_use( dir_server() + 'mo_rees', , 'REES' )
-
+  //
+  if povtor == 1 // повторное выставление
+    aBukva := { 'A' }
+  endif
+  // 
   for countBukva := 1 to len( aBukva )
-    cBukva := aBukva[ countBukva ]
-    dbSelectArea( 'REES' )
-    INDEX ON Str( FIELD->nn, nsh ) to ( cur_dir() + 'tmp_rees' ) ;
-        FOR FIELD->nyear == _nyear .and. FIELD->nmonth == _nmonth
-    fl := .f.
-    For mnn := mb To me
-      find ( Str( mnn, nsh ) )
-      If ! Found() // нашли свободный номер
-        fl := .t.
-        Exit
-      Endif
-    Next
-    If ! fl
-      close_file_reestr26()
-      Return func_error( 10, 'Не удалось найти свободный номер пакета в ТФОМС. Проверьте настройки!' )
-    Endif
-    INDEX ON Str( FIELD->nschet, 6 ) to ( cur_dir() + 'tmp_rees' ) FOR FIELD->nyear == _nyear
-    If ! Eof()
-      rees->( dbGoBottom() )
-      mnschet := rees->nschet + 1
-    Endif
-    If ! Between( mnschet, begin_rees, end_rees )
+    if povtor == 0 // первичное выставление
+      cBukva := aBukva[ countBukva ]
+      dbSelectArea( 'REES' )
+      INDEX ON Str( FIELD->nn, nsh ) to ( cur_dir() + 'tmp_rees' ) ;
+          FOR FIELD->nyear == _nyear .and. FIELD->nmonth == _nmonth
       fl := .f.
-      For mnschet := begin_rees To end_rees
-        find ( Str( mnschet, 6 ) )
+      For mnn := mb To me
+        find ( Str( mnn, nsh ) )
         If ! Found() // нашли свободный номер
           fl := .t.
           Exit
@@ -140,115 +141,143 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
       Next
       If ! fl
         close_file_reestr26()
-        Return func_error( 10, 'Не удалось найти свободный номер реестра. Проверьте настройки!' )
+        Return func_error( 10, 'Не удалось найти свободный номер пакета в ТФОМС. Проверьте настройки!' )
       Endif
-    Endif
-    SET INDEX TO
+      INDEX ON Str( FIELD->nschet, 6 ) to ( cur_dir() + 'tmp_rees' ) FOR FIELD->nyear == _nyear
+      If ! Eof()
+        rees->( dbGoBottom() )
+        mnschet := rees->nschet + 1
+      Endif
+      If ! Between( mnschet, begin_rees, end_rees )
+        fl := .f.
+        For mnschet := begin_rees To end_rees
+          find ( Str( mnschet, 6 ) )
+          If ! Found() // нашли свободный номер
+           fl := .t.
+           Exit
+          Endif
+        Next
+        If ! fl
+          close_file_reestr26()
+          Return func_error( 10, 'Не удалось найти свободный номер реестра. Проверьте настройки!' )
+        Endif
+      Endif
+      SET INDEX TO
 
-    addrecn()
-    rees->KOD    := RecNo()
-    rees->NSCHET := mnschet
-    rees->DSCHET := Date()
-    rees->NYEAR  := _NYEAR
-    rees->NMONTH := _NMONTH
-    rees->NN     := mnn
-    aFilesName := name_reestr_XML( p_tip_reestr, _NYEAR, _NMONTH, mnschet, 6, kod_smo )
-    rees->NAME_XML := aFilesName[ 1 ]
-    mkod_reestr := rees->KOD
-    rees->CODE  := ret_unique_code( mkod_reestr )
-    rees->VER_APP := fs_version( _version() )
-    code_reestr := rees->CODE
+      addrecn()
+      rees->KOD    := RecNo()
+      rees->NSCHET := mnschet
+      rees->DSCHET := Date()
+      rees->NYEAR  := _NYEAR
+      rees->NMONTH := _NMONTH
+      rees->NN     := mnn
+      aFilesName := name_reestr_XML( p_tip_reestr, _NYEAR, _NMONTH, mnschet, 6, kod_smo ) 
+      rees->NAME_XML := aFilesName[ 1 ]
+      mkod_reestr := rees->KOD
+      rees->CODE  := ret_unique_code( mkod_reestr )
+      rees->VER_APP := fs_version( _version() )
+      code_reestr := rees->CODE
 
-    dbSelectArea( 'MO_XML' )
-    addrecn()
-    mo_xml->KOD    := RecNo()
-    mo_xml->FNAME  := rees->NAME_XML
-//    mo_xml->FNAME2 := 'L' + s
-    mo_xml->FNAME2 := aFilesName[ 2 ]
-    mo_xml->DFILE  := rees->DSCHET
-    mo_xml->TFILE  := hour_min( Seconds() )
-    mo_xml->TIP_OUT := _XML_FILE_SCHET_26 // тип высылаемого файла; 7-реестр счетов новой системы обмена
-    mo_xml->REESTR := mkod_reestr
-//
-    cNschet := AllTrim( kod_smo ) + '-' + AllTrim( Str( mnschet ) ) + '-0' + cBukva
-    rees->KOD_XML := mo_xml->KOD
-    rees->NOMER_S := cNschet
-    rees->BUKVA := cBukva
+      dbSelectArea( 'MO_XML' )
+      addrecn()
+      mo_xml->KOD    := RecNo()
+      mo_xml->FNAME  := rees->NAME_XML
+  //    mo_xml->FNAME2 := 'L' + s
+      mo_xml->FNAME2 := aFilesName[ 2 ]
+      mo_xml->DFILE  := rees->DSCHET
+      mo_xml->TFILE  := hour_min( Seconds() )
+      mo_xml->TIP_OUT := _XML_FILE_SCHET_26 // тип высылаемого файла; 7-реестр счетов новой системы обмена
+      mo_xml->REESTR := mkod_reestr
+  //
+      cNschet := AllTrim( kod_smo ) + '-' + AllTrim( Str( mnschet ) ) + '-0' + cBukva
+      rees->KOD_XML := mo_xml->KOD
+      rees->NOMER_S := cNschet
+      rees->BUKVA := cBukva
+      //
+      mo_xml->( dbUnlock() )
+      mo_xml->( dbCommit() )
+      rees->( dbUnlock() )
+      rees->( dbCommit() )
+    endif
     //
-    mo_xml->( dbUnlock() )
-    mo_xml->( dbCommit() )
-    rees->( dbUnlock() )
-    rees->( dbCommit() )
-
-    pkol := 0
-    psumma := 0
-    idServ := 0       // Порядковый номер записи о медицинской услуге для всего Реестра случаев
-    dbSelectArea( 'TMP' )
-    tmp->( dbGoTop() )
-    tmp->( dbSeek( cBukva, .t. ) )
-    do while tmp->BUKVA == cBukva .and. ! tmp->( Eof() )
-      arrLP := {}
+    if povtor == 0 // первичное выставление
+      pkol := 0
+      psumma := 0
+      idServ := 0       // Порядковый номер записи о медицинской услуге для всего Реестра случаев
+      dbSelectArea( 'TMP' )
+      tmp->( dbGoTop() )
+      tmp->( dbSeek( cBukva, .t. ) )
+      do while tmp->BUKVA == cBukva .and. ! tmp->( Eof() )
+        arrLP := {}
 //      @ MaxRow(), 1 Say lstr( pkol ) Color cColorSt2Msg
-      HUMAN->( dbGoto( tmp->kod_human ) )
+        HUMAN->( dbGoto( tmp->kod_human ) )
 
-      otd->( dbGoto( human->OTD ) )
-      lTypeLUOnkoDisp := ( otd->tiplu == TIP_LU_ONKO_DISP )
+        otd->( dbGoto( human->OTD ) )
+        lTypeLUOnkoDisp := ( otd->tiplu == TIP_LU_ONKO_DISP )
       
-      pkol++
-      psumma += human->cena_1
-      dbSelectArea( 'RHUM' )
-      addrec( 6 )
-      rhum->REESTR := mkod_reestr
-      rhum->KOD_HUM := human->kod
-      rhum->REES_ZAP := pkol
+        pkol++
+        psumma += human->cena_1
+        dbSelectArea( 'RHUM' )
+        addrec( 6 )
+        rhum->REESTR := mkod_reestr
+        rhum->KOD_HUM := human->kod
+        rhum->REES_ZAP := pkol
 //      human_->( g_rlock( 'forever' ) )
-      human_->( dbRLock() )
-      If human_->REES_NUM < 99
-        human_->REES_NUM := human_->REES_NUM + 1
-      Endif
-      human_->REESTR := mkod_reestr
+        human_->( dbRLock() )
+        If human_->REES_NUM < 99
+          human_->REES_NUM := human_->REES_NUM + 1
+        Endif
+        human_->REESTR := mkod_reestr
 //      human_->REES_ZAP := pkol
 //      If tmpb->ishod == 89  // 2-й случай
-      If tmp->ishod == 89  // 2-й случай
-        dbSelectArea( 'HUMAN_3' )
+        If tmp->ishod == 89  // 2-й случай
+          dbSelectArea( 'HUMAN_3' )
 //        human_3->( dbSeek( Str( tmpb->kod_human, 7 ) ) )
-        human_3->( dbSeek( Str( tmp->kod_human, 7 ) ) )
-        If human_3->( Found() )
-          g_rlock( 'forever' )
-          If human_3->REES_NUM < 99
-            human_3->REES_NUM := human_3->REES_NUM + 1
-          Endif
-          human_3->REESTR := mkod_reestr
+          human_3->( dbSeek( Str( tmp->kod_human, 7 ) ) )
+          If human_3->( Found() )
+            g_rlock( 'forever' )
+            If human_3->REES_NUM < 99
+              human_3->REES_NUM := human_3->REES_NUM + 1
+            Endif
+            human_3->REESTR := mkod_reestr
 //          human_3->REES_ZAP := pkol
           //
-          dbSelectArea( 'HUMAN' )
-          human->( dbGoto( human_3->kod ) ) // встать на 1-й случай
+            dbSelectArea( 'HUMAN' )
+            human->( dbGoto( human_3->kod ) ) // встать на 1-й случай
 //          human_->( g_rlock( 'forever' ) )
-          human_->( dbRLock() )
-          psumma += human->cena_1
-          If human_->REES_NUM < 99
-            human_->REES_NUM := human_->REES_NUM + 1
-          Endif
-          human_->REESTR := mkod_reestr
+            human_->( dbRLock() )
+            psumma += human->cena_1
+            If human_->REES_NUM < 99
+              human_->REES_NUM := human_->REES_NUM + 1
+            Endif
+            human_->REESTR := mkod_reestr
 //          human_->REES_ZAP := pkol
+          Endif
+          If pkol % 2000 == 0
+            dbUnlockAll()
+            dbCommitAll()
+          Endif
         Endif
-        If pkol % 2000 == 0
-          dbUnlockAll()
-          dbCommitAll()
-        Endif
-      Endif
-      tmpb->( dbSeek( tmp->KOD_SMO + Str( tmp->kod_human, 7 ) ) )
-      if tmpb->( Found() )
-        tmpb->yes_del := .t.
-      endif
-      tmp->(dbSkip() )
-    enddo
-    dbSelectArea( 'REES' )
-    g_rlock( 'forever' )
-    rees->KOL := pkol
-    rees->SUMMA := psumma
-    dbUnlockAll()
-    dbCommitAll()
+        tmpb->( dbSeek( tmp->KOD_SMO + Str( tmp->kod_human, 7 ) ) )
+        if tmpb->( Found() )
+          tmpb->yes_del := .t.
+        endif
+        tmp->(dbSkip() )
+      enddo
+      dbSelectArea( 'REES' )
+      g_rlock( 'forever' )
+      rees->KOL := pkol
+      rees->SUMMA := psumma
+      dbUnlockAll()
+      dbCommitAll()
+    else
+      // встать на записи  
+      dbSelectArea( 'REES' )
+      rees->(dbgoto(_mo_p_rees))
+      dbSelectArea( 'MO_XML' )
+      mo_xml->(dbgoto(rees->kod_xml))
+      mkod_reestr := rees->kod
+    endif
     //
     //
 //    Private arr_usl_otkaz, adiag_talon[ 16 ]
@@ -275,6 +304,10 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
     mo_add_xml_stroke( oXmlNode, 'SD_Z', lstr( pkol ) )
 
     // заполним реестр случаев для XML-документа
+    if povtor == 1 // повторное выставление
+      code_reestr := code_reestr1
+      psumma := psumma1
+    endif  
     oXmlNode := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'SCHET' ) )
     mo_add_xml_stroke( oXmlNode, 'CODE', lstr( code_reestr ) )
     mo_add_xml_stroke( oXmlNode, 'CODE_MO', glob_mo()[ _MO_KOD_FFOMS ] )    //  CODE_MO )
@@ -313,12 +346,14 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
     oPb:Symbol := Chr( 219 )
     oPb:Display()
 
+ MYDEBUG(,mkod_reestr) 
+
     j := 0
     Do While ! rhum->( Eof() )
       oPb:Update( j )
-
+       MYDEBUG(,RHUM->kod_hum) 
       // записываем элемент для случая
-      elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear )
+      elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear,  )
 
       // записываем элемент для пациента
       elem_reestr_pacient( oXmlDocPacient, p_tip_reestr )      

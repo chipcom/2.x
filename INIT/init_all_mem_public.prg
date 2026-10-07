@@ -2,7 +2,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 27.04.26 инициализировать все mem (public) - переменные
+// 04.10.26 инициализировать все mem (public) - переменные
 Function init_all_mem_public()
 
   local j, i, k
@@ -15,6 +15,7 @@ Function init_all_mem_public()
   Public mem_end_rees := 999999
   Public mem_bnn_rees := 1
   Public mem_enn_rees := 99
+  Public mem_rees_povtor := 0
   Public mem_bnn13rees := -1
   Public mem_enn13rees := -1
   Public okato_umolch := '18401395000'

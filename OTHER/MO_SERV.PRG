@@ -3505,7 +3505,7 @@ Function nastr_all( k, nTask )
 
   Return Nil
 
-// 27.04.26 Общие настройки каждой задачи
+// 04.10.26 Общие настройки каждой задачи
 Function f1nastr_all( nameTask, nTask )
 
   Local mm_tmp := {}, ctitle
@@ -3793,6 +3793,10 @@ Function f1nastr_all( nameTask, nTask )
         {| x| menu_reader( x, mm_v_methodinj, A__MENUVERT ) }, ;
         0, {| x| inieditspr( A__MENUVERT, mm_v_methodinj, x ) }, ;
         'Выводить Справочник ФФОМС ПУТИ ВВЕДЕНИЯ:' } )
+      AAdd( mm_tmp, { 'rees_pov', 'N', 1, 0, NIL, ;
+        {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
+        0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
+        'Автоматически пересоздавать ошибочные реестры счетов:' } )
       AAdd( mm_tmp, { 'beg_rees', 'N', 6, 0, NIL, ;
         nil, ;
         1, nil, ;
@@ -3884,7 +3888,8 @@ Function f1nastr_all( nameTask, nTask )
       tmp->enn_rees  := mem_enn13rees
       tmp->date_edit := public_date        //
       tmp->ls_v034   := mem_n_V034
-      tmp->ls_method := mem_methodinj
+      tmp->ls_method := mem_methodinj 
+      tmp->rees_pov  := mem_rees_povtor
       tmp->ver_tnm := mem_ver_TNM
       tmp->pac_attach := mem_stranger_attachment
 
@@ -4188,6 +4193,7 @@ Function f1nastr_all( nameTask, nTask )
         public_date := tmp->date_edit
         mem_n_V034  := tmp->ls_v034
         mem_methodinj := tmp->ls_method
+        mem_rees_povtor := tmp->rees_pov
         mem_ver_TNM := tmp->ver_tnm
         mem_stranger_attachment := tmp->pac_attach
         tools_ini_oms( 2, 0, 0 )

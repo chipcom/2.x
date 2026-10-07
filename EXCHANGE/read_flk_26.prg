@@ -88,13 +88,14 @@ Function parse_protokol_flk_26( arr_f, aerr )
   dbCommitAll()
   Return iError   //  is_err_FLK
 
-// 04.04.26 прочитать реестр ФЛК
-Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol )
+// 04.10.26 прочитать реестр ФЛК
+Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol, /*@*/TIP_ERROR )
 
   Local i, k, t_arr[ 2 ]  //, pole
   Local mkod_reestr, s
   local adbf_1
 
+  tip_error := 0 // признак КРИТИЧНОЙ ОШИБКИ - нельзя перевыставить
   mkod_reestr := arr_XML_info[ 7 ]
   Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
 //  r_use( dir_server() + 'mo_rees', , 'REES' )
@@ -174,10 +175,12 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
             Endif
           Endif
           If !( rhum->REES_ZAP == human_->REES_ZAP )
-            AAdd( aerr, 'Не равен параметр REES_ZAP: ' + lstr( rhum->REES_ZAP ) + ' != ' + lstr( human_->REES_ZAP ) )
+            AAdd( aerr, 'Не равен параметр REES_ZAP: ' + lstr( rhum->REES_ZAP ) + ' != ' + lstr( human_->REES_ZAP ) ) 
+            tip_error := 1 // критичная ошибка - перевыставление реестра НЕВОЗМОЖНО
           Endif
         Else
           AAdd( aerr, 'Не найден случай с N_ZAP=' + lstr( tmp2->N_ZAP ) )
+          tip_error := 1 // критичная ошибка - перевыставление реестра НЕВОЗМОЖНО
         Endif
       endif
       dbSelectArea( 'TMP2' )
@@ -259,6 +262,7 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
       If !Empty( tmp2->BAS_EL )
         If Empty( tmp2->N_ZAP )
           s += ' Ошибка в формате файла ФЛК, СЛУЧАЙ НЕ НАЙДЕН!'
+          tip_error := 1 // критичная ошибка - перевыставление реестра НЕВОЗМОЖНО 
         Else
           dbSelectArea( 'RHUM' )
           rhum->( dbSeek( Str( tmp2->N_ZAP, 6 ) ) )
@@ -297,6 +301,7 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
           else
 //            s := 'Не найден случай с N_ZAP=' + lstr( tmp2->_N_ZAP ) + ', _ID_PAC=' + tmp2->_ID_PAC
             s := 'Не найден случай с N_ZAP=' + lstr( tmp2->N_ZAP ) + ', _ID_PAC=' + tmp2->ID_PAC
+            tip_error := 1 // критичная ошибка - перевыставление реестра НЕВОЗМОЖНО
           endif
 
         Endif
@@ -822,3 +827,205 @@ Function create_files_tmp_flk_26()
   dbCreate( cur_dir() + 'tmp_r_t2', _table2 )
   dbCreate( cur_dir() + 'tmp_r_t3', _table3 )
   return nil
+
+
+
+// 23.09.26 БЫСТРОЕ ПЕРЕВЫСТАВЛЕНИЕ РЕЕСТРА
+Function reestr26_POVTOR( NOM_REESTR )
+
+	local sk, begin_rees, end_rees
+ 	local cBukva, _nyear, _nmonth, c_1_Bukva 
+ 	local code_reestr, mb, me, nsh, mnn
+ 	local fl, mnschet, cNschet
+ 	local poz1 := 0, poz2 := 0
+ 	local t_tip_reestr, p_tip_reestr  := 1
+ 	local arees
+ 	local nn_kol := 0, nn_summa := 0
+ 	local work_dir, old_mkod_reestr
+
+ 	work_dir := cur_dir()
+ 	// 1. делаем ЧАСТИЧНО НОВЫЙ в mkod_reestr
+  // e_use( dir_server() + 'mo_rees', , 'REES' ) 
+  // rees->( dbGoto( arr_XML_info[ 7 ] ) )
+ 	// rees->( dbRLock() )
+ 	//  rees->RES_TFOMS := 3  // 3-ошибка в записях реестра
+ 	// rees->( dbUnlock() )
+
+	dbSelectArea( 'REES' )
+	//G_Use("human",,"HUMAN",,,.T.)
+	arees := array( fcount() )
+	rees->( dbGoto( NOM_REESTR ) )
+	aeval( arees, { | x, i | arees[ i ] := fieldget( i ) } )
+	// 0-0 выделить букву счета - буква не меняется
+	cBukva := afteratnum( '-', alltrim( rees->nomer_s ) ) // !!!!
+	//
+	begin_rees := mem_beg_rees
+	end_rees := mem_end_rees 
+	old_mkod_reestr := rees->KOD
+	//
+	waitstatus( 'Составление реестров счетов...' )
+	//
+	_nyear := rees->nyear
+	_nmonth := rees->nmonth
+	nsh := f_mb_me_nsh( _nyear, @mb, @me )
+	// 0-1 надо найти номер пакета
+	c_1_Bukva := substr( cBukva, 2, 1 )
+	dbSelectArea( 'REES' )
+	INDEX ON Str( FIELD->nn, nsh ) to ( cur_dir() + 'tmp_rees1' ) ;
+     FOR FIELD->nyear == _nyear .and. FIELD->nmonth == _nmonth
+	fl := .f.
+	For mnn := mb To me
+  	find ( Str( mnn, nsh ) )
+  	If ! Found() // нашли свободный номер
+    	fl := .t.
+    	Exit
+  	Endif
+	Next
+	If ! fl
+  	close_file_reestr26()
+   	Return func_error( 10, 'Не удалось найти свободный номер пакета в ТФОМС. Проверьте настройки!' )
+	Endif
+	// 0-2 надо найти номер реестра
+	INDEX ON Str( FIELD->nschet, 6 ) to ( cur_dir() + 'tmp_rees1' ) FOR FIELD->nyear == _nyear
+	If ! Eof()
+  	rees->( dbGoBottom() )
+  	mnschet := rees->nschet + 1
+	Endif
+	If ! Between( mnschet, begin_rees, end_rees )
+  	fl := .f.
+  	For mnschet := begin_rees To end_rees
+    	find ( Str( mnschet, 6 ) )
+    	If ! Found() // нашли свободный номер
+      	fl := .t.
+      	Exit
+    	Endif
+  	Next
+  	If ! fl
+    	close_file_reestr26()
+    	Return func_error( 10, 'Не удалось найти свободный номер реестра. Проверьте настройки!' )
+  	Endif
+	Endif
+	SET INDEX TO
+	//
+	dbSelectArea( 'REES' )
+	addrecn()
+	aeval( arees, { | x, i | fieldput( i, x ) } )
+	// записываем старые данные и корректируем
+	rees->RES_TFOMS := 0 //кол-во записей
+	rees->kod := rees->( recno() )
+	// выделяем код СМО 
+	poz1 := 10
+	poz2 := AT( '_', rees->NAME_XML )
+	kod_smo := substr( rees->NAME_XML, poz1, ( poz2 - poz1 ) )
+	// выделяем тип реестра
+	poz1 := 1
+	poz2 := 3
+	t_tip_reestr := substr( rees->NAME_XML, poz1, ( poz2 - poz1 ) )
+	if t_tip_reestr == 'HM'
+  	p_tip_reestr := 1
+	else  
+  	p_tip_reestr := 2 
+	endif 
+
+	aFilesName := name_reestr_XML( p_tip_reestr, rees->NYEAR,  rees->NMONTH, mnschet , 6, kod_smo )
+	rees->NAME_XML := aFilesName[ 1 ]
+	// выделяем букву счета
+	cBukva := substr( alltrim( rees->nomer_s ), -1, 1 )
+	cNschet := AllTrim( kod_smo ) + '-' + AllTrim( Str( mnschet ) ) + '-0' + cBukva
+	rees->nomer_s := cNschet
+	rees->date_out := ctod( '' )
+	//rees->kol := потом
+	//rees->summa := потом
+	rees->dschet := date()
+	mkod_reestr := rees->KOD
+	rees->CODE  := ret_unique_code( mkod_reestr )
+	rees->VER_APP := fs_version( _version() )
+	rees->nschet := mnschet
+	code_reestr := rees->CODE
+
+	dbSelectArea( 'MO_XML' )
+	addrecn()
+	mo_xml->KOD    := RecNo()
+	mo_xml->FNAME  := rees->NAME_XML
+	mo_xml->FNAME2 := aFilesName[ 2 ]
+	mo_xml->DFILE  := rees->DSCHET
+	mo_xml->TFILE  := hour_min( Seconds() )
+	mo_xml->TIP_OUT := _XML_FILE_SCHET_26 // тип высылаемого файла; 7-реестр счетов новой системы обмена
+	mo_xml->REESTR := mkod_reestr
+	//
+	rees->KOD_XML := mo_xml->KOD
+	//
+	mo_xml->( dbUnlock() )
+	mo_xml->( dbCommit() )
+	rees->( dbUnlock() )
+	rees->( dbCommit() )
+
+ 	// 2. копируем ссылки на HUMAN в mo_rhum // за исключением ощибочных и сменой номера в реестре
+ 	dbSelectArea( 'RHUM' )
+ 	Index On Str( FIELD->REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For FIELD->reestr == old_mkod_reestr
+ 	arhum := array( fcount() )
+ 	adbf := dbstruct()
+ 	dbcreate( work_dir + 'tmp_rhum', adbf )
+ 	use ( work_dir + 'tmp_rhum' ) new alias 'RHUM2'
+ 	dbSelectArea( 'RHUM' )
+ 	go top
+ 	nn_kol := 0
+ 	nn_summa := 0
+ 	// встали на нужный реестр
+ 	do while !eof()
+   	if rhum->oplata < 2
+     	nn_kol ++
+     	select RHUM2
+     	addrecn()
+     	rhum2->reestr := mkod_reestr  
+     	rhum2->kod_hum := rhum->kod_hum
+     	rhum2->rees_zap := nn_kol 
+     	rhum2->oplata := 0 // новый реестр
+   	endif 
+   	dbSelectArea( 'RHUM' )
+   	skip
+ 	enddo
+ 	//
+ 	nn_summa := 0  
+ 	dbSelectArea( 'RHUM' )
+ 	set index to 
+ 	select RHUM2
+ 	go top
+ 	do while !eof()
+   	dbSelectArea( 'RHUM' )
+   	addrecn()
+   	rhum->reestr   := rhum2->reestr  
+   	rhum->kod_hum  := rhum2->kod_hum 
+   	rhum->rees_zap := rhum2->rees_zap 
+   	rhum->oplata   := rhum2->oplata  
+    // 3. проходим по HUMAN_ и корректируем записи в реестре и ссылку на реестр
+   	dbSelectArea( 'HUMAN_' )
+   	goto (rhum->kod_hum)
+   	human_->( dbRLock() )
+   	human_->REESTR    :=  rhum->reestr 
+   	human_->SCHET_ZAP := rhum->REES_ZAP
+   	human_->REES_ZAP := rhum->REES_ZAP
+   	dbUnlock()
+   	dbSelectArea( 'HUMAN' )
+   	goto (rhum->kod_hum)
+   	nn_summa += human->cena 
+   	select RHUM2
+   	skip
+	enddo
+ 	//     
+	//корректируем кол-во
+	rees->kol := nn_kol
+	rees->summa :=  nn_summa
+	_NYEAR  := rees->NYEAR
+	_NMONTH := rees->NMONTH
+	//
+	Private pkol         := nn_kol
+	Private code_reestr1 := code_reestr
+	Private psumma1      :=  nn_summa
+	Private _mo_p_rees := rees->( recno() ) 
+	Close all
+	//
+	create2reestr26(  _NYEAR, _NMONTH, kod_smo, p_tip_reestr, 1 , 1 ) //reg_sort
+	//quit
+
+return NIL 
