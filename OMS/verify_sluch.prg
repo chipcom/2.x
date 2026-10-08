@@ -25,7 +25,7 @@
 #define USL_SVIDPOM  14   // виды оказываемой медицинской помощи
 #define USL_ZAK_SL   15   // признак оплаты по законченному случаю
 
-// 04.10.26 
+// 08.10.26 
 Function verify_sluch( fl_view, ft )
 
   Local arrUslugi := {} // массив содержаший коды услуг в случае 
@@ -2922,14 +2922,15 @@ Function verify_sluch( fl_view, ft )
           iif( Empty( otd->short_name ), '', ' [' + AllTrim( otd->short_name ) + ']' ) )
         // aadd(ta, '└>данный л/у - запись № ' + lstr(human->(recno())) + ', прошлый л/у - запись № ' + lstr(a_period_amb[i, 5]))
       else
-        
+/*        
         if AScan( collect_uslugi( a_period_amb[ i, 5 ] ), shifr_2_92 ) > 0
-          AAdd( ta, 'данный случай школы ХНИЗ пересекается с анологичным случаем школы ХНИЗ' )
-        AAdd( ta, '└> ' + ;
-          date_8( a_period_amb[ i, 1 ] ) + '-' + date_8( a_period_amb[ i, 2 ] ) + ;
-          ' в отделении: ' + ;
+          AAdd( ta, 'данный случай школы ХНИЗ пересекается с аналогичным случаем школы ХНИЗ' )
+          AAdd( ta, '└> ' + ;
+            date_8( a_period_amb[ i, 1 ] ) + '-' + date_8( a_period_amb[ i, 2 ] ) + ;
+            ' в отделении: ' + ;
           iif( Empty( otd->name ), '', ' [' + AllTrim( otd->name ) + ']' ) )
         endif
+*/
       Endif
     Next
   Endif
