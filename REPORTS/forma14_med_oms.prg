@@ -4,25 +4,26 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 03.08.26 форма 14-МЕД (ОМС)
+// 09.10.26 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
 
   Static group_ini := 'f14_med_oms'
   Local begin_date, end_date, buf := SaveScreen(), arr_m, i, j, k, k1, k2, ;
-    t_arr[ 10 ], t_arr1[ 10 ], name_file := cur_dir() + 'f14med.txt', tfoms_pz[ 5, 11 ], ;
+    t_arr[ 10 ], t_arr1[ 10 ], tfoms_pz[ 5, 11 ], ;
     sh, HH := 80, reg_print := 5, is_trudosp, is_rebenok, is_inogoro, is_onkologia, ;
     is_reabili, is_ekstra, lshifr1, koef, vid_vp, r1 := 9, fl_exit := .f., ;
     is_vmp, d2_year, ar, arr_excel := {}, fl_error := .f., is_z_sl, ;
-    cFileProtokol := cur_dir() + 'tmp.txt', arr_prof := {}, arr_usl, au, ii, is_school, ;
-    filetmp14 := cur_dir() + 'tmp14.txt', sum_k := 0, sum_ki := 0, sum_kd := 0, sum_kt := 0, kol_d := 0, sum_d := 0
+    arr_prof := {}, arr_usl, au, ii, is_school, ;
+    sum_k := 0, sum_ki := 0, sum_kd := 0, sum_kt := 0, kol_d := 0, sum_d := 0
   Local arr_skor[ 81, 2 ], arr_eko[ 2, 2 ], arr_profil := {}, arr_dn_stac := {}, arrDdn_stac[ 4 ], fl_pol1[ 15 ], ;
     arr_pol[ 32 ], arr_pol1[ 15, 5 ], arr_pril5[ 32, 3 ], ifff := 0, kol_stom_pos := 0, ;
     arr_pol3000[ 29, 6 ], vr_rec := 0, arr_full_usl, kol_HNIZ, ;
     fl_pol3000_PROF, fl_pol3000_DVN2 := .t.
 
+  local name_file := cur_dir() + 'f14med.txt', cFileProtokol := cur_dir() + 'tmp.txt', filetmp14 := cur_dir() + 'tmp14.txt'
   Local sbase
   Local lal, lalf
-  Local nameArr, j1
+  Local nameArr, j1, xx, fl, s, arr_title
 
   Private arr_NEW_amb[19,5]
   afillall( arr_NEW_amb, 0 )
@@ -144,7 +145,7 @@ Function forma14_med_oms()
 
 
   // //////////////////////////////////////////////////////////////////
-  arr_m := { 2026, 1, 6, 'за январь - июнь 2026 года', 0d20260101, 0d20260630 }  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  arr_m := { 2026, 1, 9, 'за январь - сентябрь 2026 года', 0d20260101, 0d20260930 }  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   // //////////////////////////////////////////////////////////////////
   lal := create_name_alias( 'lusl', arr_m[ 1 ] )
   lalf := create_name_alias( 'luslf', arr_m[ 1 ] )
@@ -184,7 +185,8 @@ Function forma14_med_oms()
   If LastKey() == K_ESC
     Return Nil
   Endif
-  setinisect( tmp_ini(), group_ini, { { 'mk1', mk1 }, ;
+  setinisect( tmp_ini(), group_ini, { ;
+    { 'mk1', mk1 }, ;
     { 'mk2', mk2 }, ;
     { 'mk3', mk3 }, ;
     { 'mk4', mk4 }, ;
@@ -200,7 +202,8 @@ Function forma14_med_oms()
   @ MaxRow(), 0 Say ' ждите...' Color 'W/R'
   begin_date := dtoc4( arr_m[ 5 ] )
   end_date := dtoc4( arr_m[ 6 ] )
-  dbCreate( cur_dir() + 'tmp', { { 'nstr', 'N', 2, 0 }, ;
+  dbCreate( cur_dir() + 'tmp', { ;
+    { 'nstr', 'N', 2, 0 }, ;
     { 'sum4', 'N', 15, 2 }, ;
     { 'sum5', 'N', 15, 2 }, ;
     { 'sum6', 'N', 15, 2 }, ;
@@ -208,7 +211,7 @@ Function forma14_med_oms()
     { 'sum8', 'N', 15, 2 }, ;
     { 'sum9', 'N', 15, 2 } } )
   Use ( cur_dir() + 'tmp' ) New Alias TMP
-  Index On Str( nstr, 2 ) to ( cur_dir() + 'tmp' )
+  Index On Str( FIELD->nstr, 2 ) to ( cur_dir() + 'tmp' )
   Append blank ; tmp->nstr :=  1 ; tmp->sum4 := tmp->sum5 := mk1
   Append blank ; tmp->nstr :=  2 ; tmp->sum4 := tmp->sum5 := mk2
   Append blank ; tmp->nstr :=  3 ; tmp->sum4 := tmp->sum5 := mk3
@@ -236,30 +239,30 @@ Function forma14_med_oms()
 
   r_use( dir_server() + 'mo_su',, 'MOSU' )
   r_use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
-  Set Relation To u_kod into MOSU
+  Set Relation To FIELD->u_kod into MOSU
   r_use( dir_server() + 'uslugi', , 'USL' )
   r_use( dir_server() + 'human_u_', , 'HU_' )
   r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
-  Set Relation To RecNo() into HU_, To u_kod into USL
+  Set Relation To RecNo() into HU_, To FIELD->u_kod into USL
   r_use( dir_server() + 'kartote_', , 'KART_' )
   r_use( dir_server() + 'kartotek', , 'KART' )
   Set Relation To RecNo() into KART_
   r_use( dir_server() + 'human_2', , 'HUMAN_2' )
   r_use( dir_server() + 'human_', , 'HUMAN_' )
   r_use( dir_server() + 'human', dir_server() + 'humans', 'HUMAN' )
-  Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To kod_k into KART
+  Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To FIELD->kod_k into KART
   //
   // //////////////////////////////////////////////////////////////////
-  mdate_rak := arr_m[ 6 ] + 15 // по какую дату РАК сумма к оплате 15.06.26    Основание - письмо  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  mdate_rak := arr_m[ 6 ] + 13 // по какую дату РАК сумма к оплате 13.10.26    Основание - письмо  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   // //////////////////////////////////////////////////////////////////
   r_use( dir_server() + 'mo_xml', , 'MO_XML' )
   r_use( dir_server() + 'mo_rak', , 'RAK' )
-  Set Relation To kod_xml into MO_XML
+  Set Relation To FIELD->kod_xml into MO_XML
   r_use( dir_server() + 'mo_raks', , 'RAKS' )
-  Set Relation To akt into RAK
+  Set Relation To FIELD->akt into RAK
   r_use( dir_server() + 'mo_raksh', , 'RAKSH' )
-  Set Relation To kod_raks into RAKS
-  Index On Str( kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' ) For mo_xml->DFILE <= mdate_rak
+  Set Relation To FIELD->kod_raks into RAKS
+  Index On Str( FIELD->kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' ) For mo_xml->DFILE <= mdate_rak
   //
   r_use( dir_server() + 'schet_', , 'SCHET_' )
   r_use( dir_server() + 'schet', , 'SCHET' )
@@ -276,7 +279,7 @@ Function forma14_med_oms()
       mdate1 := SToD( StrZero( schet_->nyear, 4 ) + StrZero( schet_->nmonth, 2 ) + '25' ) // !!!
       //
       // 2026 год
-      k := 8 // дата регистрации по 7.01.26 // Основание - письмо!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      k := 8 // дата регистрации по 7.10.26 // Основание - письмо!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       //
       fl := Between( mdate, arr_m[ 5 ], arr_m[ 6 ] + k ) .and. Between( mdate1, arr_m[ 5 ], arr_m[ 6 ] ) // !!отч.период 2026 год
     Endif
@@ -828,7 +831,7 @@ Function forma14_med_oms()
                       AAdd( ap, { lshifr, iif( Empty( mkol ), mkol1, mkol ), is_obsh } )
                     Endif
                   Elseif k == 7 // отд.мед.услуги
-                    If glob_mo[ _MO_KOD_TFOMS ] == '171004' .and. human_->USL_OK == 1 // стационар КБ4
+                    If glob_mo()[ _MO_KOD_TFOMS ] == '171004' .and. human_->USL_OK == 1 // стационар КБ4
                       ii := 1 // стационар
                     Else
                       ii := 2 // в поликлинику
@@ -1271,7 +1274,7 @@ Function forma14_med_oms()
             // дневной стационар
           Case tfoms_pz[ 4, 1 ] > 0
             If !Empty( lvidpoms )
-              If !eq_ascan( arr_usl, '55.1.2', '55.1.3' ) .or. glob_mo[ _MO_KOD_TFOMS ] == '801935' // ЭКО-Москва
+              If !eq_ascan( arr_usl, '55.1.2', '55.1.3' ) .or. glob_mo()[ _MO_KOD_TFOMS ] == '801935' // ЭКО-Москва
                 lvidpoms := ret_vidpom_licensia( human_->USL_OK, lvidpoms, human_->profil ) // только для дн.стационара при стационаре
               Endif
               If !Empty( lvidpoms ) .and. !( ',' $ lvidpoms )
@@ -1508,7 +1511,9 @@ Function forma14_med_oms()
       '──────────────────────┴──────────────────────┴──────────┴───────────────────────────' }
     sh := Len( arr_title[ 1 ] )
     //
-    fp := FCreate( filetmp14 ) ; n_list := 1 ; tek_stroke := 0
+    fp := FCreate( filetmp14 )
+    n_list := 1
+    tek_stroke := 0
     add_string( '' )
     add_string( Center( 'Список случаев, не вошедших в форму 14', sh ) )
     Select RAKSH
@@ -1516,8 +1521,8 @@ Function forma14_med_oms()
     Select HUMAN
     Set Index To
     Select TMPF14
-    Set Relation To KOD_RAKSH into RAKSH, To schet into SCHET, To kod_h into HUMAN
-    Index On Str( usl_ok, 1 ) + Str( schet_->nyear, 4 ) + Str( schet_->nmonth, 2 ) + ;
+    Set Relation To FIELD->KOD_RAKSH into RAKSH, To FIELD->schet into SCHET, To FIELD->kod_h into HUMAN
+    Index On Str( FIELD->usl_ok, 1 ) + Str( schet_->nyear, 4 ) + Str( schet_->nmonth, 2 ) + ;
       Str( human_->SCHET_ZAP, 6 ) to ( cur_dir() + 'tmpf14' )
     For j := 1 To 5
       find ( Str( j, 1 ) )
@@ -1589,8 +1594,8 @@ Function forma14_med_oms()
   ar := {}
   AAdd( ar, { 12, 77, mm_month()[ arr_m[ 3 ] ] } )
   AAdd( ar, { 12, 94, Right( lstr( arr_m[ 1 ] ), 2 ) } )
-  AAdd( ar, { 35, 48, glob_mo[ _MO_FULL_NAME ] } )
-  AAdd( ar, { 37, 19, glob_mo[ _MO_ADRES ] } )
+  AAdd( ar, { 35, 48, glob_mo()[ _MO_FULL_NAME ] } )
+  AAdd( ar, { 37, 19, glob_mo()[ _MO_ADRES ] } )
   AAdd( ar, { 42, 19, org->okpo } )
   AAdd( arr_excel, { 'Лист 1', AClone( ar ) } )
   //
@@ -1987,8 +1992,6 @@ Function forma14_med_oms()
   If fl_error
     viewtext( devide_into_pages( cFileProtokol, 60, 80 ),,,, .t.,,, 3 )
   Endif
-mydebug(,print_array( arr_NEW_amb))
- 
 
   fill_in_excel_book( dir_exe() + 'mo_14med' + sxls(), ;
     cur_dir() + '__14med' + sxls(), ;
@@ -2018,7 +2021,6 @@ mydebug(,print_array( arr_NEW_amb))
     Endif
     // посещениея с профилактической целью всего
     // строка 1
-    mydebug(,llshifr)
 
     FFLAG := .F.
     If PadR( AllTrim( llshifr ), 5 ) == "2.79." .and. !eq_any( PadR( AllTrim( llshifr ), 8 ), ;
@@ -2039,7 +2041,6 @@ mydebug(,print_array( arr_NEW_amb))
     endif  
     // Учетные единицы 
     if !FFLAG 
- //     mydebug(,tunit)
       If  eq_any( tunit, 318, 319, 320, 321, 261, 512, 672, 673, 767 ) 
         FFLAG := .T. 
       endif 
