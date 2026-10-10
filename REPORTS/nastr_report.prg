@@ -306,7 +306,7 @@ Function s_mnog_poisk()
       0, {|| init_uchast( arr_uchast ) }, ;
       'Участок (участки)' } )
   Endif
-  If glob_mo[ _MO_IS_UCH ]
+  If glob_mo()[ _MO_IS_UCH ]
     AAdd( mm_tmp, { 'o_prik', 'N', 1, 0, NIL, ;
       {| x| menu_reader( x, mm_prik, A__MENUVERT ) }, ;
       0, {| x| inieditspr( A__MENUVERT, mm_prik, x ) }, ;
@@ -1255,7 +1255,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 3, 0, NIL, ;
           string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
         Endif
       Endif
-      If glob_mo[ _MO_IS_UCH ] .and. !Empty( mn->o_prik )
+      If glob_mo()[ _MO_IS_UCH ] .and. !Empty( mn->o_prik )
         sOutput := 'Отношение к прикреплению: ' + inieditspr( A__MENUVERT, mm_prik, mn->o_prik )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
       Endif
@@ -2380,12 +2380,12 @@ Static Function s1_mnog_poisk( cv, cf )
     kart->( dbGoto( human->kod_k ) )
     fl := f_is_uchast( arr_uchast, kart->uchast )
   Endif
-  If fl .and. glob_mo[ _MO_IS_UCH ] .and. !Empty( mn->o_prik )
+  If fl .and. glob_mo()[ _MO_IS_UCH ] .and. !Empty( mn->o_prik )
     kart->( dbGoto( human->kod_k ) )
     If mn->o_prik == 1 // прикреплен к нашей МО
-      fl := ( kart2->MO_PR == glob_mo[ _MO_KOD_TFOMS ] )
+      fl := ( kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ] )
     Elseif mn->o_prik == 2 // не прикреплен к нашей МО
-      fl := !( kart2->MO_PR == glob_mo[ _MO_KOD_TFOMS ] )
+      fl := !( kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ] )
     Endif
   Endif
   If fl .and. !Empty( mfio )

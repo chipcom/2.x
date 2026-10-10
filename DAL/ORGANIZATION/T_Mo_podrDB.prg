@@ -33,7 +33,7 @@ METHOD function GetListByCodeTFOMS( param )    	CLASS T_Mo_podrDB
 		cAlias := Select( )
 		(cAlias)->(dbSetOrder( 1 ))
 		if (cAlias)->( dbSeek( cFind ) )
-			do while (cAlias)->codemo == glob_mo[ _MO_KOD_TFOMS ] .and. !(cAlias)->(eof())
+			do while (cAlias)->codemo == glob_mo()[ _MO_KOD_TFOMS ] .and. !(cAlias)->(eof())
 				if !empty( hArray := ::super:currentRecord() )
 					obj := ::FillFromHash( hArray )
 					aadd( aReturn, obj )
@@ -54,7 +54,7 @@ METHOD function GetByCodePodr( param )    		CLASS T_Mo_podrDB
 	local cFind
 		
 	// получим строку поиска
-	cFind := glob_mo[ _MO_KOD_TFOMS ] + padr( upper( param ), 25 )
+	cFind := glob_mo()[ _MO_KOD_TFOMS ] + padr( upper( param ), 25 )
 	cOldArea := Select( )
 	if ::super:RUse()
 		cAlias := Select( )

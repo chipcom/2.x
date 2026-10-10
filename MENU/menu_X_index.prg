@@ -11,9 +11,8 @@ function menu_X_index()
   AAdd( first_message, { ;
     'Переиндексирование базы данных';
   } )
-  mydebug(,glob_mo[ _MO_KOD_TFOMS ] )
   
-  If glob_mo[ _MO_KOD_TFOMS ] == '103001'
+  If glob_mo()[ _MO_KOD_TFOMS ] == '103001'
     If !currentuser():isadmin()
       AAdd( func_menu, { 'func_error( 4, "Вход только АДМИНИСТРАТОРУ !" )' } )
     else

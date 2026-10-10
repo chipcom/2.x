@@ -238,7 +238,7 @@ Function ___uslugi()
   Local hGauge, i
   local lkod_usl, flag_udel
 
-  If .t. // !(glob_mo[_MO_KOD_TFOMS] == '321001')
+  If .t. // !(glob_mo()[_MO_KOD_TFOMS] == '321001')
     Return Nil
   Endif
   //

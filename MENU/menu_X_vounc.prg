@@ -8,7 +8,7 @@ function menu_X_vounc()
   Local old, fl := .t.
 
   old := is_uchastok
-  If glob_mo[ _MO_KOD_TFOMS ] == TF_KOD_MO_VOUNC
+  If glob_mo()[ _MO_KOD_TFOMS ] == TF_KOD_MO_VOUNC
     fl := vounc_begin_task()
     is_uchastok := 1 // ΅γªΆ  + ό γη αβª  + ό Ά γη αβª¥ "“25/123"
 
@@ -78,7 +78,7 @@ function menu_X_vounc()
 Function my_mo_f1main()
   Local old := is_uchastok
 
-  If glob_mo[ _MO_KOD_TFOMS ] == TF_KOD_MO_VOUNC
+  If glob_mo()[ _MO_KOD_TFOMS ] == TF_KOD_MO_VOUNC
     is_uchastok := 1 // ΅γªΆ  + ό γη αβª  + ό Ά γη αβª¥ "“25/123"
     vounc_f1main()
     is_uchastok := old

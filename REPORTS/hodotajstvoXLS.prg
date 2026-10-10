@@ -71,8 +71,8 @@ Function hodotajstvoxls( name )
 
 //  worksheet_merge_range( worksheet, 0, 3, 0, 19, name_file, format_top2 )
   worksheet_merge_range( worksheet, 0, 3, 0, 19, hb_StrToUTF8( name_file, 'RU1251' ), format_top2 )
-  worksheet_merge_range( worksheet, 1, 3, 1, 19, glob_mo[ _MO_KOD_TFOMS ], format_top2 )
-  worksheet_merge_range( worksheet, 2, 3, 2, 19, hb_StrToUTF8( glob_mo[ _MO_SHORT_NAME ] ), format_top2 )
+  worksheet_merge_range( worksheet, 1, 3, 1, 19, glob_mo()[ _MO_KOD_TFOMS ], format_top2 )
+  worksheet_merge_range( worksheet, 2, 3, 2, 19, hb_StrToUTF8( glob_mo()[ _MO_SHORT_NAME ] ), format_top2 )
   worksheet_merge_range( worksheet, 3, 3, 3, 19, full_date( sys_date ), format_top3 )
 
   worksheet_merge_range( worksheet, 4, 0, 5, 0, '№ п/п', format_header2 )

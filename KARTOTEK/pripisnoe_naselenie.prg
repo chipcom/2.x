@@ -1799,7 +1799,7 @@ Function pripisnoe_naselenie_create_sverka_NEW_QA2()
       select HUMAN
       skip 
      enddo 
-     if flag_povtor .and. glob_mo[ _MO_KOD_TFOMS ] != '805965' // добавка запроса на текущее число и не РДЛ
+     if flag_povtor .and. glob_mo()[ _MO_KOD_TFOMS ] != '805965' // добавка запроса на текущее число и не РДЛ
        Select TMP
        Append Blank
        tmp->kod     := kart->kod 

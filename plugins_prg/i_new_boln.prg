@@ -409,7 +409,7 @@ Function i_new_boln( oEdit )
       { 'period', 'C', 50, 0 } } )
     Use ( fr_titl ) New Alias FRT
     Append Blank
-    frt->name := glob_mo[ _MO_SHORT_NAME ]
+    frt->name := glob_mo()[ _MO_SHORT_NAME ]
     frt->period := arr_m[ 4 ]
     dbCreate( fr_data, { { 'nomer', 'C', 15, 0 }, ;
       { 'fio', 'C', 60, 0 }, ;

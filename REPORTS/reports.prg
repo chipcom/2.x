@@ -18,7 +18,7 @@ Function kartotekToExcel()
 
   // 1 - название столбца, 2 - выбор, 3 - отметка, что нужен, 4 - автофильтр,  5 - ширина столбца, 6 - гор. расположение
   aadd( t_mas, { sAsterisk + 'N п/п', .f., .f., .f., 8.0, 'C' } )   // #define KART_XLS_NUMBER 		 1
-  aadd( t_mas, { sBlank + 'Участок', glob_mo[_MO_IS_UCH], .f., .f., 10.0, 'C' } ) // #define KART_XLS_UCH 			 2
+  aadd( t_mas, { sBlank + 'Участок', glob_mo()[_MO_IS_UCH], .f., .f., 10.0, 'C' } ) // #define KART_XLS_UCH 			 2
   aadd( t_mas, { sAsterisk + 'Ф. И. О.', .f., .f., .f., 50.0, 'L' } ) // #define KART_XLS_FIO 			 3
   aadd( t_mas, { sAsterisk + 'Дата рождения', .f., .f., .f., 10.0, 'C' } )  // #define KART_XLS_DOB 			 4
   aadd( t_mas, { sAsterisk + 'Пол', .f., .f., .t., 10.0, 'C' } )  // #define KART_XLS_GENDER 		 5
@@ -26,7 +26,7 @@ Function kartotekToExcel()
   aadd( t_mas, { sBlank + 'СНИЛС', .t., .f., .f., 15.0, 'C' } ) // #define KART_XLS_SNILS 			 7
   aadd( t_mas, { sBlank + 'Страховая организация', .t., .f., .f., 30.0, 'C' } ) // #define KART_XLS_INSURANCE 		 8
   aadd( t_mas, { sBlank + 'Страховой полис', .t., .f., .f., 17.0, 'C' } ) // #define KART_XLS_POLIS 			 9
-  aadd( t_mas, { sBlank + 'Прикрепление', glob_mo[_MO_IS_UCH], .f., .t., 10.0, 'C' } )  // #define KART_XLS_ATTACHMENT		10
+  aadd( t_mas, { sBlank + 'Прикрепление', glob_mo()[_MO_IS_UCH], .f., .t., 10.0, 'C' } )  // #define KART_XLS_ATTACHMENT		10
   aadd( t_mas, { sBlank + 'Адрес регистрации', .t., .f., .f., 50.0, 'C' } ) // #define KART_XLS_ADDRESS_REG 	11
   aadd( t_mas, { sBlank + 'Адрес пребывания', .t., .f., .f., 50.0, 'C' } )  // #define KART_XLS_ADDRESS_STAY 	12
   aadd( t_mas, { sBlank + 'Телефон', .t., .f., .f., 17.0, 'C' } ) // #define KART_XLS_PHONE 			13

@@ -198,7 +198,7 @@ Function edit_ort( k )
       "edit_ort(14)", ;
       "edit_ort(15)", ;
       "edit_ort(16)" }
-    If glob_mo[ _MO_KOD_TFOMS ] == '395301' // Камышин СТОМ
+    If glob_mo()[ _MO_KOD_TFOMS ] == '395301' // Камышин СТОМ
       popup_prompt( T_ROW, T_COL + 5, si1, mas_pmt, mas_msg, mas_fun )
     Else
       popup_prompt( T_ROW, T_COL - 5, si1, mas_pmt, mas_msg, mas_fun )
@@ -1226,7 +1226,7 @@ Function f2e_o_kopl( nKey, oBrow )
     Endif
     Private p_summa := round_5( ho->cena_opl, 2 ), fl_sdacha := .f., ;
       mplat_fio := "", mplat_inn := ""
-    If glob_mo[ _MO_KOD_TFOMS ] == '605301' // ЗАО "Стоматолог"
+    If glob_mo()[ _MO_KOD_TFOMS ] == '605301' // ЗАО "Стоматолог"
       mplat_fio := if( nKey == K_INS, Space( 40 ), human->plat_fio )
       mplat_inn := if( nKey == K_INS, Space( 12 ), human->plat_inn )
     Endif

@@ -276,7 +276,7 @@ Function f2_view_list_schet( nKey, oBrow )
               func_error( 4, 'Вы выбрали каталог, в котором уже записаны целевые файлы! Это недопустимо.' )
             Else
               cFileProtokol := cur_dir() + 'prot_sch.txt'
-              StrFile( hb_eol() + Center( glob_mo[ _MO_SHORT_NAME ], 80 ) + hb_eol() + hb_eol(), cFileProtokol )
+              StrFile( hb_eol() + Center( glob_mo()[ _MO_SHORT_NAME ], 80 ) + hb_eol() + hb_eol(), cFileProtokol )
               smsg := 'Счета записаны на: ' + s + ;
                 ' (' + full_date( sys_date ) + 'г. ' + hour_min( Seconds() ) + ')'
               StrFile( Center( smsg, 80 ) + hb_eol(), cFileProtokol, .t. )

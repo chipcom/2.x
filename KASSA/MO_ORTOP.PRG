@@ -57,7 +57,7 @@
 Static f30_nastr := "f30_nast.ini"
 Static f30_sect := "Форма 30 - "
 
-// 
+
 
 // 13.11.18
 Function sin_ysl()
@@ -107,7 +107,7 @@ Function f2edit_ort( nKey, oBrow )
 
   Return flag
 
-// 
+
 
 // 13.03.19
 Function vvod_tor_ysl()
@@ -115,7 +115,7 @@ Function vvod_tor_ysl()
   Local buf := save_row( MaxRow() ), fl := .f.
   Private rr := T_ROW, fl_found := .f., reg_klient := 1
 
-  // if glob_mo[_MO_KOD_TFOMS] == '395301' // Камышин СТОМ
+  // if glob_mo()[_MO_KOD_TFOMS] == '395301' // Камышин СТОМ
   // str_find := STR(big_kod,6)
   // else
   str_find := Str( big_kod, 4 )
@@ -126,7 +126,7 @@ Function vvod_tor_ysl()
     {| n| skippointer( n, muslovie ) }, ;
     str_find, muslovie;
     }
-  If glob_mo[ _MO_KOD_TFOMS ] == '395301' // Камышин СТОМ
+  If glob_mo()[ _MO_KOD_TFOMS ] == '395301' // Камышин СТОМ
     r_use( dir_server() + "mo_su", { dir_server() + "mo_su", ;
       dir_server() + "mo_sush" }, "USL" )
     g_use( dir_server() + "ortoped2", dir_server() + "ortoped2", "ORTO2" ) // 19.04
@@ -221,7 +221,7 @@ Function ff2edit_ysl( nKey, oBrow )
 
   Return flag
 
-// 
+
 
 //
 Function fore_o_kusl( get, when_valid, k )
@@ -258,7 +258,7 @@ Function fore_o_kusl( get, when_valid, k )
 
   Return fl
 
-// 
+
 
 //
 Function mt_use_base( k )
@@ -277,7 +277,7 @@ Function mt_use_base( k )
 
   Return fl
 
-// 
+
 
 // 13.11.18
 Function mt_r_use_base( k )
@@ -866,7 +866,7 @@ Function ort_oborot()
 
   Return Nil
 
-// 
+
 
 //
 Function ort_diagnoz()
@@ -1044,7 +1044,7 @@ Function ort_diagnoz()
 
   Return Nil
 
-// 
+
 
 // 11.02.13 Распечатка реестра по ДМС
 Function o_dms_reestr()
@@ -1212,7 +1212,7 @@ Function o_dms_reestr()
 
   Return Nil
 
-// 
+
 
 //
 Function f1_ort_vzaim( nKey, oBrow, regim )
@@ -1261,7 +1261,7 @@ Function f1_ort_vzaim( nKey, oBrow, regim )
 
   Return ret
 
-// 
+
 
 //
 Function f2_ort_vzaim( nKey, oBrow, regim )
@@ -1284,7 +1284,7 @@ Function f2_ort_vzaim( nKey, oBrow, regim )
 
   Return ret
 
-// 
+
 
 // 11.02.13
 Function orees2_vzaim( name_file )
@@ -1448,7 +1448,7 @@ Function orees2_vzaim( name_file )
 
   Return Nil
 
-// 
+
 // 19.07.14
 //
 Function oo_proverka( k )
@@ -1478,7 +1478,7 @@ Function oo_proverka( k )
 
   Return Nil
 
-// 
+
 
 // Сравнение суммы оплаты и услуг по типу оплаты
 Function oo_1_proverka()
@@ -1581,7 +1581,7 @@ Function oo_1_proverka()
 
   Return Nil
 
-// 
+
 
 // 16.04.15
 // Сравнение суммы оплаты и услуг по типу оплаты
@@ -1708,7 +1708,7 @@ Function oo_2_proverka()
 
   Return Nil
 
-// 
+
 
 //
 Function ort_den_sr( par )
@@ -2066,7 +2066,7 @@ Function ort_den_sr( par )
 
   Return Nil
 
-// 
+
 
 // 19.07.14
 Function oo_statist( k )
@@ -2435,7 +2435,7 @@ Function oo_statist( k )
 
   Return Nil
 
-// 
+
 
 //
 Function oob_statist( par1, par2, par3 )
@@ -2859,7 +2859,7 @@ Function oob_statist( par1, par2, par3 )
 
   Return Nil
 
-// 
+
 
 //
 Function oob1_statist( par1 )
@@ -3080,7 +3080,7 @@ Function oob1_statist( par1 )
 
   Return Nil
 
-// 
+
 
 //  16.08.21
 Function ort_material( Tip_data )
@@ -3644,7 +3644,7 @@ Function ort_material( Tip_data )
 
   Return Nil
 
-// 
+
 
 //  13.11.16
 Function ort_oms_material()
@@ -4140,7 +4140,7 @@ Function inputnist_pr( r, c, fl_max )
 Function f_is_ist_pr( arr_s, ist_pr )
   Return ( AScan( arr_s, {| x| ist_pr == x[ 1 ] } ) > 0 )
 
-// 
+
 
 //
 Function ort_dolgi( tip )
@@ -4279,7 +4279,7 @@ Function ort_dolgi( tip )
 
   Return Nil
 
-// 
+
 
 // 09.03.14
 Function ort_otkr_nar( par1, par2 )
@@ -5346,7 +5346,7 @@ aadd(mm_tmp, {"rajon","N",2,0,NIL,;
 
   Return Nil
 
-// 
+
 
 // 22.03.17
 Static Function s1_mnog_poisk( cv, cf )
@@ -5543,7 +5543,7 @@ Function writeomn_p( k )
 
   Return fl
 
-// 
+
 
 // 28.10.14
 Function o_ret_pl_b()
@@ -5566,7 +5566,7 @@ Function o_ret_pl_b()
 
   Return i
 
-// 
+
 
 //  13.11.18
 Function o_ved_narabot()
@@ -5903,7 +5903,7 @@ Function o_ved_narabot()
 
   Return Nil
 
-// 
+
 
 // 28.10.14 врачи/техники + количество нарядов
 Function o_vr_kol_nar()
@@ -6133,7 +6133,7 @@ Function o_vr_kol_nar()
 
   Return Nil
 
-// 
+
 
 //
 Function inputnorpozic( r, c, fl_max )
@@ -6199,7 +6199,7 @@ Function inputnorpozic( r, c, fl_max )
 
   Return l_a_pozic
 
-// 
+
 
 //*
 // Function f_is_pozic(arr_s,pozic)
@@ -6207,7 +6207,7 @@ Function inputnorpozic( r, c, fl_max )
 // fl := ( ascan(arr_s,{|x| pozic==x[1] }) > 0 )
 // return fl
 
-// 
+
 
 // 02.12.12
 Function pl_ordogovor()
@@ -6312,7 +6312,7 @@ Function pl_ordogovor()
 
   Return Nil
 
-// 
+
 
 //
 Function pl_or2dogovor( tip_jurn )
@@ -6664,7 +6664,7 @@ Function oo_spmater()
 
   Return Nil
 
-// 
+
 
 // 13.11.18
 Function oo1spmater()
@@ -6730,7 +6730,7 @@ Function oo1spmater()
 
   Return Nil
 
-// 
+
 
 //
 Function forma_30all( tip_f30 )
@@ -6886,7 +6886,7 @@ Function forma_30all( tip_f30 )
 
   Return Nil
 
-// 
+
 
 // проверить больного по БД human и вернуть результат в виде массива
 Static Function yes_f_30( par1 )
@@ -6919,7 +6919,7 @@ Static Function yes_f_30( par1 )
 
   Return ret
 
-// 
+
 
 //
 Function ___f_30( k )
@@ -6945,7 +6945,7 @@ Function ___f_30( k )
 
   Return Nil
 
-// 
+
 
 // записать одну строку из массива в TMP-файл
 Function write_f30( ar )
@@ -6965,7 +6965,7 @@ Function write_f30( ar )
 
   Return Nil
 
-// 
+
 
 // 02.12.12
 Function forma_30_na( tip )
@@ -7058,7 +7058,7 @@ Function forma_30_na( tip )
 
   Return Nil
 
-// 
+
 
 //
 Function f1_forma_30_na( par, title )
@@ -7107,7 +7107,7 @@ Function f1_forma_30_na( par, title )
 
   Return Nil
 
-// 
+
 
 //
 Function get_nastr_orto_f30()
@@ -7134,7 +7134,7 @@ Function get_nastr_orto_f30()
 
   Return fl
 
-// 
+
 
 //
 Static Function cre_tmp_30( adbf )
@@ -7149,7 +7149,7 @@ Static Function cre_tmp_30( adbf )
   Return Nil
 
 
-// 
+
 
 //
 Function f1_forma_30_prn_na( par, title )
@@ -7449,7 +7449,7 @@ Function ort_priemshk()
   Return Nil
 
 
-// 
+
 
 // 18.11.14 вызывается в "Ортопедия/Информация/Работа с кассой"
 Function inf_fr_orto( k )

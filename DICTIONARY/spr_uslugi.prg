@@ -1042,7 +1042,7 @@ Function f4_ff_uslugi( k, nKey )
         Set Order To 4
         find ( mshifr1 )
         If Found()
-          if glob_mo[ _MO_KOD_TFOMS ] == '805911'
+          if glob_mo()[ _MO_KOD_TFOMS ] == '805911'
            // снят контроль на дубли
           else  
             fl := func_error( 4, 'Данный шифр ФФОМС уже встречается в справочнике!' )

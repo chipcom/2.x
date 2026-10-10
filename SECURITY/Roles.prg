@@ -84,7 +84,7 @@ function editRole( oBrowse, aObjects, oRole, nKey )
 		
 		rowBeg++
 		@ ++rowBeg, colBeg + 3 say 'Название роли' get oRole:Name valid func_empty( oRole:Name )
-		if glob_mo[_MO_KOD_TFOMS] == '102604'	// Для ВОККВД
+		if glob_mo()[_MO_KOD_TFOMS] == '102604'	// Для ВОККВД
 //			aadd(array_tasks, {'ВОУНЦ - трансплантированные',X_MO,'TABLET_ICON', .t.})
 			@ ++rowBeg, colBeg + 3 say 'Разрешенные отделения для работы' ;
 					get motdel reader { | x | menu_reader( x, ;
@@ -108,7 +108,7 @@ function editRole( oBrowse, aObjects, oRole, nKey )
 		endif
 		oBox := nil	// очистим объект TBox
 	elseif nKey == K_DEL
-		if glob_mo[_MO_KOD_TFOMS] == '102604'	// Для ВОККВД
+		if glob_mo()[_MO_KOD_TFOMS] == '102604'	// Для ВОККВД
 			// Производится проверка на допустимость удаления данной группы
 			if len( TUserDB():GetListUsersByRole( oRole:ID() ) ) > 0
 				hb_alert( 'Данная группа используется справочнике пользователей. Удаление запрещено!', , , 4 )

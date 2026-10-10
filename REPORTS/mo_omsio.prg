@@ -571,7 +571,7 @@ Function ob2_statist( k, serv_arr )
       r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
       r_use( dir_server() + "human_",, "HUMAN_" )
       r_use( dir_server() + "human", dir_server() + "humand", "HUMAN" )
-      If glob_mo[ _MO_KOD_TFOMS ] == '154602' // 2
+      If glob_mo()[ _MO_KOD_TFOMS ] == '154602' // 2
         //
       Else
         Set Relation To RecNo() into HUMAN_
@@ -582,7 +582,7 @@ Function ob2_statist( k, serv_arr )
         If Inkey() == K_ESC
           fl_exit := .t. ; Exit
         Endif
-        If glob_mo[ _MO_KOD_TFOMS ] == '154602' // 2
+        If glob_mo()[ _MO_KOD_TFOMS ] == '154602' // 2
           HUMAN_->( dbGoto( HUMAN->kod ) )
         Endif
         If human_->oplata < 9 .and. func_pi_schet( .t. )

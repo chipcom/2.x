@@ -149,7 +149,7 @@ Function pr_gurnal_pp()
         If !Empty( hu->kem_napr )
           s += ret_mo( hu->kem_napr )[ _MO_SHORT_NAME ]
         Endif
-        If glob_mo[ _MO_KOD_TFOMS ] == '711001' // †„
+        If glob_mo()[ _MO_KOD_TFOMS ] == '711001' // †„
           s += iif( Empty( s ), '', ', ' ) + ;
             AllTrim( inieditspr( A__MENUVERT, mmpp_kem1dost(), hu->KEM_DOST ) )
         Else
@@ -1978,7 +1978,7 @@ Function z_gurnal_pp()
     {| x| menu_reader( x, mm_company, A__MENUVERT ) }, ;
     0, {|| Space( 10 ) }, ;
     '  ==>',, {|| eq_any( m1komu, 0, 1, 3 ) } } )
-  If glob_mo[ _MO_KOD_TFOMS ] == '711001' // †„
+  If glob_mo()[ _MO_KOD_TFOMS ] == '711001' // †„
     AAdd( mm_tmp, { 'kem_dost', 'N', 2, 0, NIL, ;
       {| x| menu_reader( x, mmpp_kem_dost(), A__MENUVERT ) }, ;
       -1, {|| Space( 10 ) }, ;
@@ -2133,7 +2133,7 @@ Function z_gurnal_pp()
       Endif
     Endif
     If mn->kem_dost >= 0
-      If glob_mo[ _MO_KOD_TFOMS ] == '711001' // †„
+      If glob_mo()[ _MO_KOD_TFOMS ] == '711001' // †„
         add_string( '- ª¥¬ ­ ¯à ¢«¥­: ' + inieditspr( A__MENUVERT, mmpp_kem1dost(), mn->kem_dost ) )
       Else
         add_string( '- ª¥¬ ¤®áâ ¢«¥­: ' + inieditspr( A__MENUVERT, mmpp_kem_dost(), mn->kem_dost ) )
@@ -2270,7 +2270,7 @@ Function z_gurnal_pp()
           If !Empty( hu->kem_napr )
             s += ret_mo( hu->kem_napr )[ _MO_SHORT_NAME ]
           Endif
-          If glob_mo[ _MO_KOD_TFOMS ] == '711001' // †„
+          If glob_mo()[ _MO_KOD_TFOMS ] == '711001' // †„
             s += iif( Empty( s ), '', ', ' ) + ;
               AllTrim( inieditspr( A__MENUVERT, mmpp_kem1dost(), hu->KEM_DOST ) )
           Else

@@ -995,9 +995,9 @@ Function get_uroven( dDate )
 
   Default dDate To sys_date
   If Year( dDate ) < 2013
-    For i := 1 To Len( glob_mo[ _MO_UROVEN ] )
-      If dDate >= glob_mo[ _MO_UROVEN, i, 1 ]
-        ret := glob_mo[ _MO_UROVEN, i, 2 ]
+    For i := 1 To Len( glob_mo()[ _MO_UROVEN ] )
+      If dDate >= glob_mo()[ _MO_UROVEN, i, 1 ]
+        ret := glob_mo()[ _MO_UROVEN, i, 2 ]
       Endif
     Next
   Endif
@@ -1015,7 +1015,7 @@ Function get2uroven( sShifr, nU )
 // 24.11.21
 Function fcena_oms( sShifr, lVzReb, dDate, /*@*/fl_delete, /*@*/fl_yes, /*@*/_ifin)
 
-  Local i, v, tmp_select := Select(), lvr, nu, lal, s := glob_mo[ _MO_KOD_TFOMS ]
+  Local i, v, tmp_select := Select(), lvr, nu, lal, s := glob_mo()[ _MO_KOD_TFOMS ]
 
   sShifr := PadR( sShifr, 10 )
   If ValType( dDate ) == 'D'
@@ -1513,8 +1513,8 @@ Function f1oms_view_kart( oBrow )
 
   Local oColumn, blk, n := 42
 
-  If glob_mo[ _MO_IS_UCH ]
-    blk := {|| iif( kart2->mo_pr == glob_MO[ _MO_KOD_TFOMS ], { 1, 2 }, ;
+  If glob_mo()[ _MO_IS_UCH ]
+    blk := {|| iif( kart2->mo_pr == glob_MO()[ _MO_KOD_TFOMS ], { 1, 2 }, ;
       iif( Empty( kart2->mo_pr ), { 3, 4 }, { 5, 6 } ) ) }
   Endif
   If mem_kodkrt == 2
@@ -1944,8 +1944,8 @@ Function f1_v_fiotmp( oBrow )
 
   Local blk
 
-  If glob_mo[ _MO_IS_UCH ]
-    blk := {|| iif( kart2->mo_pr == glob_MO[ _MO_KOD_TFOMS ], { 1, 2 }, iif( Empty( kart2->mo_pr ), { 3, 4 }, { 5, 6 } ) ) }
+  If glob_mo()[ _MO_IS_UCH ]
+    blk := {|| iif( kart2->mo_pr == glob_MO()[ _MO_KOD_TFOMS ], { 1, 2 }, iif( Empty( kart2->mo_pr ), { 3, 4 }, { 5, 6 } ) ) }
   Endif
   oColumn := TBColumnNew( Center( '”.ˆ.Ž.', 49 ), {|| PadR( tmp->fio, 49 ) } )
   oColumn:colorBlock := blk

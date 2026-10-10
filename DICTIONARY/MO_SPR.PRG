@@ -1554,14 +1554,15 @@ Function v_kart_vrach_spr( get, k )
   Endif
   Return .t.
 
-// 09.09.25 проверка правильности введенного кода ТФОМС
+// 10.10.26 проверка правильности введенного кода ТФОМС
 Function valid_kod_tfoms( get )
 
   Local fl := .t., i, cCode := Left( mkod_tfoms, 6 )
 
   If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == cCode } ) ) > 0
-    glob_mo := glob_arr_mo()[ i ]
-    mname_tfoms := PadR( glob_mo[ _MO_SHORT_NAME ], 60 )
+//    glob_mo := glob_arr_mo()[ i ]
+    glob_mo( glob_arr_mo()[ i ] )
+    mname_tfoms := PadR( glob_mo()[ _MO_SHORT_NAME ], 60 )
     muroven := get_uroven()
   Else
     fl := func_error( 4, 'Вы ввели несуществующий код МО "' + cCode + '". Попробуйте ешё раз.' )
@@ -1749,7 +1750,7 @@ Function get_kod_podr( k, r, c )
     arr := {}
     tmp_select := Select()
     r_use( dir_exe() + '_mo_podr', cur_dir() + '_mo_podr', 'PODR' )
-    podr->( dbSeek( gMo ) )    // find ( glob_mo[ _MO_KOD_TFOMS ] )
+    podr->( dbSeek( gMo ) )    // find ( glob_mo()[ _MO_KOD_TFOMS ] )
     Do While podr->codemo == gMo .and. ! podr->( Eof() )
       AAdd( arr, { '(' + AllTrim( podr->KODOTD ) + ') ' + AllTrim( podr->NAMEOTD ), podr->KODOTD } )
       podr->( dbSkip() )    //  Skip
@@ -1771,7 +1772,7 @@ Function ini_kod_podr( lkod )
   Local s := Space( 10 ), tmp_select := Select()
 
   r_use( dir_exe() + '_mo_podr', cur_dir() + '_mo_podr', 'PODR' )
-  podr->( dbSeek( glob_mo()[ _MO_KOD_TFOMS ] + PadR( Upper( lkod ), 25 ) ) )    //   find ( glob_mo[ _MO_KOD_TFOMS ] + PadR( Upper( lkod ), 25 ) )
+  podr->( dbSeek( glob_mo()[ _MO_KOD_TFOMS ] + PadR( Upper( lkod ), 25 ) ) )    //   find ( glob_mo()[ _MO_KOD_TFOMS ] + PadR( Upper( lkod ), 25 ) )
   If podr->( Found() )
     s := '(' + AllTrim( podr->KODOTD ) + ') ' + AllTrim( podr->NAMEOTD )
   Endif

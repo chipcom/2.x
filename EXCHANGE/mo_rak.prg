@@ -2483,7 +2483,7 @@ Function akt_list_of_refusal_pacient()
   Endif
   mywait()
   delfrfiles()
-  If glob_mo[ _MO_KOD_TFOMS ] == '805965' // РДЛ
+  If glob_mo()[ _MO_KOD_TFOMS ] == '805965' // РДЛ
     r_use( dir_exe() + '_mo_mo', , '_mo_mo' )
     Index On PadL( FIELD->codem, 6 ) to ( cur_dir() + 'tmp_mo' )
   Endif
@@ -2504,7 +2504,7 @@ Function akt_list_of_refusal_pacient()
   dbCreate( fr_titl, adbf )
   Use ( fr_titl ) New Alias FRT
   Append Blank
-  frt->name := glob_mo[ _MO_SHORT_NAME ]
+  frt->name := glob_mo()[ _MO_SHORT_NAME ]
   frt->sroki := arr_m[ 4 ]
   frt->sdata := lmenu[ 2 ] + iif( ireg < 3, '', ' / ' + mas_pmt[ ireg ] )
   frt->ssmo  := lsmo[ 2 ]
@@ -2857,7 +2857,7 @@ Function akt_list_of_refusal_pacient()
     frt->name3 := 'Итого штрафов: ' + lstr( frt->nitog3 ) + ' на сумму ' + lstr( frt->summa3, 15, 2 ) + 'р.'
   Endif
   //
-  If glob_mo[ _MO_KOD_TFOMS ] == '126501' // Скорая
+  If glob_mo()[ _MO_KOD_TFOMS ] == '126501' // Скорая
     j := 0
     Select frd2
     Go Top
@@ -2906,7 +2906,7 @@ Function akt_list_of_refusal_pacient()
 
   Endif
 
-  If glob_mo[ _MO_KOD_TFOMS ] == '805965' // РДЛ
+  If glob_mo()[ _MO_KOD_TFOMS ] == '805965' // РДЛ
     r_use( dir_server() + 'uslugi', , 'USLUGI' )
     r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'human_u' )
     use_base( 'lusl' )
@@ -3162,11 +3162,11 @@ Function akt_list_of_refusal_pacient()
     call_fr( name_fr )
   Endif
 
-  If glob_mo[ _MO_KOD_TFOMS ] == '805965' // РДЛ
+  If glob_mo()[ _MO_KOD_TFOMS ] == '805965' // РДЛ
     create_xls_rdl( 'rdl_report', arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd, lsmo[ 2 ] )
     saveto( cur_dir() + 'rdl_report.xlsx' )
   Endif
-  If glob_mo[ _MO_KOD_TFOMS ] == '126501' // Скорая
+  If glob_mo()[ _MO_KOD_TFOMS ] == '126501' // Скорая
     create_xls_rdl( 'smp_report', arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd, lsmo[ 2 ] )
     saveto( cur_dir() + 'smp_report.xlsx' )
   Endif
@@ -3210,7 +3210,7 @@ Function pr_list_rak()
   fp := FCreate( n_file )
   n_list := 1
   tek_stroke := 0
-  add_string( glob_mo[ _MO_SHORT_NAME ] )
+  add_string( glob_mo()[ _MO_SHORT_NAME ] )
   add_string( '' )
   add_string( Center( 'Список реестров актов контроля', sh ) )
   add_string( Center( arr_m[ 4 ], sh ) )
@@ -3514,7 +3514,7 @@ Function akt_summa_of_refusal( tip )
   fp := FCreate( n_file )
   n_list := 1
   tek_stroke := 0
-  add_string( glob_mo[ _MO_SHORT_NAME ] )
+  add_string( glob_mo()[ _MO_SHORT_NAME ] )
   add_string( '' )
   add_string( Center( 'Структура нарушений по результатам контроля объемов, сроков, качества и условий', sh ) )
   add_string( Center( 'предоставления медицинской помощи по обязательному медицинскому страхованию', sh ) )
@@ -3904,7 +3904,7 @@ Function f1akt_list_of_refusal_defect( asmo, ssmo )
   fp := FCreate( n_file )
   n_list := 1
   tek_stroke := 0
-  add_string( glob_mo[ _MO_SHORT_NAME ] )
+  add_string( glob_mo()[ _MO_SHORT_NAME ] )
   add_string( '' )
   add_string( Center( 'Снятия по экспертизам', sh ) )
   add_string( Center( 'Вид экспертизы: ' + meks, sh ) )

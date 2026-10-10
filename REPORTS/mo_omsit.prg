@@ -3877,7 +3877,7 @@ Function i_stac_sl_profil()
       " à®ä¨«ì ª®©ª¨                                             º¢á¥£® º¢§à®á«³¤¥â¨  ", ;
       "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄĞÄÄÄÄÄÄĞÄÄÄÄÄÄÁÄÄÄÄÄÄ" }
     fp := FCreate( n_file ) ; tek_stroke := 0 ; n_list := 1
-    add_string( glob_mo[ _MO_SHORT_NAME ] )
+    add_string( glob_mo()[ _MO_SHORT_NAME ] )
     add_string( "" )
     add_string( Center( 'á«ãç ¨ ' + arr_m[ 4 ], sh ) )
     If m1uslov == 0

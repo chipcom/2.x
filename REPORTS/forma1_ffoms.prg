@@ -116,7 +116,7 @@ FUNCTION forma1_ffoms()
       ENDIF
       IF arr_m[ 1 ] == 2018 .AND. arr_m[ 3 ] == 12
         d2 := 21
-        IF glob_mo[ _MO_KOD_TFOMS ] == '134505'
+        IF glob_mo()[ _MO_KOD_TFOMS ] == '134505'
           d2 := 23
         ENDIF
       ELSEIF arr_m[ 1 ] == 2019 .AND. arr_m[ 3 ] == 12

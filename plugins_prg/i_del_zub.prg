@@ -89,7 +89,7 @@ Function i_kol_del_zub( par )
       }
     sh := Len( arr_title[ 1 ] )
     fp := FCreate( name_file ) ; tek_stroke := 0 ; n_list := 1
-    add_string( glob_mo[ _MO_SHORT_NAME ] )
+    add_string( glob_mo()[ _MO_SHORT_NAME ] )
     add_string( '' )
     add_string( Center( 'Информация о количестве удалённых постоянных зубов', sh ) )
     AEval( arr_title, {| x| add_string( x ) } )

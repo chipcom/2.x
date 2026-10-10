@@ -685,7 +685,7 @@ Function read_file_xml_sds( n_file )
     Endif
     If Empty( ihuman->NPR_MO )
       If eq_any( ihuman->USL_OK, 1, 2 ) .and. ihuman->FOR_POM == 3 // плановая госпитализация
-        ihuman->NPR_MO := glob_mo[ _MO_KOD_TFOMS ]
+        ihuman->NPR_MO := glob_mo()[ _MO_KOD_TFOMS ]
       Endif
     Else
       If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == ihuman->NPR_MO } ) ) > 0
@@ -1133,7 +1133,7 @@ Function read_file_xml_sds( n_file )
           Endif
           If Empty( ae ) // ошибок ещё нет?
             If Empty( ihuman->NPR_MO )
-              ihuman->NPR_MO := glob_mo[ _MO_KOD_TFOMS ]
+              ihuman->NPR_MO := glob_mo()[ _MO_KOD_TFOMS ]
             Endif
             If Empty( ihuman->NPR_DATE )
               ihuman->NPR_DATE := ihuman->DATE_1
@@ -1301,7 +1301,7 @@ Function read_file_xml_sds( n_file )
     //
 
     pikol[ 1 ] ++
-    // if glob_mo[_MO_KOD_TFOMS] == '131940' .and. not_otd
+    // if glob_mo()[_MO_KOD_TFOMS] == '131940' .and. not_otd
     // в ФМБА две базы, поэтому не генерируем ошибку отсутствия кода отделения в согласовании
     // else
     otd->( dbGoto( ihuman->otd ) )
@@ -2207,11 +2207,9 @@ Function f1sds_kod_sogl_otd( nKey, oBrow, cregim )
 
   Return ret
 
-// 
-
 // обмен информацией с программой Smart Delta Systems
 Function is_obmen_sds()
-  Return .t. // substr(glob_mo[_MO_PROD],X_RISZ,1) == '1'
+  Return .t. // substr(glob_mo()[_MO_PROD],X_RISZ,1) == '1'
 
 // 21.09.16 ф-ия для обмена информацией с программой Smart Delta Systems
 Function import_kart_from_sds()

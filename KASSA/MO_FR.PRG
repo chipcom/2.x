@@ -1494,7 +1494,7 @@ Function frch_close( summa, summa1, name, t_nds, tip_kart )
   drvFR:StringForPrinting := name
   drvFR:TaxValue1 := t_nds // Налоги
 //  !!!!!! ВНИМАНИЕ !!!!!!
-  If glob_mo[ _MO_KOD_TFOMS ] == '605301' // ЗАО Стоматолог
+  If glob_mo()[ _MO_KOD_TFOMS ] == '605301' // ЗАО Стоматолог
     drvFR:TaxType := 2 // УСН
   Else
     drvFR:TaxType := 1 // Основная система Налогооблажения

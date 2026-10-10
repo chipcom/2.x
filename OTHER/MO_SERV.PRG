@@ -52,7 +52,7 @@ Function f_import( k )
   Local mas_pmt, mas_msg, mas_fun, j
 
   Default k To 1
-  If AScan( kod_LIS(), glob_mo[ _MO_KOD_TFOMS ] ) > 0 // КДП-2
+  If AScan( kod_LIS(), glob_mo()[ _MO_KOD_TFOMS ] ) > 0 // КДП-2
     import_from_lis()
   Else
     Do Case
@@ -2678,7 +2678,7 @@ Function f_export( k )
   Default k To 1
   Do Case
   Case k == 1
-    If AScan( kod_LIS(), glob_mo[ _MO_KOD_TFOMS ] ) > 0 // КДП-2
+    If AScan( kod_LIS(), glob_mo()[ _MO_KOD_TFOMS ] ) > 0 // КДП-2
       mas_pmt := { ;
         'Экспорт ~счетов в ВОМИАЦ' }
 //        'Экспорт в ~ЛИС', ;
@@ -2701,7 +2701,7 @@ Function f_export( k )
         'f_export(11)', ;
         'f_export(12)', ;
         'f_export(13)' }
-      If glob_mo[ _MO_IS_UCH ]
+      If glob_mo()[ _MO_IS_UCH ]
         AAdd( mas_pmt, 'Экспорт прикрепленного населения в ВОМИАЦ' )
         AAdd( mas_msg, 'Создание файла для передачи в ВОМИАЦ (письмо №14-10-1/328 от 07.11.18г.)' )
         AAdd( mas_fun, 'f_export(14)' )
@@ -3120,7 +3120,7 @@ Function f_create_military()
           s += ';'
         Endif
       Next
-      n_file := 'V_' + glob_mo[ _MO_KOD_TFOMS ] + '_' + DToS( sys_date )
+      n_file := 'V_' + glob_mo()[ _MO_KOD_TFOMS ] + '_' + DToS( sys_date )
       Delete File ( n_file + sxls() )
       delfrfiles()
       adbf := { ;
@@ -3133,8 +3133,8 @@ Function f_create_military()
       Use ( fr_titl ) New Alias FRT
       Append Blank
       frt->name_f := n_file + sxls()
-      frt->codemo := glob_mo[ _MO_KOD_TFOMS ]
-      frt->name   := glob_mo[ _MO_SHORT_NAME ]
+      frt->codemo := glob_mo()[ _MO_KOD_TFOMS ]
+      frt->name   := glob_mo()[ _MO_SHORT_NAME ]
       frt->data   := full_date( sys_date )
       frt->period := arr_m[ 4 ]
       adbf := { ;
@@ -3221,7 +3221,7 @@ Function create_schets_oblsdrav()
     '', ;
     'Ни в коем случае не прерывайте процесс', ;
     'во избежание нежелательных последствий!' },, 'GR+/R', 'W+/R', 12 )
-  zip_file := 'СОМП_' + AllTrim( glob_mo[ _MO_SHORT_NAME ] )
+  zip_file := 'СОМП_' + AllTrim( glob_mo()[ _MO_SHORT_NAME ] )
   zip_file := CharRem( '№",', zip_file )
   zip_file := CharOne( ' ', zip_file )
   zip_file := CharRepl( ' ', zip_file, '_' )
@@ -3357,7 +3357,7 @@ Function pripisnoe_naselenie_create_oblsdrav()
   Go Top
   Do While  !Eof()
     gaugeupdate( hGauge, ++curr / LastRec() )
-    If kart->kod > 0 .and. kart2->mo_pr == glob_MO[ _MO_KOD_TFOMS ]
+    If kart->kod > 0 .and. kart2->mo_pr == glob_MO()[ _MO_KOD_TFOMS ]
       // a1[i] := hb_AnsiToOem(arr_pac[i])
       // a2[i] := hb_OemToAnsi(a1[i])
       Select BARS
@@ -3408,7 +3408,7 @@ Function pripisnoe_naselenie_create_oblsdrav()
       Goto ( kart_->kemvyd )
       bars->KEMVYD       := vid->name                 // У
       bars->KOGDAVYD     := kart_->kogdavyd           // У
-      bars->MO_PR        := glob_MO[ _MO_KOD_TFOMS ]    // Да
+      bars->MO_PR        := glob_MO()[ _MO_KOD_TFOMS ]    // Да
       pr_date := Date()
       If !Empty( kart2->pc4 )
         pr_date := CToD( AllTrim( Left( kart2->pc4, 6 ) + '20' + SubStr( kart2->pc4, 7 ) ) )
@@ -3433,7 +3433,7 @@ Function pripisnoe_naselenie_create_oblsdrav()
   Close databases
   closegauge( hGauge )
   //
-  name_file := AllTrim( 'ZLERPN2' + glob_MO[ _MO_KOD_TFOMS ] + DToS( Date() ) )
+  name_file := AllTrim( 'ZLERPN2' + glob_MO()[ _MO_KOD_TFOMS ] + DToS( Date() ) )
   name_zip := name_file + szip()
   Copy File ( cur_dir() + 'tmpbars' + sdbf() ) to ( cur_dir() + name_file + sdbf() )
   //
@@ -3568,7 +3568,7 @@ Function f1nastr_all( nameTask, nTask )
 
     Delete file tmp.dbf
     Do Case
-    Case nTask == 0 .and. tools_ini_oms( 1, 0, 0, .t. ) //  настройка на все задачи
+    Case nTask == 0 .and. tools_ini_oms( 1, 0, 0, .t. ) // настройка на все задачи
       ctitle := 'настройке на все задачи'
       AAdd( mm_tmp, { '_okato', 'C', 11, 0, NIL, ;
         {| x| menu_reader( x, ;
@@ -3894,7 +3894,7 @@ Function f1nastr_all( nameTask, nTask )
       tmp->pac_attach := mem_stranger_attachment
 
       Close databases
-    Case nTask == X_FNS //  Обмен данными с ФНС
+    Case nTask == X_FNS // Обмен данными с ФНС
       ctitle := 'настройке обмена данными с ФНС'
       _fns_nastr( 0 ) // проверить, а создан ли файл 'fns_nastr.dbf'
       AAdd( mm_tmp, { 'n_spr_fns', 'N', 7, 0, NIL, ;
@@ -3943,7 +3943,7 @@ Function f1nastr_all( nameTask, nTask )
       tmp->EDIT_SUM  := NASTR_FNS->EDIT_SUM
 
       Close databases
-    Case nTask == X_PPOKOJ //  Приёмный покой
+    Case nTask == X_PPOKOJ // Приёмный покой
       ctitle := 'настройке приёмного покоя'
       _pp_nastr( 0 ) // проверить, а создан ли файл 'pp_nastr.dbf'
       AAdd( mm_tmp, { 'ist_bol', 'N', 1, 0, NIL, ;
@@ -3991,7 +3991,7 @@ Function f1nastr_all( nameTask, nTask )
       tmp->FILE_12   := mv->FILE_12
       tmp->FILE_XX   := mv->FILE_XX
       Close databases
-    Case nTask == X_PLATN .and. tools_ini_platn( 1, 0, 0, .t. ) //  Платные услуги
+    Case nTask == X_PLATN .and. tools_ini_platn( 1, 0, 0, .t. ) // Платные услуги
       ctitle := 'настройке платных услуг'
       AAdd( mm_tmp, { 'anonim', 'N', 1, 0, NIL, ;
         {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
@@ -4057,7 +4057,7 @@ Function f1nastr_all( nameTask, nTask )
       tmp->a_dms     := mem_dms
       tmp->kassa     := glob_kassa
       Close databases
-    Case nTask == X_ORTO .and. tools_ini_orto( 1, 0, 0, .t. ) //  Ортопедические услуги в стоматологии
+    Case nTask == X_ORTO .and. tools_ini_orto( 1, 0, 0, .t. ) // Ортопедические услуги в стоматологии
       ctitle := 'настройке ортопедии'
       AAdd( mm_tmp, { 'ort_f39', 'N', 1, 0, NIL, ;
         {| x| menu_reader( x, mm_ort_f39, A__MENUVERT ) }, ;
@@ -4197,7 +4197,7 @@ Function f1nastr_all( nameTask, nTask )
         mem_ver_TNM := tmp->ver_tnm
         mem_stranger_attachment := tmp->pac_attach
         tools_ini_oms( 2, 0, 0 )
-      Case nTask == X_FNS //  Обмен с ФНС
+      Case nTask == X_FNS // Обмен с ФНС
         g_use( dir_server() + 'reg_fns_nastr', , 'NASTR_FNS' )
         g_rlock( 'forever' )
         nastr_fns->N_SPR_FNS := tmp->N_SPR_FNS
@@ -4213,7 +4213,7 @@ Function f1nastr_all( nameTask, nTask )
         nastr_fns->ID_POL    := tmp->ID_POL
         nastr_fns->ID_END    := tmp->ID_END
         nastr_fns->EDIT_SUM  := tmp->EDIT_SUM
-      Case nTask == X_PPOKOJ //  Приёмный покой
+      Case nTask == X_PPOKOJ // Приёмный покой
         g_use( dir_server() + 'pp_nastr',, 'MV' )
         g_rlock( 'forever' )
         mv->IST_BOL   := tmp->IST_BOL
