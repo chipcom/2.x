@@ -929,8 +929,10 @@ Function i_list_of_pd()
     Endif
     n_file := name_file + lstr( ireg ) + stxt()
     mywait()
-    fp := FCreate( n_file ) ; n_list := 1 ; tek_stroke := 0
-    add_string( PadR( glob_mo[ _MO_SHORT_NAME ], sh - 14 ) + date_8( sys_date ) + " " + hour_min( Seconds() ) )
+    fp := FCreate( n_file )
+    n_list := 1
+    tek_stroke := 0
+    add_string( PadR( glob_mo()[ _MO_SHORT_NAME ], sh - 14 ) + date_8( sys_date ) + " " + hour_min( Seconds() ) )
     add_string( "" )
     add_string( Center( "Платёжные поручения", sh ) )
     add_string( Center( arr_m[ 4 ], sh ) )
@@ -1453,7 +1455,7 @@ Function akt_sverki_smo()
   name_file += stxt()
   mywait()
   fp := FCreate( name_file ) ; n_list := 1 ; tek_stroke := 0
-  add_string( glob_mo[ _MO_SHORT_NAME ] )
+  add_string( glob_mo()[ _MO_SHORT_NAME ] )
   If ireg == 1
     For i := 1 To 2
       If is_smp[ i ]
@@ -1905,7 +1907,7 @@ Function f1pr1_oborot_schet( asmo, ssmo )
   sh := Len( arr_title[ 1 ] )
   //
   fp := FCreate( n_file ) ; n_list := 1 ; tek_stroke := 0
-  add_string( glob_mo[ _MO_SHORT_NAME ] )
+  add_string( glob_mo()[ _MO_SHORT_NAME ] )
   add_string( "" )
   add_string( Center( "Снятия, оплата и долги по счетам" + iif( m1dolg == 1 .and. m1schet == 3, " (только строки с долгом)", "" ), sh ) )
   add_string( Center( "СМО: " + ssmo, sh ) )

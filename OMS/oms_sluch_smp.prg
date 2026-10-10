@@ -117,8 +117,8 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
     mm_trombolit := {}
     use_base( 'luslc' )
     Set Order To 2
-    find ( glob_mo[ _MO_KOD_TFOMS ] + '71.' )
-    Do While luslc->CODEMO == glob_mo[ _MO_KOD_TFOMS ] .and. Left( luslc->shifr, 3 ) == '71.'
+    find ( glob_mo()[ _MO_KOD_TFOMS ] + '71.' )
+    Do While luslc->CODEMO == glob_mo()[ _MO_KOD_TFOMS ] .and. Left( luslc->shifr, 3 ) == '71.'
       // поиск цены по дате окончания лечения
       If between_date( luslc->datebeg, luslc->dateend, sys_date )
         If eq_any( Left( luslc->shifr, 5 ), '71.1.', '71.2.' )

@@ -842,7 +842,7 @@ Function f1vosst_ob_em_rak( asmo, ssmo, mm_pz )
     func_error( 4, 'По данному запросу ничего не найдено!' )
   Else
     fp := FCreate( n_file ) ; n_list := 1 ; tek_stroke := 0
-    add_string( glob_mo[ _MO_SHORT_NAME ] )
+    add_string( glob_mo()[ _MO_SHORT_NAME ] )
     add_string( '' )
     add_string( Center( 'Вид экспертизы: ' + meks, sh ) )
     add_string( Center( 'СМО: ' + ssmo, sh ) )
@@ -1681,7 +1681,7 @@ Function report_f_mpp()
   //
   //
   mdate_rak := arr_m[ 6 ] + iif( arr_m[ 3 ] == 12, 22, 10 ) // по какую дату РАК сумма к оплате 10.04.18
-  //If arr_m[ 3 ] == 12 .and. glob_mo[ _MO_KOD_TFOMS ] == '134505'
+  //If arr_m[ 3 ] == 12 .and. glob_mo()[ _MO_KOD_TFOMS ] == '134505'
   // mdate_rak := 23
   //Endif
   //
@@ -1710,7 +1710,7 @@ Function report_f_mpp()
       //
       // 18 год
       k := iif( arr_m[ 3 ] == 12, 21, 10 ) // дата регистрации по 10.04.18
-      //If arr_m[ 3 ] == 12 .and. glob_mo[ _MO_KOD_TFOMS ] == '134505'
+      //If arr_m[ 3 ] == 12 .and. glob_mo()[ _MO_KOD_TFOMS ] == '134505'
       //  k := 23
       //Endif
       //
@@ -1865,7 +1865,7 @@ Function report_f_mpp()
     sh := Len( arr_title[ 1 ] )
     reg_print := 5
     fp := FCreate( name_file ) ; tek_stroke := 0 ; n_list := 1
-    add_string( PadR( glob_mo[ _MO_SHORT_NAME ], sh -10 ) + '(в рублях)' )
+    add_string( PadR( glob_mo()[ _MO_SHORT_NAME ], sh -10 ) + '(в рублях)' )
     add_string( Center( 'Сведения о медицинской помощи, оказываемой по территориальной программе ОМС (Ф-МПП)', sh ) )
     add_string( Center( 'по состоянию на " 1 " ' + month_r( arr_m[ 6 ] + 1 ) + Str( Year( arr_m[ 6 ] + 1 ), 5 ) + ' г.', sh ) )
     add_string( '' )
@@ -2575,7 +2575,7 @@ Function monitoring_zog()
       Enddo
       Use
       fp := FCreate( n_file ) ; n_list := 1 ; tek_stroke := 0
-      add_string( glob_mo[ _MO_SHORT_NAME ] )
+      add_string( glob_mo()[ _MO_SHORT_NAME ] )
       add_string( '' )
       add_string( Center( 'Мониторинг состояния здоровья населения в части заболеваний, состояний, ', sh ) )
       add_string( Center( 'факторов риска, связанных с несоблюдением здорового образа жизни', sh ) )

@@ -598,7 +598,7 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
   mpprab_nerab := inieditspr( A__MENUBIT, mmpp_rab(), m1pprab_nerab )
   mreg_lech  := inieditspr( A__MENUVERT, mmpp_regim(), m1reg_lech )
   mkategor   := inieditspr( A__MENUVERT, mmpp_kategor(), m1kategor )
-  If glob_mo[ _MO_KOD_TFOMS ] == '711001' // РЖД
+  If glob_mo()[ _MO_KOD_TFOMS ] == '711001' // РЖД
     MKEM_DOST  := inieditspr( A__MENUVERT, mmpp_kem1dost(), M1KEM_DOST )
   Else
     MKEM_DOST  := inieditspr( A__MENUVERT, mmpp_kem_dost(), M1KEM_DOST )
@@ -696,7 +696,7 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
       reader {| x| menu_reader( x, mm_company, A__MENUVERT,,, .f. ) } ;
       When eq_any( m1komu, 1, 3 )
     //
-    If glob_mo[ _MO_KOD_TFOMS ] == '711001' // РЖД
+    If glob_mo()[ _MO_KOD_TFOMS ] == '711001' // РЖД
       @ ++j, 1 Say 'Кем направлен' Get mkem_dost ;
         reader {| x| menu_reader( x, mmpp_kem1dost(), A__MENUVERT,,, .f. ) }
     Else
@@ -2236,7 +2236,7 @@ Function f2_v_human_pp( nkey, oBrow )
     frd->vid_opl2 := ss
     frd->pp_status  := inieditspr( 2, mmpp_rab(),     hu->rab_nerab )
     frd->pp_kategor := inieditspr( 1, mmpp_kategor(), hu->kategor )
-    If glob_mo[ _MO_KOD_TFOMS ] == '711001' // РЖД
+    If glob_mo()[ _MO_KOD_TFOMS ] == '711001' // РЖД
       frd->kem_dost   := inieditspr( 1, mmpp_kem1dost(), hu->kem_dost )
     Else
       frd->kem_dost   := inieditspr( 1, mmpp_kem_dost(), hu->kem_dost )
@@ -2353,11 +2353,11 @@ Function f2_v_human_pp( nkey, oBrow )
     frd->pr_date   := kart2->date_pr
     frd->pr_mo     := kart2->mo_pr
     frd->pr_kod_tf := lstr( kart2->kod_tf )
-    // if glob_mo[_MO_IS_UCH]
+    // if glob_mo()[_MO_IS_UCH]
     mmo_pr := ''
     If Left( kart2->PC2, 1 ) == '1'
       mmo_pr := 'По информации из ТФОМС пациент У_М_Е_Р'
-    Elseif kart2->MO_PR == glob_mo[ _MO_KOD_TFOMS ]
+    Elseif kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ]
       mmo_pr := 'Прикреплён '
       If !Empty( kart2->pc4 )
         mmo_pr += 'с ' + AllTrim( kart2->pc4 ) + ' '
@@ -2396,7 +2396,7 @@ Function f2_v_human_pp( nkey, oBrow )
     frd->name_otd := inieditspr( 6, dir_server() + 'mo_otd', hu->OTD )
     // 02.05.18
     // frd->dost_skor := iif(hu->GOSPIT1==1 .and. hu->KEM_DOST==1, 'ДА', 'НЕТ')
-    If glob_mo[ _MO_KOD_TFOMS ] == '711001' // РЖД
+    If glob_mo()[ _MO_KOD_TFOMS ] == '711001' // РЖД
       frd->dost_skor := iif( hu->KEM_DOST == 2, 'ДА', 'НЕТ' )
     Else
       frd->dost_skor := iif( hu->KEM_DOST == 1, 'ДА', 'НЕТ' )

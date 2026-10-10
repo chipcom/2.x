@@ -7,7 +7,7 @@ Function writexlsxgreater60( fName, dCreate )
   Local worksheet
   Local merge_format, formatDate, cell_format_num, cell_format_string
   local hGauge, row, curr, arr_fio
-  Local strMO := hb_StrToUTF8( glob_mo[ _MO_SHORT_NAME ] )
+  Local strMO := hb_StrToUTF8( glob_mo()[ _MO_SHORT_NAME ] )
 
   workbook  := workbook_new( fName )
   worksheet := workbook_add_worksheet( workbook, 'Sheet1' )
@@ -90,7 +90,7 @@ Function writexlsxgreater60( fName, dCreate )
   Go Top
   Do While  !Eof()
     gaugeupdate( hGauge, ++curr / LastRec() )
-    If kart->kod > 0 .and. kart2->mo_pr == glob_MO[ _MO_KOD_TFOMS ]
+    If kart->kod > 0 .and. kart2->mo_pr == glob_MO()[ _MO_KOD_TFOMS ]
       If ageismorethan( 60, kart->DATE_R, dCreate )
         worksheet_write_number( worksheet, row, 0, row -2, cell_format_num )
         arr_fio := retfamimot( 1, .f., .f. )

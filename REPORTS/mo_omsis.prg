@@ -1639,7 +1639,7 @@ Function ret_date_reg_otch_period()
   Local i, ldate, fl := .f.
   Local r1, c1, r2, c2, blk
 
-  If glob_mo[ _MO_KOD_TFOMS ] == '805965' // РДЛ
+  If glob_mo()[ _MO_KOD_TFOMS ] == '805965' // РДЛ
     If ( i := popup_prompt( T_ROW, T_COL - 5, si, ;
         { "По ~всем счетам", "По счетам, за~регистрированным до...", "По счетам, за промежуток дат" } ) ) == 0
       Return fl

@@ -305,7 +305,7 @@ Function pz1statist( par, par2 )
             fl_period := .t.
           Endif
         Endif
-        if glob_mo[_MO_KOD_TFOMS] == '805965' // РДЛ
+        if glob_mo()[_MO_KOD_TFOMS] == '805965' // РДЛ
           If fl .and. mdate_reg != NIL .and. mdate_reg_begin != NIL
             fl := ( schet_->NREGISTR == 0 .and. date_reg_schet() <= mdate_reg .and. date_reg_schet() >= mdate_reg_begin)
           elseif fl .and. mdate_reg != NIL
@@ -538,7 +538,7 @@ Function pz1statist( par, par2 )
       endif
     endif
     If mdate_reg != NIL
-      if glob_mo[_MO_KOD_TFOMS] == '805965' .and. mdate_reg != NIL .and. mdate_reg_begin != NIL //РДЛ
+      if glob_mo()[_MO_KOD_TFOMS] == '805965' .and. mdate_reg != NIL .and. mdate_reg_begin != NIL //РДЛ
         strOut := '[ по счетам, зарегистрированным c'  + full_date( mdate_reg_begin ) + ' по ' + full_date( mdate_reg ) + 'г. включительно ]'
       else  
         strOut := '[ по счетам, зарегистрированным по ' + full_date( mdate_reg ) + 'г. включительно ]'
@@ -1357,7 +1357,7 @@ Function pz1statist( par, par2 )
     viewtext( name_file, , , , ( sh > 80 ), , , reg_print )
   Endif
 
-  If glob_mo[ _MO_KOD_TFOMS ] == '805965' // РДЛ
+  If glob_mo()[ _MO_KOD_TFOMS ] == '805965' // РДЛ
     create_xls_rdl( 'rdl_report', arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd )
     saveto( cur_dir() + 'rdl_report.xlsx' )
   Endif
@@ -1712,7 +1712,7 @@ Function pz2statist( arr_m, par2, lAdult )
         fl := Between( mdate, arr_m[ 5 ], arr_m[ 6 ] )
       Endif
 
-      if glob_mo[_MO_KOD_TFOMS] == '805965' // РДЛ
+      if glob_mo()[_MO_KOD_TFOMS] == '805965' // РДЛ
         If fl .and. mdate_reg != NIL .and. mdate_reg_begin != NIL
           fl := ( schet_->NREGISTR == 0 .and. date_reg_schet() <= mdate_reg .and. date_reg_schet() >= mdate_reg_begin)
         elseIf fl .and. mdate_reg != NIL

@@ -379,7 +379,7 @@ Function f3_k_plat( nKey, oBrow )
       If !Empty( round_5( hu->stoim, 2 ) )
         Select TMP
         Append Blank
-        If glob_mo[ _MO_KOD_TFOMS ] == '171004' // Š-4
+        If glob_mo()[ _MO_KOD_TFOMS ] == '171004' // Š-4
           tmp->name := AllTrim( usl->name ) + ' ' + AllTrim( usl->full_name )
         Else
           If mek_kod_usl > 1

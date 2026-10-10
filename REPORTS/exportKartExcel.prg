@@ -143,7 +143,7 @@ function exportKartExcel( fName, aCondition, aFilter )
         if i == KART_XLS_ATTACHMENT .and. aCondition[ i, 3 ]  //  10
           if empty( KART2->MO_PR )
             s := '?'
-          elseif kart2->MO_PR == glob_mo[ _MO_KOD_TFOMS ]
+          elseif kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ]
             s := 'X'
           else
             s := '-'

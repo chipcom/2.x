@@ -154,7 +154,7 @@ function is_adres_podr( param )
   endif
   return lAddressPodr
 
-// 09.09.25
+// 09.09.25 
 function glob_mo( param )
 
   static mo

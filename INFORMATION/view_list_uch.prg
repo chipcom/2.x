@@ -263,7 +263,7 @@ Function print_l_uch( mkod, par, regim, lnomer )
       date_8( human_->DATE_R2 ) + ', пол ' + human_->POL2 )
     add_string( '' )
   Endif
-  If !Empty( human_->NPR_MO ) .and. !( human_->NPR_MO == glob_mo[ _MO_KOD_TFOMS ] )
+  If !Empty( human_->NPR_MO ) .and. !( human_->NPR_MO == glob_mo()[ _MO_KOD_TFOMS ] )
     k := perenos( tmp, 'Направившая МО: ' + ret_mo( human_->NPR_MO )[ _MO_FULL_NAME ], sh -2 )
     add_string( '  ' + tmp[ 1 ] )
     For i := 2 To k
@@ -1224,8 +1224,8 @@ Function create_fr_file_for_spravkaoms()
     { 'fio', 'C', 60, 0 } } )
   Use ( fr_titl ) New Alias FRT
   frt->( dbAppend() )
-  frt->name := glob_mo[ _MO_FULL_NAME ]
-  frt->adres := glob_mo[ _MO_ADRES ]
+  frt->name := glob_mo()[ _MO_FULL_NAME ]
+  frt->adres := glob_mo()[ _MO_ADRES ]
   dbCreate( fr_data, { { 'name', 'C', 255, 0 }, ;
     { 'name1', 'C', 55, 0 }, ;
     { 'shifr', 'C', 10, 0 }, ;
@@ -1647,7 +1647,7 @@ Function f_otchet_spravka_oms()
     fp := FCreate( n_file )
     n_list := 1
     tek_stroke := 0
-    add_string( glob_mo[ _MO_SHORT_NAME ] )
+    add_string( glob_mo()[ _MO_SHORT_NAME ] )
     add_string( PadL( 'Приложение 3', sh ) )
     add_string( PadL( 'к Приказу МЗВО и ТФОМС', sh ) )
     add_string( PadL( '№2841/758 от 29.10.2014г.', sh ) )

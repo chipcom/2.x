@@ -1094,7 +1094,7 @@ Function f3pr_inog_inostr( j, arr_m )
     { 'period', 'C', 255, 0 } } )
   Use ( fr_titl ) New Alias FRT
   Append Blank
-  frt->name := glob_mo[ _MO_FULL_NAME ]
+  frt->name := glob_mo()[ _MO_FULL_NAME ]
   frt->period := arr_m[ 4 ]
   dbCreate( fr_data, { ;
     { 'vid', 'C', 60, 0 }, ;

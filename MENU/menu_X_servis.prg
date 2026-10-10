@@ -52,7 +52,7 @@ function menu_X_servis()
   AAdd( main_menu, ' Прочие ~отчёты ' )
   AAdd( main_message, 'Редко используемые (устаревшие) отчёты' )
   //
-  If glob_mo[ _MO_KOD_TFOMS ] == '395301' // Камышин СТОМ
+  If glob_mo()[ _MO_KOD_TFOMS ] == '395301' // Камышин СТОМ
     AAdd( first_menu, { ;
       '~Новые пациенты', ;
       'Информация о количестве удалённых ~зубов', ;

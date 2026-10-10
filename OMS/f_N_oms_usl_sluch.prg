@@ -475,7 +475,7 @@ Function f2oms_usl_sluch( nKey, oBrow )
       If pr_amb_reab .and. Left( mshifr1, 2 ) == '4.'
         m1NPR_MO := Left( mzf, 6 )
         If Empty( m1NPR_MO )
-          m1NPR_MO := glob_mo[ _MO_KOD_TFOMS ]
+          m1NPR_MO := glob_mo()[ _MO_KOD_TFOMS ]
         Endif
         If m1NPR_MO = '999999'
           mNPR_MO := '=== сторонняя МО (не в ОМС или не в Волгоградской области) ==='
@@ -724,7 +724,7 @@ Function f2oms_usl_sluch( nKey, oBrow )
           Loop
         Endif
         If mis_edit >= 0 .and. Empty( mkod_vr ) .and. !is_gist .and. is_usluga_tfoms( mshifr, mshifr1, human->k_data ) ;
-            .and. !( pr_amb_reab .and. Left( mshifr1, 2 ) == '4.' .and. ( m1NPR_MO == '999999' .or. m1NPR_MO != glob_mo[ _MO_KOD_TFOMS ] ) )
+            .and. !( pr_amb_reab .and. Left( mshifr1, 2 ) == '4.' .and. ( m1NPR_MO == '999999' .or. m1NPR_MO != glob_mo()[ _MO_KOD_TFOMS ] ) )
           func_error( 4, 'Не введен врач!' )
           Loop
         Endif

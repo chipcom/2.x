@@ -987,7 +987,7 @@ Function pob2_statist( k, serv_arr, is_all )
             Delete
           Else
             tmp->u_shifr := usl->shifr
-            If glob_mo[ _MO_KOD_TFOMS ] == '171004' // äÅ-4
+            If glob_mo()[ _MO_KOD_TFOMS ] == '171004' // äÅ-4
               tmp->u_name := usl->full_name
             Else
               tmp->u_name := usl->name
@@ -4625,7 +4625,7 @@ Function pl_pl_dogovor()
         usl->( dbGoto( hpu->u_kod ) )
         If fl_hu
           fl_hu := .f.
-          If glob_mo[ _MO_KOD_TFOMS ] == '171004' // äÅ-4
+          If glob_mo()[ _MO_KOD_TFOMS ] == '171004' // äÅ-4
             add_string( afio[ 1 ] + " " + ;
               PadR( lstr( hu->kod_k ), 7 ) + " " + ;
               PadR( usl->full_name, 65 ) + " " + put_kop( hpu->u_cena, 7 ) + " " + ;
@@ -4643,7 +4643,7 @@ Function pl_pl_dogovor()
           ++kol_vo
         Else
           ++i
-          If glob_mo[ _MO_KOD_TFOMS ] == '171004' // äÅ-4
+          If glob_mo()[ _MO_KOD_TFOMS ] == '171004' // äÅ-4
             add_string( iif( i <= kfio, afio[ i ], Space( 29 ) ) + " " + ;
               Space( 7 ) + " " + ;
               PadR( usl->full_name, 65 ) + " " + put_kop( hpu->u_cena, 7 ) + " " + ;
@@ -4939,7 +4939,7 @@ Function pl_pl_2dogovor()
   r_use( dir_server() + "uslugi",, "USL" )
   r_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HPU" )
   r_use( dir_server() + "hum_p",, "HU" )
-  If glob_mo[ _MO_KOD_TFOMS ] == '171004' // äÅ-4
+  If glob_mo()[ _MO_KOD_TFOMS ] == '171004' // äÅ-4
     Index On DToS( N_data ) + Str( kv_cia, 6 ) to ( cur_dir() + "tmp_hum" ) For Between( N_data, arr_m[ 5 ], arr_m[ 6 ] )
   Else
     Index On pdate + Str( kv_cia, 6 ) to ( cur_dir() + "tmp_hum" ) For Between( pdate, arr_m[ 7 ], arr_m[ 8 ] )
@@ -4997,7 +4997,7 @@ Function pl_pl_2dogovor()
           // goto (hpu->kod_as)
           // t_nas := "  "//fam_i_o(perso->fio)
           //
-          If glob_mo[ _MO_KOD_TFOMS ] == '171004' // äÅ-4
+          If glob_mo()[ _MO_KOD_TFOMS ] == '171004' // äÅ-4
             add_string( afio[ 1 ] + " " + ;
               iif( f_is_pozic( glob_pozic, 0 ), full_date( kart->date_r ) + " ", "" ) + ;
               iif( f_is_pozic( glob_pozic, 1 ), PadR( lstr( hu->kod_k ), 7 ) + " ", "" ) + ;
@@ -5040,7 +5040,7 @@ Function pl_pl_2dogovor()
           ++kol_vo
         Else
           ++i
-          If glob_mo[ _MO_KOD_TFOMS ] == '171004' // äÅ-4
+          If glob_mo()[ _MO_KOD_TFOMS ] == '171004' // äÅ-4
             add_string( iif( i <= kfio, afio[ i ], Space( 29 ) ) + " " + ;
               iif( f_is_pozic( glob_pozic, 0 ), Space( 11 ), "" ) + ;
               iif( f_is_pozic( glob_pozic, 1 ), Space( 8 ), "" ) + ;
@@ -6494,7 +6494,7 @@ Function f4r_s_plat()
   Use ( cur_dir() + "tmp" )
   g_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HPU" )
   g_use( dir_server() + "hum_p",, "HP" )
-  If glob_mo[ _MO_KOD_TFOMS ] == '114504' // èÆ´®™´®≠®™† 4
+  If glob_mo()[ _MO_KOD_TFOMS ] == '114504' // èÆ´®™´®≠®™† 4
     Index On n_kvit to ( cur_dir() + "tmp_hp" ) ;
       For f_is_uch( st_a_uch, hp->lpu ) .and. Left( hp->pdate, 2 ) == slyear ;
       .and. AScan( arr_kv, {| x| Between( hp->N_kvit, x[ 1 ], x[ 2 ] ) } ) > 0
@@ -11041,7 +11041,7 @@ Function st1_plat_fio()
       find( Str( human->( RecNo() ), 7 ) )
       Do While human->( RecNo() ) == hu->kod .and. !Eof()
         If hu->otd == tmp->otd
-          If glob_mo[ _MO_KOD_TFOMS ] == '171004' // äÅ-4
+          If glob_mo()[ _MO_KOD_TFOMS ] == '171004' // äÅ-4
             add_string( "  " + PadR( usl->full_name, 60 ) + " " + put_kop( hu->stoim, 12 ) )
           Else
             add_string( "  " + PadR( usl->name, 60 ) + " " + put_kop( hu->stoim, 12 ) )
@@ -11419,7 +11419,7 @@ Function rees_new_vzaim( nd_faktura )
           _d->vrach := ausl[ i, 7 ]
           lss += ausl[ i, 5 ]
         Endif
-        if glob_mo[ _MO_KOD_TFOMS ] == '114504'
+        if glob_mo()[ _MO_KOD_TFOMS ] == '114504'
           If 1 <= Len( adiag )
             _d->diagnoz := adiag[ 1 ]
           endif
@@ -11730,7 +11730,7 @@ Function pl_priemshk()
     " N ≥           î.à.é. Ø†Ê®•≠‚†            ≥Ç‡•¨Ô ≥ ó•™ ≥äÆ§ è ≥  ë„¨¨†   ≥        Ç‡†Á        ", ;
     "ƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ" }
 
-  If glob_mo[ _MO_KOD_TFOMS ] == '171004' .or. glob_mo[ _MO_KOD_TFOMS ] == '114504' // äÅ-4  ® äè 4
+  If glob_mo()[ _MO_KOD_TFOMS ] == '171004' .or. glob_mo()[ _MO_KOD_TFOMS ] == '114504' // äÅ-4  ® äè 4
     arr_title := { ;
       "ƒƒƒ¬ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒ¬ƒƒƒƒƒ¬ƒƒƒƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ", ;
       " N ≥           î.à.é. Ø†Ê®•≠‚†            ≥Ç‡•¨Ô ≥ ó•™ ≥  ÑÆ£Æ¢Æ‡ ≥  ë„¨¨†   ≥       Ç‡†Á       ", ;
@@ -11799,7 +11799,7 @@ Function pl_priemshk()
       tmp->summa_n  := hum->cena - hum->sbank
       tmp->operat   := hum->kod_oper
       tmp->dogovor  := lstr( hum->kod_k )
-      If glob_mo[ _MO_KOD_TFOMS ] == '171004' // äÅ-4
+      If glob_mo()[ _MO_KOD_TFOMS ] == '171004' // äÅ-4
         nom_prihod := 0
         t_hum_rec := hum->( RecNo() )
         kart_kod := hum->kod_k
@@ -11813,7 +11813,7 @@ Function pl_priemshk()
         tmp->dogovor  := lstr( hum->kod_k ) + "/" + lstr( nom_prihod )
       Endif
       //
-      If glob_mo[ _MO_KOD_TFOMS ] == '114504' // äè 4
+      If glob_mo()[ _MO_KOD_TFOMS ] == '114504' // äè 4
         nom_prihod := 0
         t_hum_rec := hum->( RecNo() )
         kart_kod := hum->kod_k
@@ -11893,7 +11893,7 @@ Function pl_priemshk()
       If verify_ff( HH, .t., sh )
         AEval( arr_title, {| x| add_string( x ) } )
       Endif
-      If glob_mo[ _MO_KOD_TFOMS ] == '171004' .or. glob_mo[ _MO_KOD_TFOMS ] == '114504' // äÅ-4   äè 4
+      If glob_mo()[ _MO_KOD_TFOMS ] == '171004' .or. glob_mo()[ _MO_KOD_TFOMS ] == '114504' // äÅ-4   äè 4
         add_string( Str( ++ii, 3 ) + " " + ;
           PadR( tmp->fio, 38 ) + ;
           iif( tmp->summa_bn > 0,iif(tmp->summa_QR > 0,"QR","Åç"), "  " ) + ;
@@ -11941,7 +11941,7 @@ Function pl_priemshk()
       Skip
     Enddo
     add_string( Replicate( "ƒ", sh ) )
-    If glob_mo[ _MO_KOD_TFOMS ] == '171004' .or. glob_mo[ _MO_KOD_TFOMS ] == '114504' // äÅ-4
+    If glob_mo()[ _MO_KOD_TFOMS ] == '171004' .or. glob_mo()[ _MO_KOD_TFOMS ] == '114504' // äÅ-4
       add_string( PadR( "à‚Æ£Æ: ", 65 ) + put_kope( sm2, 12 ) )
     Else
       add_string( PadR( "à‚Æ£Æ: ", 61 ) + put_kope( sm2, 12 ) )
@@ -11956,7 +11956,7 @@ Function pl_priemshk()
       Next
     endif
     If meK_bank == 1
-      If glob_mo[ _MO_KOD_TFOMS ] == '103001'
+      If glob_mo()[ _MO_KOD_TFOMS ] == '103001'
         For i := 1 To perenos( arr, "®ß ≠®Â ¢ ™†··„: " + srub_kop( sm_n, .t. ), sh )
           add_string( arr[ i ] )
         Next

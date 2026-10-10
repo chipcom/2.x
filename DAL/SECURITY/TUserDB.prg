@@ -133,13 +133,13 @@ METHOD Save( oUser ) CLASS TUserDB
 		hb_hSet(aHash, 'P6',		oUser:KEK )
 		hb_hSet(aHash, 'P7',		crypt( str( oUser:PasswordFR, 10 ), ::cryptoKey() ) )
 		hb_hSet(aHash, 'P8',		crypt( str( oUser:PasswordFRSuper, 10 ), ::cryptoKey() ) )
-		if glob_mo[_MO_KOD_TFOMS] == '102604'	// „«ï ‚ŽŠŠ‚„
+		if glob_mo()[_MO_KOD_TFOMS] == '102604'	// „«ï ‚ŽŠŠ‚„
 			hb_hSet(aHash, 'INN',		oUser:INN )
 		else
 			hb_hSet(aHash, 'INN',		crypt( oUser:INN, ::cryptoKey() ) )
 		endif
 		hb_hSet(aHash, 'IDROLE',	oUser:IDRole )
-		if glob_mo[_MO_KOD_TFOMS] == '102604'	// „«ï ‚ŽŠŠ‚„
+		if glob_mo()[_MO_KOD_TFOMS] == '102604'	// „«ï ‚ŽŠŠ‚„
 			hb_hSet(aHash, 'DOV_DATA', dtos(oUser:Dov_Date))
 		else
 			hb_hSet(aHash, 'DOV_DATA', dtos(crypt( oUser:Dov_Date, ::cryptoKey())))
@@ -197,13 +197,13 @@ METHOD FillFromHash( hbArray )     CLASS TUserDB
 			hbArray[ 'REC_NEW' ], ;
 			hbArray[ 'DELETED' ] ;
 			)
-	if glob_mo[_MO_KOD_TFOMS] == '102604'	// „«ï ‚ŽŠŠ‚„
+	if glob_mo()[_MO_KOD_TFOMS] == '102604'	// „«ï ‚ŽŠŠ‚„
 		obj:INN := hbArray[ 'INN' ]
 	else
 		obj:INN := crypt( hbArray[ 'INN' ], ::cryptoKey() )
 	endif
 
-	if glob_mo[_MO_KOD_TFOMS] == '102604'	// „«ï ‚ŽŠŠ‚„
+	if glob_mo()[_MO_KOD_TFOMS] == '102604'	// „«ï ‚ŽŠŠ‚„
 		obj:Dov_Date := stod(hbArray[ 'DOV_DATA' ])
 	else
 		// hb_hSet(aHash, 'DOV_DATA', dtos(crypt( oUser:Dov_Date, ::cryptoKey())))

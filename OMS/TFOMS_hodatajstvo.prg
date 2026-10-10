@@ -84,7 +84,7 @@ Function tfoms_hodatajstvo( arr_m, iRefr, par )
     dbCreate( fr_titl, adbf )
     Use ( fr_titl ) New Alias FRT
     Append Blank
-    frt->name   := glob_mo[ _MO_SHORT_NAME ]
+    frt->name   := glob_mo()[ _MO_SHORT_NAME ]
     frt->predst := ''
     frt->data   := full_date( sys_date )
     //
@@ -496,7 +496,7 @@ Function create_file_hodatajstvo( arr_m )
       'Выберите действие:' }, ;
       { ' Отказ ', ' Создание файла ходатайства ' }, ;
       2, 'GR+/R', 'W+/R', 16,, 'GR+/R,N/BG' ) == 2
-    n_file := 'HD_' + lstr( mfilial ) + '_M' + glob_mo[ _MO_KOD_TFOMS ] + '_' + lstr( mnn )
+    n_file := 'HD_' + lstr( mfilial ) + '_M' + glob_mo()[ _MO_KOD_TFOMS ] + '_' + lstr( mnn )
     For i := 1 To 3
       If as[ i, 1 ] > 0
         // as[i,3] := n_file+'_'+as[i,2]+'.xls'
@@ -512,8 +512,8 @@ Function create_file_hodatajstvo( arr_m )
         Use ( fr_titl ) New Alias FRT
         Append Blank
         frt->name_f := as[ i, 3 ]
-        frt->codemo := glob_mo[ _MO_KOD_TFOMS ]
-        frt->name   := glob_mo[ _MO_SHORT_NAME ]
+        frt->codemo := glob_mo()[ _MO_KOD_TFOMS ]
+        frt->name   := glob_mo()[ _MO_SHORT_NAME ]
         frt->data   := full_date( sys_date )
         adbf := { ;
           { 'nomer', 'N', 4, 0 }, ;

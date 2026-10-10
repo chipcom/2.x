@@ -541,7 +541,7 @@ Function forma_131( par )
       fp := FCreate( n_file )
       n_list := 1
       tek_stroke := 0
-      add_string( glob_mo[ _MO_SHORT_NAME ] )
+      add_string( glob_mo()[ _MO_SHORT_NAME ] )
       add_string( PadL( 'à¨«®¦¥­¨¥ ü3', sh ) )
       add_string( PadL( 'ª à¨ª §ã Œ‡”', sh ) )
       add_string( PadL( 'ü1207­ ®â 10.11.2020£.', sh ) )
@@ -563,8 +563,8 @@ Function forma_131( par )
       add_string( 'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄ' )
       r_use( dir_server() + 'organiz',, 'ORG' )
       ar := {}
-      // aadd(ar, {15,1,glob_mo[_MO_FULL_NAME]})
-      AAdd( ar, { 16, 2, glob_mo[ _MO_ADRES ] } )
+      // aadd(ar, {15,1,glob_mo()[_MO_FULL_NAME]})
+      AAdd( ar, { 16, 2, glob_mo()[ _MO_ADRES ] } )
       AAdd( ar, { 19, 1, AllTrim( org->okpo ) } )
       AAdd( arr_excel, { '‘¢¥¤¥­¨ï', AClone( ar ) } )
       ar := {}

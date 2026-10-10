@@ -964,7 +964,7 @@ Function oms_smena_otd()
             glob_otd[ 2 ] + ' [' + glob_uch[ 2 ] + ']' }, , 'W+/W', 'N/W' )
           If ( fl := f_esc_enter( 'смены отделения', .t. ) )
             fl1 := .f.
-            if glob_mo[ _MO_KOD_TFOMS ] == '134505' .or. glob_mo[ _MO_KOD_TFOMS ] == '124530'
+            if glob_mo()[ _MO_KOD_TFOMS ] == '134505' .or. glob_mo()[ _MO_KOD_TFOMS ] == '124530'
                 fl1 := .t.
             else  
               If input_value( MaxRow() -4, 10, MaxRow() -2, 69, color1, ;
@@ -1702,7 +1702,7 @@ Function ret_oms_human( dostup, arr_m )
     find ( str_find )
     If yes_h_otd == 1
       If dostup == B_STANDART
-        if glob_mo[ _MO_KOD_TFOMS ] == '124530'
+        if glob_mo()[ _MO_KOD_TFOMS ] == '124530'
           Index On Upper( FIELD->fio ) to ( cur_dir() + 'tmp_hum' ) ;
             While FIELD->tip_h == dostup .and. FIELD->otd == glob_otd[ 1 ] ;
             For  year( FIELD->k_data ) == 2026 .and. human_->reestr == 0
@@ -1718,7 +1718,7 @@ Function ret_oms_human( dostup, arr_m )
       Endif
     Else
       If dostup == B_STANDART
-        if glob_mo[ _MO_KOD_TFOMS ] == '134505' .or. glob_mo[ _MO_KOD_TFOMS ] == '124530'
+        if glob_mo()[ _MO_KOD_TFOMS ] == '134505' .or. glob_mo()[ _MO_KOD_TFOMS ] == '124530'
           if arr_m == NIL
             Index On Upper( FIELD->fio ) to ( cur_dir() + 'tmp_hum' ) ;
             While FIELD->tip_h == dostup ;
@@ -1906,7 +1906,7 @@ Function f2ret_oms_human( nkey )
       RestScreen( buf )
       Return 0
     Elseif nkey == K_CTRL_F5
-      If glob_mo[ _MO_KOD_TFOMS ] == '805965' // РДЛ
+      If glob_mo()[ _MO_KOD_TFOMS ] == '805965' // РДЛ
         tmpSelect := Select()
         If hb_vfExists( cur_dir() + fr_data + '2' + sdbf() )
           Use ( cur_dir() + fr_data + '2' ) New Alias FRD2

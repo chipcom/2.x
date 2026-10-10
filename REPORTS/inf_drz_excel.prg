@@ -25,7 +25,7 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch, mas_rez_w, mas
   Local i
 
   strMO := hb_StrToUTF8( currentOrg:name_tfoms() )
-//  arr_plan := get_plan_drz( Year( arr_m[ 6 ] ), glob_mo[ _MO_KOD_FFOMS ] )
+//  arr_plan := get_plan_drz( Year( arr_m[ 6 ] ), glob_mo()[ _MO_KOD_FFOMS ] )
   arr_plan := get_plans_KZVO( Year( arr_m[ 6 ] ), glob_mo()[ _MO_KOD_FFOMS ] )
   //
   For i := 1 To 8

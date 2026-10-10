@@ -28,7 +28,7 @@ function menu_X_registr()
     'view_kart(2)', ;
     'dubl_zap()';
   } )
-  If glob_mo[ _MO_IS_UCH ]
+  If glob_mo()[ _MO_IS_UCH ]
     AAdd( first_menu[ 1 ], 'Прикреплённое ~население' )
     AAdd( first_message[ 1 ], 'Работа с прикреплённым населением' )
     AAdd( func_menu[ 1 ], 'pripisnoe_naselenie()' )

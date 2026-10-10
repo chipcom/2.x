@@ -294,7 +294,7 @@ If hb_FileExists( cur_dir() + '_data3' + sdbf() )
 endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-If glob_mo[ _MO_KOD_TFOMS ] == '126501' // Скорая
+If glob_mo()[ _MO_KOD_TFOMS ] == '126501' // Скорая
   /* Добавим лист "Снятия СМП" в книгу. */
   Use ( cur_dir() + '_data2' ) New  Alias frd2
   FRD2->( dbGoTop() ) 

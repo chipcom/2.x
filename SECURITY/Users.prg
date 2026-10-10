@@ -184,7 +184,7 @@ Function edituser( oBrowse, aObjects, oUser, nKey )
       oBrowse:refreshall()
       Return .t.
     Endif
-  Elseif nKey == K_F9 .and. glob_mo[ _MO_KOD_TFOMS ] == '102604' // „«ï ‚ŽŠŠ‚„
+  Elseif nKey == K_F9 .and. glob_mo()[ _MO_KOD_TFOMS ] == '102604' // „«ï ‚ŽŠŠ‚„
     // hb_threadStart( HB_THREAD_INHERIT_PUBLIC, @printUserList(), aObjects )
     // WaitingReport( 3 )
     // return .t.
