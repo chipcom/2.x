@@ -524,7 +524,7 @@ Function f2oms_sluch_onko_lek_pr( nKey, oBrow )
   end case
   Return flag
 
-// 18.10.22
+// 12.10.26
 Function f2oms_sluch_lek_pr( nKey, oBrow )
 
   Local flag := -1, buf := SaveScreen(), k_read := 0, count_edit := 0
@@ -583,7 +583,8 @@ Function f2oms_sluch_lek_pr( nKey, oBrow )
     r1 := 13
     box_shadow( r1, 0, MaxRow() -1, 79, color8, ;
       iif( nKey == K_INS, 'Добавление нового препарата', ;
-      'Редактирование препарата' ), iif( yes_color, 'RB+/B', 'W/N' ) )
+      'Редактирование препарата' ), 'RB+/B' )
+//      'Редактирование препарата' ), iif( yes_color, 'RB+/B', 'W/N' ) )
     Do While .t.
       SetColor( cDataCGet )
       ix := 1

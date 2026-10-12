@@ -6,16 +6,15 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-#include "simpleio.ch"
+#include 'simpleio.ch'
 #include 'dbinfo.ch'
 
-#require "rddsql"
-#require "sddodbc"
+#require 'rddsql'
+#require 'sddodbc'
 
 
 REQUEST SQLMIX, SDDODBC
 
-// External ust_printer, ErrorSys, ReadModal, like, flstr, prover_dbf, net_monitor, pr_view, ne_real
 External ust_printer, ReadModal, like, flstr, prover_dbf
 // старые (редко используемые) отчёты запускаем из hrb-файлов (для уменьшения задачи)
 Dynamic i_new_boln
@@ -96,7 +95,7 @@ Procedure Main( ... )
   is_local_version := f_first( is_create )
   put_icon( full_name_version(), 'MAIN_ICON' )
   hard_err( 'create' )
-  fillscreen( p_char_screen, p_color_screen ) // FillScreen('█','N+/N')
+  fillscreen( p_char_screen, p_color_screen )
   SetColor( color1 )
 
   // инициализация массива МО, запрос кода МО (при необходимости)
@@ -237,7 +236,6 @@ Function f_main( r0, is_local_version, a_parol )
   arr := {}
   For i := 1 To Len( array_tasks() )
     If ( k := array_tasks()[ i, 2 ] ) < 10  // код задачи
-//      array_tasks[ i, 4 ] := ( SubStr( glob_mo()[ _MO_PROD ], k, 1 ) == '1' )
       If array_tasks()[ i, 4 ]
         fl_exit := .f.
       Endif
@@ -259,7 +257,6 @@ Function f_main( r0, is_local_version, a_parol )
       Endif
     Endif
   Next
-//  Public g_arr_stand := {}
   Public glob_task, blk_ekran, ;
     main_menu, main_message, first_menu, ;
     first_message, func_menu, cmain_menu
@@ -314,7 +311,7 @@ Function main_up_screen()
 
   Local i, k, s, arr[ 2 ]
 
-  fillscreen( p_char_screen, p_color_screen ) // FillScreen('█','N+/N')
+  fillscreen( p_char_screen, p_color_screen )
   s := 'Код ' + iif( glob_mo()[ _MO_IS_MAIN ], 'МО', 'обособленного подразделения' ) + ;
     ', присвоенный ТФОМС: ' + glob_mo()[ _MO_KOD_TFOMS ] + ;
     ' (реестровый № ' + glob_mo()[ _MO_KOD_FFOMS ] + ')'
@@ -346,7 +343,6 @@ Function main_center_screen( r0, a_parol )
     'астма', 'диабет', 'панкреатит' }
   Local s, i, c, k, t_arr, r1, buf, mst := ''
 
-//  g_arr_stand := {} 
   If ValType( glob_mo()[ _MO_STANDART ] ) == 'A'
     For k := 1 To Len( glob_mo()[ _MO_STANDART ] )
       t_arr := { glob_mo()[ _MO_STANDART, k, 1 ], {} }
@@ -357,7 +353,6 @@ Function main_center_screen( r0, a_parol )
           AAdd( t_arr[ 2 ], i )
         Endif
       Next
-//      AAdd( g_arr_stand, AClone( t_arr ) )
       g_arr_stand( AClone( t_arr ) )
     Next
   Endif
@@ -413,7 +408,7 @@ Function f_first( is_create )
   Local is_local_version := .t.
 
   Public help_code := -1
-  Public yes_color := .t.
+//  Public yes_color := .t.
   Public color0, color1, cColorWait, cColorSt2Msg, cColorStMsg, ;
     cCalcMain, cHelpCMain, cColorText, ;
     cHelpCTitle, cHelpCStatus, cDataCScr, cDataCGet, cDataCSay, ;
@@ -564,9 +559,6 @@ Function is_task( n_Task )
 
   Local it
 
-//  If !( Type( 'array_tasks' ) == 'A' ) // в начале задачи  ещё не определён массив
-//    Return .f.
-//  Endif
   Default n_Task To glob_task
   If ( it := AScan( array_tasks(), {| x| x[ 2 ] == n_Task } ) ) == 0
     Return .f.
@@ -596,11 +588,12 @@ Function app_finish()
   Quit
   Return Nil
 
-// 04.08.26
+// 12.10.26
 Function f_end( yes_copy )
 
   Static group_ini := 'RAB_MESTO'
   Local i, spath := '', bSaveHandler := ErrorBlock( {| x| Break( x ) } )
+  local error
 
   rddSetDefault( 'DBFNTX' )
 

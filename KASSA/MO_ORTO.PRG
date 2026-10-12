@@ -2099,7 +2099,7 @@ Static Function val_tip_usl( get, old, r )
   update_get( "mpr_smo" )
   Return fl
 
-// 15.11.18
+// 12.10.26
 Function usl_ort_kart( mkod_human, mkod_lpu )
 
   // mkod_human - ชฎค ฏฎ  human
@@ -2196,13 +2196,13 @@ Function usl_ort_kart( mkod_human, mkod_lpu )
     pr_1_str( "เโฎฏฅค.ใแซใฃจ คซ๏ กฎซ์ญฎฃฎ < " + AllTrim( glob_k_fio ) + " >" )
     @ 1, 1 Say " เ๏ค-ง ช ง N " + lstr( human->nar_z ) + " ฎโ " + date_8( human->data ) + "ฃ." Color "G+/B"
     SetColor( "BG/B" )
-    If yes_color
+//    If yes_color
       SetColor( "BG/B" )
       l_color := "W+/B,W+/W,BG+/B,W+/BG,G+/B,W+/G,GR+/B,W+/GR"
-    Else
-      SetColor( "W/N" )
-      l_color := "W+/N,N/W,W/N,N+/W,W/N,W+/N,W/N,W+/N"
-    Endif
+//    Else
+//      SetColor( "W/N" )
+//      l_color := "W+/N,N/W,W/N,N+/W,W/N,W+/N,W/N,W+/N"
+//    Endif
     @ MaxRow() -3, 0 Say "ีอออออออออออออออออออ ฎซญฎฅ ญ จฌฅญฎข ญจฅ ใแซใฃจ อออออออออออออออออออัออ –ฅญ  อออธ"
     @ MaxRow() -2, 0 Say "ณ                                                                  ณ           ณ"
     @ MaxRow() -1, 0 Say "ิออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออฯอออออออออออพ"
