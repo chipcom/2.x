@@ -58,12 +58,12 @@ Procedure Main( ... )
   Endif
 
   //
-  Public DELAY_SPRD := 0 // время задержки для разворачивания строк
+//  Public DELAY_SPRD := 0 // время задержки для разворачивания строк
 
 //  Public sdbf := '.DBF', sntx := '.NTX', stxt := '.TXT' 
   
-  Public pravo_write := .t., pravo_read := .t., ;
-    MenuTo_Minut := 0, sys_date := Date(), cScrMode := 'COLOR', ;
+//  Public pravo_write := .t., pravo_read := .t.
+  Public MenuTo_Minut := 0, sys_date := Date(), cScrMode := 'COLOR', ;
     forever := 'forever'
   Public gpasskod := ret_gpasskod()
   Public fr_data := '_data', fr_titl := '_titl'
