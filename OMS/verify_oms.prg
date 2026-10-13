@@ -8,7 +8,7 @@
 #define MAX_REC_REESTR_RDL 5000
 #define BASE_ISHOD_RZD 500
 
-// 16.09.26
+// 13.10.26
 Function verify_oms( arr_m, fl_view )
   
   // Возврат: arrKolSl (массив)
@@ -24,7 +24,7 @@ Function verify_oms( arr_m, fl_view )
   local current_mo, ft
   local adbf
 
-  current_mo := glob_mo
+  current_mo := glob_mo()
   max_records_send := iif( current_mo[ _MO_KOD_TFOMS ] == '805965', MAX_REC_REESTR_RDL, MAX_REC_REESTR ) // число записываемых случаев в реестры
 
   AAdd( mas_file, name_file )
