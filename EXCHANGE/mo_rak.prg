@@ -726,7 +726,7 @@ Function f2_view_rak( nKey, oBrow )
 
   Return ret
 
-// 15.07.26
+// 13.10.26
 Function delete_rak( lrec, lname, not_end ) 
 
   Local ret := 0, arr_next := {}, fl, ia, is, ih, buf := save_maxrow()
@@ -788,7 +788,8 @@ Function delete_rak( lrec, lname, not_end )
   If not_end
     fl := .t.
   Else
-    if ( year( date_rak ) == 2026 .and. month( date_rak ) == 4 ) .or. ( date_rak == 0d20260714 )
+//    if ( year( date_rak ) == 2026 .and. month( date_rak ) == 4 ) .or. ( date_rak == 0d20260714 )
+    if ( year( date_rak ) == 2026 .and. month( date_rak ) == 10 ) .or. ( date_rak == 0d20260714 )
       fl := .t.
     else
       fl := involved_password( 2, lname, 'подтверждения возврата (удаления) РАК' )
