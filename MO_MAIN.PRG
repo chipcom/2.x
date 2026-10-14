@@ -58,7 +58,7 @@ Procedure Main( ... )
   Endif
 
   //
-//  Public DELAY_SPRD := 0 // время задержки для разворачивания строк
+  Public DELAY_SPRD := 0 // время задержки для разворачивания строк
 
 //  Public sdbf := '.DBF', sntx := '.NTX', stxt := '.TXT' 
   

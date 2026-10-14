@@ -326,6 +326,7 @@ mo_version.prg
 .\FUNC_LIB\print2.prg
 .\FUNC_LIB\initbase.prg
 .\FUNC_LIB\escenter.prg
+.\FUNC_LIB\saytop.prg
 
 .\exchange\create_reestr_main.prg
 .\exchange\rak_XML.prg

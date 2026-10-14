@@ -61,13 +61,13 @@ Function f_esc_enter( j, fl )
   Return ( i == K_ENTER )
 
 // 12.10.26
-Function str_center( nline, cmsg, mcolor, DELAY_SPRD )
+Function str_center( nline, cmsg, mcolor )  //  , DELAY_SPRD )
 
   // DELAY_SPRD - время задержки для разворачивания строк
 
   Local mdelay := 6, tmp_color := SetColor( mcolor )
 
-  Default DELAY_SPRD To 0
+//  Default DELAY_SPRD To 0
 
   If Type( 'DELAY_SPRD' ) == 'N'   // если определена переменная 'DELAY_SPRD',
     mdelay := DELAY_SPRD         // установить новое время задержки
