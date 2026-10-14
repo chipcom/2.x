@@ -25,7 +25,7 @@ Dynamic f1forma_792_MIAC
 Dynamic monitoring_vid_pom
 Dynamic b_25_perinat_2
 
-// 30.09.26
+// 14.10.26
 Procedure Main( ... )
 
   Local r, s, is_create := .f., is_copy := .f., is_index := .f.
@@ -62,7 +62,7 @@ Procedure Main( ... )
 
 //  Public sdbf := '.DBF', sntx := '.NTX', stxt := '.TXT' 
   
-//  Public pravo_write := .t., pravo_read := .t.
+  Public pravo_write := .t., pravo_read := .t.
   Public MenuTo_Minut := 0, sys_date := Date(), cScrMode := 'COLOR', ;
     forever := 'forever'
   Public gpasskod := ret_gpasskod()
@@ -92,7 +92,29 @@ Procedure Main( ... )
   Next
 
   SetClearB( ' ' )
-  is_local_version := f_first( is_create )
+
+  dir_server := read_server_mem( @is_local_version )
+  p_name_comp := iif( is_local_version, '', AllTrim( NetName() ) + hb_ps() + hb_UserName() )
+
+  if ! checking_access_to_server( dir_server() )
+    app_finish()
+  endif
+
+  If !is_create .and. !hb_FileExists( dir_server() + 'human' + sdbf() )
+    func_error( 'Не обнаружены файлы базы данных! Обратитесь к системному администратору.' )
+    app_finish()
+  Endif
+  //
+  If hb_FileExists( dir_server() + 'plat.dbf' )
+    func_error( 'Вероятнее всего, Вы запускаете программу в каталоге СЧЕТА. Это недопустимо!' )
+    app_finish()
+  Endif
+  hb_vfErase( cur_dir() + 'ttt.ttt' )
+//  Return is_local_version
+
+//  is_local_version := init_public_color( is_create )
+  init_public_color()
+  
   put_icon( full_name_version(), 'MAIN_ICON' )
   hard_err( 'create' )
   fillscreen( p_char_screen, p_color_screen )
@@ -402,10 +424,10 @@ Function m_help()
   chm_help_code := tmp_help
   Return Nil
 
-// 05.06.25
-Function f_first( is_create )
+// 14.10.25
+Function init_public_color()  //   is_create )
 
-  Local is_local_version := .t.
+//  Local is_local_version := .t.
 
   Public help_code := -1
 //  Public yes_color := .t.
@@ -450,7 +472,7 @@ Function f_first( is_create )
   color13    := 'W/B, W+/R, , , BG+/B'             // некотоpое выделение
   color14    := 'G+/B, W+/R'
   //
-
+/*
   dir_server := read_server_mem( @is_local_version )
   p_name_comp := iif( is_local_version, '', AllTrim( NetName() ) + hb_ps() + hb_UserName() )
 
@@ -471,6 +493,8 @@ Function f_first( is_create )
 //  Delete file ttt.ttt
   hb_vfErase( cur_dir() + 'ttt.ttt' )
   Return is_local_version
+*/
+  return nil
 
 // 17.11.23
 Function hard_err( p )
