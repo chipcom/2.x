@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 26.03.26 ввод услуг в лист учёта
+// 12.10.26 ввод услуг в лист учёта
 Function f2oms_usl_sluch( nKey, oBrow ) 
 
   Static skod_k := 0, skod_human := 0, SKOD_DIAG, SZF, ;
@@ -523,7 +523,8 @@ Function f2oms_usl_sluch( nKey, oBrow )
     --r1
     box_shadow( r1 -1, 0, MaxRow() -1, 79, color8, ;
       iif( nKey == K_INS, 'Добавление новой услуги', ;
-      'Редактирование услуги' ), iif( yes_color, 'RB+/B', 'W/N' ) )
+      'Редактирование услуги' ), 'RB+/B' )
+//      'Редактирование услуги' ), iif( yes_color, 'RB+/B', 'W/N' ) )
     If mem_otdusl == 2
       Keyboard Chr( K_TAB )
     Endif
