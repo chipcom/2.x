@@ -46,6 +46,22 @@ function sepsis_exists_in_array( aDiag, mdate, /*@*/diag )
 
   return lRet
 
+// 15.10.26
+function geriatr_exists_in_array( aDiag, mdate )
+
+  local i, lRet := .f., cDiag := ''
+
+  default mdate to Date()
+
+  for i := 1 to len( aDiag )
+    cDiag := Upper( AllTrim( aDiag[ i ] ) )
+    if cDiag == 'R54'
+      lRet := .t.
+    endif
+  next
+
+  return lRet
+
 // 04.09.26
 function add_KSG_table( arr_KSG, mdate, lal, osn_diag, j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
 
