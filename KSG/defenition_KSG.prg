@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 15.10.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
+// 16.10.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
 Function defenition_ksg( par, k_data2, lDoubleSluch )
 
   // файлы 'human', 'human_' и 'human_2' открыты и стоят на нужной записи
@@ -89,12 +89,10 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
     Endif
 
     // проверка на старческую астению
-    if geriatr_exists_in_array( sop_diag, lk_data )
-      if ( i := AScan( mdiagnoz, 'R54' ) ) > 0 .and. lprofil_k != 16 // геронтологический профиль койки
-        hb_ADel( mdiagnoz, i, .t. )
-        if ( i := AScan( sop_diag, 'R54' ) ) > 0
-          hb_ADel( sop_diag, i, .t. )
-        endif
+    if ( i := AScan( mdiagnoz, 'R54' ) ) > 0 .and. lprofil_k != 16 // геронтологический профиль койки
+      hb_ADel( mdiagnoz, i, .t. )
+      if ( i := AScan( sop_diag, 'R54' ) ) > 0
+        hb_ADel( sop_diag, i, .t. )
       endif
     endif
 
