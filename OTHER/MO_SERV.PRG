@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-  
+/*  
 // 03.08.25 ОКАТО ПРАВКА Волжский
 Function OKATO_V()
 
@@ -44,8 +44,9 @@ Function OKATO_V()
   Endif
   Close databases
   Return Nil
+*/
 
-// 08.01.17
+// 21.10.26
 Function f_import( k )
 
   Static si1 := 1, sds := 1, ssp := 1
@@ -58,24 +59,24 @@ Function f_import( k )
     Do Case
     Case k == 1
       mas_pmt := { ;
-        'Импорт ~случаев ОМС', ;
-        'Инте~грация с SDS', ;
-        'Импорт из ~флюоротеки' }
+        'Импорт ~случаев ОМС' }     //  , ;
+//        'Инте~грация с SDS', ;
+//        'Импорт из ~флюоротеки' }
       mas_msg := { ;
-        'Импорт случаев ОМС (листов учёта) из других программ (в формате ЧИП плюс)', ;
-        'Интеграция с программой Smart Delta Systems', ;
-        'Импорт данных из программы "Флюоротека" фирмы "ЧИП плюс"' }
+        'Импорт случаев ОМС (листов учёта) из других программ (в формате ЧИП плюс)' }   //  , ;
+//        'Интеграция с программой Smart Delta Systems', ;
+//        'Импорт данных из программы "Флюоротека" фирмы "ЧИП плюс"' }
       mas_fun := { ;
-        'f_import(11)', ;
-        'f_import(12)', ;
-        'f_import(13)' }
+        'f_import( 11 )' }  //  , ;
+//        'f_import( 12 )', ;
+//        'f_import( 13 )' }
       popup_prompt( T_ROW, T_COL + 5, si1, mas_pmt, mas_msg, mas_fun )
     Case k == 11
       import_sluch_oms()
-    Case k == 12
-      integration_sds()
-    Case k == 13
-      import_fluoroteka()
+//    Case k == 12
+//      integration_sds()
+//    Case k == 13
+//      import_fluoroteka()
     Endcase
   Endif
   If k > 10
@@ -1386,7 +1387,6 @@ Function import_sluch_oms()
       g_sminus( f_name_task( X_OMS ) )  // минус 1 пользователь (вышел из задачи ОМС)
     Endif
     If hb_FileExists( cFileProtokol )
-      // copy file (cFileProtokol) to (hb_OemToAnsi(name_path)+cFileProtokol)
       Copy File ( cFileProtokol ) to ( name_path + cFileProtokol )
       viewtext( devide_into_pages( cFileProtokol, 60, 80 ),,,, .t.,,, 2 )
     Endif
@@ -1398,8 +1398,8 @@ Function import_sluch_oms()
 Function f1_import_sluch_oms()
 
   Local _lpu := { ;
-    { 'KOD',     'N',  3, 0 }, ; // ваш код учреждения
-    { 'NAME',    'C', 30, 0 };  // наименование учреждения
+    { 'KOD',  'N',  3, 0 }, ; // ваш код учреждения
+    { 'NAME', 'C', 30, 0 };  // наименование учреждения
   }
   Local _otd := { ;
     { 'KOD',     'N',  3, 0 }, ; // ваш код отделения
@@ -1407,84 +1407,84 @@ Function f1_import_sluch_oms()
     { 'KOD_LPU', 'N',  3, 0 };  // код учреждения, в котором находится отделение
   }
   Local _sluch := { ;
-    { 'REC_HUMAN',   'N',     8,     0 }, ;
-    { 'YOUR_RECNO',  'N',    10,     0 }, ;
-    { 'KOD',   'N',     7,     0 }, ;
-    { 'FIO',   'C',    50,     0 }, ;
-    { 'FAM',   'C',    40,     0 }, ;
-    { 'IM',   'C',    40,     0 }, ;
-    { 'OT',   'C',    40,     0 }, ;
-    { 'W',   'N',     1,     0 }, ;
-    { 'DR',   'D',     8,     0 }, ;
-    { 'VPOLIS',    'N',     1,     0 }, ;
-    { 'SPOLIS',    'C',    10,     0 }, ;
-    { 'NPOLIS',    'C',    20,     0 }, ;
-    { 'SMO',         'C',     5,     0 }, ;
-    { 'SMO_OK',      'C',     5,     0 }, ;
-    { 'SMO_NAM',     'C',   100,     0 }, ; // наименование иногородней СМО
-    { 'DOCTYPE',     'N',     2,     0 }, ;
-    { 'DOCSER',      'C',    10,     0 }, ;
-    { 'DOCNUM',      'C',    20,     0 }, ;
-    { 'MR',          'C',   100,     0 }, ;
-    { 'OKATOG',      'C',    11,     0 }, ;
-    { 'OKATOP',      'C',    11,     0 }, ;
-    { 'ADRES',       'C',    50,     0 }, ;
-    { 'ADRESP',      'C',    50,     0 }, ;
-    { 'SNILS',   'C',    11,     0 }, ;
-    { 'OTD',   'N',     3,     0 }, ;
-    { 'PROFIL',      'N',     3,     0 }, ;
-    { 'NHISTORY',  'C',    10,     0 }, ;
-    { 'DATE_1',   'D',     8,     0 }, ;
-    { 'DATE_2',   'D',     8,     0 }, ;
-    { 'DS0',         'C',     6,     0 }, ;
-    { 'DS1',        'C',     5,     0 }, ;
-    { 'DS2',         'C',     5,     0 }, ;
-    { 'DS2_2',       'C',     5,     0 }, ;
-    { 'DS2_3',       'C',     5,     0 }, ;
-    { 'DS2_4',       'C',     5,     0 }, ;
-    { 'DS2_5',       'C',     5,     0 }, ;
-    { 'DS2_6',       'C',     5,     0 }, ;
-    { 'DS2_7',       'C',     5,     0 }, ;
-    { 'DS3',         'C',     5,     0 }, ;
-    { 'DS3_2',       'C',     5,     0 }, ;
-    { 'DS3_3',       'C',     5,     0 }, ;
-    { 'NOVOR',       'N',     1,     0 }, ;
-    { 'REB_NUMBER',  'N',     2,     0 }, ;
-    { 'REB_DR',      'D',     8,     0 }, ;
-    { 'REB_POL',     'N',     1,     0 }, ;
-    { 'USL_OK',      'N',     2,     0 }, ;
-    { 'VIDPOM',      'N',     4,     0 }, ;
-    { 'IDSP',        'N',     2,     0 }, ;
-    { 'NPR_MO',      'C',     6,     0 }, ;
-    { 'EXTR',        'N',     1,     0 }, ;
-    { 'F_SP',        'N',     1,     0 }, ;
-    { 'RSLT',        'N',     3,     0 }, ;
-    { 'ISHOD',       'N',     3,     0 }, ;
-    { 'VRACH',       'N',     5,     0 }, ;
-    { 'PRVS',        'N',     9,     0 }, ;
-    { 'VRACH_FIO',   'C',    50,     0 }, ;
-    { 'VID_HMP',     'C',    12,     0 }, ; // вид ВМП по справочнику V018
-    { 'METOD_HMP',   'N',     4,     0 }, ; // метод ВМП по справочнику V019 с 01.01.21 (был N(3))
-    { 'AD_CR',       'C',    10,     0 }, ;
-    { 'KSG',         'C',    10,     0 }, ;
-    { 'CENA_KSG',   'N',    10,     2 }, ;
-    { 'SUMV',   'N',    10,     2 };
+    { 'REC_HUMAN',  'N',   8, 0 }, ;
+    { 'YOUR_RECNO', 'N',  10, 0 }, ;
+    { 'KOD',        'N',   7, 0 }, ;
+    { 'FIO',        'C',  50, 0 }, ;
+    { 'FAM',        'C',  40, 0 }, ;
+    { 'IM',         'C',  40, 0 }, ;
+    { 'OT',         'C',  40, 0 }, ;
+    { 'W',          'N',   1, 0 }, ;
+    { 'DR',         'D',   8, 0 }, ;
+    { 'VPOLIS',     'N',   1, 0 }, ;
+    { 'SPOLIS',     'C',  10, 0 }, ;
+    { 'NPOLIS',     'C',  20, 0 }, ;
+    { 'SMO',        'C',   5, 0 }, ;
+    { 'SMO_OK',     'C',   5, 0 }, ;
+    { 'SMO_NAM',    'C', 100, 0 }, ; // наименование иногородней СМО
+    { 'DOCTYPE',    'N',   2, 0 }, ;
+    { 'DOCSER',     'C',  10, 0 }, ;
+    { 'DOCNUM',     'C',  20, 0 }, ;
+    { 'MR',         'C', 100, 0 }, ;
+    { 'OKATOG',     'C',  11, 0 }, ;
+    { 'OKATOP',     'C',  11, 0 }, ;
+    { 'ADRES',      'C',  50, 0 }, ;
+    { 'ADRESP',     'C',  50, 0 }, ;
+    { 'SNILS',      'C',  11, 0 }, ;
+    { 'OTD',        'N',   3, 0 }, ;
+    { 'PROFIL',     'N',   3, 0 }, ;
+    { 'NHISTORY',   'C',  10, 0 }, ;
+    { 'DATE_1',     'D',   8, 0 }, ;
+    { 'DATE_2',     'D',   8, 0 }, ;
+    { 'DS0',        'C',   6, 0 }, ;
+    { 'DS1',        'C',   5, 0 }, ;
+    { 'DS2',        'C',   5, 0 }, ;
+    { 'DS2_2',      'C',   5, 0 }, ;
+    { 'DS2_3',      'C',   5, 0 }, ;
+    { 'DS2_4',      'C',   5, 0 }, ;
+    { 'DS2_5',      'C',   5, 0 }, ;
+    { 'DS2_6',      'C',   5, 0 }, ;
+    { 'DS2_7',      'C',   5, 0 }, ;
+    { 'DS3',        'C',   5, 0 }, ;
+    { 'DS3_2',      'C',   5, 0 }, ;
+    { 'DS3_3',      'C',   5, 0 }, ;
+    { 'NOVOR',      'N',   1, 0 }, ;
+    { 'REB_NUMBER', 'N',   2, 0 }, ;
+    { 'REB_DR',     'D',   8, 0 }, ;
+    { 'REB_POL',    'N',   1, 0 }, ;
+    { 'USL_OK',     'N',   2, 0 }, ;
+    { 'VIDPOM',     'N',   4, 0 }, ;
+    { 'IDSP',       'N',   2, 0 }, ;
+    { 'NPR_MO',     'C',   6, 0 }, ;
+    { 'EXTR',       'N',   1, 0 }, ;
+    { 'F_SP',       'N',   1, 0 }, ;
+    { 'RSLT',       'N',   3, 0 }, ;
+    { 'ISHOD',      'N',   3, 0 }, ;
+    { 'VRACH',      'N',   5, 0 }, ;
+    { 'PRVS',       'N',   9, 0 }, ;
+    { 'VRACH_FIO',  'C',  50, 0 }, ;
+    { 'VID_HMP',    'C',  12, 0 }, ; // вид ВМП по справочнику V018
+    { 'METOD_HMP',  'N',   4, 0 }, ; // метод ВМП по справочнику V019 с 01.01.21 (был N(3))
+    { 'AD_CR',      'C',  10, 0 }, ;
+    { 'KSG',        'C',  10, 0 }, ;
+    { 'CENA_KSG',   'N',  10, 2 }, ;
+    { 'SUMV',       'N',  10, 2 };
     }
   Local _sluch_u := { ;
-    { 'REC_HUMANU',  'N',     8,     0 }, ;
-    { 'YOUR_RECNO',  'N',    10,     0 }, ;
-    { 'KOD',   'N',     7,     0 }, ;
-    { 'OTD',   'N',     3,     0 }, ;
-    { 'PROFIL',      'N',     3,     0 }, ;
-    { 'DS',          'C',     6,     0 }, ;
-    { 'CODE_USL', 'C',    20,     0 }, ;
-    { 'DATE_IN',  'D',     8,     0 }, ;
-    { 'KOL_USL',   'N',     3,     0 }, ;
-    { 'TARIF',    'N',    10,     2 }, ;
-    { 'SUMV_USL',   'N',    10,     2 }, ;
-    { 'VRACH',       'N',     5,     0 }, ;
-    { 'PRVS',        'N',     9,     0 }, ;
-    { 'VRACH_FIO',   'C',    50,     0 };
+    { 'REC_HUMANU', 'N',  8, 0 }, ;
+    { 'YOUR_RECNO', 'N', 10, 0 }, ;
+    { 'KOD',        'N',  7, 0 }, ;
+    { 'OTD',        'N',  3, 0 }, ;
+    { 'PROFIL',     'N',  3, 0 }, ;
+    { 'DS',         'C',  6, 0 }, ;
+    { 'CODE_USL',   'C', 20, 0 }, ;
+    { 'DATE_IN',    'D',  8, 0 }, ;
+    { 'KOL_USL',    'N',  3, 0 }, ;
+    { 'TARIF',      'N', 10, 2 }, ;
+    { 'SUMV_USL',   'N', 10, 2 }, ;
+    { 'VRACH',      'N',  5, 0 }, ;
+    { 'PRVS',       'N',  9, 0 }, ;
+    { 'VRACH_FIO',  'C', 50, 0 };
     }
   Local i, j, k, arr_ksg, cType, cName, a_struct, fl := .t., buf := save_maxrow()
   Local arrV018
@@ -1497,7 +1497,6 @@ Function f1_import_sluch_oms()
     date_8( sys_date ) + ' ' + hour_min( Seconds() ) + ;
     hb_eol() + hb_eol(), cFileProtokol )
   For i := 1 To Len( arr_f )
-    // use (hb_OemToAnsi(name_path)+arr_f[i]) new alias TMP
     Use ( name_path + arr_f[ i ] ) New Alias TMP
     For j := 1 To Len( a_struct[ i ] )
       cName := a_struct[ i, j, 1 ]
@@ -1517,7 +1516,8 @@ Function f1_import_sluch_oms()
     Use
   Next
   If fl
-    glob_podr := '' ; glob_otd_dep := 0 // пока без кодов подразделений
+    glob_podr := ''
+    glob_otd_dep := 0 // пока без кодов подразделений
     dbCreate( cur_dir() + 'tmp_ksg', { ;
       { 'REC',   'N',     7,     0 }, ;
       { 'CODE_USL', 'C',    10,     0 }, ;
@@ -1719,13 +1719,6 @@ Function f1_import_sluch_oms()
         StrFile( '_SLUCH: запись № ' + lstr( ihuman->( RecNo() ) ) + ;
           ', неверное значение поля USL_OK = ' + lstr( ihuman->USL_OK ) + hb_eol(), cFileProtokol, .t. )
       Endif
-    /*
-    if !empty(ihuman->IDSP) .and. ascan(getV010(),{|x| x[2]==ihuman->IDSP})==0
-      fl := .f.
-      strfile('_SLUCH: запись № '+lstr(ihuman->(recno()))+;
-              ', неверное значение поля IDSP = '+lstr(ihuman->IDSP)+hb_eol(),cFileProtokol,.t.)
-    endif
-    */
       If !Empty( ihuman->RSLT ) .and. AScan( getv009(), {| x| x[ 2 ] == ihuman->RSLT } ) == 0
         fl := .f.
         StrFile( '_SLUCH: запись № ' + lstr( ihuman->( RecNo() ) ) + ;
@@ -2592,6 +2585,7 @@ Function import_verify_okato( s )
 
   Return fl
 
+/*
 // Импорт данных из программы 'Флюоротека' фирмы 'ЧИП плюс'
 Function import_fluoroteka()
 
@@ -2668,7 +2662,8 @@ Function import_fluoroteka()
   Endif
 
   Return Nil
-
+*/
+/*
 // 21.04.26
 Function f_export( k )
 
@@ -2785,7 +2780,7 @@ Function f_export( k )
   Endif
 
   Return Nil
-
+*/
 /*
 // 08.05.17 Создание файла для ЛИС из БД КДП2 (пациенты с кодом ЛИС и, возможно, изменёнными реквизитами)
 Function export_to_lis()
@@ -2814,6 +2809,7 @@ Function create_file_export_military()
 
   Return Nil
 
+/*
 // 20.11.16
 Function export_military()
 
@@ -3210,7 +3206,8 @@ Function f1create_military( nKey, oBrow, regim )
   Endif
 
   Return k
-
+*/
+/*
 // 14.07.19 создать файл счетов в Облздрав
 Function create_schets_oblsdrav()
 
@@ -3450,6 +3447,7 @@ Function pripisnoe_naselenie_create_oblsdrav()
   Endif
 
   Return Nil
+*/
 
 // 10.09.25 Общие настройки каждой задачи
 Function nastr_all( k, nTask )
@@ -4585,7 +4583,7 @@ function mm_oms_pole()
     'профиль МЗ РФ' ;     // 9
   }
 
-// 11.05.26 настройка рабочего места
+// 21.10.26 настройка рабочего места
 Function nastr_rab_mesto()
 
   Static group_ini := 'RAB_MESTO'
@@ -4603,19 +4601,6 @@ Function nastr_rab_mesto()
     { 'нет', Space( 50 ) }, ;
     { 'подключить', '1' } ;
   }
-/*
-  Private mm_oms_pole := { ;
-    'сроки лечения', ;    // 1
-    'леч.врач', ;         // 2
-    'осн.диагноз', ;      // 3
-    'профиль', ;          // 4
-    'результат', ;        // 5
-    'исход', ;            // 6
-    'место обращения', ;   // 7
-    'способ оплаты' ;    // 8
-  }
-//    'повод обращения', ;  // 7
-*/
   ar := getinisect( tmp_ini(), group_ini )
   sr := a2default( ar, 'sc_reader' )
   If !Empty( sr )
@@ -4675,7 +4660,7 @@ Function nastr_rab_mesto()
     {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
     1, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
     'При редактировании РАК отображать пациентов только со снятиями' } )
-  If .F. //is_obmen_sds()
+  If .F.
     AAdd( mm_tmp, { 'e_2', 'C', 1, 0, NIL,, '',, ;
       'Каталоги для обмена информацией с программой Smart Delta Systems:',, ;
       {|| .f. } } )
@@ -4703,7 +4688,7 @@ Function nastr_rab_mesto()
   tmp->_okato := a2default( ar, 'okato_umolch', '' )
   tmp->wokato := iif( Empty( tmp->_okato ), 0, 1 )
   tmp->rak_min := Int( Val( a2default( ar, 'rak_min', '0' ) ) )
-  If .F. //is_obmen_sds()
+  If .F.
     tmp->path1_sds := a2default( ar, 'path1_sds', '' )
     tmp->path2_sds := a2default( ar, 'path2_sds', '' )
   Endif
@@ -4720,7 +4705,7 @@ Function nastr_rab_mesto()
       { group_ini, 'open_Excel', tmp->open_Excel }, ;
       { group_ini, 'rak_min',  tmp->rak_min } ;
     }
-    If .F. //is_obmen_sds()
+    If .F.
       AAdd( mm_tmp, { group_ini, 'path1_sds', AllTrim( tmp->path1_sds ) } )
       AAdd( mm_tmp, { group_ini, 'path2_sds', AllTrim( tmp->path2_sds ) } )
     Endif

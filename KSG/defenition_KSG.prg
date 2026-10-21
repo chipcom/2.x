@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 16.10.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
+// 21.10.26 определение КСГ по остальным введённым полям ввода - 2026-26 год
 Function defenition_ksg( par, k_data2, lDoubleSluch )
 
   // файлы 'human', 'human_' и 'human_2' открыты и стоят на нужной записи
@@ -801,7 +801,8 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
         input_ad_cr := .t.   // add 01.11.25
 
         human_2->( RLock() )
-        human_2->PC3 := iif( input_ad_cr, m1ad_cr, '' ) 
+//        human_2->PC3 := iif( input_ad_cr, m1ad_cr, '' ) 
+        human_2->PC3 := ar_ksg[ i, 10 ]
         human_2->( dbUnlock() )
 
       endif                     // add 01.11.25
