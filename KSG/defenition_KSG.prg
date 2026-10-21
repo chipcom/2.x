@@ -432,7 +432,8 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
     if ! Empty( lad_cr )  // присутствует дополнительный критерий
       k006->( dbSeek( typeKSG ) )   //  выберем с пустым диагнозом
       Do While Left( k006->shifr, 2 ) == typeKSG .and. Empty( k006->ds ) .and. ! k006->( Eof() )
-        if Empty( AllTrim( k006->sy ) )
+//        if Empty( AllTrim( k006->sy ) )
+        if ( k006->ds == PadR( osn_diag, 6 ) ) .and. Empty( AllTrim( k006->sy ) )
           lkoef := k006->kz
           dbSelectArea( lal )
           find ( PadR( k006->shifr, 10 ) )
