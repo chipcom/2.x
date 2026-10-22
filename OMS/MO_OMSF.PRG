@@ -1218,7 +1218,7 @@ Function amb_kartan( fl_0 )
   Endif
   Return lnomer
 
-// 12.09.25 выбрать карточку пациента из картотеки
+// 21.10.26 выбрать карточку пациента из картотеки
 Function polikl_kart( k )
 
   // k = 1 - начало лечения -> ввод карточки
@@ -1236,13 +1236,15 @@ Function polikl_kart( k )
 
   Private tmp, name_reader := ''
   // обмен информацией с программой Smart Delta Systems
-  import_kart_from_sds()
+//  import_kart_from_sds()
   // ///////////////////////////////////////////////////
-  ar := getinivar( tmp_ini(), { { 'polikl1','s_regim', '1' }, ;
+  ar := getinivar( tmp_ini(), { ;
+    { 'polikl1','s_regim', '1' }, ;
     { 'polikl1','s_shablon', '' }, ;
     { 'polikl1','s_polis', '' }, ;
     { 'polikl1','s_snils', '' }, ;
-    { 'RAB_MESTO', 'sc_reader', '' } } )
+    { 'RAB_MESTO', 'sc_reader', '' } } ;
+  )
   If !eq_any( s_regim := Int( Val( ar[ 1 ] ) ), 1, 2, 3 )
     s_regim := 1
   Endif

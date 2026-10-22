@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 11.09.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
+// 21.10.26 определение КСГ по остальным введённым полям ввода - 2026-26 год
 Function defenition_ksg( par, k_data2, lDoubleSluch )
 
   // файлы 'human', 'human_' и 'human_2' открыты и стоят на нужной записи
@@ -87,7 +87,16 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
     If !Empty( human_2->OSL3 )
       AAdd( osl_diag, human_2->OSL3 )
     Endif
-    // проверка сепсиса
+
+    // проверка на старческую астению
+    if ( i := AScan( mdiagnoz, 'R54' ) ) > 0 .and. lprofil_k != 16 // геронтологический профиль койки
+      hb_ADel( mdiagnoz, i, .t. )
+      if ( i := AScan( sop_diag, 'R54' ) ) > 0
+        hb_ADel( sop_diag, i, .t. )
+      endif
+    endif
+
+    // проверка сепсиса 
     if ! ( lSepsis := sepsis_exists_in_array( mdiagnoz, lk_data, @diag_sepsis ) )
       lSepsis := sepsis_exists_in_array( osl_diag, lk_data, @diag_sepsis )
     endif
@@ -423,7 +432,8 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
     if ! Empty( lad_cr )  // присутствует дополнительный критерий
       k006->( dbSeek( typeKSG ) )   //  выберем с пустым диагнозом
       Do While Left( k006->shifr, 2 ) == typeKSG .and. Empty( k006->ds ) .and. ! k006->( Eof() )
-        if Empty( AllTrim( k006->sy ) )
+//        if Empty( AllTrim( k006->sy ) )
+        if ( k006->ds == PadR( osn_diag, 6 ) ) .and. Empty( AllTrim( k006->sy ) )
           lkoef := k006->kz
           dbSelectArea( lal )
           find ( PadR( k006->shifr, 10 ) )
@@ -792,7 +802,8 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
         input_ad_cr := .t.   // add 01.11.25
 
         human_2->( RLock() )
-        human_2->PC3 := iif( input_ad_cr, m1ad_cr, '' ) 
+//        human_2->PC3 := iif( input_ad_cr, m1ad_cr, '' ) 
+        human_2->PC3 := ar_ksg[ i, 10 ]
         human_2->( dbUnlock() )
 
       endif                     // add 01.11.25

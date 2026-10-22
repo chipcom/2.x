@@ -1416,7 +1416,7 @@ Function pp_valid_gospit( get, old )
   Endif
   Return .t.
 
-// 12.09.25 выбрать карточку пациента из картотеки
+// 21.10.26 выбрать карточку пациента из картотеки
 Function ppokoj_kart( k )
 
   // k = 1 - начало лечения -> ввод карточки
@@ -1432,7 +1432,7 @@ Function ppokoj_kart( k )
   Local tmp1, mkod := -1, i, fl_number := .t., s, append_or_edit := 0, ;
     k1 := 0, k2 := 1, str_sem, mbukva := '', tmp_color, buf, buf24, ar
   // обмен информацией с программой Smart Delta Systems
-  import_kart_from_sds()
+//  import_kart_from_sds()
   // ///////////////////////////////////////////////////
   Private tmp, name_reader := ''
   ar := getinivar( tmp_ini(), { ;

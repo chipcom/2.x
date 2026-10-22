@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 12.09.25 возврат кода по картотеке 
+// 21.10.26 возврат кода по картотеке 
 Function polikl1_kart()
   
   Static sesc := '^<Esc>^ выход  '
@@ -20,14 +20,16 @@ Function polikl1_kart()
   
   chm_help_code := 1//HK_shablon_fio
   // обмен информацией с программой Smart Delta Systems
-  import_kart_from_sds()
+//  import_kart_from_sds()
   /////////////////////////////////////////////////////
   Private tmp, name_reader := ''
-  ar := GetIniVar(tmp_ini(), {{'polikl1'  , 's_regim'  , '1'}, ;
-                           {'polikl1'  , 's_shablon', '' }, ;
-                           {'polikl1'  , 's_polis'  , '' }, ;
-                           {'polikl1'  , 's_snils'  , '' }, ;
-                           {'RAB_MESTO', 'sc_reader', '' }})
+  ar := GetIniVar(tmp_ini(), { ;
+    { 'polikl1'  , 's_regim'  , '1' }, ;
+    { 'polikl1'  , 's_shablon', '' }, ;
+    { 'polikl1'  , 's_polis'  , '' }, ;
+    { 'polikl1'  , 's_snils'  , '' }, ;
+    { 'RAB_MESTO', 'sc_reader', '' } } ;
+  )
   if !eq_any(s_regim := int(val(ar[1])), 1, 2, 3)
     s_regim := 1
   endif
