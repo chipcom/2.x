@@ -275,8 +275,8 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
         rees->RES_TFOMS := 3  // 3-ошибка в записях реестра
         rees->( dbUnlock() )
         //
-        if TIP_ERROR == 0 // нет КРИТИЧЕСКИХ ошибок в реестре
-          reestr26_POVTOR(arr_XML_info[ 7 ])  
+        if mem_rees_povtor == 1 .and. TIP_ERROR == 0 // нет КРИТИЧЕСКИХ ошибок в реестре
+          reestr26_POVTOR( arr_XML_info[ 7 ] )
         endif  
         //
       elseif is_err_FLK_26 == 2  // ошибки есть на весь файл

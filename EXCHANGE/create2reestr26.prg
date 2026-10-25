@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 04.10.26 создание XML-файлов реестра
+// 25.10.26 создание XML-файлов реестра
 Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort , povtor)
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, code_reestr, mb, me, nsh
@@ -124,6 +124,7 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort , pov
   if povtor == 1 // повторное выставление
     aBukva := { 'A' }
   endif
+
   // 
   for countBukva := 1 to len( aBukva )
     if povtor == 0 // первичное выставление
@@ -313,8 +314,11 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort , pov
     mo_add_xml_stroke( oXmlNode, 'CODE_MO', glob_mo()[ _MO_KOD_FFOMS ] )    //  CODE_MO )
     mo_add_xml_stroke( oXmlNode, 'YEAR', lstr( _NYEAR ) )
     mo_add_xml_stroke( oXmlNode, 'MONTH', lstr( _NMONTH ) )
-//    mo_add_xml_stroke( oXmlNode, 'NSCHET', lstr( rees->NSCHET ) )
-    mo_add_xml_stroke( oXmlNode, 'NSCHET', cNschet )
+    if povtor == 1 // повторное выставление
+      mo_add_xml_stroke( oXmlNode, 'NSCHET', alltrim( rees->NOMER_S ) )
+    else
+      mo_add_xml_stroke( oXmlNode, 'NSCHET', cNschet )
+    endif  
     mo_add_xml_stroke( oXmlNode, 'DSCHET', date2xml( rees->DSCHET ) )
     mo_add_xml_stroke( oXmlNode, 'PLAT', iif( kod_smo == '34   ', '34000', kod_smo ) )
     mo_add_xml_stroke( oXmlNode, 'SUMMAV', Str( psumma, 15, 2 ) )
@@ -346,12 +350,9 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort , pov
     oPb:Symbol := Chr( 219 )
     oPb:Display()
 
- MYDEBUG(,mkod_reestr) 
-
     j := 0
     Do While ! rhum->( Eof() )
       oPb:Update( j )
-       MYDEBUG(,RHUM->kod_hum) 
       // записываем элемент для случая
       elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear,  )
 
@@ -376,7 +377,6 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort , pov
     Endif
   next
   func_error( 5, 'Реестры счетов созданы!' )
-
   close_file_reestr26()
 
   Return Nil
