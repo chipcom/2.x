@@ -197,49 +197,64 @@ Function disp_nabludenie( k )
     Private mdate_r, M1VZROS_REB
 
     //
-    mas_pmt := { '~Работа с файлами обмена D01', ;
+    mas_pmt := { ;
+      '~Работа с файлами обмена D01', ;
       '~Информация по дисп.наблюдению' }
-    mas_msg := { 'Создание файла обмена D01... с ещё не отправленными пациентами (диагнозами)', ;
+    mas_msg := { ;
+      'Создание файла обмена D01... с ещё не отправленными пациентами (диагнозами)', ;
       'Просмотр информации по результатам диспансерного наблюдения' }
-    mas_fun := { 'disp_nabludenie(11)', ;
+    mas_fun := { ;
+      'disp_nabludenie(11)', ;
       'disp_nabludenie(12)' }
     popup_prompt( T_ROW, T_COL - 5, si1, mas_pmt, mas_msg, mas_fun )
   Case k == 11
-    mas_pmt := { 'Первичный ~ввод', ;
+    mas_pmt := { ;
+      'Первичный ~ввод', ;
       '~Информация', ;
       '~Обмен с ТФОМС' }
-    mas_msg := { 'Первичный ввод сведений о состоящих на диспансерном учёте в Вашей МО', ;
+    mas_msg := { ;
+      'Первичный ввод сведений о состоящих на диспансерном учёте в Вашей МО', ;
       'Информация по первичному вводу сведений о состоящих на диспансерном учёте', ;
       'Обмен с ТФОМС информацией по диспансерному наблюдению' }
-    mas_fun := { 'disp_nabludenie(21)', ;
+    mas_fun := { ;
+      'disp_nabludenie(21)', ;
       'disp_nabludenie(22)', ;
       'disp_nabludenie(23)' }
     popup_prompt( T_ROW, T_COL - 5, si2, mas_pmt, mas_msg, mas_fun )
   Case k == 21
-    mas_pmt := { 'Ввод с поиском по лечащему ~врачу', ;
+    mas_pmt := { ;
+      'Ввод с поиском по лечащему ~врачу', ;
       'Ввод с поиском по ~пациенту', ;
-      'Подгрузка пациент~ов 2025'  }
-    mas_msg := { 'Первичный ввод сведений о состоящих на дисп.учёте с поиском по лечащему врачу', ;
+      'Подгрузка пациент~ов 2026'  }
+    mas_msg := { ;
+      'Первичный ввод сведений о состоящих на дисп.учёте с поиском по лечащему врачу', ;
       'Первичный ввод сведений о состоящих на дисп.учёте с поиском по пациенту', ;
-      'Подгрузка новых пациентов вставших на ДН в 2025 году '  }
-    mas_fun := { 'disp_nabludenie(51)', ;
+      'Подгрузка новых пациентов вставших на ДН в 2026 году '  }
+    mas_fun := { ;
+      'disp_nabludenie(51)', ;
       'disp_nabludenie(52)', ;
       'disp_nabludenie(53)'   }
     popup_prompt( T_ROW, T_COL - 5, si5, mas_pmt, mas_msg, mas_fun )
   Case k == 22
-    mas_pmt := { 'Информация по ~первичному вводу', ;
+    mas_pmt := { ;
+      'Информация по ~первичному вводу', ;
       'Список обязательных ~диагнозов' }
-    mas_msg := { 'Информация по первичному вводу сведений о состоящих на диспансерном учёте', ;
+    mas_msg := { ;
+      'Информация по первичному вводу сведений о состоящих на диспансерном учёте', ;
       'Список диагнозов, обязательных для диспансерного наблюдения' }
-    mas_fun := { 'disp_nabludenie(41)', ;
+    mas_fun := { ;
+      'disp_nabludenie(41)', ;
       'disp_nabludenie(42)' }
     popup_prompt( T_ROW, T_COL - 5, si4, mas_pmt, mas_msg, mas_fun )
   Case k == 23
-    mas_pmt := { '~Создание файла обмена D01', ;
+    mas_pmt := { ;
+      '~Создание файла обмена D01', ;
       '~Просмотр файлов обмена D01' }
-    mas_msg := { 'Создание файла обмена D01... с ещё не отправленными пациентами (диагнозами)', ;
+    mas_msg := { ;
+      'Создание файла обмена D01... с ещё не отправленными пациентами (диагнозами)', ;
       'Просмотр файлов обмена D01... и результатов работы с ними' }
-    mas_fun := { 'disp_nabludenie(31)', ;
+    mas_fun := { ;
+      'disp_nabludenie(31)', ;
       'disp_nabludenie(32)' }
     popup_prompt( T_ROW, T_COL - 5, si3, mas_pmt, mas_msg, mas_fun )
   Case k == 41
@@ -258,18 +273,21 @@ Function disp_nabludenie( k )
   Case k == 53
     vvodn_disp_nabl()
   Case k == 12
-    mas_pmt := { '~Отсутствуют л/у с диспансерным наблюдением', ;
-      '~Существуют л/у с диспансерным наблюдением', ;
-      '~Ежемесячный прирост ДН за 2025год' }
-    mas_msg := { 'Список пациентов, у которых осутствуют л/у с диспансерным наблюдением', ;
-      'Список пациентов, у которых существуют л/у с диспансерным наблюдением', ;
-      'Пациенты, вставшие на ДН в 2025году'  }
-    mas_fun := { 'disp_nabludenie(61)', ;
+    mas_pmt := { ;
+      '~Отсутствуют л/у с диспансерным наблюдением', ;
+      '~Существуют л/у с диспансерным наблюдением'}
+      //'~Ежемесячный прирост ДН за 2025год' }
+    mas_msg := { ;
+      'Список пациентов, у которых осутствуют л/у с диспансерным наблюдением', ;
+      'Список пациентов, у которых существуют л/у с диспансерным наблюдением'}
+      //'Пациенты, вставшие на ДН в 2025году'  }
+    mas_fun := { ;
+      'disp_nabludenie(61)', ;
       'disp_nabludenie(62)', ;
       'disp_nabludenie(63)'  }
     popup_prompt( T_ROW, T_COL - 5, si6, mas_pmt, mas_msg, mas_fun )
   Case k == 61
-    f_inf_disp_nabl( 1 )
+    f_inf_disp_nabl( 1 ) 
   Case k == 62
     f_inf_disp_nabl( 2 )
   Case k == 63
@@ -481,17 +499,17 @@ Function f_inf_dop_disp_nabl()
 
   Return Nil
 
-// 05.10.25
+// 24.10.26
 Function  vvodn_disp_nabl()
 
   Local new_hum := 0, new_diag := 0
   Static S_sem := 'disp_nabludenie'
 
-  If f_esc_enter( 'Загрузка новых ДН за 2025г', .t. )
+  If f_esc_enter( 'Загрузка новых ДН за 2026г', .t. )
     s := 'Подтвердите загрузку новых ДН из листов учета за текущий год'
     stat_msg( s )
     mybell( 2 )
-    If f_esc_enter( 'Загрузить новые ДН за 2025г', .t. )
+    If f_esc_enter( 'Загрузить новые ДН за 2026г', .t. )
       Close databases
       If !g_slock( S_sem )
         Return func_error( 4, 'Доступ в данный режим пока запрещён' )
@@ -511,7 +529,7 @@ Function  vvodn_disp_nabl()
       r_use( dir_server() + 'human_',, 'HUMAN_' )
       r_use( dir_server() + 'human',, 'HUMAN' )
       Set Relation To RecNo() into HUMAN_
-      Index On Str( FIELD->kod_k, 7 ) to ( cur_dir() + 'tmp_hfio' ) For human_->usl_ok == 3 .and. FIELD->k_data > 0d20250101 // ЮЮ
+      Index On Str( FIELD->kod_k, 7 ) to ( cur_dir() + 'tmp_hfio' ) For human_->usl_ok == 3 .and. FIELD->k_data > 0d20260101 // ЮЮ
       // ОТрабатываем 2025 ТЕКУЩИЙ
       Go Top
       Do While !Eof()
@@ -646,13 +664,13 @@ Function  vvodn_disp_nabl()
             dn->FREQUENCY := 1
           Endif
           k := Year( dn->NEXT_DATA )
-          If !Between( k, 2023, 2026 ) // ЮЮ если некорректная дата след.визита
+          If !Between( k, 2025, 2027 ) // ЮЮ если некорректная дата след.визита
             dn->NEXT_DATA := AddMonth( dn->LU_DATA, 12 )
           Endif
-          Do While dn->NEXT_DATA < 0d20260101 // ЮЮ
+          Do While dn->NEXT_DATA < 0d20270101 // ЮЮ
             dn->NEXT_DATA := AddMonth( dn->NEXT_DATA, dn->FREQUENCY )
           Enddo
-          If dn->NEXT_DATA < 0d20260101
+          If dn->NEXT_DATA < 0d20270101
             dn->FREQUENCY := 0
           Endif
         Endif
@@ -936,15 +954,15 @@ Function  check_tip_disp_nabl( diag )
 
   Return vozvr
 
-// 12.04.26 Список пациентов, по которым были л/у с диспансерным наблюдением
-Function f_inf_disp_nabl( par )  // временно возврат на 2025 год
+// 24.10.26 Список пациентов, по которым были л/у с диспансерным наблюдением
+Function f_inf_disp_nabl( par )  // на 2026 год
 
   // 1 -  '~Не было л/у с диспансерным наблюдением',;
   // 2 -  '~Были л/у с диспансерным наблюдением'
 
   Local arr, arr_full_name, sh := 120, HH := 60, buf := save_maxrow(), name_file := cur_dir() + 'disp_nabl.txt', ;
     ii1 := 0, ii2 := 0, ii3 := 0, s, name_dbf := '___DN' + sdbf(), arr_fl, fl_prikrep := Space( 6 ), kol_kartotek := 0, ;
-    t_kartotek := 0
+    t_kartotek := 0, s1, s0
   Local arr_tip_DN := { 'Прочие ДН - ', 'Онкологическое ДН - ', 'Сахарный диабет ДН - ', 'Сердечно-сосудистое ДН - ' }
   Local arr_tip_DN1 := { '2.78.109', '2.78.110', '2.78.111', '2.78.112' }
   Local arr_tip_KOD_USL := { 109, 110, 111, 112 }
@@ -967,10 +985,12 @@ Function f_inf_disp_nabl( par )  // временно возврат на 2025 год
 
 
   If par == 1
-    s := 'Список пациентов, состоящих на ДН, у которых отсутствуют л/у с диспансерным наблюдением'
+    s := 'Список пациентов, состоящих на ДН, у которых отсутствуют Комплексные л/у с диспансерным наблюдением'
   Elseif par == 2
-    s := 'Список пациентов, состоящих на ДН, у которых присутствуют л/у с диспансерным наблюдением'
+    s := 'Список пациентов, состоящих на ДН, у которых присутствуют Комплексные л/у с диспансерным наблюдением'
   Endif
+  s0 := ' (2.78.109, 2.78.110, 2.78.111, 2.78.112)'
+  s1 := s + s0
   //
   row := 0
   column := 0
@@ -1007,7 +1027,8 @@ Function f_inf_disp_nabl( par )  // временно возврат на 2025 год
   worksheet_set_column( worksheet, 6, 6, 14, nil )
   worksheet_set_column( worksheet, 7, 7, 20, nil )
   worksheet_merge_range( worksheet, row, column, row, 7, '', nil )
-  worksheet_write_string( worksheet, row++, column, hb_StrToUTF8( s ), fmt_cell_header )
+  worksheet_write_string( worksheet, row++, column, hb_StrToUTF8( s1 ), fmt_cell_header )
+  //worksheet_write_string( worksheet, row++, column, hb_StrToUTF8( s1 ), fmt_cell_header )
   worksheet_write_string( worksheet, row, 0, hb_StrToUTF8( '             ФИО                 ' ), fmt_header )
   worksheet_write_string( worksheet, row, 1, hb_StrToUTF8( 'Участок' ), fmt_header )
   worksheet_write_string( worksheet, row, 2, hb_StrToUTF8( 'Дата рождения' ), fmt_header )
@@ -1037,6 +1058,7 @@ Function f_inf_disp_nabl( par )  // временно возврат на 2025 год
 
   add_string( '' )
   add_string( Center( s, sh ) )
+  add_string( Center( s0, sh ) )
   add_string( '' )
   AEval( arr_title, {| x| add_string( x ) } )
   //
@@ -1355,7 +1377,7 @@ Function f_inf_disp_nabl( par )  // временно возврат на 2025 год
       AEval( arr_title, {| x| add_string( x ) } )
     Endif
     add_string( PadR( arr_tip_DN[ iii ], 33 ) )
-    add_string( 'по состоянию на конец 2025 года: ' + lstr( kol_itogo[ iii ] ) )
+    add_string( 'ЗАРЕГИСТРИРОВАНО В D01 ' + lstr( kol_itogo[ iii ] ) )
     add_string( 'из них умерло: ' + PadR( lstr( kol_umer[ iii ] ), 8 ) + 'поменяли МО прикрепления: ' + PadR( lstr( kol_smena[ iii ] ), 8 ) )
     If par == 1
       add_string( 'НЕ прошли ДН : ' + lstr( arr_kol_ND[ iii ] ) )

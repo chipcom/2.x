@@ -787,7 +787,7 @@ Function f2oms_edit()
 
   Return Nil
 
-// 20.05.22 Редактирование повторно выставленных случаев (после ввода актов снятия из СМО)
+// 24.10.26 Редактирование повторно выставленных случаев (после ввода актов снятия из СМО)
 Function f4oms_edit()
 
   Static si := 1
@@ -1830,14 +1830,14 @@ Function f1ret_oms_human( oBrow )
 
   Return Nil
 
-// 23.10.25 
+// 24.10.26 
 Function f2ret_oms_human( nkey )
 
   Static tmp := ' '
   Local buf := SaveScreen(), buf1, rec1 := RecNo(), fl := -1, ss := 0, ;
     j, n_file := cur_dir() + 'omserror.txt', sh := 80, HH := 60, ii
   Local mas_otchet := {}, tmp_2
-  Local tmpSelect, flag_RDL := .f.
+  Local tmpSelect, flag_RDL := .f., rd_flag := .F.
   Local kod_PZ := 0, D_flag := .T., DD_flag := .T., arr_sv := {}
 
   For ii := 1 To 48
@@ -2760,7 +2760,8 @@ Function f2ret_oms_human( nkey )
       viewtext( n_file, , , , ( sh > 80 ), , , 3 )
       Return -1
       // заплатка
-    Elseif eq_any( nkey, K_F10, K_CTRL_F10 ) .and. currentuser():isadmin() .and. f_esc_enter( 'смена услуги', .t. )
+      // убрал - уже не
+    /*Elseif eq_any( nkey, K_F10, K_CTRL_F10 ) .and. currentuser():isadmin() .and. f_esc_enter( 'смена услуги', .t. )
       tmp_1 := Select()
       g_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
       Select ( tmp_1 )
@@ -2789,9 +2790,44 @@ Function f2ret_oms_human( nkey )
       stat_msg( 'Услуга заменена у всех пациентов. Войдите в режим "Реестры/Проверка"' )
       mybell( 4, OK )
       RestScreen( buf )
-      Return 0
-
+      Return 0*/
     Endif
+  else
+    if eq_any( nkey, K_F10, K_CTRL_F10 ) .and. currentuser():isadmin() 
+      if glob_mo()[ _MO_KOD_TFOMS ] == '805965' .and. f_esc_enter( 'смены 4.17.705 услуги', .t. ) // РДЛ 
+        tmp_1 := Select()
+        g_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
+        rd_flag := .F.
+        Select ( tmp_1 )
+        Go Top
+        Do While !Eof() //цикл по HUMAN
+          human_->( g_rlock( 'forever' ) )
+          //
+          Select ( 'HU' )
+          find ( Str( human->kod, 7 ) )
+          do while hu->kod == human->kod .and. !eof()
+            if( hu->u_kod == 17) // 4.17.705
+              hu->( g_rlock( 'forever' ) )
+              hu->u_kod := 233  // 60.16.2
+              rd_flag := .T.
+            Endif
+            Skip
+          enddo  
+          //
+          if rd_flag
+          // human_->OPLATA    := 0 // уберём '2', если отредактировали запись из реестра СП и ТК
+          // human_->ST_VERIFY := 0 // снова ещё не проверен
+          endif   
+          Select ( tmp_1 )
+          Skip
+        Enddo          
+        Goto rec1
+        stat_msg( 'Смена услуги 4.17.705 завершина. Войдите в режим "Реестры/Проверка"' )
+        mybell( 4, OK )
+        RestScreen( buf )
+        Return 0
+      endif 
+    endif  
   Endif
   If nkey != K_F2
     Return -1

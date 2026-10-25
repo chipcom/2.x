@@ -5,7 +5,7 @@
 #include 'chip_mo.ch'
 #include 'chip_dispanser.ch'
 
-// 04.10.26 ДВН - добавление или редактирование случая (листа учета)
+// 22.10.26 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -40,6 +40,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   local mm_gruppa, isNewKart := .f.
   local mm_met_issl
   local ltShifr, lRep_etap := .f.
+  local mSOC := ''
 
   //
   Private tmp_V040 := create_classif_ffoms( 2, 'V040' ) // MOP
@@ -62,7 +63,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     M1FIO_KART := 1, MFIO_KART, ;
     MRAB_NERAB, M1RAB_NERAB := 0, ; // 0-работающий, 1 -неработающий
     M1VZ := 1, ;
-    mveteran, m1veteran := 0, ;
+    mveteran, m1veteran := 0, ; 
     mmobilbr, m1mobilbr := 0, ;
     MUCH_DOC    := Space( 10 ), ; // вид и номер учетного документа
     MKOD_DIAG   := Space( 5 ), ; // шифр 1-ой осн.болезни
@@ -216,7 +217,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
 //  aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr )
 //  aDvn_arr_umolch := dvn_arr_umolch( MK_DATA, m1mobilbr )
-  
+
   If kod_kartotek >= 0 // работаем из картотеки
     If kod_kartotek == 0 // добавление в картотеку
       If ( kod_kartotek := edit_kartotek( 0, , , .t. ) ) == 0
@@ -229,6 +230,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     mpol    := kart->pol
     gender  := kart->pol
     mdate_r := kart->date_r
+    mSOC := AllTrim( kart->PC3 )
     kart->( dbCloseArea() )
   Elseif Loc_kod > 0
     r_use( dir_server() + 'human', , 'HUMAN' )
@@ -681,6 +683,12 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       mcompany := PadR( mnameismo, 38 )
     Endif
   Endif
+
+  // выставим для участникам СВО статус ветеранов
+  if eq_any( mSOC, '035', '813' )
+    m1veteran := 1
+  endif
+
   mveteran := inieditspr( A__MENUVERT, mm_danet(), m1veteran )
   mmobilbr := inieditspr( A__MENUVERT, mm_danet(), m1mobilbr )
   mkurenie := inieditspr( A__MENUVERT, mm_danet(), m1kurenie )
