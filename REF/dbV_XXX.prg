@@ -1196,6 +1196,62 @@ Function getv024( dk )
   db := nil
   Return arr
 
+// 28.10.26 вернуть массив по справочнику ФФОМС V024.xml
+Function getv024_supt( dk, level )
+
+  // dk - дата на которую нужна информация
+  // level - уровень сопроводительной лекарственной терапии
+
+  // V024.xml - Классификатор классификационных критериев (DopKr)
+  // 1 - IDDKK(C) 2 - DKKNAME(C) 3 - DATEBEG(D) 4 - DATEEND(D)
+  Local arr
+  Local db
+  Local aTable
+  Local nI, fl, s
+  Local dBeg, dEnd
+
+  arr := {}
+  db := opensql_db()
+  aTable := sqlite3_get_table( db, "SELECT " + ;
+    "iddkk, " + ;
+    "dkkname, " + ;
+    "datebeg, " + ;
+    "dateend " + ;
+    "FROM v024 " + ;
+    "WHERE iddkk LIKE 'supt%' " ;
+   )
+
+  If Len( aTable ) > 1
+    For nI := 2 To Len( aTable )
+      Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
+      dBeg := CToD( aTable[ nI, 3 ] )
+      dEnd := CToD( aTable[ nI, 4 ] )
+      Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
+      fl := .f.
+      if ValType( dk ) == 'D'
+        if dBeg <= dk .and. ( dk <= dEnd .or. Empty( dEnd ) )
+          fl := .t.
+        endif
+      else
+        if Year( dBeg ) <= dk .and. ( dk <= Year( dEnd ) .or. Empty( dEnd ) )
+          fl := .t.
+        endif
+      endif
+      if fl
+        s := SubStr( aTable[ nI, 1 ], 5, 6 )
+        if level == 1 .and. eq_any( s, '01', '07' )
+          AAdd( arr, { aTable[ nI, 1 ], aTable[ nI, 1 ] + ' - ' + aTable[ nI, 2 ], 1 } )
+        elseif level == 2 .and. eq_any( s, '02', '04', '06', '08' )
+          AAdd( arr, { aTable[ nI, 1 ], aTable[ nI, 1 ] + ' - ' + aTable[ nI, 2 ], 2 } )
+        elseif level == 3 .and. eq_any( s, '03', '05', '09', '10', '11', '12' )
+          AAdd( arr, { aTable[ nI, 1 ], aTable[ nI, 1 ] + ' - ' + aTable[ nI, 2 ], 3 } )
+        endif
+      endif
+    Next
+  Endif
+  db := nil
+  Return arr
+
 // =========== V039 ===================
 //
 // 16.01.26 вернуть массив по справочнику ФФОМС V039.xml
