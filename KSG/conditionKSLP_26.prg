@@ -200,7 +200,7 @@ Function conditionkslp_14_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_
   fl := .t. // пока так
   Return fl
 
-// 28.10.26 проверка условия для применения КСЛП=15 для 2026 года
+// 29.10.26 проверка условия для применения КСЛП=15 для 2026 года
 Function conditionkslp_15_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr )
 
   // КСЛП=15 - проведение сопроводительной лекарственной терапии при злокачественных
@@ -219,13 +219,16 @@ Function conditionkslp_15_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_
 
   local fl, aSupt
 
-  aSupt := getv024_supt( n_date, 1 )
 //  return ksgInList( lshifr, 'st19.084-st19.089, st19.094-st19.102, st19.182-st19.202, ' ;
 //        + 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' )
   fl := ksgInList( lshifr, 'st19.084-st19.089, st19.094-st19.102, st19.182-st19.202' )
+  if fl
+    aSupt := getv024_supt( n_date, 1 )
+  endif
+
   return fl
 
-// 28.10.26 проверка условия для применения КСЛП=16 для 2026 года
+// 29.10.26 проверка условия для применения КСЛП=16 для 2026 года
 Function conditionkslp_16_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr )
 
   // КСЛП=16 - проведение сопроводительной лекарственной терапии при злокачественных
@@ -244,14 +247,16 @@ Function conditionkslp_16_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_
 
   local fl, aSupt
 
-  aSupt := getv024_supt( n_date, 2 )
-
 //  return ksgInList( lshifr, 'st19.084-st19.089, st19.094-st19.102, st19.182-st19.202, ' ;
 //        + 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' )
   fl := ksgInList( lshifr, 'st19.084-st19.089, st19.094-st19.102, st19.182-st19.202' ) 
+  if fl
+    aSupt := getv024_supt( n_date, 2 )
+  endif
+
   return fl
 
-// 28.10.26 проверка условия для применения КСЛП=17 для 2026 года
+// 29.10.26 проверка условия для применения КСЛП=17 для 2026 года
 Function conditionkslp_17_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr )
 
   // КСЛП=17 - проведение сопроводительной лекарственной терапии при злокачественных
@@ -270,14 +275,16 @@ Function conditionkslp_17_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_
 
   local fl, aSupt
 
-  aSupt := getv024_supt( n_date, 3 )
-
 //  return ksgInList( lshifr, 'st19.084-st19.089, st19.094-st19.102, st19.182-st19.202, ' ;
 //        + 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' )
   fl := ksgInList( lshifr, 'st19.084-st19.089, st19.094-st19.102, st19.182-st19.202' ) 
+  if fl
+    aSupt := getv024_supt( n_date, 3 )
+  endif
+
   return fl
 
-// 28.10.26 проверка условия для применения КСЛП=18 для 2026 года
+// 29.10.26 проверка условия для применения КСЛП=18 для 2026 года
 Function conditionkslp_18_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr )
 
   // КСЛП=18 - проведение сопроводительной лекарственной терапии при злокачественных
@@ -296,14 +303,16 @@ Function conditionkslp_18_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_
 
   local fl, aSupt
   
-  aSupt := getv024_supt( n_date, 1 )
-
 //  return ksgInList( lshifr, 'st19.084-st19.089, st19.094-st19.102, st19.182-st19.202, ' ;
 //        + 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' )
-  fl := ksgInList( lshifr, 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' ) 
+  fl := ksgInList( lshifr, 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' )
+  if fl
+    aSupt := getv024_supt( n_date, 1 )
+  endif
+
   return fl
 
-// 28.10.26 проверка условия для применения КСЛП=19 для 2026 года
+// 29.10.26 проверка условия для применения КСЛП=19 для 2026 года
 Function conditionkslp_19_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr )
 
   // КСЛП=19 - проведение сопроводительной лекарственной терапии при злокачественных
@@ -322,14 +331,16 @@ Function conditionkslp_19_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_
 
   local fl, aSupt
 
-  aSupt := getv024_supt( n_date, 2 )
-
 //  return ksgInList( lshifr, 'st19.084-st19.089, st19.094-st19.102, st19.182-st19.202, ' ;
 //        + 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' )
-  fl := ksgInList( lshifr, 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' ) 
+  fl := ksgInList( lshifr, 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' )
+  if fl
+    aSupt := getv024_supt( n_date, 2 )
+  endif
+
   return fl
 
-// 28.10.26 проверка условия для применения КСЛП=20 для 2026 года
+// 29.10.26 проверка условия для применения КСЛП=20 для 2026 года
 Function conditionkslp_20_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr )
 
   // КСЛП=20 - проведение сопроводительной лекарственной терапии при злокачественных
@@ -348,9 +359,11 @@ Function conditionkslp_20_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_
 
   local fl, aSupt
 
-  aSupt := getv024_supt( n_date, 3 )
-
 //  return ksgInList( lshifr, 'st19.084-st19.089, st19.094-st19.102, st19.182-st19.202, ' ;
 //        + 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' )
   fl := ksgInList( lshifr, 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' ) 
+  if fl
+    aSupt := getv024_supt( n_date, 3 )
+  endif
+
 return fl

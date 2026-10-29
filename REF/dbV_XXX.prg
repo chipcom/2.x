@@ -1196,7 +1196,7 @@ Function getv024( dk )
   db := nil
   Return arr
 
-// 28.10.26 вернуть массив по справочнику ФФОМС V024.xml
+// 29.10.26 вернуть массив по справочнику ФФОМС V024.xml
 Function getv024_supt( dk, level )
 
   // dk - дата на которую нужна информация
@@ -1233,7 +1233,7 @@ Function getv024_supt( dk, level )
           fl := .t.
         endif
       else
-        if Year( dBeg ) <= dk .and. ( dk <= Year( dEnd ) .or. Empty( dEnd ) )
+        if Year( dBeg ) <= Year( CToD( dk ) ) .and. ( Year( CToD( dk ) ) <= Year( dEnd ) .or. Empty( dEnd ) )
           fl := .t.
         endif
       endif
