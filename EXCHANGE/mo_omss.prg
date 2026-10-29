@@ -248,7 +248,9 @@ Function fill_tmp2_file_flk()
   Return Nil
 
 // 17.11.25 прочитать и 'разнести' по базам данных реестр СП и ТК
-Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
+//Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
+/*
+Function read_xml_file_sp( arr_XML_info, aerr, current_i2)
 
   Local count_in_schet := 0, mnschet, bSaveHandler, ii1, ii2, i, k, t_arr[ 2 ], ;
     ldate_sptk, s, fl_589, mANSREESTR
@@ -718,7 +720,8 @@ Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
   Endif
   Close databases
   Return count_in_schet
-
+*/
+/*
 // 23.04.13 вынуть ЛЮБОЙ реестр из XML-файлов и записать во временные DBF-файлы
 Function my_extract_reestr()
 
@@ -734,6 +737,7 @@ Function my_extract_reestr()
     Endif
   Endif
   Return Nil
+*/
 
 // 15.10.24 зачитать протокол ФЛК во временные файлы
 Function protokol_flk_tmpfile( arr_f, aerr )

@@ -443,11 +443,9 @@ Function oms_edit( k )
       'oms_edit(2)', ;
       'oms_edit(3)', ;
       'oms_edit(4)' }
-    // set key K_CTRL_F11 to my_extract_reestr()
     // set key K_CTRL_F12 to create_main_base_from_reestrs()
     popup_prompt( T_ROW, T_COL + 5, sk, mas_pmt, mas_msg, mas_fun )
     // set key K_CTRL_F12 to
-    // set key K_CTRL_F11 to
   Case k == 1
     f1oms_edit()
   Case k == 2
