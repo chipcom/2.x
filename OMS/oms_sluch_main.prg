@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 24.09.26 добавление или редактирование случая (листа учета)
+// 29.10.26 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -173,6 +173,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     m1_l_z := 0   // нет
   Endif
   Private mad_cr := Space( 60 ),  m1ad_cr := Space( 60 ),  pr_ds_it := 0, input_ad_cr := .f.
+  Private mad_cr_II := Space( 60 ),  m1ad_cr_II := Space( 15 )
 
   Private mm_ad_cr := {}
   // онкология
@@ -421,7 +422,8 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     Endif
     mcena_1 := human->CENA_1
     //
-    m1ad_cr := human_2->PC3
+    m1ad_cr := human_2->PC3 
+    m1ad_cr_II := human_2->ADD_CRIT
     m1P_PER := human_2->P_PER
     MOSL1 := human_2->OSL1
     MOSL2 := human_2->OSL2
@@ -2189,6 +2191,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       human_2->PN2 := iif( f_oms_beremenn( mkod_diag, MK_DATA ) > 0, m1prer_b, 0 )
 
       human_2->PC3 := iif( input_ad_cr, m1ad_cr, '' )
+      human_2->ADD_CRIT := iif( Empty( m1ad_cr_II ), '', m1ad_cr_II )
       If is_oncology == 0 // нет онкологии
         If old_oncology // но была в листе учёта
           g_use( dir_server() + 'mo_onkna', dir_server() + 'mo_onkna',  'NAPR' ) // онконаправления
