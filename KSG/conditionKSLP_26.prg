@@ -310,7 +310,7 @@ Function conditionkslp_18_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_
     aSupt := getv024_supt( n_date, 1 )
 //    m1ad_cr_II - приватная переменная
   endif
-altd()
+
   return fl
 
 // 29.10.26 проверка условия для применения КСЛП=19 для 2026 года
