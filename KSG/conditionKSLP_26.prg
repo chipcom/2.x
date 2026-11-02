@@ -1,4 +1,6 @@
 #include 'function.ch'
+//#include 'tbox.ch'
+#include 'inkey.ch'
 
 // функции проверки применимости КСЛП в 2026 году
 //
@@ -301,17 +303,75 @@ Function conditionkslp_18_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_
   // КСЛП ?Проведение сопроводительной лекарственной терапии при злокачественных
   // новообразованиях у взрослых  (уровень 1-3)?  не применяются.
 
-  local fl, aSupt
+  local fl, aSupt, oBox, i, ret, t_mas := {}, row, strStatus
+	local color_say := 'N/W', color_get := 'W/N*'
   
 //  return ksgInList( lshifr, 'st19.084-st19.089, st19.094-st19.102, st19.182-st19.202, ' ;
 //        + 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' )
   fl := ksgInList( lshifr, 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' )
   if fl
     aSupt := getv024_supt( n_date, 1 )
+    for each row in aSupt
+      AAdd( t_mas, { '   ' + row[ 2 ], .t. } )
+    next
+
+/*
+    oBox := NIL // уничтожим окно
+    oBox := TBox():New( 2, 10, 22, 70 )
+    oBox:Color := color_say + ',' + color_get
+    oBox:Frame := BORDER_SINGLE
+    oBox:MessageLine := '^<Esc>^ - выход;  ^<Enter>^ - выбор'
+    oBox:Save := .t.
+  
+    oBox:Caption := 'Выбор дополнительного критерия'
+    oBox:View()
+    inkey( 0 )
+//    if ( icrit := AChoice( oBox:Top + 1, oBox:Left + 1, oBox:Bottom - 1, oBox:Right - 1, aSupt ) ) > 0
+//      AAdd( ar_ksg, AClone( _a1[ icrit ] ) )
+//    endif
+    oBox := nil
+*/
+  // используем popupN из библиотеки FunLib
+  strStatus := '^<Esc>^ - отказ; ^<Enter>^ - подтверждение; ^<Ins>^ - отметить / снять отметку'
+  If ( ret := popupn( 4, 2, 20, 78, t_mas, i, color0, .t., 'fmenu_readerSingle', , ;
+      'Отметьте лекарственную терапию', col_tit_popup,, strStatus ) ) > 0
+//    For i := 1 To mlen
+//      If '*' == SubStr( t_mas[ i, 1 ], 2, 1 )
+//        m1var += AllTrim( Str( t_mas[ i, 3 ] ) ) + ','
+//        countKSLP += 1
+//      Endif
+//    Next
+//    If ( nLast := RAt( ',', m1var ) ) > 0
+//      m1var := SubStr( m1var, 1, nLast -1 )  // удалим последнюю не нужную ','
+//    Endif
+//    s := m1var
+  Endif
+    
 //    m1ad_cr_II - приватная переменная
   endif
 
   return fl
+
+// 02.11.26
+Function fmenu_readerSingle( nKey, i )
+
+  local j
+altd()
+  do case
+    case nKey == K_INS .or. nKey == K_SPACE
+      for j := 1 to len( parr )
+        if '*' == substr( parr[ j, 1 ], 2, 1 ) .and. i != j
+          hb_Alert( 'Сначала снимите отметку у другого доп. критерия!' )
+          return 0
+        endif
+        if parr[ j, 2 ]
+          parr[ j, 1 ] := stuff( parr[ j, 1 ], 2, 1, if( '*' == substr( parr[ j, 1 ], 2, 1 ), ' ', '*' ) )
+          keyboard chr( K_TAB )
+        endif
+      next
+  endcase
+  return 0
+  
 
 // 29.10.26 проверка условия для применения КСЛП=19 для 2026 года
 Function conditionkslp_19_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr )
