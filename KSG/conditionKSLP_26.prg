@@ -286,7 +286,7 @@ Function conditionkslp_17_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_
 
   return fl
 
-// 29.10.26 проверка условия для применения КСЛП=18 для 2026 года
+// 03.11.26 проверка условия для применения КСЛП=18 для 2026 года
 Function conditionkslp_18_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr )
 
   // КСЛП=18 - проведение сопроводительной лекарственной терапии при злокачественных
@@ -303,34 +303,28 @@ Function conditionkslp_18_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_
   // КСЛП ?Проведение сопроводительной лекарственной терапии при злокачественных
   // новообразованиях у взрослых  (уровень 1-3)?  не применяются.
 
-  local fl, aSupt, oBox, i, ret, t_mas := {}, row, strStatus
+  local fl, aSupt, i, ret, t_mas := {}, row, strStatus
 	local color_say := 'N/W', color_get := 'W/N*'
+  Local dop_crit
   
 //  return ksgInList( lshifr, 'st19.084-st19.089, st19.094-st19.102, st19.182-st19.202, ' ;
 //        + 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' )
   fl := ksgInList( lshifr, 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' )
   if fl
+    dop_crit := AllTrim( m1ad_cr_II ) // дополнительный критерий 2
+
+    dop_crit := 'supt01'
+
     aSupt := getv024_supt( n_date, 1 )
+altd()
     for each row in aSupt
-      AAdd( t_mas, { '   ' + row[ 2 ], .t. } )
+      if AllTrim( row[ 1 ] ) == dop_crit
+        AAdd( t_mas, { ' * ' + row[ 2 ], .t., row[ 1 ] } )
+      else
+        AAdd( t_mas, { '   ' + row[ 2 ], .t., row[ 1 ] } )
+      endif
     next
 
-/*
-    oBox := NIL // уничтожим окно
-    oBox := TBox():New( 2, 10, 22, 70 )
-    oBox:Color := color_say + ',' + color_get
-    oBox:Frame := BORDER_SINGLE
-    oBox:MessageLine := '^<Esc>^ - выход;  ^<Enter>^ - выбор'
-    oBox:Save := .t.
-  
-    oBox:Caption := 'Выбор дополнительного критерия'
-    oBox:View()
-    inkey( 0 )
-//    if ( icrit := AChoice( oBox:Top + 1, oBox:Left + 1, oBox:Bottom - 1, oBox:Right - 1, aSupt ) ) > 0
-//      AAdd( ar_ksg, AClone( _a1[ icrit ] ) )
-//    endif
-    oBox := nil
-*/
   // используем popupN из библиотеки FunLib
   strStatus := '^<Esc>^ - отказ; ^<Enter>^ - подтверждение; ^<Ins>^ - отметить / снять отметку'
   If ( ret := popupn( 4, 2, 20, 78, t_mas, i, color0, .t., 'fmenu_readerSingle', , ;
@@ -352,11 +346,11 @@ Function conditionkslp_18_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_
 
   return fl
 
-// 02.11.26
+// 03.11.26
 Function fmenu_readerSingle( nKey, i )
 
   local j
-altd()
+
   do case
     case nKey == K_INS .or. nKey == K_SPACE
       for j := 1 to len( parr )
