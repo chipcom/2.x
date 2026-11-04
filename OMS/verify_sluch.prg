@@ -25,7 +25,7 @@
 #define USL_SVIDPOM  14   // виды оказываемой медицинской помощи
 #define USL_ZAK_SL   15   // признак оплаты по законченному случаю
 
-// 08.10.26 
+// 03.11.26 
 Function verify_sluch( fl_view, ft )
 
   Local arrUslugi := {} // массив содержаший коды услуг в случае 
@@ -4806,7 +4806,7 @@ Function verify_sluch( fl_view, ft )
       Next
     Endif
   Endif
-
+/*
   //
   // ПРОВЕРКА РЕЗУЛЬТАТА ОБРАЩЕНИЯ "109-лечение продолжено", ОШИБКА 356
   // письмо Л.Н.Антоновой 26.11.24
@@ -4822,6 +4822,20 @@ Function verify_sluch( fl_view, ft )
     next
     if fl
       AAdd( ta, 'для выбранного КСГ не допустимо применение результата обращения "109-лечение продолжено"' )
+    endif
+  endif
+*/
+
+  if ( ( human_->USL_OK == USL_OK_HOSPITAL ) .and. ( human_->RSLT_NEW == 109 ) ) .or. ; // лечение продолжено инструкция КСГ от 01.10.26
+    ( ( human_->USL_OK == USL_OK_DAY_HOSPITAL ) .and. ( human_->RSLT_NEW == 209 ) )
+    fl := .f.
+    for counter := 1 to len( arrUslugi )
+      if ! eq_any( Substr( arrUslugi[ counter ], 1, 5 ), 'st19.', 'ds19.' )
+        fl := .t.
+      endif
+    next
+    if fl
+      AAdd( ta, 'для выбранного КСГ не допустимо применение результата обращения "109, 209-лечение продолжено"' )
     endif
   endif
 
