@@ -1,5 +1,4 @@
 #include 'function.ch'
-//#include 'tbox.ch'
 #include 'inkey.ch'
 
 // функции проверки применимости КСЛП в 2026 году
@@ -219,13 +218,13 @@ Function conditionkslp_15_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_
   // КСЛП ?Проведение сопроводительной лекарственной терапии при злокачественных
   // новообразованиях у взрослых  (уровень 1-3)?  не применяются.
 
-  local fl, aSupt
+  local fl
 
 //  return ksgInList( lshifr, 'st19.084-st19.089, st19.094-st19.102, st19.182-st19.202, ' ;
 //        + 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' )
   fl := ksgInList( lshifr, 'st19.084-st19.089, st19.094-st19.102, st19.182-st19.202' )
   if fl
-    aSupt := getv024_supt( n_date, 1 )
+    select_ad_cr_II( n_date, 1 )
   endif
 
   return fl
@@ -247,13 +246,13 @@ Function conditionkslp_16_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_
   // КСЛП ?Проведение сопроводительной лекарственной терапии при злокачественных
   // новообразованиях у взрослых  (уровень 1-3)?  не применяются.
 
-  local fl, aSupt
+  local fl
 
 //  return ksgInList( lshifr, 'st19.084-st19.089, st19.094-st19.102, st19.182-st19.202, ' ;
 //        + 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' )
   fl := ksgInList( lshifr, 'st19.084-st19.089, st19.094-st19.102, st19.182-st19.202' ) 
   if fl
-    aSupt := getv024_supt( n_date, 2 )
+    select_ad_cr_II( n_date, 2 )
   endif
 
   return fl
@@ -275,13 +274,13 @@ Function conditionkslp_17_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_
   // КСЛП ?Проведение сопроводительной лекарственной терапии при злокачественных
   // новообразованиях у взрослых  (уровень 1-3)?  не применяются.
 
-  local fl, aSupt
+  local fl
 
 //  return ksgInList( lshifr, 'st19.084-st19.089, st19.094-st19.102, st19.182-st19.202, ' ;
 //        + 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' )
   fl := ksgInList( lshifr, 'st19.084-st19.089, st19.094-st19.102, st19.182-st19.202' ) 
   if fl
-    aSupt := getv024_supt( n_date, 3 )
+    select_ad_cr_II( n_date, 3 )
   endif
 
   return fl
@@ -303,69 +302,17 @@ Function conditionkslp_18_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_
   // КСЛП ?Проведение сопроводительной лекарственной терапии при злокачественных
   // новообразованиях у взрослых  (уровень 1-3)?  не применяются.
 
-  local fl, aSupt, i, ret, t_mas := {}, row, strStatus
-	local color_say := 'N/W', color_get := 'W/N*'
-  Local dop_crit
+  local fl
   
 //  return ksgInList( lshifr, 'st19.084-st19.089, st19.094-st19.102, st19.182-st19.202, ' ;
 //        + 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' )
   fl := ksgInList( lshifr, 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' )
   if fl
-    dop_crit := AllTrim( m1ad_cr_II ) // дополнительный критерий 2
-
-    dop_crit := 'supt01'
-
-    aSupt := getv024_supt( n_date, 1 )
-altd()
-    for each row in aSupt
-      if AllTrim( row[ 1 ] ) == dop_crit
-        AAdd( t_mas, { ' * ' + row[ 2 ], .t., row[ 1 ] } )
-      else
-        AAdd( t_mas, { '   ' + row[ 2 ], .t., row[ 1 ] } )
-      endif
-    next
-
-  // используем popupN из библиотеки FunLib
-  strStatus := '^<Esc>^ - отказ; ^<Enter>^ - подтверждение; ^<Ins>^ - отметить / снять отметку'
-  If ( ret := popupn( 4, 2, 20, 78, t_mas, i, color0, .t., 'fmenu_readerSingle', , ;
-      'Отметьте лекарственную терапию', col_tit_popup,, strStatus ) ) > 0
-//    For i := 1 To mlen
-//      If '*' == SubStr( t_mas[ i, 1 ], 2, 1 )
-//        m1var += AllTrim( Str( t_mas[ i, 3 ] ) ) + ','
-//        countKSLP += 1
-//      Endif
-//    Next
-//    If ( nLast := RAt( ',', m1var ) ) > 0
-//      m1var := SubStr( m1var, 1, nLast -1 )  // удалим последнюю не нужную ','
-//    Endif
-//    s := m1var
+    select_ad_cr_II( n_date, 1 )
   Endif
-    
-//    m1ad_cr_II - приватная переменная
-  endif
 
   return fl
 
-// 03.11.26
-Function fmenu_readerSingle( nKey, i )
-
-  local j
-
-  do case
-    case nKey == K_INS .or. nKey == K_SPACE
-      for j := 1 to len( parr )
-        if '*' == substr( parr[ j, 1 ], 2, 1 ) .and. i != j
-          hb_Alert( 'Сначала снимите отметку у другого доп. критерия!' )
-          return 0
-        endif
-        if parr[ j, 2 ]
-          parr[ j, 1 ] := stuff( parr[ j, 1 ], 2, 1, if( '*' == substr( parr[ j, 1 ], 2, 1 ), ' ', '*' ) )
-          keyboard chr( K_TAB )
-        endif
-      next
-  endcase
-  return 0
-  
 
 // 29.10.26 проверка условия для применения КСЛП=19 для 2026 года
 Function conditionkslp_19_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr )
@@ -384,13 +331,13 @@ Function conditionkslp_19_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_
   // КСЛП ?Проведение сопроводительной лекарственной терапии при злокачественных
   // новообразованиях у взрослых  (уровень 1-3)?  не применяются.
 
-  local fl, aSupt
+  local fl
 
 //  return ksgInList( lshifr, 'st19.084-st19.089, st19.094-st19.102, st19.182-st19.202, ' ;
 //        + 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' )
   fl := ksgInList( lshifr, 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' )
   if fl
-    aSupt := getv024_supt( n_date, 2 )
+    select_ad_cr_II( n_date, 2 )
   endif
 
   return fl
@@ -412,13 +359,70 @@ Function conditionkslp_20_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_
   // КСЛП ?Проведение сопроводительной лекарственной терапии при злокачественных
   // новообразованиях у взрослых  (уровень 1-3)?  не применяются.
 
-  local fl, aSupt
+  local fl
 
 //  return ksgInList( lshifr, 'st19.084-st19.089, st19.094-st19.102, st19.182-st19.202, ' ;
 //        + 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' )
   fl := ksgInList( lshifr, 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' ) 
   if fl
-    aSupt := getv024_supt( n_date, 3 )
+    select_ad_cr_II( n_date, 3 )
   endif
 
 return fl
+
+// 06.11.26
+function select_ad_cr_II( n_date, level )
+
+  local aSupt, i, ret, t_mas := {}, row, strStatus
+	local color_say := 'N/W', color_get := 'W/N*'
+  Local dop_crit
+
+    dop_crit := AllTrim( m1ad_cr_II ) // дополнительный критерий 2
+    aSupt := getv024_supt( n_date, level )
+
+    for each row in aSupt
+      if AllTrim( row[ 1 ] ) == dop_crit
+        AAdd( t_mas, { ' * ' + row[ 2 ], .t., row[ 1 ] } )
+      else
+        AAdd( t_mas, { '   ' + row[ 2 ], .t., row[ 1 ] } )
+      endif
+    next
+
+    // используем popupN из библиотеки FunLib
+    strStatus := '^<Esc>^ - отказ; ^<Enter>^ - подтверждение; ^<Ins>^ - отметить / снять отметку'
+    If ( ret := popupn( 4, 2, 20, 78, t_mas, i, color0, .t., 'fmenu_readerSingle', , ;
+        'Отметьте лекарственную терапию', col_tit_popup,, strStatus ) ) > 0
+      For i := 1 To Len( t_mas )
+        If '*' == SubStr( t_mas[ i, 1 ], 2, 1 )
+          m1ad_cr_II := t_mas[ i, 3 ]   // код доп критерия
+        Endif
+      Next
+    Endif
+
+  return nil
+
+// 06.11.26
+Function fmenu_readerSingle( nKey, i )
+
+  local j
+
+  do case
+    case nKey == K_INS .or. nKey == K_SPACE
+      if '*' == substr( parr[ i, 1 ], 2, 1 )
+        parr[ i, 1 ] := stuff( parr[ i, 1 ], 2, 1, if( '*' == substr( parr[ i, 1 ], 2, 1 ), ' ', '*' ) )
+        keyboard chr( K_TAB )
+      else
+
+        for j := 1 to len( parr )
+          if '*' == substr( parr[ j, 1 ], 2, 1 ) .and. i != j
+            parr[ j, 1 ] := stuff( parr[ j, 1 ], 2, 1, ' ' )
+          endif
+          if parr[ j, 2 ] .and. i == j
+            parr[ j, 1 ] := stuff( parr[ j, 1 ], 2, 1, '*' )
+            keyboard chr( K_TAB )
+          endif
+        next
+
+      endif
+  endcase
+  return 0

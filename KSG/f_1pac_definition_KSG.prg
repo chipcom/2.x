@@ -1,7 +1,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 04.05.26 определить КСГ для 1 пациента с открытием файлов
+// 06.11.26 определить КСГ для 1 пациента с открытием файлов
 // ВНИМАНИЕ! Не менять название функции, используется в PROCNAME() другой функции
 Function f_1pac_definition_ksg( lkod, is_msg )
 
@@ -25,7 +25,7 @@ Function f_1pac_definition_ksg( lkod, is_msg )
   r_use( dir_server() + 'human_', , 'HUMAN_' )
   g_use( dir_server() + 'human', , 'HUMAN' ) // перезаписать сумму
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
-  human->( dbGoto( lkod ) )     //  Goto ( lkod )
+  human->( dbGoto( lkod ) )
   lyear := Year( human->K_DATA )
   If human_->USL_OK < 3
     arr := defenition_ksg()
@@ -75,12 +75,11 @@ Function f_1pac_definition_ksg( lkod, is_msg )
           Exit
         Endif
         Select HU
-        hu->( dbSkip() )    //  Skip
+        hu->( dbSkip() )
       Enddo
       If Empty( arr[ 2 ] )
         If Empty( lcena )
           lu_kod := foundourusluga( arr[ 3 ], human->k_data, human_->profil, human->VZROS_REB, @lcena )
-//          If lyear > 2018  // округление до рублей с 2019 года
           if lyear >= 2026
             lcena := arr[ 4 ]
           else
@@ -95,23 +94,13 @@ Function f_1pac_definition_ksg( lkod, is_msg )
               lcena := round_5( lcena * arr[ 6, 2 ], 0 )
             Endif
           endif
-/*
-          Else
-            If Len( arr ) > 4 .and. !Empty( arr[ 5 ] )
-              lcena := round_5( lcena * arr[ 5, 2 ], 1 )
-            Endif
-            If Len( arr ) > 5 .and. !Empty( arr[ 6 ] )
-              lcena := round_5( lcena * arr[ 6, 2 ], 1 )
-            Endif
-          Endif
-*/
           If Round( arr[ 4 ], 2 ) == Round( lcena, 2 ) // цена определена правильно
             Select HU
             If lrec == 0
               add1rec( 7 )
               hu->kod := human->kod
             Else
-              hu->( dbGoto( lrec) )   //  Goto ( lrec )
+              hu->( dbGoto( lrec) )
               g_rlock( 'forever' )
             Endif
             mrec_hu := hu->( RecNo() )
@@ -127,9 +116,9 @@ Function f_1pac_definition_ksg( lkod, is_msg )
             hu->stoim := hu->stoim_1 := lcena
             Select HU_
             Do While hu_->( LastRec() ) < mrec_hu
-              hu_->( dbAppend() )     //  Append Blank
+              hu_->( dbAppend() )
             Enddo
-            hu_->( dbGoto( mrec_hu ) )      //  Goto ( mrec_hu )
+            hu_->( dbGoto( mrec_hu ) )
             g_rlock( 'forever' )
             If lrec == 0 .or. !valid_guid( hu_->ID_U )
               hu_->ID_U := mo_guid( 3, hu_->( RecNo() ) )
@@ -146,7 +135,7 @@ Function f_1pac_definition_ksg( lkod, is_msg )
         Endif
       Elseif lrec > 0 // не удалось определить КСГ
         Select HU
-        hu->( dbGoto( lrec ) )      //  Goto ( lrec )
+        hu->( dbGoto( lrec ) )
         deleterec( .t., .f. )  // очистка записи без пометки на удаление
         lcena := 0
       Endif
@@ -154,10 +143,16 @@ Function f_1pac_definition_ksg( lkod, is_msg )
         Select HUMAN
         g_rlock( 'forever' )
         human->CENA := human->CENA_1 := lcena + sdial // перезапишем стоимость лечения
-        human->( dbUnlock() )     //  Unlock
+        human->( dbUnlock() )
       Endif
       put_str_kslp_kiro( arr )
-      dbCloseAll()    //  Close databases
+
+      // запишем второй доп критерий
+      Select HUMAN_2
+      g_rlock( 'forever' )
+      human_2->ADD_CRIT := iif( Empty( m1ad_cr_II ), '', m1ad_cr_II )
+
+      dbCloseAll()
       If Empty( arr[ 2 ] )
         If not_ksg .and. is_msg
           i := Len( arr[ 1 ] )
@@ -173,7 +168,7 @@ Function f_1pac_definition_ksg( lkod, is_msg )
       Endif
     Endif
   Endif
-  dbCloseAll()    //  Close databases
+  dbCloseAll()
   rest_box( buf )
 
   Return Nil

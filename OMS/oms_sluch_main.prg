@@ -2191,7 +2191,6 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       human_2->PN2 := iif( f_oms_beremenn( mkod_diag, MK_DATA ) > 0, m1prer_b, 0 )
 
       human_2->PC3 := iif( input_ad_cr, m1ad_cr, '' )
-      human_2->ADD_CRIT := iif( Empty( m1ad_cr_II ), '', m1ad_cr_II )
       If is_oncology == 0 // нет онкологии
         If old_oncology // но была в листе учёта
           g_use( dir_server() + 'mo_onkna', dir_server() + 'mo_onkna',  'NAPR' ) // онконаправления
