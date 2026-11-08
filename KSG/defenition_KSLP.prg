@@ -1,6 +1,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 #include 'tbox.ch'
+#include 'inkey.ch'
 
 #define CODE_KSLP   1
 #define NAME_KSLP   2
@@ -17,7 +18,7 @@ Function buildstringkslp( row )
 
   Return ret
 
-// 15.02.25 функция выбора состава КСЛП, возвращает { маска,строка количества КСЛП }, или nil
+// 06.11.26 функция выбора состава КСЛП, возвращает { маска,строка количества КСЛП }, или nil
 Function selectkslp( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
 
   // lkslp - значение КСЛП (выбранные КСЛП)
@@ -184,7 +185,7 @@ Function selectkslp( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
   mlen := Len( t_mas )
 
   // используем popupN из библиотеки FunLib
-  If ( ret := popupn( 4, 10, 4 + mlen + 1, 71, t_mas, i, color0, .t., 'fmenu_readerN', , ;
+  If ( ret := popupn( 4, 10, 4 + mlen + 1, 71, t_mas, i, color0, .t., 'fmenu_readerKSLP', , ;
       'Отметьте КСЛП', col_tit_popup,, strStatus ) ) > 0
     For i := 1 To mlen
       If '*' == SubStr( t_mas[ i, 1 ], 2, 1 )
@@ -202,6 +203,43 @@ Function selectkslp( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
 
   Return s
 
+// 06.11.26
+Function fmenu_readerKSLP( nKey, i )
+
+  local j
+
+altd()
+  do case
+    case nKey == K_INS .or. nKey == K_SPACE
+      if parr[ i, 2 ]
+        parr[ i, 1 ] := stuff( parr[ i, 1 ], 2, 1, if( '*' == substr( parr[ i, 1 ], 2, 1 ), ' ', '*' ) )
+        keyboard chr( K_TAB )
+      endif
+      for j := 1 to Len( parr )
+        if i == j
+          loop
+        elseif eq_any( parr[ j, 3 ], 15, 16, 17, 18, 19, 20 ) .and. i != j .and. SubStr( parr[ j, 1 ], 2, 1 ) == '*'
+          parr[ j, 1 ] := stuff( parr[ j, 1 ], 2, 1, ' ' )
+          m1ad_cr_II := ''
+        endif
+      next
+/*
+    case nKey == 43  // "+"
+      for i := 1 to len( parr )
+        if parr[ i, 2 ]
+          parr[ i, 1 ] := stuff( parr[ i, 1 ], 2, 1, '*' )
+        endif
+      next
+    case nKey == 45  // "-"
+      for i := 1 to len( parr )
+        if parr[ i, 2 ]
+          parr[ i, 1 ] := stuff( parr[ i, 1 ], 2, 1, ' ' )
+        endif
+      next
+*/
+  endcase
+  return 0
+  
 // 13.01.22 если надо, перезаписать значения КСЛП и КИРО в HUMAN_2
 Function put_str_kslp_kiro( arr, fl )
 
@@ -222,7 +260,7 @@ Function put_str_kslp_kiro( arr, fl )
     Default fl To .t. // блокировать и разблокировать запись в HUMAN_2
     Select HUMAN_2
     If fl
-      g_rlock( forever )
+      g_rlock( 'forever' )
     Endif
 
     // запомним новое КСЛП
@@ -262,11 +300,11 @@ Function calckslp( cKSLP, dateSl )
 
   Return summ
 
-// 15.02.25 определить коэф-т сложности лечения пациента и пересчитать цену
+// 08.11.26 определить коэф-т сложности лечения пациента и пересчитать цену
 Function f_cena_kslp( /*@*/_cena, _lshifr, _date_r, _n_data, _k_data, lkslp, arr_usl, lPROFIL_K, arr_diag, lpar_org, lad_cr, usl_ok )
 
-  Static s_1_may := 0d20160430, s_18 := 0d20171231, s_19 := 0d20181231
-  Static s_20 := 0d20201231
+//  Static s_1_may := 0d20160430, s_18 := 0d20171231, s_19 := 0d20181231
+//  Static s_20 := 0d20201231
   Static s_kslp17 := { ;
     { 1, 1.1, 0,  3 }, ;   // до 4 лет
     { 2, 1.1, 75, 999 } ;    // 75 лет и старше
@@ -275,17 +313,19 @@ Function f_cena_kslp( /*@*/_cena, _lshifr, _date_r, _n_data, _k_data, lkslp, arr
     { 1, 1.1, 0,  3 }, ;   // до 4 лет
     { 2, 1.05, 75, 999 } ;    // 75 лет и старше
     }
-  Local i, j, vksg, y := 0, fl, ausl := {}, s_kslp, _akslp := {}, sop_diag
+  Local y := 0, ausl := {}, _akslp := {}
   Local countDays := _k_data - _n_data // кол-во дней лечения
 
   Local savedKSLP, newKSLP := '', nLast
   Local nameFunc := '', argc, row
 
+//  Local i, j, vksg, fl, s_kslp, sop_diag
+
   Default lad_cr To Space( 10 )
 
   _lshifr := AllTrim( _lshifr ) // перенес
 
-  If _k_data > s_20
+  If _k_data > 0d20201231
     If Empty( lkslp )
       Return _akslp
     Endif
@@ -323,10 +363,6 @@ Function f_cena_kslp( /*@*/_cena, _lshifr, _date_r, _n_data, _k_data, lkslp, arr
         _cena := round_5( _cena * ret_koef_kslp_21( _akslp, Year( _k_data ) ), 0 )  // с 2019 года цена округляется до рублей
       Elseif Year( _k_data ) >= 2022
         _cena := round_5( _cena + baserate( _k_data, human_->USL_OK ) * ret_koef_kslp_21( _akslp, Year( _k_data ) ), 0 )
-//      Elseif Year( _k_data ) == 2023  // сообщил Мызгин 01.02.23
-//        _cena := round_5( _cena + baserate( _k_data, human_->USL_OK ) * ret_koef_kslp_21( _akslp, Year( _k_data ) ), 0 )
-//      Elseif Year( _k_data ) == 2024
-//        _cena := round_5( _cena + baserate( _k_data, human_->USL_OK ) * ret_koef_kslp_21( _akslp, Year( _k_data ) ), 0 )
       Endif
 
       If Year( _k_data ) >= 2021
@@ -341,7 +377,7 @@ Function f_cena_kslp( /*@*/_cena, _lshifr, _date_r, _n_data, _k_data, lkslp, arr
         Select( tmSel )
       Endif
     Endif
-
+/*
   Elseif _k_data > s_19  // с 2019 года
     If !Empty( lkslp )
       If _lshifr == 'ds02.005' // ЭКО, lkslp = 12,13,14
@@ -425,6 +461,7 @@ Function f_cena_kslp( /*@*/_cena, _lshifr, _date_r, _n_data, _k_data, lkslp, arr
         Endif
       Endif
     Endif
+
   Elseif _k_data > s_18  // с 2018 года
     If !Empty( lkslp )
       If _lshifr == '2005.0' // ЭКО, lkslp = 12,13,14
@@ -507,6 +544,7 @@ Function f_cena_kslp( /*@*/_cena, _lshifr, _date_r, _n_data, _k_data, lkslp, arr
         Next
       Endif
     Endif
+*/
   Endif
 
   Return _akslp
@@ -585,3 +623,60 @@ Function ret_koef_kslp_21_xml( akslp, tKSLP, nYear )
   Endif
 
   Return k
+
+// 06.11.26
+function select_ad_cr_II( n_date, level )
+
+  local aSupt, i, ret, t_mas := {}, row, strStatus
+	local color_say := 'N/W', color_get := 'W/N*'
+  Local dop_crit
+
+    dop_crit := AllTrim( m1ad_cr_II ) // дополнительный критерий 2
+    aSupt := getv024_supt( n_date, level )
+//altd()
+    for each row in aSupt
+      if AllTrim( row[ 1 ] ) == dop_crit
+        AAdd( t_mas, { ' * ' + row[ 2 ], .t., row[ 1 ] } )
+      else
+        AAdd( t_mas, { '   ' + row[ 2 ], .t., row[ 1 ] } )
+      endif
+    next
+
+    // используем popupN из библиотеки FunLib
+    strStatus := '^<Esc>^ - отказ; ^<Enter>^ - подтверждение; ^<Ins>^ - отметить / снять отметку'
+    If ( ret := popupn( 4, 2, 20, 78, t_mas, i, color0, .t., 'fmenu_readerSUPT_X', , ;
+        'Отметьте лекарственную терапию', col_tit_popup,, strStatus ) ) > 0
+      For i := 1 To Len( t_mas )
+        If '*' == SubStr( t_mas[ i, 1 ], 2, 1 )
+          m1ad_cr_II := t_mas[ i, 3 ]   // код доп критерия
+        Endif
+      Next
+    Endif
+
+  return nil
+
+// 06.11.26
+Function fmenu_readerSUPT_X( nKey, i )
+
+  local j
+
+  do case
+    case nKey == K_INS .or. nKey == K_SPACE
+      if '*' == substr( parr[ i, 1 ], 2, 1 )
+        parr[ i, 1 ] := stuff( parr[ i, 1 ], 2, 1, if( '*' == substr( parr[ i, 1 ], 2, 1 ), ' ', '*' ) )
+        keyboard chr( K_TAB )
+      else
+
+        for j := 1 to len( parr )
+          if '*' == substr( parr[ j, 1 ], 2, 1 ) .and. i != j
+            parr[ j, 1 ] := stuff( parr[ j, 1 ], 2, 1, ' ' )
+          endif
+          if parr[ j, 2 ] .and. i == j
+            parr[ j, 1 ] := stuff( parr[ j, 1 ], 2, 1, '*' )
+            keyboard chr( K_TAB )
+          endif
+        next
+
+      endif
+  endcase
+  return 0

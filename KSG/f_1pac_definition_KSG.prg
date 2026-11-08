@@ -49,7 +49,7 @@ Function f_1pac_definition_ksg( lkod, is_msg )
       Endif
       lrec := lcena := 0
       Select HU
-      hu->( dbSeek( Str( lkod, 7 ) ) )    //  find ( Str( lkod, 7 ) )
+      hu->( dbSeek( Str( lkod, 7 ) ) )
       Do While hu->kod == lkod .and. !hu->( Eof() )
         usl->( dbGoto( hu->u_kod ) )
         If Empty( lshifr := opr_shifr_tfoms( usl->shifr1, usl->kod, human->k_data ) )
