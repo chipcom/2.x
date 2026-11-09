@@ -208,7 +208,6 @@ Function fmenu_readerKSLP( nKey, i )
 
   local j
 
-altd()
   do case
     case nKey == K_INS .or. nKey == K_SPACE
       if parr[ i, 2 ]
@@ -300,8 +299,8 @@ Function calckslp( cKSLP, dateSl )
 
   Return summ
 
-// 08.11.26 определить коэф-т сложности лечения пациента и пересчитать цену
-Function f_cena_kslp( /*@*/_cena, _lshifr, _date_r, _n_data, _k_data, lkslp, arr_usl, lPROFIL_K, arr_diag, lpar_org, lad_cr, usl_ok )
+// 09.11.26 определить коэф-т сложности лечения пациента и пересчитать цену
+Function f_cena_kslp( /*@*/_cena, _lshifr, _date_r, _n_data, _k_data, lkslp, arr_usl, lPROFIL_K, arr_diag, lpar_org, lad_cr, usl_ok, lVerify )
 
 //  Static s_1_may := 0d20160430, s_18 := 0d20171231, s_19 := 0d20181231
 //  Static s_20 := 0d20201231
@@ -341,7 +340,7 @@ Function f_cena_kslp( /*@*/_cena, _lshifr, _date_r, _n_data, _k_data, lkslp, arr
       '"' + DToC( _date_r ) + '",' + '"' + DToC( _k_data ) + '",' + ;
       lstr( lPROFIL_K ) + ',' + '"' + _lshifr + '",' + lstr( lpar_org ) + ',' + ;
       '"' + arr2slistn( arr_diag ) + '",' + lstr( countDays ) + ',' + lstr( usl_ok ) + ',"' + ;
-      + AllTrim( lad_cr ) + '")'
+      + AllTrim( lad_cr ) + '",' + iif( lVerify, '.t.', '.f.' ) + ')'
 
     For Each row in getkslptable( _k_data )
       nameFunc := 'conditionKSLP_' + AllTrim( Str( row[ 1 ], 2 ) ) + '_' + last_digits_year( _k_data )
@@ -633,7 +632,7 @@ function select_ad_cr_II( n_date, level )
 
     dop_crit := AllTrim( m1ad_cr_II ) // дополнительный критерий 2
     aSupt := getv024_supt( n_date, level )
-//altd()
+
     for each row in aSupt
       if AllTrim( row[ 1 ] ) == dop_crit
         AAdd( t_mas, { ' * ' + row[ 2 ], .t., row[ 1 ] } )

@@ -342,6 +342,7 @@ Function print_l_uch( mkod, par, regim, lnomer )
         add_string( Space( 3 ) + AllTrim( human_2->pc3 ) )
       Endif
     Endif
+
     If Len( arr ) > 1
       tmp1 := '  Сопутствующие диагнозы:'
       For j := iif( Empty( diagVspom ), 2, 3 ) To Len( arr )
@@ -833,24 +834,24 @@ Function print_l_uch_disp( sh )
 
   Return Nil
 
-// 02.09.25 добавка по онкологии к листу учёта
+// 09.11.26 добавка по онкологии к листу учёта
 Function print_luch_onk( dk,  diag, sh )
 
-  Local mm_DS1_T // := getN018()  // N018
-  Local mm_usl_tip // := getN013()
-  Local fname // := prefixFileRefName( dk ) + 'shema'
+  Local mm_DS1_T
+  Local mm_usl_tip
+  Local fname
 
-  Local mm_N014 // := getn014()
-  Local mm_N015 // := getn015()
-  Local mm_N016 // := getn016()
-  Local mm_N017 // := getn017()
+  Local mm_N014
+  Local mm_N015
+  Local mm_N016
+  Local mm_N017
 
   Local mm_str1 := { '',  'Тип лечения',  'Цикл терапии',  'Тип терапии',  'Тип терапии',  '' }
   Local mm_shema_err := { { 'соблюдён', 0 }, { 'не соблюдён', 1 } }
   Local tstr
-  Local _arr_sh // := ret_arr_shema( 1, dk )
-  Local _arr_mt // := ret_arr_shema( 2, dk )
-  Local _arr_fr // := ret_arr_shema( 3, dk )
+  Local _arr_sh
+  Local _arr_mt
+  Local _arr_fr
   Local mm_shema_usl
   Local m1PR_CONS := 0, mDT_CONS
   Local arrLekPreparat, row, w1
@@ -864,6 +865,7 @@ Function print_luch_onk( dk,  diag, sh )
   Local mm_N004
   Local mm_N005
   Local stage
+  local i, tmp[ 2 ], add_criteria, k
 
   If f_is_oncology( 1 ) == 2 .and. eq_any( human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
 
@@ -880,11 +882,11 @@ Function print_luch_onk( dk,  diag, sh )
     _arr_fr := ret_arr_shema( 3, dk )
 
     dbCreate( cur_dir() + 'tmp_onkle',  { ; // Сведения о применённых лекарственных препаратах
-    { 'KOD',      'N',   7,  0 }, ; // код больного
-    { 'REGNUM',   'C',   6,  0 }, ; // IDD лек.препарата N020
-    { 'ID_ZAP',   'N',   6,  0 }, ; // IDD лек.препарата N021
-    { 'CODE_SH',  'C',  20,  0 }, ; // код схемы лек.терапии V024
-    { 'DATE_INJ', 'D',   8,  0 };  // дата введения лек.препарата
+      { 'KOD',      'N',   7,  0 }, ; // код больного
+      { 'REGNUM',   'C',   6,  0 }, ; // IDD лек.препарата N020
+      { 'ID_ZAP',   'N',   6,  0 }, ; // IDD лек.препарата N021
+      { 'CODE_SH',  'C',  20,  0 }, ; // код схемы лек.терапии V024
+      { 'DATE_INJ', 'D',   8,  0 };  // дата введения лек.препарата
     } )
     Use ( cur_dir() + 'tmp_onkle' ) New Alias TMPLE
     r_use( dir_server() + 'mo_onkle', dir_server() + 'mo_onkle',  'LE' ) // Сведения о применённых лекарственных препаратах
@@ -936,6 +938,24 @@ Function print_luch_onk( dk,  diag, sh )
       inieditspr( A__MENUVERT, mmb_diag(), onksl->b_diag ) )
 
     add_string( '' )
+
+    If Year( human->k_data ) > 2017 .and. !Empty( human_2->ADD_CRIT )
+      k := 0
+      add_string( '   Схема сопроводительной лекарственной терапии : ' )
+      add_criteria := getv024_by_code( human->K_DATA, human_2->ADD_CRIT )
+      If ! Empty( add_criteria )
+        If Year( human->k_data ) >= 2021
+          k := perenos( tmp, AllTrim( human_2->ADD_CRIT ) + ' - ' + AllTrim( add_criteria ), sh -3 )
+          For i := 1 To k
+            add_string( Space( 4 ) + tmp[ i ] )
+          Next
+        Else
+          add_string( Space( 4 ) + AllTrim( human_2->ADD_CRIT ) )
+        Endif
+      Endif
+      add_string( '' )
+    Endif
+
     r_use( dir_server() + 'mo_onkus', dir_server() + 'mo_onkus', 'ONKUS' )
     onkus->( dbSeek( Str( human->kod, 7 ) ) )
     Do While onkus->kod == human->kod .and. !onkus->( Eof() )

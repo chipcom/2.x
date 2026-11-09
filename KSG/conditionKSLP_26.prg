@@ -3,8 +3,8 @@
 
 // функции проверки применимости КСЛП в 2026 году
 //
-// 15.02.25 проверка услувия для применения КСЛП=1 для 2025 года
-Function conditionkslp_1_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr )
+// 09.11.26 проверка услувия для применения КСЛП=1 для 2025 года
+Function conditionkslp_1_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr, lVerify )
 
   // КСЛП=1 спальное место законному представителю, НУЖЕН ЗАПРОС
   // Предоставление спального места и питания законному представителю,
@@ -19,8 +19,8 @@ Function conditionkslp_1_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_d
 
   Return conditionkslp_1_22( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr )
 
-// 15.02.25 проверка услувия для применения КСЛП=2 для 2025 года
-Function conditionkslp_2_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr )
+// 09.11.26 проверка услувия для применения КСЛП=2 для 2025 года
+Function conditionkslp_2_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr, lVerify )
 
   // КСЛП=2 спальное место законному представителю, НУЖЕН ЗАПРОС
   // предоставление спального места и питания законному представителю несовершеннолетних
@@ -35,8 +35,8 @@ Function conditionkslp_2_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_d
 
   Return conditionkslp_2_22( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr )
 
-// 02.12.24 проверка условия для применения КСЛП=3 для 2025 года
-Function conditionkslp_3_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr )
+// 09.11.26 проверка условия для применения КСЛП=3 для 2025 года
+Function conditionkslp_3_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr, lVerify )
 
   // КСЛП=3 пациенты старше 75 лет
   // 3.1.2. Оказание медицинской помощи пациенту в возрасте старше 75 лет в случае
@@ -47,8 +47,8 @@ Function conditionkslp_3_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_d
 
   Return conditionkslp_3_22( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr )
 
-// 27.02.26 проверка условия для применения КСЛП=4 для 2026 года
-Function conditionkslp_4_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr )
+// 09.11.26 проверка условия для применения КСЛП=4 для 2026 года
+Function conditionkslp_4_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr, lVerify )
 
   // КСЛП=4 развертывание индивидуального поста
 
@@ -57,8 +57,8 @@ Function conditionkslp_4_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_d
   fl := .t. // пока так
   Return fl
 
-// 27.02.26 проверка условия для применения КСЛП=5 для 2026 года
-Function conditionkslp_5_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr )
+// 09.11.26 проверка условия для применения КСЛП=5 для 2026 года
+Function conditionkslp_5_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr, lVerify )
 
   // КСЛП=5 наличие у пациента тяжелой сопутствующей патологии,
   // требующей оказания медицинской помощи в период госпитализации
@@ -102,8 +102,8 @@ Function conditionkslp_5_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_d
   Next
   Return fl
 
-// 27.02.26 проверка условия для применения КСЛП=6 для 2026 года
-Function conditionkslp_6_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr )
+// 09.11.26 проверка условия для применения КСЛП=6 для 2026 года
+Function conditionkslp_6_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr, lVerify )
 
   // КСЛП=6 проведение сочетанных хирургических вмешательств
   // или проведение однотипных операций на парных органах (уровень 1)
@@ -113,8 +113,8 @@ Function conditionkslp_6_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_d
   fl := .t. // пока так
   Return fl
 
-// 27.02.26 проверка условия для применения КСЛП=7 для 2026 года
-Function conditionkslp_7_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr )
+// 09.11.26 проверка условия для применения КСЛП=7 для 2026 года
+Function conditionkslp_7_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr, lVerify )
 
   // КСЛП=7 проведение сочетанных хирургических вмешательств
   // или проведение однотипных операций на парных органах (уровень 2)
@@ -124,8 +124,8 @@ Function conditionkslp_7_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_d
   fl := .t. // пока так
   Return fl
 
-// 27.02.26 проверка условия для применения КСЛП=8 для 2026 года
-Function conditionkslp_8_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr )
+// 09.11.26 проверка условия для применения КСЛП=8 для 2026 года
+Function conditionkslp_8_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr, lVerify )
 
   // КСЛП=8 проведение сочетанных хирургических вмешательств
   // или проведение однотипных операций на парных органах (уровень 3)
@@ -135,8 +135,8 @@ Function conditionkslp_8_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_d
   fl := .t. // пока так
   Return fl
 
-// 27.02.26 проверка условия для применения КСЛП=9 для 2026 года
-Function conditionkslp_9_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr )
+// 09.11.26 проверка условия для применения КСЛП=9 для 2026 года
+Function conditionkslp_9_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr, lVerify )
 
   // КСЛП=9 проведение сочетанных хирургических вмешательств
   // или проведение однотипных операций на парных органах (уровень 4)
@@ -146,8 +146,8 @@ Function conditionkslp_9_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_d
   fl := .t. // пока так
   Return fl
 
-// 27.02.26 проверка условия для применения КСЛП=10 для 2026 года
-Function conditionkslp_10_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr )
+// 09.11.26 проверка условия для применения КСЛП=10 для 2026 года
+Function conditionkslp_10_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr, lVerify )
 
   // КСЛП=10 проведение сочетанных хирургических вмешательств
   // или проведение однотипных операций на парных органах (уровень 5)
@@ -157,8 +157,8 @@ Function conditionkslp_10_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_
   fl := .t. // пока так
   Return fl
 
-// 27.02.26 проверка условия для применения КСЛП=11 для 2026 года
-Function conditionkslp_11_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr )
+// 09.11.26 проверка условия для применения КСЛП=11 для 2026 года
+Function conditionkslp_11_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr, lVerify )
 
   // КСЛП=11 проведение 1 этапа медицинской реабилитации пациентов
   // 3.1.3. Проведение 1 этапа медицинской реабилитации пациентов (КСЛП19).
@@ -184,8 +184,8 @@ Function conditionkslp_11_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_
   fl := .t. // пока так
   Return fl
 
-// 27.02.26 проверка условия для применения КСЛП=14 для 2026 года
-Function conditionkslp_14_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr )
+// 09.11.26 проверка условия для применения КСЛП=14 для 2026 года
+Function conditionkslp_14_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr, lVerify )
 
   // КСЛП=14 проведение тестирования на выявление респираторных
   // вирусных заболеваний (гриппа, новой коронавирусной инфекции COVID-19) в период госпитализации
@@ -201,8 +201,8 @@ Function conditionkslp_14_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_
   fl := .t. // пока так
   Return fl
 
-// 29.10.26 проверка условия для применения КСЛП=15 для 2026 года
-Function conditionkslp_15_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr )
+// 09.11.26 проверка условия для применения КСЛП=15 для 2026 года
+Function conditionkslp_15_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr, lVerify )
 
   // КСЛП=15 - проведение сопроводительной лекарственной терапии при злокачественных
   // новообразованиях у взрослых в стационарных условиях в соответствии с клиническими
@@ -223,14 +223,14 @@ Function conditionkslp_15_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_
 //  return ksgInList( lshifr, 'st19.084-st19.089, st19.094-st19.102, st19.182-st19.202, ' ;
 //        + 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' )
   fl := ksgInList( lshifr, 'st19.084-st19.089, st19.094-st19.102, st19.182-st19.202' )
-  if fl
+  if fl .and. lVerify
     select_ad_cr_II( n_date, 1 )
   endif
 
   return fl
 
-// 29.10.26 проверка условия для применения КСЛП=16 для 2026 года
-Function conditionkslp_16_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr )
+// 09.11.26 проверка условия для применения КСЛП=16 для 2026 года
+Function conditionkslp_16_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr, lVerify )
 
   // КСЛП=16 - проведение сопроводительной лекарственной терапии при злокачественных
   // новообразованиях у взрослых в стационарных условиях в соответствии с клиническими
@@ -251,14 +251,14 @@ Function conditionkslp_16_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_
 //  return ksgInList( lshifr, 'st19.084-st19.089, st19.094-st19.102, st19.182-st19.202, ' ;
 //        + 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' )
   fl := ksgInList( lshifr, 'st19.084-st19.089, st19.094-st19.102, st19.182-st19.202' ) 
-  if fl
+  if fl .and. lVerify
     select_ad_cr_II( n_date, 2 )
   endif
 
   return fl
 
-// 29.10.26 проверка условия для применения КСЛП=17 для 2026 года
-Function conditionkslp_17_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr )
+// 09.11.26 проверка условия для применения КСЛП=17 для 2026 года
+Function conditionkslp_17_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr, lVerify )
 
   // КСЛП=17 - проведение сопроводительной лекарственной терапии при злокачественных
   // новообразованиях у взрослых в стационарных условиях в соответствии с клиническими
@@ -279,14 +279,14 @@ Function conditionkslp_17_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_
 //  return ksgInList( lshifr, 'st19.084-st19.089, st19.094-st19.102, st19.182-st19.202, ' ;
 //        + 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' )
   fl := ksgInList( lshifr, 'st19.084-st19.089, st19.094-st19.102, st19.182-st19.202' ) 
-  if fl
+  if fl .and. lVerify
     select_ad_cr_II( n_date, 3 )
   endif
 
   return fl
 
-// 03.11.26 проверка условия для применения КСЛП=18 для 2026 года
-Function conditionkslp_18_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr )
+// 09.11.26 проверка условия для применения КСЛП=18 для 2026 года
+Function conditionkslp_18_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr, lVerify )
 
   // КСЛП=18 - проведение сопроводительной лекарственной терапии при злокачественных
   // новообразованиях у взрослых в стационарных условиях в соответствии с клиническими
@@ -307,15 +307,15 @@ Function conditionkslp_18_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_
 //  return ksgInList( lshifr, 'st19.084-st19.089, st19.094-st19.102, st19.182-st19.202, ' ;
 //        + 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' )
   fl := ksgInList( lshifr, 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' )
-  if fl
+  if fl .and. lVerify
     select_ad_cr_II( n_date, 1 )
   Endif
 
   return fl
 
 
-// 29.10.26 проверка условия для применения КСЛП=19 для 2026 года
-Function conditionkslp_19_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr )
+// 09.11.26 проверка условия для применения КСЛП=19 для 2026 года
+Function conditionkslp_19_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr, lVerify )
 
   // КСЛП=19 - проведение сопроводительной лекарственной терапии при злокачественных
   // новообразованиях у взрослых в стационарных условиях в соответствии с клиническими
@@ -336,14 +336,14 @@ Function conditionkslp_19_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_
 //  return ksgInList( lshifr, 'st19.084-st19.089, st19.094-st19.102, st19.182-st19.202, ' ;
 //        + 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' )
   fl := ksgInList( lshifr, 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' )
-  if fl
+  if fl .and. lVerify
     select_ad_cr_II( n_date, 2 )
   endif
 
   return fl
 
-// 29.10.26 проверка условия для применения КСЛП=20 для 2026 года
-Function conditionkslp_20_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr )
+// 09.11.26 проверка условия для применения КСЛП=20 для 2026 года
+Function conditionkslp_20_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration, usl_ok, lad_cr, lVerify )
 
   // КСЛП=20 - проведение сопроводительной лекарственной терапии при злокачественных
   // новообразованиях у взрослых в стационарных условиях в соответствии с клиническими
@@ -364,9 +364,8 @@ Function conditionkslp_20_26( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_
 //  return ksgInList( lshifr, 'st19.084-st19.089, st19.094-st19.102, st19.182-st19.202, ' ;
 //        + 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' )
   fl := ksgInList( lshifr, 'ds19.058-ds19.062, ds19.067-ds19.078, ds19.157-ds19.180' ) 
-  if fl
+  if fl .and. lVerify
     select_ad_cr_II( n_date, 3 )
   endif
 
 return fl
-

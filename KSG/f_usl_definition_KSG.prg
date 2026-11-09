@@ -98,7 +98,7 @@ Function ret_vozrast_k006( s )
   Endcase
   Return ret
 
-// 02.05.26 определить КСГ для 1 пациента из режима редактирования услуг
+// 09.11.26 определить КСГ для 1 пациента из режима редактирования услуг
 Function f_usl_definition_ksg( lkod, k_data2, lDoubleSluch )
 
   Local arr, buf := save_maxrow(), lshifr, lrec, lu_kod, lcena, not_ksg := .t., ;
@@ -121,7 +121,7 @@ Function f_usl_definition_ksg( lkod, k_data2, lDoubleSluch )
       tmp_rec := tmp->( RecNo() )
     Endif
     Set Relation To
-    arr := defenition_ksg( 1, k_data2, lDoubleSluch )
+    arr := defenition_ksg( 1, k_data2, lDoubleSluch, .f. )
     sdial := 0
     fl := .t.
     If Len( arr ) == 7
@@ -293,6 +293,12 @@ Function f_usl_definition_ksg( lkod, k_data2, lDoubleSluch )
         human->( dbUnlock() )           //  Unlock
       Endif
       put_str_kslp_kiro( arr )
+      
+      // запишем второй доп критерий
+      Select HUMAN_2
+      g_rlock( 'forever' )
+      human_2->ADD_CRIT := iif( Empty( m1ad_cr_II ), '', m1ad_cr_II )
+
       Commit
       If Empty( arr[ 2 ] )
         If not_ksg

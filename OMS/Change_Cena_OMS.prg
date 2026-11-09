@@ -1,13 +1,15 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 20.03.26 Изменение цен на услуги в соответствии со справочником услуг ТФОМС
+// 09.11.26 Изменение цен на услуги в соответствии со справочником услуг ТФОМС
 Function change_cena_oms()
 
   Local buf := save_maxrow(), lshifr1, fl, lrec, rec_human, k_data2, kod_ksg, begin_date := AddMonth( sys_date, -3 )
   Local fl_ygl_disp := .f.
   Local nCena1, nCena2, tmpSelect
   Local error, bSaveHandler
+
+  private m1ad_cr_II  // для определения КСГ
 
   If begin_date < BoY( begin_date )
     begin_date := BoY( begin_date )
@@ -59,6 +61,7 @@ Function change_cena_oms()
       sm_human := i_human := 0
       find ( Str( 0, 6 ) )
       Do While human->schet == 0 .and. !Eof()
+         m1ad_cr_II := human_2->ADD_CRIT
         // цикл по людям
         nCena1 := nCena2 := 0
         updatestatus()

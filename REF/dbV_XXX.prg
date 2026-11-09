@@ -1252,6 +1252,18 @@ Function getv024_supt( dk, level )
   db := nil
   Return arr
 
+// 09.11.26
+function getv024_by_code( dk, code )
+
+  local retName := '', row
+
+  for each row in getv024( dk )
+    if AllTrim( row[ 1 ] ) == AllTrim( code )
+      retName := AllTrim( row[ 2 ] )
+    endif
+  next
+  return retName
+
 // =========== V039 ===================
 //
 // 16.01.26 вернуть массив по справочнику ФФОМС V039.xml

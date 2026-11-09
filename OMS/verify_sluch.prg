@@ -25,7 +25,7 @@
 #define USL_SVIDPOM  14   // виды оказываемой медицинской помощи
 #define USL_ZAK_SL   15   // признак оплаты по законченному случаю
 
-// 03.11.26 
+// 09.11.26 
 Function verify_sluch( fl_view, ft )
 
   Local arrUslugi := {} // массив содержаший коды услуг в случае 
@@ -2889,7 +2889,7 @@ Function verify_sluch( fl_view, ft )
     Else
       s := ''
     Endif
-    arr_ksg := defenition_ksg( 1, k_data2, lDoubleSluch )
+    arr_ksg := defenition_ksg( 1, k_data2, lDoubleSluch, .t. )
     If Empty( arr_ksg[ 2 ] ) // нет ошибок
       If shifr_ksg == arr_ksg[ 3 ] // КСГ определена правильно
         If !( Round( cena_ksg, 2 ) == Round( arr_ksg[ 4 ], 2 ) ) // не та цена

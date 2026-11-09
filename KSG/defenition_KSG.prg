@@ -4,8 +4,10 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 21.10.26 определение КСГ по остальным введённым полям ввода - 2026-26 год
-Function defenition_ksg( par, k_data2, lDoubleSluch )
+// 09.11.26 определение КСГ по остальным введённым полям ввода - 2026-26 год
+Function defenition_ksg( par, k_data2, lDoubleSluch, lVerify )
+
+  // lVerify - .f. - расчет, .t. - проверка
 
   // файлы 'human', 'human_' и 'human_2' открыты и стоят на нужной записи
   // 'human' открыт для записи суммы случая
@@ -46,6 +48,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
 
   Default par To 1, sp0 To '', sp1 To Space( 1 ), sp6 To Space( 6 ), sp15 To Space( 20 )
   Default lDoubleSluch To .f.
+  Default lVerify To .f.
 //  Private pole
 
   If par == 1
@@ -888,7 +891,8 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
         mdiagnoz, ;
         lpar_org, ;
         lad_cr, ;
-        uslOkaz )
+        uslOkaz, ;
+        lVerify )
       If !Empty( akslp )
         For iKSLP := 1 To Len( akslp ) Step 2
           If iKSLP != 1
@@ -902,6 +906,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
       tmpSelect := Select( 'HUMAN_2' )
       If ( tmpSelect )->( dbRLock() )
         human_2->pc1 := newKSLP
+        human_2->ADD_CRIT := m1ad_cr_II
       Endif
       ( tmpSelect )->( dbRUnlock() )
       If !Empty( akslp )
