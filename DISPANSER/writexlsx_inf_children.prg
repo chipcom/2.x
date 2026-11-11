@@ -2,14 +2,14 @@
 #include 'chip_mo.ch'
 #include 'hbxlsxwriter.ch'
 
-// 15.06.26
+// 11.11.26
 function writexlsx_inf_children( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
   arr_2510_DDS, arr_2510_DDSOP, hYoung13_14, hYoung15_17, hGirl13_14, hGirl15_17 )
 
   Local buf := save_maxrow()
   Local workbook
-  Local ws1, ws2, ws3, ws4, ws5, ws6
-  Local cColorTab1, cColorTab2, cColorTab3, cColorTab4, cColorTab5, cColorTab6
+  Local ws1, ws2, ws3, ws4, ws5, ws6, ws7
+  Local cColorTab1, cColorTab2, cColorTab3, cColorTab4, cColorTab5, cColorTab6, cColorTab7
   local error, i
   Local strMO, arr_plan
   Local titul_table_thin, titul_table_bold, titul_table_bold_green, text_thin, header_bold, header_data_bold
@@ -27,6 +27,7 @@ function writexlsx_inf_children( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
   cColorTab4 := 0xb9ead3
   cColorTab5 := 0xc9ead3
   cColorTab6 := 0x99ead3
+  cColorTab7 := 0x99ead3
 
   workbook  := workbook_new( file_name )
 
@@ -1440,11 +1441,30 @@ function writexlsx_inf_children( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
   worksheet_merge_range( ws6, 15, 1, 15, 2, 'телефон исполнителя', block_FIO )
   worksheet_merge_range( ws6, 15, 3, 15, 6, '', block_FIO )
 
+
   disease_youngman( workbook, .f., hYoung15_17, hYoung13_14 )
   disease_youngman( workbook, .t., hYoung15_17, hYoung13_14 )
 
   disease_girl( workbook, .f., hGirl15_17, hGirl13_14 )
   disease_girl( workbook, .t., hGirl15_17, hGirl13_14 )
+
+
+//
+// лист 7 - Заболевания 13-17 ВСЕ
+//
+  ws7 := workbook_add_worksheet( workbook, 'Заболевания 13-17 ВСЕ' )
+  worksheet_set_tab_color( ws6, cColorTab7 )
+
+//  worksheet_set_row( ws7, 0, 43.8 )
+//  worksheet_set_row( ws7, 5, 28.2 )
+//  worksheet_set_row( ws7, 9, 31.8 )
+//  worksheet_set_row( ws7, 10, 31.8 )
+  worksheet_set_column( ws7, 1, 1, 32.44 )
+
+  worksheet_merge_range( ws7, 1, 1, 1, 7, 'Профосмотры несовершеннолетних', header_bold )
+
+  worksheet_merge_range( ws7, 4, 1, 4, 6, 'Наименование показателя', text_thin )
+  worksheet_write_string( ws7, 4, 7, 'человек / %', text_thin )
 
   /* Закрыть книгу, записать файл и освободить память. */
   error = workbook_close( workbook )
