@@ -2470,14 +2470,14 @@ Function f1_p_f_prikreplenie( nKey, oBrow, regim )
         If krtp->D_PRIK != md_prik
           Select KRTP
           Goto ( tmp_krtp->rec )
-          g_rlock( forever )
+          g_rlock( 'forever' )
           krtp->D_PRIK := md_prik
           Unlock
           Commit
         Endif
         If kart->uchast != muchast
           Select KART
-          g_rlock( forever )
+          g_rlock( 'forever' )
           kart->uchast := muchast
           Unlock
           Commit
@@ -2490,7 +2490,7 @@ Function f1_p_f_prikreplenie( nKey, oBrow, regim )
           If krtp->S_PRIK != i
             Select KRTP
             Goto ( tmp_krtp->rec )
-            g_rlock( forever )
+            g_rlock( 'forever' )
             krtp->S_PRIK := i
             Unlock
             Commit
@@ -2812,14 +2812,14 @@ Function read_csv_file_prik_flk_ans( cFile, aerr, nTypeFile, nkod_reestr, nkod_f
       krtf->MO_PR := ''
     Else
       Goto ( nkod_file )
-      g_rlock( forever )
+      g_rlock( 'forever' )
     Endif
     krtf->DWORK := sys_date
     krtf->TWORK1 := cTimeBegin
     For i := 1 To k
       Select KRTP
       find ( Str( arr_csv[ i, CSV_A_NREC ], 6 ) )
-      g_rlock( forever )
+      g_rlock( 'forever' )
       If Empty( arr_csv[ i, CSV_A_CERR ] )
         If nTypeFile == _CSV_FILE_PRIKFLK
           ++jp
@@ -2865,7 +2865,7 @@ Function read_csv_file_prik_flk_ans( cFile, aerr, nTypeFile, nkod_reestr, nkod_f
         Go Top
         Do While !Eof()
           If krtp->OPLATA == 0 // т.е. не было в файле ответа
-            g_rlock( forever )
+            g_rlock( 'forever' )
             ++je
             krtp->OPLATA := 2
             krtp->D_PRIK1 := CToD( '' )
@@ -2895,7 +2895,7 @@ Function read_csv_file_prik_flk_ans( cFile, aerr, nTypeFile, nkod_reestr, nkod_f
     Endif
     Select KRTR
     Goto ( nkod_reestr )
-    g_rlock( forever )
+    g_rlock( 'forever' )
     krtr->ANSWER := 1  // 1-был прочитан ответ
     If nTypeFile == _CSV_FILE_PRIKFLK
       krtr->KOL_P := jp
@@ -3006,7 +3006,7 @@ Function read_csv_file_answer( cFile, aerr, nkod_reestr )
       @ MaxRow(), 0 Say Str( i / k * 100, 6, 2 ) + '%' Color cColorSt2Msg
       Select KRTP
       find ( Str( arr_csv[ i, CSV_A_NREC ], 6 ) )
-      g_rlock( forever )
+      g_rlock( 'forever' )
       krtp->OPLATA := arr_csv[ i, CSV_A_STATUS ]
       krtp->D_PRIK1 := iif( arr_csv[ i, CSV_A_STATUS ] == 1, arr_csv[ i, CSV_A_D_PRIK ], CToD( '' ) )
       dbUnlock()
@@ -3029,7 +3029,7 @@ Function read_csv_file_answer( cFile, aerr, nkod_reestr )
           Select KARTP
           find ( Str( krtp->KOD_K, 7 ) + DToS( arr_csv[ i, CSV_A_D_PRIK ] ) )
           If Found()
-            g_rlock( forever )
+            g_rlock( 'forever' )
           Else
             addrec( 7 )
             kartp->KOD_K := krtp->KOD_K
@@ -3048,7 +3048,7 @@ Function read_csv_file_answer( cFile, aerr, nkod_reestr )
           Select KARTP
           find ( Str( krtp->KOD_K, 7 ) + DToS( arr_csv[ i, CSV_A_DT ] ) )
           If Found()
-            g_rlock( forever )
+            g_rlock( 'forever' )
           Else
             addrec( 7 )
             kartp->KOD_K := krtp->KOD_K
@@ -3075,7 +3075,7 @@ Function read_csv_file_answer( cFile, aerr, nkod_reestr )
           Select KRTE
           find ( Str( nkod_reestr, 6 ) + Str( arr_csv[ i, CSV_A_NREC ], 6 ) + Str( arr_csv[ i, CSV_A_CERR, j ], 3 ) )
           If Found()
-            g_rlock( forever )
+            g_rlock( 'forever' )
           Else
             addrec( 6 )
             krte->REESTR := nkod_reestr
@@ -3111,12 +3111,12 @@ Function read_csv_file_answer( cFile, aerr, nkod_reestr )
     Commit
     Select KRTR
     Goto ( nkod_reestr )
-    g_rlock( forever )
+    g_rlock( 'forever' )
     krtr->KOL_P := kol1
     krtr->ANSWER := 1  // 0-не было ответа, 1-был прочитан ответ
     //
     Select KRTF
-    g_rlock( forever )
+    g_rlock( 'forever' )
     krtf->TWORK2 := hour_min( Seconds() )
     dbUnlockAll()
     Commit
@@ -3256,7 +3256,7 @@ Function read_csv_file_otkrep( cFile, aerr )
           Select KARTP
           find ( Str( lKOD_K, 7 ) + DToS( arr_csv[ i, CSV_O_DPR ] ) )
           If Found()
-            g_rlock( forever )
+            g_rlock( 'forever' )
           Else
             addrec( 7 )
             kartp->KOD_K := lKOD_K
@@ -3272,7 +3272,7 @@ Function read_csv_file_otkrep( cFile, aerr )
         Select kart_et
         find ( Str( arr_csv[ i, CSV_O_PID ], 10 ) )
         If Found()
-          g_rlock( forever )
+          g_rlock( 'forever' )
           kart_et->kod_mis := arr_csv[ i, CSV_O_ENP ]
           kart_et->DATE_PR := arr_csv[ i, CSV_O_DPR ]
           kart_et->MO_PR   := arr_csv[ i, CSV_O_MO ] // не к нам
@@ -3281,7 +3281,7 @@ Function read_csv_file_otkrep( cFile, aerr )
         Select kart_etk
         find ( Str( lkod_k, 7 ) )
         If Found()
-          g_rlock( forever )
+          g_rlock( 'forever' )
           kart_etk->kod_tf := arr_csv[ i, CSV_O_PID ] // перезаписать PID
           kart_etk->PRIOR := 0
           dbUnlock()
@@ -3429,7 +3429,7 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
       Endif
       Select KRTP
       find ( Str( arr_csv[ i, CSV_A_NREC ], 6 ) )
-      g_rlock( forever )
+      g_rlock( 'forever' )
       krtp->OPLATA := mstatus
       if arr_csv[ i, CSV_A_UCH ] <= 99
         krtp->UCHAST   := arr_csv[ i, CSV_A_UCH ] // номер участка
@@ -3445,7 +3445,7 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
       // 23.02.26
       if len(alltrim(arr_csv[ i, CSV_A_ENP ])) > 15
         if kart->polis != arr_csv[ i, CSV_A_ENP ] .or. kart->kod_mis != arr_csv[ i, CSV_A_ENP ]
-          g_rlock( forever )  
+          g_rlock( 'forever' )  
           kart->polis := arr_csv[ i, CSV_A_ENP ]
           kart->kod_mis := arr_csv[ i, CSV_A_ENP ]
         endif  
@@ -3453,7 +3453,7 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
       //
    
       Select KART_
-      g_rlock( forever ) 
+      g_rlock( 'forever' ) 
       if len(alltrim(arr_csv[ i, CSV_A_ENP ])) > 15
         if kart_->npolis != arr_csv[ i, CSV_A_ENP ] .or. kart_->spolis != '' .or. kart_->vpolis != 3
           kart_->npolis := arr_csv[ i, CSV_A_ENP ]
@@ -3474,7 +3474,7 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
             if human_->vpolis == 3 .and. human_->npolis == arr_csv[ i, CSV_A_ENP ] 
                 // всё совпадает - даже не блокируем для ускорения
             else
-              g_rlock( forever ) 
+              g_rlock( 'forever' ) 
               if len(alltrim(arr_csv[ i, CSV_A_ENP ])) > 15 
                 human_->npolis := arr_csv[ i, CSV_A_ENP ]
                 //human_->spolis := '' - думаю не надо - устарело
@@ -3484,7 +3484,7 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
             endif 
             if len(alltrim(old_mo[i])) > 5 
               select HUMAN 
-              g_rlock( forever ) 
+              g_rlock( 'forever' ) 
               if Len( arr_csv[ i, CSV_A_CERR ] ) < 1
                 human->mo_pr :=  alltrim(old_mo[i])
               endif  
@@ -3509,7 +3509,7 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
           Select kart_et
           find ( Str( arr_csv[ i, CSV_A_PID ], 10 ) )
           If Found()
-            g_rlock( forever )
+            g_rlock( 'forever' )
             kart_et->kod_mis := arr_csv[ i, CSV_A_ENP ]
             kart_et->MO_PR   := '' // не прикреплён ни к кому
             fl_et := .t.
@@ -3533,7 +3533,7 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
           Select kart_et
           find ( Str( arr_csv[ i, CSV_A_PID ], 10 ) )
           If Found()
-            g_rlock( forever )
+            g_rlock( 'forever' )
             kart_et->kod_mis := arr_csv[ i, CSV_A_ENP ]
             kart_et->DATE_PR := arr_csv[ i, CSV_A_DT ]
             kart_et->MO_PR   := arr_csv[ i, CSV_A_MO ]
@@ -3542,7 +3542,7 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
           Select kart_etk
           find ( Str( kart->kod, 7 ) )
           If Found()
-            g_rlock( forever )
+            g_rlock( 'forever' )
             kart_etk->kod_tf := arr_csv[ i, CSV_A_PID ]
             kart_etk->PRIOR := 0 // приоритет = 0
           Endif
@@ -3551,7 +3551,7 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
         Select KARTP
         find ( Str( krtp->KOD_K, 7 ) + DToS( arr_csv[ i, CSV_A_DT ] ) )
         If Found()
-          g_rlock( forever )
+          g_rlock( 'forever' )
         Else
           addrec( 7 )
           kartp->KOD_K := krtp->KOD_K
@@ -3578,7 +3578,7 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
         Select KRTE
         find ( Str( nkod_reestr, 6 ) + Str( arr_csv[ i, CSV_A_NREC ], 6 ) + Str( arr_csv[ i, CSV_A_CERR, j ], 3 ) )
         If Found()
-          g_rlock( forever )
+          g_rlock( 'forever' )
         Else
           addrec( 6 )
           krte->REESTR := nkod_reestr
@@ -3618,12 +3618,12 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
     Commit
     Select KRTR
     Goto ( nkod_reestr )
-    g_rlock( forever )
+    g_rlock( 'forever' )
     krtr->KOL_P := kol1
     krtr->ANSWER := 1  // 0-не было ответа, 1-был прочитан ответ
     //
     Select KRTF
-    g_rlock( forever )
+    g_rlock( 'forever' )
     krtf->TWORK2 := hour_min( Seconds() )
     dbUnlockAll()
     Commit
@@ -3668,7 +3668,7 @@ Return Nil
 #define CSV_A_DT_ZAPR  13   // Дата запроса для данного случая
 #define CSV_A_CERR     14   // ошибки     
   
-// 04.07.26 чтение в память и анализ CSV-файла ответа на запрос для НОВОЙ сверки 
+// 11.11.26 чтение в память и анализ CSV-файла ответа на запрос для НОВОЙ сверки 
 Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
 
   Local i, j, k1, k, s, arr_csv, te := {}, kol1 := 0, kol2 := 0, kol3 := kol4 := 0, ;
@@ -3792,7 +3792,7 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
       Endif
       Select KRTP
       find ( Str( arr_csv[ i, CSV_A_NREC ], 6 ) )
-      g_rlock( forever )
+      g_rlock( 'forever' )
       krtp->OPLATA := mstatus
       krtp->D_PRIK1 := iif( eq_any( mstatus, 1, 3 ), arr_csv[ i, CSV_A_DT ], CToD( '' ) )
       // пишем СМО в картотеку  проверим - что пришло еще раз 
@@ -3802,14 +3802,14 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
         Goto ( krtp->KOD_K )
         if len(alltrim(arr_csv[ i, CSV_A_ENP ])) > 15
           if kart->polis != arr_csv[ i, CSV_A_ENP ] .or. kart->kod_mis != arr_csv[ i, CSV_A_ENP ]
-            g_rlock( forever )  
+            g_rlock( 'forever' )  
             kart->polis := arr_csv[ i, CSV_A_ENP ]
             kart->kod_mis := arr_csv[ i, CSV_A_ENP ]
           endif  
         endif
         //
         Select KART_
-        g_rlock( forever ) 
+        g_rlock( 'forever' ) 
         if len( alltrim( arr_csv[ i, CSV_A_ENP ] ) ) > 15
           kart_->npolis := arr_csv[ i, CSV_A_ENP ]
           kart_->spolis := ''
@@ -3827,7 +3827,7 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
         select human_
         goto ( human->kod )
         if human->schet == 0 .and. human_->reestr == 0 // случ не в счете и не в реестре
-          g_rlock( forever ) 
+          g_rlock( 'forever' ) 
           if len(alltrim(arr_csv[ i, CSV_A_ENP ])) > 15 
             human_->npolis := arr_csv[ i, CSV_A_ENP ]
             human_->vpolis := 3
@@ -3837,12 +3837,17 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
               human_->smo    := alltrim(arr_csv[ i, CSV_A_SMO ])
               human_->okato  := alltrim(arr_csv[ i, CSV_A_OKATO  ])  
             endif        
+          elseif Len( arr_csv[ i, CSV_A_CERR ] ) == 1 .and. arr_csv[ i, CSV_A_CERR, 1 ] == 706 .and. len( alltrim( arr_csv[ i, CSV_A_SMO ] ) ) > 4
+            human_->smo    := alltrim( arr_csv[ i, CSV_A_SMO ] )
+            human_->okato  := alltrim( arr_csv[ i, CSV_A_OKATO  ] ) 
           endif  
           unlock
           select HUMAN 
-          g_rlock( forever ) 
+          g_rlock( 'forever' )
           if Len( arr_csv[ i, CSV_A_CERR ] ) < 1
-            human->mo_pr :=  alltrim(old_mo[i])
+            human->mo_pr :=  alltrim( old_mo[ i ] )
+          elseif Len( arr_csv[ i, CSV_A_CERR ] ) == 1 .and. arr_csv[ i, CSV_A_CERR, 1 ] == 706 .and. len(alltrim(arr_csv[ i, CSV_A_SMO ])) > 4
+            human->mo_pr :=  alltrim( old_mo[ i ] )
           endif  
           unlock
         endif  
@@ -3861,7 +3866,7 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
           Select KARTP
           find ( Str( krtp->KOD_K, 7 ) + DToS( arr_csv[ i, CSV_A_DT_MO ] ) )
           If Found()
-            g_rlock( forever )
+            g_rlock( 'forever' )
           Else
             addrec( 7 )
             kartp->KOD_K := krtp->KOD_K
@@ -3886,7 +3891,7 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
           Select KRTE
           find ( Str( nkod_reestr, 6 ) + Str( arr_csv[ i, CSV_A_NREC ], 6 ) + Str( arr_csv[ i, CSV_A_CERR, j ], 3 ) )
           If Found()
-            g_rlock( forever )
+            g_rlock( 'forever' )
           Else
           addrec( 6 )
           krte->REESTR := nkod_reestr
@@ -3932,12 +3937,12 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
     Commit
     Select KRTR
     Goto ( nkod_reestr )
-    g_rlock( forever )
+    g_rlock( 'forever' )
     krtr->KOL_P := kol1
     krtr->ANSWER := 1  // 0-не было ответа, 1-был прочитан ответ
     //
     Select KRTF
-    g_rlock( forever )
+    g_rlock( 'forever' )
     krtf->TWORK2 := hour_min( Seconds() )
     dbUnlockAll()
     Commit
@@ -3947,7 +3952,9 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
     StrFile( 'Случаев прикреплено к другим МО : ' + lstr( kol3 ) + hb_eol(), cFileProtokol, .t. )
     ASort( au, , , {| x, y| x[ 1 ] < y[ 1 ] } )
     For j := 1 To Len( au )
-      StrFile( PadL( iif( j == 1, 'в т.ч.', '' ), 15 ) + Str( au[ j, 2 ], 6 ) + ' - ' + ret_mo( au[ j, 1 ] )[ _MO_SHORT_NAME ] + hb_eol(), cFileProtokol, .t. )
+      StrFile( PadL( iif( j == 1, 'в т.ч.', '' ), 15 ) + Str( au[ j, 2 ], 6 ) + ' - ' + iif( len(alltrim(ret_mo( au[ j, 1 ] )[ _MO_SHORT_NAME ])) > 2,;
+                                                                                             ret_mo( au[ j, 1 ] )[ _MO_SHORT_NAME ],;
+                                                                                              au[ j, 1 ] ) + hb_eol(), cFileProtokol, .t. ) 
     Next
     ASort( te, , , {| x, y| x[ 1 ] < y[ 1 ] } )
     StrFile( 'Список ошибок:' + hb_eol(), cFileProtokol, .t. )
@@ -3976,7 +3983,7 @@ Function f_put_et_etk( lpid, lenp, ld_prik, luchast, lmo, lsnils, lkod_k, lprior
     Select kart_et
     find ( Str( lpid, 10 ) )
     If Found()
-      g_rlock( forever )
+      g_rlock( 'forever' )
     Else
       addrec( 10 )
       kart_et->kod_tf := lpid
@@ -3999,7 +4006,7 @@ Function f_put_et_etk( lpid, lenp, ld_prik, luchast, lmo, lsnils, lkod_k, lprior
     Select kart_etk
     find ( Str( lkod_k, 7 ) )
     If Found()
-      g_rlock( forever )
+      g_rlock( 'forever' )
     Else
       addrec( 10 )
       kart_etk->kod_k := lkod_k
@@ -4037,7 +4044,7 @@ Function f_put_date_prik( lkod_k, lpid, lenp, ltip_pr, ldeath, _n_del, lprik_mo,
 
   Select KART2
   Do While kart2->( LastRec() ) < lkod_k
-    g_rlock( .t., forever ) // бесконечная попытка добавить запись
+    g_rlock( .t., 'forever' ) // бесконечная попытка добавить запись
     kart2->kod_tf := 0
     kart2->MO_PR := ''
     kart2->SNILS_VR := '' // уч.врач ещё не привязан
@@ -4046,7 +4053,7 @@ Function f_put_date_prik( lkod_k, lpid, lenp, ltip_pr, ldeath, _n_del, lprik_mo,
     kart2->PC4 := ''
   Enddo
   Goto ( lkod_k )
-  g_rlock( forever )
+  g_rlock( 'forever' )
   If !Empty( lpid )
     kart2->kod_tf := lpid
   Endif
@@ -4110,7 +4117,7 @@ Function f_put_date_prik_new( lkod_k, lpid, lenp, ltip_pr, ldeath, _n_del, lprik
   
   Select KART2
   Do While kart2->( LastRec() ) < lkod_k
-    g_rlock( .t., forever ) // бесконечная попытка добавить запись
+    g_rlock( .t., 'forever' ) // бесконечная попытка добавить запись
     kart2->kod_tf := 0
     kart2->MO_PR := ''
     kart2->SNILS_VR := '' // уч.врач ещё не привязан
@@ -4120,7 +4127,7 @@ Function f_put_date_prik_new( lkod_k, lpid, lenp, ltip_pr, ldeath, _n_del, lprik
   Enddo
   //
   Goto ( lkod_k )
-  g_rlock( forever )
+  g_rlock( 'forever' )
   If !Empty( lpid )
     kart2->kod_tf := lpid
   Endif
