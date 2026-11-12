@@ -2,14 +2,14 @@
 #include 'chip_mo.ch'
 #include 'hbxlsxwriter.ch'
 
-// 11.11.26
+// 12.11.26
 function writexlsx_inf_children( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
   arr_2510_DDS, arr_2510_DDSOP, hYoung13_14, hYoung15_17, hGirl13_14, hGirl15_17 )
 
   Local buf := save_maxrow()
   Local workbook
   Local ws1, ws2, ws3, ws4, ws5, ws6, ws7
-  Local cColorTab1, cColorTab2, cColorTab3, cColorTab4, cColorTab5, cColorTab6, cColorTab7
+  Local cColorTab1, cColorTab2, cColorTab3, cColorTab4, cColorTab5, cColorTab6
   local error, i
   Local strMO, arr_plan
   Local titul_table_thin, titul_table_bold, titul_table_bold_green, text_thin, header_bold, header_data_bold
@@ -27,7 +27,6 @@ function writexlsx_inf_children( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
   cColorTab4 := 0xb9ead3
   cColorTab5 := 0xc9ead3
   cColorTab6 := 0x99ead3
-  cColorTab7 := 0x99ead3
 
   workbook  := workbook_new( file_name )
 
@@ -166,6 +165,7 @@ function writexlsx_inf_children( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
   format_set_font_size( text_thin, 11 )
 //  format_set_bg_color( titul_table_thin, 0xffff00 )
   format_set_border( text_thin, LXW_BORDER_THIN )
+
 
 //
 // лист 1 - профосмотры
@@ -1441,30 +1441,15 @@ function writexlsx_inf_children( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
   worksheet_merge_range( ws6, 15, 1, 15, 2, 'телефон исполнителя', block_FIO )
   worksheet_merge_range( ws6, 15, 3, 15, 6, '', block_FIO )
 
-
+/*
   disease_youngman( workbook, .f., hYoung15_17, hYoung13_14 )
   disease_youngman( workbook, .t., hYoung15_17, hYoung13_14 )
 
   disease_girl( workbook, .f., hGirl15_17, hGirl13_14 )
   disease_girl( workbook, .t., hGirl15_17, hGirl13_14 )
+*/
 
-
-//
-// лист 7 - Заболевания 13-17 ВСЕ
-//
-  ws7 := workbook_add_worksheet( workbook, 'Заболевания 13-17 ВСЕ' )
-  worksheet_set_tab_color( ws6, cColorTab7 )
-
-//  worksheet_set_row( ws7, 0, 43.8 )
-//  worksheet_set_row( ws7, 5, 28.2 )
-//  worksheet_set_row( ws7, 9, 31.8 )
-//  worksheet_set_row( ws7, 10, 31.8 )
-  worksheet_set_column( ws7, 1, 1, 32.44 )
-
-  worksheet_merge_range( ws7, 1, 1, 1, 7, 'Профосмотры несовершеннолетних', header_bold )
-
-  worksheet_merge_range( ws7, 4, 1, 4, 6, 'Наименование показателя', text_thin )
-  worksheet_write_string( ws7, 4, 7, 'человек / %', text_thin )
+  svod_new( workbook, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
 
   /* Закрыть книгу, записать файл и освободить память. */
   error = workbook_close( workbook )
@@ -1474,6 +1459,103 @@ function writexlsx_inf_children( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
     'Ошибка %d = %s\n', error, hb_ntos( error ) ), 'RU866' ), 'error' )
   Endif
   rest_box( buf )
+
+  return nil
+
+// 12.11.26
+function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
+
+    Local ws7, cColorTab7, text_thin_svod,text_thin_svod_center, header_bold
+
+//
+// лист 7 - Заболевания 13-17 ВСЕ
+//
+  cColorTab7 := 0x99ead3
+
+  header_bold := fmt_excel_hc_vc_wrap( wb )
+  format_set_bold( header_bold )
+  format_set_font_size( header_bold, 14 )
+
+  text_thin_svod := fmt_excel_hl_vc_wrap( wb )
+  format_set_font_size( text_thin_svod, 10 )
+//  format_set_bg_color( titul_table_thin, 0xffff00 )
+  format_set_border( text_thin_svod, LXW_BORDER_THIN )
+
+  text_thin_svod_center := fmt_excel_hc_vc_wrap( wb )
+  format_set_font_size( text_thin_svod_center, 10 )
+//  format_set_bg_color( titul_table_thin, 0xffff00 )
+  format_set_border( text_thin_svod_center, LXW_BORDER_THIN )
+
+
+  ws7 := workbook_add_worksheet( wb, 'Заболевания 13-17 ВСЕ' )
+  worksheet_set_tab_color( ws7, cColorTab7 )
+
+  worksheet_set_row( ws7, 0, 7.8 )
+  worksheet_set_row( ws7, 2, 7.8 )
+  worksheet_set_row( ws7, 3, 7.8 )
+  worksheet_set_row( ws7, 4, 16.8 )
+//  worksheet_set_row( ws7, 10, 31.8 )
+
+  worksheet_set_column( ws7, 0, 0, 8.89   )
+  worksheet_set_column( ws7, 1, 1, 61.11   )
+  worksheet_set_column( ws7, 2, 7, 12.56 )
+
+  worksheet_merge_range( ws7, 1, 1, 1, 7, 'Профосмотры несовершеннолетних', header_bold )
+
+  worksheet_write_string( ws7, 1, 0, '№ строки', text_thin_svod_center )
+  worksheet_merge_range( ws7, 4, 1, 4, 6, 'Наименование показателя', text_thin_svod_center )
+  worksheet_write_string( ws7, 4, 7, 'человек / %', text_thin_svod_center )
+
+  worksheet_write_number( ws7, 5, 0, 1, text_thin_svod )
+  worksheet_merge_range( ws7, 5, 1, 5, 6, 'Общее число несовершеннолетних в возрасте 13-17 лет включительно, подлежащих профилактическому осмотру (прикрепленного населения соответствующего возраста)', text_thin_svod )
+
+  worksheet_write_number( ws7, 6, 0, 2, text_thin_svod )
+  worksheet_merge_range( ws7, 6, 1, 6, 6, 'Общее число несовершеннолетних в возрасте 13-17 лет включительно, прошедших 1 этап профилактического осмотра в соответствующем возрасте', text_thin_svod )
+
+  worksheet_set_row( ws7, 7, 27.6 )
+  worksheet_write_number( ws7, 7, 0, 3, text_thin_svod )
+  worksheet_merge_range( ws7, 7, 1, 7, 6, 'Общее число несовершеннолетних в возрасте 13-17 лет включительно, прошедших 1 этап профилактического осмотра в соответствующем возрасте с применением мобильных медицинских комплексов', text_thin_svod )
+
+  worksheet_write_number( ws7, 8, 0, 4, text_thin_svod )
+  worksheet_merge_range( ws7, 8, 1, 8, 6, 'Процент несовершеннолетних в возрасте 13-17 лет включительно, прошедших профилактический осмотр в соответствующем возрасте', text_thin_svod_center )
+
+  worksheet_set_row( ws7, 9, 27.6 )
+  worksheet_write_number( ws7, 9, 0, 5, text_thin_svod )
+  worksheet_merge_range( ws7, 9, 1, 9, 6, 'Общее число несовершеннолетних в возрасте 13-17 лет включительно с оформленным отказом от профилактического осмотра в соответствующем возрасте', text_thin_svod )
+
+  worksheet_set_row( ws7, 10, 3.0 )
+  worksheet_set_row( ws7, 11, 3.0 )
+
+  worksheet_write_number( ws7, 12, 0, 8, text_thin_svod )
+  worksheet_merge_range( ws7, 12, 1, 12, 5, 'Общее число и доля несовершеннолетних в возрасте 13-17 лет включительно из прошедших профилактический осмотр, которые были отнесены к:', text_thin_svod )
+  worksheet_write_string( ws7, 12, 6, 'человек', text_thin_svod_center )
+  worksheet_write_string( ws7, 12, 7, '%', text_thin_svod_center )
+
+  worksheet_write_number( ws7, 13, 0, 9, text_thin_svod )
+  worksheet_merge_range( ws7, 13, 1, 13, 5, '1 группе здоровья', text_thin_svod )
+
+  worksheet_write_number( ws7, 14, 0, 10, text_thin_svod )
+  worksheet_merge_range( ws7, 14, 1, 14, 5, '2 группе здоровья', text_thin_svod )
+
+  worksheet_write_number( ws7, 15, 0, 11, text_thin_svod )
+  worksheet_merge_range( ws7, 15, 1, 15, 5, '3 группе здоровья', text_thin_svod )
+
+  worksheet_write_number( ws7, 16, 0, 12, text_thin_svod )
+  worksheet_merge_range( ws7, 16, 1, 16, 5, '4 группе здоровья', text_thin_svod )
+
+  worksheet_write_number( ws7, 17, 0, 13, text_thin_svod )
+  worksheet_merge_range( ws7, 17, 1, 17, 5, '5 группе здоровья', text_thin_svod )
+
+  worksheet_set_row( ws7, 18, 3.0 )
+  worksheet_set_row( ws7, 19, 3.0 )
+
+  worksheet_set_row( ws7, 20, 27.6 )
+  worksheet_write_number( ws7, 20, 0, 16, text_thin_svod )
+  worksheet_merge_range( ws7, 20, 1, 20, 6, 'Общее число несовершеннолетних в возрасте 13-17 лет включительно с выявленными заболеваниями органов репродуктивной системы из прошедших профилактический осмотр в соответствующем возрасте', text_thin_svod )
+
+  worksheet_set_row( ws7, 21, 27.6 )
+  worksheet_write_number( ws7, 21, 0, 17, text_thin_svod )
+  worksheet_merge_range( ws7, 21, 1, 21, 6, 'Общее число несовершеннолетних в возрасте 13-17 лет включительно, прошедших профилактический осмотр и взятых на учет после профилактического осмотра, в том числе:', text_thin_svod )
 
   return nil
 
