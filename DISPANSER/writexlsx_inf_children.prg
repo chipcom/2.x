@@ -1462,7 +1462,7 @@ function writexlsx_inf_children( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
 
   return nil
 
-// 12.11.26
+// 13.11.26
 function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
 
     Local ws7, cColorTab7, text_thin_svod,text_thin_svod_center, header_bold
@@ -1503,6 +1503,8 @@ function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
   worksheet_set_column( ws7, 0, 0, 8.89   )
   worksheet_set_column( ws7, 1, 1, 61.11   )
   worksheet_set_column( ws7, 2, 8, 12.56 )
+  worksheet_set_column( ws7, 9, 9, 1.33 )
+  worksheet_set_column( ws7, 10, 10, 6.11 )
 
   worksheet_merge_range( ws7, 1, 1, 1, 7, 'Профосмотры несовершеннолетних', header_bold )
 
@@ -1663,6 +1665,101 @@ function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
   worksheet_set_row( ws7, 48, 13 )
   worksheet_write_number( ws7, 48, 0, 44, text_thin_svod )
   worksheet_merge_range( ws7, 48, 1, 48, 7, 'Общее число девочек в возрасте 13-14 лет, прошедших профилактический осмотр, из общего числа подлежащих профилактическому осмотру (чел)', text_thin_svod )
+
+  worksheet_set_row( ws7, 49, 13 )
+  worksheet_write_number( ws7, 49, 0, 45, text_thin_svod )
+  worksheet_merge_range( ws7, 49, 1, 49, 7, 'Доля девочек, прошедших профилактический осмотр в возрасте 13-14 лет, из общего числа подлежащих профилактическому осмотру (%)', text_thin_svod )
+
+  worksheet_set_row( ws7, 50, 13 )
+  worksheet_write_number( ws7, 50, 0, 46, text_thin_svod )
+  worksheet_merge_range( ws7, 50, 1, 50, 7, 'Общее число девочек в возрасте 13-14 лет с оформленным отказом от профилактического осмотра (чел)', text_thin_svod )
+
+  worksheet_set_row( ws7, 51, 3.0 )
+  worksheet_set_row( ws7, 52, 3.0 )
+
+  worksheet_set_row( ws7, 53, 13 )
+  worksheet_write_number( ws7, 53, 0, 49, text_thin_svod )
+  worksheet_merge_range( ws7, 53, 1, 53, 6, 'Общее число и доля девочек в возрасте 13-14 лет из прошедших профилактический осмотр, которые были отнесены к:', text_thin_svod )
+  worksheet_write_string( ws7, 53, 7, 'человек', text_thin_svod_center )
+  worksheet_write_string( ws7, 53, 8, '%', text_thin_svod_center )
+
+  worksheet_set_row( ws7, 54, 13 )
+  worksheet_write_number( ws7, 54, 0, 50, text_thin_svod )
+  worksheet_merge_range( ws7, 54, 1, 54, 6, '1 группе здоровья', text_thin_svod )
+
+  worksheet_set_row( ws7, 55, 13 )
+  worksheet_write_number( ws7, 55, 0, 51, text_thin_svod )
+  worksheet_merge_range( ws7, 55, 1, 55, 6, '2 группе здоровья', text_thin_svod )
+
+  worksheet_set_row( ws7, 56, 13 )
+  worksheet_write_number( ws7, 56, 0, 52, text_thin_svod )
+  worksheet_merge_range( ws7, 56, 1, 56, 6, '3 группе здоровья', text_thin_svod )
+
+  worksheet_set_row( ws7, 57, 13 )
+  worksheet_write_number( ws7, 57, 0, 53, text_thin_svod )
+  worksheet_merge_range( ws7, 57, 1, 57, 6, '4 группе здоровья', text_thin_svod )
+
+  worksheet_set_row( ws7, 58, 13 )
+  worksheet_write_number( ws7, 58, 0, 54, text_thin_svod )
+  worksheet_merge_range( ws7, 58, 1, 58, 6, '5 группе здоровья', text_thin_svod )
+
+  worksheet_set_row( ws7, 59, 3.0 )
+  worksheet_set_row( ws7, 60, 3.0 )
+
+  worksheet_set_row( ws7, 61, 27.6 )
+  worksheet_write_number( ws7, 61, 0, 57, text_thin_svod )
+  worksheet_merge_range( ws7, 61, 1, 61, 7, 'Общее число девочек в возрасте 13-14 лет с выявленными заболеваниями половых органов и молочных желез из прошедших профилактический осмотр (чел.)', text_thin_svod )
+
+  worksheet_set_row( ws7, 62, 27.6 )
+  worksheet_write_number( ws7, 62, 0, 58, text_thin_svod )
+  worksheet_merge_range( ws7, 62, 1, 62, 7, 'Общее число девочек в возрасте 13-14 лет с впервые выявленными заболеваниями половых органов и молочных желез из прошедших профилактический осмотр (чел.)', text_thin_svod )
+
+  worksheet_set_row( ws7, 63, 13 )
+  worksheet_write_number( ws7, 63, 0, 59, text_thin_svod )
+  worksheet_merge_range( ws7, 63, 1, 63, 7, 'Доля девочек в возрасте 13-14 лет с впервые выявленными заболеваниями половых органов и молочных желез из прошедших профилактический осмотр (%)', text_thin_svod )
+
+  worksheet_set_row( ws7, 64, 13 )
+  worksheet_write_number( ws7, 64, 0, 60, text_thin_svod )
+  worksheet_merge_range( ws7, 64, 1, 64, 7, 'Общее число девочек в возрасте 13-14 лет прошедших профилактический осмотр и взятых на учет после профилактического осмотра, в том числе:', text_thin_svod )
+
+  worksheet_set_row( ws7, 65, 13 )
+  worksheet_write_number( ws7, 65, 0, 61, text_thin_svod )
+  worksheet_merge_range( ws7, 65, 1, 65, 7, 'для диспансерного наблюдения в амбулаторных условиях (чел.)', text_thin_svod )
+
+  worksheet_set_row( ws7, 66, 13 )
+  worksheet_write_number( ws7, 66, 0, 62, text_thin_svod )
+  worksheet_merge_range( ws7, 66, 1, 66, 7, 'для обследования и лечения в стационарных условиях за счет средств ОМС или ДМС (чел.)', text_thin_svod )
+
+  worksheet_set_row( ws7, 67, 13 )
+  worksheet_write_number( ws7, 67, 0, 63, text_thin_svod )
+  worksheet_merge_range( ws7, 67, 1, 67, 7, 'для обследования и лечения в стационарных условиях с использованием ВМП (чел.)', text_thin_svod )
+
+  worksheet_set_row( ws7, 68, 3.0 )
+
+  worksheet_set_row( ws7, 68, 23 )
+  worksheet_write_number( ws7, 69, 0, 65, text_thin_svod )
+  worksheet_merge_range( ws7, 69, 1, 69, 5, 'наименование заболеваний по кодам МКБ-10, выявленных на профилактическом осмотре девочек в возрасте 13-14 лет', text_thin_svod )
+  worksheet_write_string( ws7, 69, 6, 'Всего зарегистрировано заболеваний (абсолютное число)', text_thin_svod_center )
+  worksheet_write_string( ws7, 69, 7, 'В пересчете на 1000 девочек соответствующег возраста (%)', text_thin_svod_center )
+  worksheet_write_string( ws7, 69, 8, 'Выявлено впервые (абсолютное число)', text_thin_svod_center )
+//  worksheet_write_number( ws7, 69, 10, 26997, nil )
+
+  mkb_cell( ws7, 70, 66, 13, 'E30.0 Задержка полового созревания (остутствие роста молочных желез и оволосения лобка)', text_thin_svod, 0, 0, 0 )
+  mkb_cell( ws7, 71, 67, 13, 'N76.1 Подострый и хронический вагинит', text_thin_svod, 0, 0, 0 )
+  mkb_cell( ws7, 72, 68, 13, 'N76.3 Подострый и хронический вульвит', text_thin_svod, 0, 0, 0 )
+  mkb_cell( ws7, 73, 69, 13, 'N76.6 Изъязвление вульвы', text_thin_svod, 0, 0, 0 )
+  mkb_cell( ws7, 74, 70, 13, 'N90.4 Лейкоплакия вульвы (на фоне склерозирующего лихена)', text_thin_svod, 0, 0, 0 )
+  mkb_cell( ws7, 75, 71, 13, 'N90.6 Гипертрофия вульвы (гипертрофия половых губ и клитора)', text_thin_svod, 0, 0, 0 )
+  mkb_cell( ws7, 76, 72, 13, 'N90.8 Другие уточненные невоспалительные болезни вульвы и промежности (спайки или синехии вульвы)', text_thin_svod, 0, 0, 0 )
+
+  return nil
+
+// 13.11.26
+function mkb_cell( ws, row, num_str, heigh, text, format, vsego, percent, first )
+
+  worksheet_set_row( ws, row, heigh )
+  worksheet_write_number( ws, row, 0, num_str, format )
+  worksheet_merge_range( ws, row, 1, row, 5, text, format )
 
   return nil
 
