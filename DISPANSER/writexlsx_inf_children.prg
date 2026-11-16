@@ -1463,11 +1463,11 @@ function writexlsx_inf_children( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
 
   return nil
 
-// 15.11.26
+// 16.11.26
 function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
 
     Local ws7, cColorTab7, text_thin_svod,text_thin_svod_center, header_bold
-    local hTemp
+    local hTemp, total
 
 //
 // лист 7 - Заболевания 13-17 ВСЕ
@@ -1587,6 +1587,7 @@ function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
   worksheet_write_string( ws7, 46, 8, '', text_thin_svod_center )
 
   hTemp := hGirl13_14
+  total := hTemp[ 'I' ] + hTemp[ 'II' ] + hTemp[ 'III' ] + hTemp[ 'IV' ] + hTemp[ 'V' ]
 
   row_single_number( wb, ws7, 47, 43, 27.6, 'Общее число девочек в возрасте 13-14 лет, подлежащих профилактическому осмотру (прикрепленного населения соответствующего возраста), согласно статформе №30-по/у на начало', 0, .t. )
   row_single_number( wb, ws7, 48, 44, 13, 'Общее число девочек в возрасте 13-14 лет, прошедших профилактический осмотр, из общего числа подлежащих профилактическому осмотру (чел)', 0, .f., '=H55+H56+H57+H58+H59' )
@@ -1667,21 +1668,22 @@ function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
   worksheet_write_string( ws7, 102, 6, 'абсолютное число)', text_thin_svod_center )
   worksheet_write_string( ws7, 102, 7, 'на 1000 девочек соответствующег возраста', text_thin_svod_center )
   worksheet_write_string( ws7, 102, 8, 'Выявлено впервые (абсолютное число)', text_thin_svod_center )
-  row_three_numbers( wb, ws7, 103, 99, 13, 'E40 - E46 Недостаточность питания', hTemp[ 'E40_E46' ], 0, 0 )
-  row_three_numbers( wb, ws7, 104, 100, 13, 'E66 Ожирение', hTemp[ 'E66' ], 0, 0 )
-  row_three_numbers( wb, ws7, 105, 101, 13, 'E10 Сахарный диабет I типа', 0, 0, 0 )  //, hTemp[ 'E10' ], 0, 0 )
-  row_three_numbers( wb, ws7, 106, 102, 13, 'Z72.1 Употребление алкоголя', hTemp[ 'Z72.1' ], 0, 0 )
-  row_three_numbers( wb, ws7, 107, 103, 13, 'Z72.2 Использование наркотиков', hTemp[ 'Z72.2' ], 0, 0 )
-  row_three_numbers( wb, ws7, 108, 104, 13, 'Z72.0 Курение табака (ежедневное выкуривание одной сигареты и более)', hTemp[ 'Z72.0' ], 0, 0 )
-  row_three_numbers( wb, ws7, 109, 105, 13, 'E89.4 Нарушение функции яичников, возникшее после медицинских процедур', hTemp[ 'E89.4' ], 0, 0 )
-  row_three_numbers( wb, ws7, 110, 106, 13, 'Y83.2-4 Хирургические операции и другие хирургические процедуры как причина аномальной реакции или позднего осложнения у пациента без упоминания о случайном нанесении ему вреда во', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 111, 107, 13, 'Z91.2 В личном анамнезе о неудовлетворительное соблюдение личной гигиены', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 112, 108, 13, 'Z91.3 В личном анамнезе нарушение режима сна/бодрствования (исключены нарушения сна - G47. -)', 0, 0, 0 )
+  row_three_numbers( wb, ws7, 103, 99, 13, 'E40 - E46 Недостаточность питания', hTemp[ 'E40_E46' ], number_percent_1000( hTemp[ 'E40_E46' ], total ), 0 )
+  row_three_numbers( wb, ws7, 104, 100, 13, 'E66 Ожирение', hTemp[ 'E66' ], number_percent_1000( hTemp[ 'E66' ], total ), 0 )
+  row_three_numbers( wb, ws7, 105, 101, 13, 'E10 Сахарный диабет I типа', hTemp[ 'E10' ], number_percent_1000( hTemp[ 'E10' ], total ), 0 )
+  row_three_numbers( wb, ws7, 106, 102, 13, 'Z72.1 Употребление алкоголя', hTemp[ 'Z72.1' ], number_percent_1000( hTemp[ 'Z72.1' ], total ), 0 )
+  row_three_numbers( wb, ws7, 107, 103, 13, 'Z72.2 Использование наркотиков', hTemp[ 'Z72.2' ], number_percent_1000( hTemp[ 'Z72.2' ], total ), 0 )
+  row_three_numbers( wb, ws7, 108, 104, 13, 'Z72.0 Курение табака (ежедневное выкуривание одной сигареты и более)', hTemp[ 'Z72.0' ], number_percent_1000( hTemp[ 'Z72.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 109, 105, 13, 'E89.4 Нарушение функции яичников, возникшее после медицинских процедур', hTemp[ 'E89.4' ], number_percent_1000( hTemp[ 'E89.4' ], total ), 0 )
+  row_three_numbers( wb, ws7, 110, 106, 13, 'Y83.2-4 Хирургические операции и другие хирургические процедуры как причина аномальной реакции или позднего осложнения у пациента без упоминания о случайном нанесении ему вреда во', hTemp[ 'Y83.2_4' ], number_percent_1000( hTemp[ 'Y83.2_4' ], total ), 0 )
+  row_three_numbers( wb, ws7, 111, 107, 13, 'Z91.2 В личном анамнезе о неудовлетворительное соблюдение личной гигиены', hTemp[ 'Z91.2' ], number_percent_1000( hTemp[ 'Z91.2' ], total ), 0 )
+  row_three_numbers( wb, ws7, 112, 108, 13, 'Z91.3 В личном анамнезе нарушение режима сна/бодрствования (исключены нарушения сна - G47. -)', hTemp[ 'Z91.3' ], number_percent_1000( hTemp[ 'Z91.3' ], total ), 0 )
 
   worksheet_set_row( ws7, 113, 3.0 )
   worksheet_set_row( ws7, 114, 3.0 )
 
   hTemp := hGirl15_17
+  total := hTemp[ 'I' ] + hTemp[ 'II' ] + hTemp[ 'III' ] + hTemp[ 'IV' ] + hTemp[ 'V' ]
 
   worksheet_set_row( ws7, 115, 13 )
   worksheet_write_number( ws7, 115, 0, 111, text_thin_svod )
@@ -1773,20 +1775,21 @@ function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
   worksheet_write_string( ws7, 172, 7, 'на 1000 девочек соответствующег возраста', text_thin_svod_center )
   worksheet_write_string( ws7, 172, 8, 'Выявлено впервые (абсолютное число)', text_thin_svod_center )
 
-  row_three_numbers( wb, ws7, 173, 168, 13, 'E40 - E46 Недостаточность питания', hTemp[ 'E40_E46' ], 0, 0 )
-  row_three_numbers( wb, ws7, 174, 169, 13, 'E66 Ожирение', hTemp[ 'E66' ], 0, 0 )
-  row_three_numbers( wb, ws7, 175, 170, 13, 'E10 Сахарный диабет I типа', 0, 0, 0 )  //, hTemp[ 'E10' ], 0, 0 )
-  row_three_numbers( wb, ws7, 176, 171, 13, 'Z72.1 Употребление алкоголя', hTemp[ 'Z72.1' ], 0, 0 )
-  row_three_numbers( wb, ws7, 177, 172, 13, 'Z72.2 Использование наркотиков', hTemp[ 'Z72.2' ], 0, 0 )
-  row_three_numbers( wb, ws7, 178, 173, 13, 'Z72.0 Курение табака (ежедневное выкуривание одной сигареты и более)', hTemp[ 'Z72.0' ], 0, 0 )
-  row_three_numbers( wb, ws7, 179, 174, 13, 'E89.4 Нарушение функции яичников, возникшее после медицинских процедур', hTemp[ 'E89.4' ], 0, 0 )
-  row_three_numbers( wb, ws7, 180, 175, 13, 'Y83.2-4 Хирургические операции и другие хирургические процедуры как причина аномальной реакции или позднего осложнения у пациента без упоминания о случайном нанесении ему вреда во', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 181, 176, 13, 'Z91.2 В личном анамнезе о неудовлетворительное соблюдение личной гигиены', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 182, 177, 13, 'Z91.3 В личном анамнезе нарушение режима сна/бодрствования (исключены нарушения сна - G47. -)', 0, 0, 0 )
+  row_three_numbers( wb, ws7, 173, 168, 13, 'E40 - E46 Недостаточность питания', hTemp[ 'E40_E46' ], number_percent_1000( hTemp[ 'E40_E46' ], total ), 0 )
+  row_three_numbers( wb, ws7, 174, 169, 13, 'E66 Ожирение', hTemp[ 'E66' ], number_percent_1000( hTemp[ 'E66' ], total ), 0 )
+  row_three_numbers( wb, ws7, 175, 170, 13, 'E10 Сахарный диабет I типа', hTemp[ 'E10' ], number_percent_1000( hTemp[ 'E10' ], total ), 0 )
+  row_three_numbers( wb, ws7, 176, 171, 13, 'Z72.1 Употребление алкоголя', hTemp[ 'Z72.1' ], number_percent_1000( hTemp[ 'Z72.1' ], total ), 0 )
+  row_three_numbers( wb, ws7, 177, 172, 13, 'Z72.2 Использование наркотиков', hTemp[ 'Z72.2' ], number_percent_1000( hTemp[ 'Z72.2' ], total ), 0 )
+  row_three_numbers( wb, ws7, 178, 173, 13, 'Z72.0 Курение табака (ежедневное выкуривание одной сигареты и более)', hTemp[ 'Z72.0' ], number_percent_1000( hTemp[ 'Z72.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 179, 174, 13, 'E89.4 Нарушение функции яичников, возникшее после медицинских процедур', hTemp[ 'E89.4' ], number_percent_1000( hTemp[ 'E89.4' ], total ), 0 )
+  row_three_numbers( wb, ws7, 180, 175, 13, 'Y83.2-4 Хирургические операции и другие хирургические процедуры как причина аномальной реакции или позднего осложнения у пациента без упоминания о случайном нанесении ему вреда во', hTemp[ 'Y83.2_4' ], number_percent_1000( hTemp[ 'Y83.2_4' ], total ), 0 )
+  row_three_numbers( wb, ws7, 181, 176, 13, 'Z91.2 В личном анамнезе о неудовлетворительное соблюдение личной гигиены', hTemp[ 'Z91.2' ], number_percent_1000( hTemp[ 'Z91.2' ], total ), 0 )
+  row_three_numbers( wb, ws7, 182, 177, 13, 'Z91.3 В личном анамнезе нарушение режима сна/бодрствования (исключены нарушения сна - G47. -)', hTemp[ 'Z91.3' ], number_percent_1000( hTemp[ 'Z91.3' ], total ), 0 )
 
   empty_rows( ws7, 183, 2, 3.0 )  
 
   hTemp := hYoung13_14
+  total := hTemp[ 'I' ] + hTemp[ 'II' ] + hTemp[ 'III' ] + hTemp[ 'IV' ] + hTemp[ 'V' ]
 
   worksheet_write_number( ws7, 185, 0, 182, text_thin_svod )
   worksheet_merge_range( ws7, 185, 1, 185, 8, '13-14 лет мальчики', text_thin_svod_center )
@@ -1835,21 +1838,21 @@ function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
   worksheet_write_string( ws7, 211, 7, 'В пересчете на 1000 мальчиков соответствующег возраста (%)', text_thin_svod_center )
   worksheet_write_string( ws7, 211, 8, 'Выявлено впервые (абсолютное число)', text_thin_svod_center )
 
-  row_three_numbers( wb, ws7, 212, 208, 13, 'E30.0 Задержка полового созревания (отсутствие или слабое развитие оволосения лобка, яички объемом менее 4 куб. см, непигментированная мошонка, "детский" половой член)', hTemp[ 'E30.0' ], 0, 0 )
-  row_three_numbers( wb, ws7, 213, 209, 13, 'N43 Гидроцеле или сперматоцеле (водянка семенного канатика, яичка или влагалищной оболочки яичка)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 214, 210, 13, 'N45 Орхит, эпидидимит, эпидимоорхит', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 215, 211, 13, 'N47 Избыточная крайняя плоть, фимоз и парафимоз', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 216, 212, 13, 'N48.0 Лейкоплакия полового члена (облитерирущий ксеротический балонопостит, склеротический лихен или крауроз)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 217, 213, 13, 'N48.1 Баланопостит (баланит)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 218, 214, 13, 'N50.0 Атрофия яичка', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 219, 215, 13, 'A63.0 Аногенитальные (венерические) бородавки', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 220, 216, 13, 'I86.1 Варикозное расширение вен мошонки', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 221, 217, 13, 'Q53 Неопущение яичка', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 222, 218, 13, 'Q54 Гипоспадия', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 223, 219, 13, 'Q55 Другие врожденные аномалии (пороки развития) мужских половых органов', hTemp[ 'Q55' ], 0, 0 )
-  row_three_numbers( wb, ws7, 224, 220, 13, 'Q64.0 Эписпадия', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 225, 221, 13, 'N62 Гипертрофия молочной железы (гинекомастия)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 226, 222, 13, 'L70.0 Угри обыкновенные', 0, 0, 0 )
+  row_three_numbers( wb, ws7, 212, 208, 13, 'E30.0 Задержка полового созревания (отсутствие или слабое развитие оволосения лобка, яички объемом менее 4 куб. см, непигментированная мошонка, "детский" половой член)', hTemp[ 'E30.0' ], number_percent_1000( hTemp[ 'E30.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 213, 209, 13, 'N43 Гидроцеле или сперматоцеле (водянка семенного канатика, яичка или влагалищной оболочки яичка)', hTemp[ 'N43' ], number_percent_1000( hTemp[ 'N43' ], total ), 0 )
+  row_three_numbers( wb, ws7, 214, 210, 13, 'N45 Орхит, эпидидимит, эпидимоорхит', hTemp[ 'N45' ], number_percent_1000( hTemp[ 'N45' ], total ), 0 )
+  row_three_numbers( wb, ws7, 215, 211, 13, 'N47 Избыточная крайняя плоть, фимоз и парафимоз', hTemp[ 'N47' ], number_percent_1000( hTemp[ 'N47' ], total ), 0 )
+  row_three_numbers( wb, ws7, 216, 212, 13, 'N48.0 Лейкоплакия полового члена (облитерирущий ксеротический балонопостит, склеротический лихен или крауроз)', hTemp[ 'N48.0' ], number_percent_1000( 0, total ), 0 )
+  row_three_numbers( wb, ws7, 217, 213, 13, 'N48.1 Баланопостит (баланит)', hTemp[ 'N48.1' ], number_percent_1000( hTemp[ 'N48.1' ], total ), 0 )
+  row_three_numbers( wb, ws7, 218, 214, 13, 'N50.0 Атрофия яичка', hTemp[ 'N50.0' ], number_percent_1000( hTemp[ 'N50.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 219, 215, 13, 'A63.0 Аногенитальные (венерические) бородавки', hTemp[ 'A63.0' ], number_percent_1000( hTemp[ 'A63.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 220, 216, 13, 'I86.1 Варикозное расширение вен мошонки', hTemp[ 'I86.1' ], number_percent_1000( hTemp[ 'I86.1' ], total ), 0 )
+  row_three_numbers( wb, ws7, 221, 217, 13, 'Q53 Неопущение яичка', hTemp[ 'Q53' ], number_percent_1000( hTemp[ 'Q53' ], total ), 0 )
+  row_three_numbers( wb, ws7, 222, 218, 13, 'Q54 Гипоспадия', hTemp[ 'Q54' ], number_percent_1000( hTemp[ 'Q54' ], total ), 0 )
+  row_three_numbers( wb, ws7, 223, 219, 13, 'Q55 Другие врожденные аномалии (пороки развития) мужских половых органов', hTemp[ 'Q55' ], number_percent_1000( hTemp[ 'Q55' ], total ), 0 )
+  row_three_numbers( wb, ws7, 224, 220, 13, 'Q64.0 Эписпадия', hTemp[ 'Q64.0' ], number_percent_1000( hTemp[ 'Q64.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 225, 221, 13, 'N62 Гипертрофия молочной железы (гинекомастия)', hTemp[ 'N62' ], number_percent_1000( hTemp[ 'N62' ], total ), 0 )
+  row_three_numbers( wb, ws7, 226, 222, 13, 'L70.0 Угри обыкновенные', hTemp[ 'L70.0' ], number_percent_1000( hTemp[ 'L70.0' ], total ), 0 )
 
   empty_rows( ws7, 227, 2, 3.0 )  
 
@@ -1860,19 +1863,20 @@ function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
   worksheet_write_string( ws7, 229, 7, 'на 1000 мальчиков соответствующег возраста', text_thin_svod_center )
   worksheet_write_string( ws7, 229, 8, 'Выявлено впервые (абсолютное число)', text_thin_svod_center )
 
-  row_three_numbers( wb, ws7, 230, 226, 13, 'E40 - E46 Недостаточность питания', 0, 0, 0 )   //, hTemp[ 'E40_E46' ], 0, 0 )
-  row_three_numbers( wb, ws7, 231, 227, 13, 'E66 Ожирение', 0, 0, 0 )   //, hTemp[ 'E66' ], 0, 0 )
-  row_three_numbers( wb, ws7, 232, 228, 13, 'E10 Сахарный диабет I типа', 0, 0, 0 )  //, hTemp[ 'E10' ], 0, 0 )
-  row_three_numbers( wb, ws7, 233, 229, 13, 'Z72.1 Употребление алкоголя', 0, 0, 0 )   //, hTemp[ 'Z72.1' ], 0, 0 )
-  row_three_numbers( wb, ws7, 234, 230, 13, 'Z72.2 Использование наркотиков', 0, 0, 0 )   //, hTemp[ 'Z72.2' ], 0, 0 )
-  row_three_numbers( wb, ws7, 235, 231, 13, 'Z72.0 Курение табака (ежедневное выкуривание одной сигареты и более)', 0, 0, 0 )   //, hTemp[ 'Z72.0' ], 0, 0 )
-  row_three_numbers( wb, ws7, 236, 232, 13, 'Y83.2-4 Хирургические операции и другие хирургические процедуры как причина аномальной реакции или позднего осложнения у пациента без упоминания о случайном нанесении ему вреда во', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 237, 233, 13, 'Z91.2 В личном анамнезе о неудовлетворительное соблюдение личной гигиены', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 238, 234, 13, 'Z91.3 В личном анамнезе нарушение режима сна/бодрствования (исключены нарушения сна - G47. -)', 0, 0, 0 )
+  row_three_numbers( wb, ws7, 230, 226, 13, 'E40 - E46 Недостаточность питания', hTemp[ 'E40_E46' ], number_percent_1000( hTemp[ 'E40_E46' ], total ), 0 )
+  row_three_numbers( wb, ws7, 231, 227, 13, 'E66 Ожирение', hTemp[ 'E66' ], number_percent_1000( hTemp[ 'E66' ], total ), 0 )
+  row_three_numbers( wb, ws7, 232, 228, 13, 'E10 Сахарный диабет I типа', hTemp[ 'E10' ], number_percent_1000( hTemp[ 'E10' ], total ), 0 )
+  row_three_numbers( wb, ws7, 233, 229, 13, 'Z72.1 Употребление алкоголя', hTemp[ 'Z72.1' ], number_percent_1000( hTemp[ 'Z72.1' ], total ), 0 )
+  row_three_numbers( wb, ws7, 234, 230, 13, 'Z72.2 Использование наркотиков', hTemp[ 'Z72.2' ], number_percent_1000( hTemp[ 'Z72.2' ], total ), 0 )
+  row_three_numbers( wb, ws7, 235, 231, 13, 'Z72.0 Курение табака (ежедневное выкуривание одной сигареты и более)', hTemp[ 'Z72.0' ], number_percent_1000( hTemp[ 'Z72.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 236, 232, 13, 'Y83.2-4 Хирургические операции и другие хирургические процедуры как причина аномальной реакции или позднего осложнения у пациента без упоминания о случайном нанесении ему вреда во', hTemp[ 'Y83.2_4' ], number_percent_1000( hTemp[ 'Y83.2_4' ], total ), 0 )
+  row_three_numbers( wb, ws7, 237, 233, 13, 'Z91.2 В личном анамнезе о неудовлетворительное соблюдение личной гигиены', hTemp[ 'Z91.2' ], number_percent_1000( hTemp[ 'Z91.2' ], total ), 0 )
+  row_three_numbers( wb, ws7, 238, 234, 13, 'Z91.3 В личном анамнезе нарушение режима сна/бодрствования (исключены нарушения сна - G47. -)', hTemp[ 'Z91.3' ], number_percent_1000( hTemp[ 'Z91.3' ], total ), 0 )
 
   empty_rows( ws7, 239, 2, 3.0 )
 
   hTemp := hYoung15_17
+  total := hTemp[ 'I' ] + hTemp[ 'II' ] + hTemp[ 'III' ] + hTemp[ 'IV' ] + hTemp[ 'V' ]
 
   worksheet_write_number( ws7, 241, 0, 237, text_thin_svod )
   worksheet_merge_range( ws7, 241, 1, 241, 8, '15-17 лет мальчики', text_thin_svod_center )
@@ -1921,21 +1925,21 @@ function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
   worksheet_write_string( ws7, 26, 7, 'В пересчете на 1000 мальчиков соответствующег возраста (%)', text_thin_svod_center )
   worksheet_write_string( ws7, 266, 8, 'Выявлено впервые (абсолютное число)', text_thin_svod_center )
 
-  row_three_numbers( wb, ws7, 267, 263, 13, 'E30.0 Задержка полового созревания (отсутствие или слабое развитие оволосения лобка, яички объемом менее 4 куб. см, непигментированная мошонка, "детский" половой член)', hTemp[ 'E30.0' ], 0, 0 )
-  row_three_numbers( wb, ws7, 268, 264, 13, 'N43 Гидроцеле или сперматоцеле (водянка семенного канатика, яичка или влагалищной оболочки яичка)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 269, 265, 13, 'N45 Орхит, эпидидимит, эпидимоорхит', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 270, 266, 13, 'N47 Избыточная крайняя плоть, фимоз и парафимоз', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 271, 267, 13, 'N48.0 Лейкоплакия полового члена (облитерирущий ксеротический балонопостит, склеротический лихен или крауроз)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 272, 268, 13, 'N48.1 Баланопостит (баланит)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 273, 269, 13, 'N50.0 Атрофия яичка', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 274, 270, 13, 'A63.0 Аногенитальные (венерические) бородавки', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 275, 271, 13, 'I86.1 Варикозное расширение вен мошонки', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 276, 272, 13, 'Q53 Неопущение яичка', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 277, 273, 13, 'Q54 Гипоспадия', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 278, 274, 13, 'Q55 Другие врожденные аномалии (пороки развития) мужских половых органов', hTemp[ 'Q55' ], 0, 0 )
-  row_three_numbers( wb, ws7, 279, 275, 13, 'Q64.0 Эписпадия', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 280, 276, 13, 'N62 Гипертрофия молочной железы (гинекомастия)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 281, 277, 13, 'L70.0 Угри обыкновенные', 0, 0, 0 )
+  row_three_numbers( wb, ws7, 267, 263, 13, 'E30.0 Задержка полового созревания (отсутствие или слабое развитие оволосения лобка, яички объемом менее 4 куб. см, непигментированная мошонка, "детский" половой член)', hTemp[ 'E30.0' ], number_percent_1000( hTemp[ 'E30.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 268, 264, 13, 'N43 Гидроцеле или сперматоцеле (водянка семенного канатика, яичка или влагалищной оболочки яичка)', hTemp[ 'N43' ], number_percent_1000( hTemp[ 'N43' ], total ), 0 )
+  row_three_numbers( wb, ws7, 269, 265, 13, 'N45 Орхит, эпидидимит, эпидимоорхит', hTemp[ 'N45' ], number_percent_1000( hTemp[ 'N45' ], total ), 0 )
+  row_three_numbers( wb, ws7, 270, 266, 13, 'N47 Избыточная крайняя плоть, фимоз и парафимоз', hTemp[ 'N47' ], number_percent_1000( hTemp[ 'N47' ], total ), 0 )
+  row_three_numbers( wb, ws7, 271, 267, 13, 'N48.0 Лейкоплакия полового члена (облитерирущий ксеротический балонопостит, склеротический лихен или крауроз)', hTemp[ 'N48.0' ], number_percent_1000( hTemp[ 'N48.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 272, 268, 13, 'N48.1 Баланопостит (баланит)', hTemp[ 'N48.1' ], number_percent_1000( hTemp[ 'N48.1' ], total ), 0 )
+  row_three_numbers( wb, ws7, 273, 269, 13, 'N50.0 Атрофия яичка', hTemp[ 'N50.0' ], number_percent_1000( hTemp[ 'N50.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 274, 270, 13, 'A63.0 Аногенитальные (венерические) бородавки', hTemp[ 'A63.0' ], number_percent_1000( hTemp[ 'A63.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 275, 271, 13, 'I86.1 Варикозное расширение вен мошонки', hTemp[ 'I86.1' ], number_percent_1000( hTemp[ 'I86.1' ], total ), 0 )
+  row_three_numbers( wb, ws7, 276, 272, 13, 'Q53 Неопущение яичка', hTemp[ 'Q53' ], number_percent_1000( hTemp[ 'Q53' ], total ), 0 )
+  row_three_numbers( wb, ws7, 277, 273, 13, 'Q54 Гипоспадия', hTemp[ 'Q54' ], number_percent_1000( hTemp[ 'Q54' ], total ), 0 )
+  row_three_numbers( wb, ws7, 278, 274, 13, 'Q55 Другие врожденные аномалии (пороки развития) мужских половых органов', hTemp[ 'Q55' ], number_percent_1000( hTemp[ 'Q55' ], total ), 0 )
+  row_three_numbers( wb, ws7, 279, 275, 13, 'Q64.0 Эписпадия', hTemp[ 'Q64.0' ], number_percent_1000( hTemp[ 'Q64.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 280, 276, 13, 'N62 Гипертрофия молочной железы (гинекомастия)', hTemp[ 'N62' ], number_percent_1000( hTemp[ 'N62' ], total ), 0 )
+  row_three_numbers( wb, ws7, 281, 277, 13, 'L70.0 Угри обыкновенные', hTemp[ 'L70.0' ], number_percent_1000( hTemp[ 'L70.0' ], total ), 0 )
 
   empty_rows( ws7, 282, 2, 3.0 )  
 
@@ -1946,19 +1950,24 @@ function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
   worksheet_write_string( ws7, 284, 7, 'на 1000 мальчиков соответствующег возраста', text_thin_svod_center )
   worksheet_write_string( ws7, 284, 8, 'Выявлено впервые (абсолютное число)', text_thin_svod_center )
 
-  row_three_numbers( wb, ws7, 285, 281, 13, 'E40 - E46 Недостаточность питания', 0, 0, 0 )   //, hTemp[ 'E40_E46' ], 0, 0 )
-  row_three_numbers( wb, ws7, 286, 282, 13, 'E66 Ожирение', 0, 0, 0 )   //, hTemp[ 'E66' ], 0, 0 )
-  row_three_numbers( wb, ws7, 287, 283, 13, 'E10 Сахарный диабет I типа', 0, 0, 0 )   //, 0, 0, 0 )  //, hTemp[ 'E10' ], 0, 0 )
-  row_three_numbers( wb, ws7, 288, 284, 13, 'Z72.1 Употребление алкоголя', 0, 0, 0 )   //, hTemp[ 'Z72.1' ], 0, 0 )
-  row_three_numbers( wb, ws7, 289, 285, 13, 'Z72.2 Использование наркотиков', 0, 0, 0 )   //, hTemp[ 'Z72.2' ], 0, 0 )
-  row_three_numbers( wb, ws7, 290, 286, 13, 'Z72.0 Курение табака (ежедневное выкуривание одной сигареты и более)', 0, 0, 0 )   //, hTemp[ 'Z72.0' ], 0, 0 )
-  row_three_numbers( wb, ws7, 291, 287, 13, 'Y83.2-4 Хирургические операции и другие хирургические процедуры как причина аномальной реакции или позднего осложнения у пациента без упоминания о случайном нанесении ему вреда во', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 292, 288, 13, 'Z91.2 В личном анамнезе о неудовлетворительное соблюдение личной гигиены', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 293, 289, 13, 'Z91.3 В личном анамнезе нарушение режима сна/бодрствования (исключены нарушения сна - G47. -)', 0, 0, 0 )
+  row_three_numbers( wb, ws7, 285, 281, 13, 'E40 - E46 Недостаточность питания', hTemp[ 'E40_E46' ], number_percent_1000( hTemp[ 'E40_E46' ], total ), 0 )
+  row_three_numbers( wb, ws7, 286, 282, 13, 'E66 Ожирение', hTemp[ 'E66' ], number_percent_1000( hTemp[ 'E66' ], total ), 0 )
+  row_three_numbers( wb, ws7, 287, 283, 13, 'E10 Сахарный диабет I типа', hTemp[ 'E10' ], number_percent_1000( hTemp[ 'E10' ], total ), 0 )
+  row_three_numbers( wb, ws7, 288, 284, 13, 'Z72.1 Употребление алкоголя', hTemp[ 'Z72.1' ], number_percent_1000( hTemp[ 'Z72.1' ], total ), 0 )
+  row_three_numbers( wb, ws7, 289, 285, 13, 'Z72.2 Использование наркотиков', hTemp[ 'Z72.2' ], number_percent_1000( hTemp[ 'Z72.2' ], total ), 0 )
+  row_three_numbers( wb, ws7, 290, 286, 13, 'Z72.0 Курение табака (ежедневное выкуривание одной сигареты и более)', hTemp[ 'Z72.0' ], number_percent_1000( hTemp[ 'Z72.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 291, 287, 13, 'Y83.2-4 Хирургические операции и другие хирургические процедуры как причина аномальной реакции или позднего осложнения у пациента без упоминания о случайном нанесении ему вреда во', hTemp[ 'Y83.2_4' ], number_percent_1000( hTemp[ 'Y83.2_4' ], total ), 0 )
+  row_three_numbers( wb, ws7, 292, 288, 13, 'Z91.2 В личном анамнезе о неудовлетворительное соблюдение личной гигиены', hTemp[ 'Z91.2' ], number_percent_1000( hTemp[ 'Z91.2' ], total ), 0 )
+  row_three_numbers( wb, ws7, 293, 289, 13, 'Z91.3 В личном анамнезе нарушение режима сна/бодрствования (исключены нарушения сна - G47. -)', hTemp[ 'Z91.3' ], number_percent_1000( hTemp[ 'Z91.3' ], total ), 0 )
 
   empty_rows( ws7, 294, 2, 3.0 )
 
   return nil
+
+// 16.11.26
+function number_percent_1000( value, total )
+
+  return iif( value == 0, 0, ( value / total ) * 1000 )
 
 // 14.11.26
 function empty_rows( ws, value, count, height )
