@@ -1442,13 +1442,13 @@ function writexlsx_inf_children( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
   worksheet_merge_range( ws6, 15, 1, 15, 2, 'телефон исполнителя', block_FIO )
   worksheet_merge_range( ws6, 15, 3, 15, 6, '', block_FIO )
 
-
+/*
   disease_youngman( workbook, .f., hYoung15_17, hYoung13_14 )
   disease_youngman( workbook, .t., hYoung15_17, hYoung13_14 )
 
   disease_girl( workbook, .f., hGirl15_17, hGirl13_14 )
   disease_girl( workbook, .t., hGirl15_17, hGirl13_14 )
-
+*/
 
   svod_new( workbook, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
 
@@ -1463,11 +1463,12 @@ function writexlsx_inf_children( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
 
   return nil
 
-// 16.11.26
+// 17.11.26
 function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
 
     Local ws7, cColorTab7, text_thin_svod,text_thin_svod_center, header_bold
     local hTemp, total
+    local total_I, total_II, total_III, total_IV, total_V, sum_total, sum_total_young, sum_total_girl
 
 //
 // лист 7 - Заболевания 13-17 ВСЕ
@@ -1508,6 +1509,13 @@ function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
   worksheet_set_column( ws7, 9, 9, 1.33 )
   worksheet_set_column( ws7, 10, 10, 6.11 )
 
+  total_I := hYoung13_14[ 'I' ] + hYoung15_17[ 'I' ] + hGirl13_14[ 'I' ] + hGirl15_17[ 'I' ]
+  total_II := hYoung13_14[ 'II' ] + hYoung15_17[ 'II' ] + hGirl13_14[ 'II' ] + hGirl15_17[ 'II' ]
+  total_III := hYoung13_14[ 'III' ] + hYoung15_17[ 'III' ] + hGirl13_14[ 'III' ] + hGirl15_17[ 'III' ]
+  total_IV := hYoung13_14[ 'IV' ] + hYoung15_17[ 'IV' ] + hGirl13_14[ 'IV' ] + hGirl15_17[ 'IV' ]
+  total_V := hYoung13_14[ 'V' ] + hYoung15_17[ 'V' ] + hGirl13_14[ 'V' ] + hGirl15_17[ 'V' ]
+  sum_total := total_I + total_II + total_III + total_IV + total_V
+
   worksheet_merge_range( ws7, 1, 1, 1, 7, 'Профосмотры несовершеннолетних', header_bold )
 
   worksheet_write_string( ws7, 1, 0, '№ строки', text_thin_svod_center )
@@ -1527,11 +1535,11 @@ function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
   worksheet_write_string( ws7, 12, 7, 'человек', text_thin_svod_center )
   worksheet_write_string( ws7, 12, 8, '%', text_thin_svod_center )
 
-  row_two_numbers( wb, ws7, 13, 9, 13, '1 группе здоровья', 0, 0 )
-  row_two_numbers( wb, ws7, 14, 10, 13, '2 группе здоровья', 0, 0 )
-  row_two_numbers( wb, ws7, 15, 11, 13, '3 группе здоровья', 0, 0 )
-  row_two_numbers( wb, ws7, 16, 12, 13, '4 группе здоровья', 0, 0 )
-  row_two_numbers( wb, ws7, 17, 13, 13, '5 группе здоровья', 0, 0 )
+  row_two_numbers( wb, ws7, 13, 9, 13, '1 группе здоровья', total_I, number_percent_100( total_I, sum_total ) )
+  row_two_numbers( wb, ws7, 14, 10, 13, '2 группе здоровья', total_II, number_percent_100( total_II, sum_total ) )
+  row_two_numbers( wb, ws7, 15, 11, 13, '3 группе здоровья', total_III, number_percent_100( total_III, sum_total ) )
+  row_two_numbers( wb, ws7, 16, 12, 13, '4 группе здоровья', total_IV, number_percent_100( total_IV, sum_total ) )
+  row_two_numbers( wb, ws7, 17, 13, 13, '5 группе здоровья', total_V, number_percent_100( total_V, sum_total ) )
 
   empty_rows( ws7, 18, 2, 3.0 )  
 
@@ -1559,6 +1567,20 @@ function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
 
   worksheet_set_row( ws7, 37, 3.0 )
 
+  total_I := hYoung13_14[ 'I' ] + hYoung15_17[ 'I' ]
+  total_II := hYoung13_14[ 'II' ] + hYoung15_17[ 'II' ]
+  total_III := hYoung13_14[ 'III' ] + hYoung15_17[ 'III' ]
+  total_IV := hYoung13_14[ 'IV' ] + hYoung15_17[ 'IV' ]
+  total_V := hYoung13_14[ 'V' ] + hYoung15_17[ 'V' ]
+  sum_total_young := total_I + total_II + total_III + total_IV + total_V
+
+  total_I := hGirl13_14[ 'I' ] + hGirl15_17[ 'I' ]
+  total_II := hGirl13_14[ 'II' ] + hGirl15_17[ 'II' ]
+  total_III := hGirl13_14[ 'III' ] + hGirl15_17[ 'III' ]
+  total_IV := hGirl13_14[ 'IV' ] + hGirl15_17[ 'IV' ]
+  total_V :=  hGirl13_14[ 'V' ] + hGirl15_17[ 'V' ]
+  sum_total_girl := total_I + total_II + total_III + total_IV + total_V
+
   worksheet_set_row( ws7, 38, 234 )
   worksheet_write_number( ws7, 38, 0, 34, text_thin_svod )
   worksheet_merge_range( ws7, 38, 1, 38, 1, 'Наименование показателя', text_thin_svod )
@@ -1571,9 +1593,9 @@ function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
   worksheet_write_string( ws7, 38, 7, 'Количество подростков с впервые выявленной патологией (чел)', text_thin_svod_center )
   worksheet_write_string( ws7, 38, 8, 'Направлено на 2 этап для дообследования и лечения из количества подростков с патологией по результатам осмотров (чел)', text_thin_svod_center )
 
-  row_seven_numbers( wb, ws7, 39, 34, 27.6, 'Профилактические осмотры мальчиков в возрасте 13-17 лет включительно', 0, 0, 0, 0, 0, 0, 0, .t. )
-  row_seven_numbers( wb, ws7, 40, 35, 27.6, 'Профилактические осмотры девочек в возрасте 13-17 лет включительно', 0, 0, 0, 0, 0, 0, 0, .t. )
-  row_seven_numbers( wb, ws7, 41, 36, 13, 'ВСЕГО', 0, 0, 0, 0, 0, 0, 0, .f. )
+  row_seven_numbers( wb, ws7, 39, 34, 27.6, 'Профилактические осмотры мальчиков в возрасте 13-17 лет включительно', 0, sum_total_young, 0, 0, '=I62+I133', 0, 0, .t. )
+  row_seven_numbers( wb, ws7, 40, 35, 27.6, 'Профилактические осмотры девочек в возрасте 13-17 лет включительно', 0, sum_total_girl, 0, 0, '=I204+I259', 0, 0, .t. )
+  row_seven_numbers( wb, ws7, 41, 36, 13, 'ВСЕГО', 0, sum_total_young + sum_total_girl, 0, 0, '=G40+G41', 0, 0, .f. )
 
   worksheet_set_row( ws7, 42, 3.0 )
   worksheet_set_row( ws7, 43, 3.0 )
@@ -1610,7 +1632,7 @@ function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
 
   empty_rows( ws7, 59, 2, 3.0 )  
 
-  row_single_number( wb, ws7, 61, 57, 27.6, 'Общее число девочек в возрасте 13-14 лет с выявленными заболеваниями половых органов и молочных желез из прошедших профилактический осмотр (чел.)', 0, .t. )
+  row_single_number( wb, ws7, 61, 57, 27.6, 'Общее число девочек в возрасте 13-14 лет с выявленными заболеваниями половых органов и молочных желез из прошедших профилактический осмотр (чел.)', 0, .t., '=SUM(G71:G100)' )
   row_single_number( wb, ws7, 62, 58, 27.6, 'Общее число девочек в возрасте 13-14 лет с впервые выявленными заболеваниями половых органов и молочных желез из прошедших профилактический осмотр (чел.)', 0, .t. )
   row_single_number( wb, ws7, 63, 59, 13, 'Доля девочек в возрасте 13-14 лет с впервые выявленными заболеваниями половых органов и молочных желез из прошедших профилактический осмотр (%)', 0, .f. )
   row_single_number( wb, ws7, 64, 60, 13, 'Общее число девочек в возрасте 13-14 лет прошедших профилактический осмотр и взятых на учет после профилактического осмотра, в том числе:', 0, .t. )
@@ -1628,36 +1650,36 @@ function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
   worksheet_write_string( ws7, 69, 8, 'Выявлено впервые (абсолютное число)', text_thin_svod_center )
 //  worksheet_write_number( ws7, 69, 10, 26997, nil )
 
-  row_three_numbers( wb, ws7, 70, 66, 13, 'E30.0 Задержка полового созревания (остутствие роста молочных желез и оволосения лобка)', hTemp[ 'E30.0' ], 0, 0 )
-  row_three_numbers( wb, ws7, 71, 67, 13, 'N76.1 Подострый и хронический вагинит', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 72, 68, 13, 'N76.3 Подострый и хронический вульвит', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 73, 69, 13, 'N76.6 Изъязвление вульвы', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 74, 70, 13, 'N90.4 Лейкоплакия вульвы (на фоне склерозирующего лихена)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 75, 71, 13, 'N90.6 Гипертрофия вульвы (гипертрофия половых губ и клитора)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 76, 72, 13, 'N90.8 Другие уточненные невоспалительные болезни вульвы и промежности (спайки или синехии вульвы)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 77, 73, 13, 'D28.0 Доброкачественное образование вульвы бартолиниевой железы, фиброма, липома, гидроаденома', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 78, 74, 13, 'A63.0 Аногенитальные (венерические) бородавки', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 79, 75, 13, 'Q52.0 Врожденное отсутствие влагалища', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 80, 76, 13, 'Q52.3 Девственная плева, полностью закрывающая вход во влагалище (килевидный, решетчатый, мембранный гимен)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 81, 77, 13, 'Q52.5 Сращение губ (врожденный урегинетальный синус II-V степени вирилизации по Прадеру)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 82, 78, 13, 'Q56.4 Неопределенность пола неуточненная (неопределенность половых органов)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 83, 79, 13, 'Q64.8 Другие уточненные врожденные аномалии мочевыделительной системы (уретра, открывающая на передней стенке влагалища)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 84, 80, 13, 'N91.1 Вторичная аменорея (отсутствие менструаций в течении 3 месяцев при регулярных и 6 месяцев при нерегулярных до этого менструациях)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 85, 81, 13, 'N91.3 Первичная олигоминорея (менструация с промежутком более 48 дней и менее 6 месяцев)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 86, 82, 13, 'N91.4 Вторичная олигоминорея (менструация с промежутком более 48 дней и менее 3 месяцев при ранее регулярном ритме)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 87, 83, 13, 'N91.5 Олигоменорея неуточненная (скудные регулярные менструальные выделения)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 88, 84, 13, 'N92.2 Обильные кровотечения вначале менструального периода (обильные регулярные менструации, межменструальные маточные кровотечения)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 89, 85, 13, 'N94.6 Дисменорея неуточненная', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 90, 86, 13, 'N94.3 Синдром предменструального напряжения', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 91, 87, 13, 'N60.9 Доброкачественная дисплазия молочной железы неуточненная', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 92, 88, 13, 'N61 Воспалительные болезни молочной железы (мастит, карбункул, абсцесс)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 93, 89, 13, 'N62 Гипертрофия молочной железы (массивная пубертатная)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 94, 90, 13, 'N63 Образование в молочной железе неуточненное (узелок/узелки в молочной железе без диагностического уточнения)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 95, 91, 13, 'Q83 Врожденные аномалии [пороки развития] молочной железы', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 96, 92, 13, 'N64.4 Мастодиния', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 97, 93, 13, 'L70.0 Угри обыкновенные', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 98, 94, 13, 'L68.0 Гирсутизм', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 99, 95, 13, 'Z33 Состояние свойственное беременности (состояние беременности)', 0, 0, 0 )
+  row_three_numbers( wb, ws7, 70, 66, 13, 'E30.0 Задержка полового созревания (остутствие роста молочных желез и оволосения лобка)', hTemp[ 'E30.0' ], number_percent_1000( hTemp[ 'E30.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 71, 67, 13, 'N76.1 Подострый и хронический вагинит', hTemp[ 'N76.1' ], number_percent_1000( hTemp[ 'N76.1' ], total ), 0 )
+  row_three_numbers( wb, ws7, 72, 68, 13, 'N76.3 Подострый и хронический вульвит', hTemp[ 'N76.3' ], number_percent_1000( hTemp[ 'N76.3' ], total ), 0 )
+  row_three_numbers( wb, ws7, 73, 69, 13, 'N76.6 Изъязвление вульвы', hTemp[ 'N76.6' ], number_percent_1000( hTemp[ 'N76.6' ], total ), 0 )
+  row_three_numbers( wb, ws7, 74, 70, 13, 'N90.4 Лейкоплакия вульвы (на фоне склерозирующего лихена)', hTemp[ 'N90.4' ], number_percent_1000( hTemp[ 'N90.4' ], total ), 0 )
+  row_three_numbers( wb, ws7, 75, 71, 13, 'N90.6 Гипертрофия вульвы (гипертрофия половых губ и клитора)', hTemp[ 'N90.6' ], number_percent_1000( hTemp[ 'N90.6' ], total ), 0 )
+  row_three_numbers( wb, ws7, 76, 72, 13, 'N90.8 Другие уточненные невоспалительные болезни вульвы и промежности (спайки или синехии вульвы)', hTemp[ 'N90.8' ], number_percent_1000( hTemp[ 'N90.8' ], total ), 0 )
+  row_three_numbers( wb, ws7, 77, 73, 13, 'D28.0 Доброкачественное образование вульвы бартолиниевой железы, фиброма, липома, гидроаденома', hTemp[ 'D28.0' ], number_percent_1000( hTemp[ 'D28.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 78, 74, 13, 'A63.0 Аногенитальные (венерические) бородавки', hTemp[ 'A63.0' ], number_percent_1000( hTemp[ 'A63.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 79, 75, 13, 'Q52.0 Врожденное отсутствие влагалища', hTemp[ 'Q52.0' ], number_percent_1000( hTemp[ 'Q52.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 80, 76, 13, 'Q52.3 Девственная плева, полностью закрывающая вход во влагалище (килевидный, решетчатый, мембранный гимен)', hTemp[ 'Q52.3' ], number_percent_1000( hTemp[ 'Q52.3' ], total ), 0 )
+  row_three_numbers( wb, ws7, 81, 77, 13, 'Q52.5 Сращение губ (врожденный урегинетальный синус II-V степени вирилизации по Прадеру)', hTemp[ 'Q52.5' ], number_percent_1000( hTemp[ 'Q52.5' ], total ), 0 )
+  row_three_numbers( wb, ws7, 82, 78, 13, 'Q56.4 Неопределенность пола неуточненная (неопределенность половых органов)', hTemp[ 'Q56.4' ], number_percent_1000( hTemp[ 'Q56.4' ], total ), 0 )
+  row_three_numbers( wb, ws7, 83, 79, 13, 'Q64.8 Другие уточненные врожденные аномалии мочевыделительной системы (уретра, открывающая на передней стенке влагалища)', hTemp[ 'Q64.8' ], number_percent_1000( hTemp[ 'Q64.8' ], total ), 0 )
+  row_three_numbers( wb, ws7, 84, 80, 13, 'N91.1 Вторичная аменорея (отсутствие менструаций в течении 3 месяцев при регулярных и 6 месяцев при нерегулярных до этого менструациях)', hTemp[ 'N91.1' ], number_percent_1000( hTemp[ 'N91.1' ], total ), 0 )
+  row_three_numbers( wb, ws7, 85, 81, 13, 'N91.3 Первичная олигоминорея (менструация с промежутком более 48 дней и менее 6 месяцев)', hTemp[ 'N91.3' ], number_percent_1000( hTemp[ 'N91.3' ], total ), 0 )
+  row_three_numbers( wb, ws7, 86, 82, 13, 'N91.4 Вторичная олигоминорея (менструация с промежутком более 48 дней и менее 3 месяцев при ранее регулярном ритме)', hTemp[ 'N91.4' ], number_percent_1000( hTemp[ 'N91.4' ], total ), 0 )
+  row_three_numbers( wb, ws7, 87, 83, 13, 'N91.5 Олигоменорея неуточненная (скудные регулярные менструальные выделения)', hTemp[ 'N91.5' ], number_percent_1000( hTemp[ 'N91.5' ], total ), 0 )
+  row_three_numbers( wb, ws7, 88, 84, 13, 'N92.2 Обильные кровотечения вначале менструального периода (обильные регулярные менструации, межменструальные маточные кровотечения)', hTemp[ 'N92.2' ], number_percent_1000( hTemp[ 'N92.2' ], total ), 0 )
+  row_three_numbers( wb, ws7, 89, 85, 13, 'N94.6 Дисменорея неуточненная', hTemp[ 'N94.6' ], number_percent_1000( hTemp[ 'N94.6' ], total ), 0 )
+  row_three_numbers( wb, ws7, 90, 86, 13, 'N94.3 Синдром предменструального напряжения', hTemp[ 'N94.3' ], number_percent_1000( hTemp[ 'N94.3' ], total ), 0 )
+  row_three_numbers( wb, ws7, 91, 87, 13, 'N60.9 Доброкачественная дисплазия молочной железы неуточненная', hTemp[ 'N60.9' ], number_percent_1000( hTemp[ 'N60.9' ], total ), 0 )
+  row_three_numbers( wb, ws7, 92, 88, 13, 'N61 Воспалительные болезни молочной железы (мастит, карбункул, абсцесс)', hTemp[ 'N61' ], number_percent_1000( hTemp[ 'N61' ], total ), 0 )
+  row_three_numbers( wb, ws7, 93, 89, 13, 'N62 Гипертрофия молочной железы (массивная пубертатная)', hTemp[ 'N62' ], number_percent_1000( hTemp[ 'N62' ], total ), 0 )
+  row_three_numbers( wb, ws7, 94, 90, 13, 'N63 Образование в молочной железе неуточненное (узелок/узелки в молочной железе без диагностического уточнения)', hTemp[ 'N63' ], number_percent_1000( hTemp[ 'N63' ], total ), 0 )
+  row_three_numbers( wb, ws7, 95, 91, 13, 'Q83 Врожденные аномалии [пороки развития] молочной железы', hTemp[ 'Q83' ], number_percent_1000( hTemp[ 'Q83' ], total ), 0 )
+  row_three_numbers( wb, ws7, 96, 92, 13, 'N64.4 Мастодиния', hTemp[ 'N64.4' ], number_percent_1000( hTemp[ 'N64.4' ], total ), 0 )
+  row_three_numbers( wb, ws7, 97, 93, 13, 'L70.0 Угри обыкновенные', hTemp[ 'L70.0' ], number_percent_1000( hTemp[ 'L70.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 98, 94, 13, 'L68.0 Гирсутизм', hTemp[ 'L68.0' ], number_percent_1000( hTemp[ 'L68.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 99, 95, 13, 'Z33 Состояние свойственное беременности (состояние беременности)', hTemp[ 'Z33' ], number_percent_1000( hTemp[ 'Z33' ], total ), 0 )
 
   worksheet_set_row( ws7, 100, 3.0 )
   worksheet_set_row( ws7, 101, 3.0 )
@@ -1718,7 +1740,7 @@ function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
 
   empty_rows( ws7, 130, 2, 3.0 )  
 
-  row_single_number( wb, ws7, 132, 128, 13, 'Общее число девочек в возрасте 15-17 лет с выявленными заболеваниями половых органов и молочных желез из прошедших профилактический осмотр (чел.)', 0, .t. )
+  row_single_number( wb, ws7, 132, 128, 13, 'Общее число девочек в возрасте 15-17 лет с выявленными заболеваниями половых органов и молочных желез из прошедших профилактический осмотр (чел.)', 0, .t., '=SUM(G142:G171)' )
   row_single_number( wb, ws7, 133, 129, 13, 'Общее число девочек в возрасте 15-17 лет с впервые выявленными заболеваниями половых органов и молочных желез из прошедших профилактический осмотр (чел.)', 0, .t. )
   row_single_number( wb, ws7, 134, 130, 13, 'Доля девочек в возрасте 15-17 лет с впервые выявленными заболеваниями половых органов и молочных желез из прошедших профилактический осмотр (%)', 0, .f. )
   row_single_number( wb, ws7, 135, 131, 13, 'Общее число девочек в возрасте 15-17 лет прошедших профилактический осмотр и взятых на учет после профилактического осмотра, в том числе:', 0, .t. )
@@ -1735,36 +1757,36 @@ function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
   worksheet_write_string( ws7, 140, 7, 'В пересчете на 1000 девочек соответствующег возраста (%)', text_thin_svod_center )
   worksheet_write_string( ws7, 140, 8, 'Выявлено впервые (абсолютное число)', text_thin_svod_center )
 
-  row_three_numbers( wb, ws7, 141, 137, 13, 'E30.0 Задержка полового созревания (остутствие роста молочных желез и оволосения лобка)', hTemp[ 'E30.0' ], 0, 0 )
-  row_three_numbers( wb, ws7, 142, 138, 13, 'N76.1 Подострый и хронический вагинит', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 143, 139, 13, 'N76.3 Подострый и хронический вульвит', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 144, 140, 13, 'N76.6 Изъязвление вульвы', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 145, 141, 13, 'N90.4 Лейкоплакия вульвы (на фоне склерозирующего лихена)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 146, 142, 13, 'N90.6 Гипертрофия вульвы (гипертрофия половых губ и клитора)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 147, 143, 13, 'N90.8 Другие уточненные невоспалительные болезни вульвы и промежности (спайки или синехии вульвы)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 148, 144, 13, 'D28.0 Доброкачественное образование вульвы бартолиниевой железы, фиброма, липома, гидроаденома', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 149, 145, 13, 'A63.0 Аногенитальные (венерические) бородавки', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 150, 146, 13, 'Q52.0 Врожденное отсутствие влагалища', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 151, 147, 13, 'Q52.3 Девственная плева, полностью закрывающая вход во влагалище (килевидный, решетчатый, мембранный гимен)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 152, 148, 13, 'Q52.5 Сращение губ (врожденный урегинетальный синус II-V степени вирилизации по Прадеру)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 153, 149, 13, 'Q56.4 Неопределенность пола неуточненная (неопределенность половых органов)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 154, 150, 13, 'Q64.8 Другие уточненные врожденные аномалии мочевыделительной системы (уретра, открывающая на передней стенке влагалища)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 155, 151, 13, 'N91.1 Вторичная аменорея (отсутствие менструаций в течении 3 месяцев при регулярных и 6 месяцев при нерегулярных до этого менструациях)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 156, 152, 13, 'N91.3 Первичная олигоминорея (менструация с промежутком более 48 дней и менее 6 месяцев)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 157, 153, 13, 'N91.4 Вторичная олигоминорея (менструация с промежутком более 48 дней и менее 3 месяцев при ранее регулярном ритме)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 158, 154, 13, 'N91.5 Олигоменорея неуточненная (скудные регулярные менструальные выделения)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 159, 155, 13, 'N92.2 Обильные кровотечения вначале менструального периода (обильные регулярные менструации, межменструальные маточные кровотечения)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 160, 156, 13, 'N94.6 Дисменорея неуточненная', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 161, 157, 13, 'N94.3 Синдром предменструального напряжения', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 162, 158, 13, 'N60.9 Доброкачественная дисплазия молочной железы неуточненная', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 163, 159, 13, 'N61 Воспалительные болезни молочной железы (мастит, карбункул, абсцесс)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 164, 160, 13, 'N62 Гипертрофия молочной железы (массивная пубертатная)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 165, 161, 13, 'N63 Образование в молочной железе неуточненное (узелок/узелки в молочной железе без диагностического уточнения)', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 166, 162, 13, 'Q83 Врожденные аномалии [пороки развития] молочной железы', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 167, 163, 13, 'N64.4 Мастодиния', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 168, 164, 13, 'L70.0 Угри обыкновенные', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 169, 165, 13, 'L68.0 Гирсутизм', 0, 0, 0 )
-  row_three_numbers( wb, ws7, 170, 166, 13, 'Z33 Состояние свойственное беременности (состояние беременности)', 0, 0, 0 )
+  row_three_numbers( wb, ws7, 141, 137, 13, 'E30.0 Задержка полового созревания (остутствие роста молочных желез и оволосения лобка)', hTemp[ 'E30.0' ], number_percent_1000( hTemp[ 'E30.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 142, 138, 13, 'N76.1 Подострый и хронический вагинит', hTemp[ 'N76.1' ], number_percent_1000( hTemp[ 'N76.1' ], total ), 0 )
+  row_three_numbers( wb, ws7, 143, 139, 13, 'N76.3 Подострый и хронический вульвит', hTemp[ 'N76.3' ], number_percent_1000( hTemp[ 'N76.3' ], total ), 0 )
+  row_three_numbers( wb, ws7, 144, 140, 13, 'N76.6 Изъязвление вульвы', hTemp[ 'N76.6' ], number_percent_1000( hTemp[ 'N76.6' ], total ), 0 )
+  row_three_numbers( wb, ws7, 145, 141, 13, 'N90.4 Лейкоплакия вульвы (на фоне склерозирующего лихена)', hTemp[ 'N90.4' ], number_percent_1000( hTemp[ 'N90.4' ], total ), 0 )
+  row_three_numbers( wb, ws7, 146, 142, 13, 'N90.6 Гипертрофия вульвы (гипертрофия половых губ и клитора)', hTemp[ 'N90.6' ], number_percent_1000( hTemp[ 'N90.6' ], total ), 0 )
+  row_three_numbers( wb, ws7, 147, 143, 13, 'N90.8 Другие уточненные невоспалительные болезни вульвы и промежности (спайки или синехии вульвы)', hTemp[ 'N90.8' ], number_percent_1000( hTemp[ 'N90.8' ], total ), 0 )
+  row_three_numbers( wb, ws7, 148, 144, 13, 'D28.0 Доброкачественное образование вульвы бартолиниевой железы, фиброма, липома, гидроаденома', hTemp[ 'D28.0' ], number_percent_1000( hTemp[ 'D28.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 149, 145, 13, 'A63.0 Аногенитальные (венерические) бородавки', hTemp[ 'A63.0' ], number_percent_1000( hTemp[ 'A63.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 150, 146, 13, 'Q52.0 Врожденное отсутствие влагалища', hTemp[ 'Q52.0' ], number_percent_1000( hTemp[ 'Q52.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 151, 147, 13, 'Q52.3 Девственная плева, полностью закрывающая вход во влагалище (килевидный, решетчатый, мембранный гимен)', hTemp[ 'Q52.3' ], number_percent_1000( hTemp[ 'Q52.3' ], total ), 0 )
+  row_three_numbers( wb, ws7, 152, 148, 13, 'Q52.5 Сращение губ (врожденный урегинетальный синус II-V степени вирилизации по Прадеру)', hTemp[ 'Q52.5' ], number_percent_1000( hTemp[ 'Q52.5' ], total ), 0 )
+  row_three_numbers( wb, ws7, 153, 149, 13, 'Q56.4 Неопределенность пола неуточненная (неопределенность половых органов)', hTemp[ 'Q56.4' ], number_percent_1000( hTemp[ 'Q56.4' ], total ), 0 )
+  row_three_numbers( wb, ws7, 154, 150, 13, 'Q64.8 Другие уточненные врожденные аномалии мочевыделительной системы (уретра, открывающая на передней стенке влагалища)', hTemp[ 'Q64.8' ], number_percent_1000( hTemp[ 'Q64.8' ], total ), 0 )
+  row_three_numbers( wb, ws7, 155, 151, 13, 'N91.1 Вторичная аменорея (отсутствие менструаций в течении 3 месяцев при регулярных и 6 месяцев при нерегулярных до этого менструациях)', hTemp[ 'N91.1' ], number_percent_1000( hTemp[ 'N91.1' ], total ), 0 )
+  row_three_numbers( wb, ws7, 156, 152, 13, 'N91.3 Первичная олигоминорея (менструация с промежутком более 48 дней и менее 6 месяцев)', hTemp[ 'N91.3' ], number_percent_1000( hTemp[ 'N91.3' ], total ), 0 )
+  row_three_numbers( wb, ws7, 157, 153, 13, 'N91.4 Вторичная олигоминорея (менструация с промежутком более 48 дней и менее 3 месяцев при ранее регулярном ритме)', hTemp[ 'N91.4' ], number_percent_1000( hTemp[ 'N91.4' ], total ), 0 )
+  row_three_numbers( wb, ws7, 158, 154, 13, 'N91.5 Олигоменорея неуточненная (скудные регулярные менструальные выделения)', hTemp[ 'N91.5' ], number_percent_1000( hTemp[ 'N91.5' ], total ), 0 )
+  row_three_numbers( wb, ws7, 159, 155, 13, 'N92.2 Обильные кровотечения вначале менструального периода (обильные регулярные менструации, межменструальные маточные кровотечения)', hTemp[ 'N92.2' ], number_percent_1000( hTemp[ 'N92.2' ], total ), 0 )
+  row_three_numbers( wb, ws7, 160, 156, 13, 'N94.6 Дисменорея неуточненная', hTemp[ 'N94.6' ], number_percent_1000( hTemp[ 'N94.6' ], total ), 0 )
+  row_three_numbers( wb, ws7, 161, 157, 13, 'N94.3 Синдром предменструального напряжения', hTemp[ 'N94.3' ], number_percent_1000( hTemp[ 'N94.3' ], total ), 0 )
+  row_three_numbers( wb, ws7, 162, 158, 13, 'N60.9 Доброкачественная дисплазия молочной железы неуточненная', hTemp[ 'N60.9' ], number_percent_1000( hTemp[ 'N60.9' ], total ), 0 )
+  row_three_numbers( wb, ws7, 163, 159, 13, 'N61 Воспалительные болезни молочной железы (мастит, карбункул, абсцесс)', hTemp[ 'N61' ], number_percent_1000( hTemp[ 'N61' ], total ), 0 )
+  row_three_numbers( wb, ws7, 164, 160, 13, 'N62 Гипертрофия молочной железы (массивная пубертатная)', hTemp[ 'N62' ], number_percent_1000( hTemp[ 'N62' ], total ), 0 )
+  row_three_numbers( wb, ws7, 165, 161, 13, 'N63 Образование в молочной железе неуточненное (узелок/узелки в молочной железе без диагностического уточнения)', hTemp[ 'N63' ], number_percent_1000( hTemp[ 'N63' ], total ), 0 )
+  row_three_numbers( wb, ws7, 166, 162, 13, 'Q83 Врожденные аномалии [пороки развития] молочной железы', hTemp[ 'Q83' ], number_percent_1000( hTemp[ 'Q83' ], total ), 0 )
+  row_three_numbers( wb, ws7, 167, 163, 13, 'N64.4 Мастодиния', hTemp[ 'N64.4' ], number_percent_1000( hTemp[ 'N64.4' ], total ), 0 )
+  row_three_numbers( wb, ws7, 168, 164, 13, 'L70.0 Угри обыкновенные', hTemp[ 'L70.0' ], number_percent_1000( hTemp[ 'L70.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 169, 165, 13, 'L68.0 Гирсутизм', hTemp[ 'L68.0' ], number_percent_1000( hTemp[ 'L68.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 170, 166, 13, 'Z33 Состояние свойственное беременности (состояние беременности)', hTemp[ 'Z33' ], number_percent_1000( hTemp[ 'Z33' ], total ), 0 )
 
   empty_rows( ws7, 171, 2, 3.0 )  
 
@@ -1821,7 +1843,7 @@ function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
 
   empty_rows( ws7, 201, 2, 3.0 )  
 
-  row_single_number( wb, ws7, 203, 199, 13, 'Общее число мальчиков в возрасте 13-14 лет с выявленными заболеваниями половых органов и молочных желез из прошедших профилактический осмотр (чел.)', 0, .t. )
+  row_single_number( wb, ws7, 203, 199, 13, 'Общее число мальчиков в возрасте 13-14 лет с выявленными заболеваниями половых органов и молочных желез из прошедших профилактический осмотр (чел.)', 0, .t., '=SUM(G213:G222)' )
   row_single_number( wb, ws7, 204, 200, 13, 'Общее число мальчиков в возрасте 13-14 лет с впервые выявленными заболеваниями половых органов и молочных желез из прошедших профилактический осмотр (чел.)', 0, .t. )
   row_single_number( wb, ws7, 205, 201, 13, 'Доля мальчиков в возрасте 13-14 лет с впервые выявленными заболеваниями половых органов и молочных желез из прошедших профилактический осмотр (%)', 0, .f. )
   row_single_number( wb, ws7, 206, 202, 13, 'Общее число мальчиков в возрасте 13-14 лет прошедших профилактический осмотр и взятых на учет после профилактического осмотра, в том числе:', 0, .t. )
@@ -1908,7 +1930,7 @@ function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
 
   empty_rows( ws7, 256, 2, 3.0 )  
 
-  row_single_number( wb, ws7, 258, 254, 13, 'Общее число мальчиков в возрасте 15-17 лет с выявленными заболеваниями половых органов и молочных желез из прошедших профилактический осмотр (чел.)', 0, .t. )
+  row_single_number( wb, ws7, 258, 254, 13, 'Общее число мальчиков в возрасте 15-17 лет с выявленными заболеваниями половых органов и молочных желез из прошедших профилактический осмотр (чел.)', 0, .t., '=SUM(G268:G282)' )
   row_single_number( wb, ws7, 259, 255, 13, 'Общее число мальчиков в возрасте 15-17 лет с впервые выявленными заболеваниями половых органов и молочных желез из прошедших профилактический осмотр (чел.)', 0, .t. )
   row_single_number( wb, ws7, 260, 256, 13, 'Доля мальчиков в возрасте 15-17 лет с впервые выявленными заболеваниями половых органов и молочных желез из прошедших профилактический осмотр (%)', 0, .f. )
   row_single_number( wb, ws7, 261, 257, 13, 'Общее число мальчиков в возрасте 15-17 лет прошедших профилактический осмотр и взятых на учет после профилактического осмотра, в том числе:', 0, .t. )
@@ -1922,7 +1944,7 @@ function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
   worksheet_write_number( ws7, 265, 0, 262, text_thin_svod )
   worksheet_merge_range( ws7, 266, 1, 266, 5, 'наименование заболеваний по кодам МКБ-10, выявленных на профилактическом осмотре мальчиков в возрасте 15-17 лет', text_thin_svod )
   worksheet_write_string( ws7, 266, 6, 'Всего зарегистрировано заболеваний (абсолютное число)', text_thin_svod_center )
-  worksheet_write_string( ws7, 26, 7, 'В пересчете на 1000 мальчиков соответствующег возраста (%)', text_thin_svod_center )
+  worksheet_write_string( ws7, 266, 7, 'В пересчете на 1000 мальчиков соответствующег возраста (%)', text_thin_svod_center )
   worksheet_write_string( ws7, 266, 8, 'Выявлено впервые (абсолютное число)', text_thin_svod_center )
 
   row_three_numbers( wb, ws7, 267, 263, 13, 'E30.0 Задержка полового созревания (отсутствие или слабое развитие оволосения лобка, яички объемом менее 4 куб. см, непигментированная мошонка, "детский" половой член)', hTemp[ 'E30.0' ], number_percent_1000( hTemp[ 'E30.0' ], total ), 0 )
@@ -1963,6 +1985,11 @@ function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
   empty_rows( ws7, 294, 2, 3.0 )
 
   return nil
+
+// 17.11.26
+function number_percent_100( value, total )
+
+  return iif( value == 0, 0, ( value / total ) * 100 )
 
 // 16.11.26
 function number_percent_1000( value, total )
@@ -2100,8 +2127,8 @@ function row_three_numbers( wb, ws, row, num_str, heigh, text, vsego, percent, f
 
   return nil
 
-// 15.11.26
-function row_seven_numbers( wb, ws, row, num_str, heigh, text, val1, val2, val3, val4, val5, val6, val7, lColor )
+// 17.11.26
+function row_seven_numbers( wb, ws, row, num_str, heigh, text, val1, val2, val3, val4, cFormula5, val6, val7, lColor )
 
   local text_thin_svod, block_value, block_value_gray
 
@@ -2138,7 +2165,8 @@ function row_seven_numbers( wb, ws, row, num_str, heigh, text, val1, val2, val3,
   worksheet_write_number( ws, row, 3, val2, block_value )
   worksheet_write_number( ws, row, 4, val3, block_value )
   worksheet_write_number( ws, row, 5, val4, block_value )
-  worksheet_write_number( ws, row, 6, val5, block_value_gray )
+//  worksheet_write_number( ws, row, 6, val5, block_value_gray )
+  worksheet_write_formula( ws, row, 6, cFormula5, block_value_gray )
   worksheet_write_number( ws, row, 7, val6, block_value )
   worksheet_write_number( ws, row, 8, val7, block_value )
 

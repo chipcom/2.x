@@ -1050,10 +1050,18 @@ Function svod_inf_dds_LU( Loc_kod, kod_kartotek, mvozrast )
 
   Return Nil
 
-// 16.11.26
+// 17.11.26
 function fill_zabol_girl( ad, hTemp )
 
-  If Left( ad[ 1 ], 5 ) == 'E22.8'
+  if Left( ad[ 1 ], 5 ) == 'A63.0'
+    hTemp[ 'A63.0' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'D28.0'
+    hTemp[ 'D28.0' ]++
+  elseif between_diag( Left( ad[ 1 ], 3 ), 'E40', 'E44' )
+    hTemp[ 'E40_E46' ]++
+  elseif Left( ad[ 1 ], 3 ) == 'E10'
+    hTemp[ 'E10' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'E22.8'
     hTemp[ 'E22.8' ]++
   elseif Left( ad[ 1 ], 3 ) == 'E25'
     hTemp[ 'E25' ]++
@@ -1061,12 +1069,12 @@ function fill_zabol_girl( ad, hTemp )
     hTemp[ 'E26' ]++
   elseif Left( ad[ 1 ], 5 ) == 'E27.0'
     hTemp[ 'E27.0' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'E30.0'
+    hTemp[ 'E30.0' ]++
   elseif Left( ad[ 1 ], 5 ) == 'E30.1'
     hTemp[ 'E30.1' ]++
   elseif Left( ad[ 1 ], 5 ) == 'E30.8'
     hTemp[ 'E30.8' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'Q78.1'
-    hTemp[ 'Q78.1' ]++
   elseif Left( ad[ 1 ], 5 ) == '…23.0'
     hTemp[ '…23.0' ]++
   elseif Left( ad[ 1 ], 5 ) == '…23.1'
@@ -1077,60 +1085,22 @@ function fill_zabol_girl( ad, hTemp )
     hTemp[ '…30.0' ]++
   elseif Left( ad[ 1 ], 3 ) == '…45'
     hTemp[ '…45' ]++
+    hTemp[ 'E40_E46' ]++
+  elseif Left( ad[ 1 ], 3 ) == '…46'
+    hTemp[ '…46' ]++
+    hTemp[ 'E40_E46' ]++
+  elseif Left( ad[ 1 ], 3 ) == 'E66'
+    hTemp[ 'E66' ]++
   elseif Left( ad[ 1 ], 5 ) == '…89.3'
     hTemp[ '…89.3' ]++
   elseif Left( ad[ 1 ], 5 ) == '…89.4'
     hTemp[ '…89.4' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'Q50.0'
-    hTemp[ 'Q50.0' ]++
-  elseif Left( ad[ 1 ], 3 ) == 'Q96'
-    hTemp[ 'Q96' ]++
-  elseif Left( ad[ 1 ], 3 ) == 'N91'
-    hTemp[ 'N91' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N92.2'
-    hTemp[ 'N92.2' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N92.3'
-    hTemp[ 'N92.3' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N94.4'
-    hTemp[ 'N94.4' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N94.5'
-    hTemp[ 'N94.5' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N94.6'
-    hTemp[ 'N94.6' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N94.3'
-    hTemp[ 'N94.3' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N76.0'
-    hTemp[ 'N76.0' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N76.0'
-    hTemp[ 'N76.0' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N76.2'
-    hTemp[ 'N76.2' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N76.3'
-    hTemp[ 'N76.3' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N76.8'
-    hTemp[ 'N76.8' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N90.4'
-    hTemp[ 'N90.4' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N76.6'
-    hTemp[ 'N76.6' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N75.0'
-    hTemp[ 'N75.0' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N75.1'
-    hTemp[ 'N75.1' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N75.8'
-    hTemp[ 'N75.8' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N75.9'
-    hTemp[ 'N75.9' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N90.7'
-    hTemp[ 'N90.7' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N90.8'
-    hTemp[ 'N90.8' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'A63.0'
-    hTemp[ 'A63.0' ]++
-  elseif Left( ad[ 1 ], 3 ) == 'C51'
-    hTemp[ 'C51' ]++
-  elseif Left( ad[ 1 ], 3 ) == 'C52'
-    hTemp[ 'C52' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'L68.0'
+    hTemp[ 'L68.0' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'L70.0'
+    hTemp[ 'L70.0' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N60.9'
+    hTemp[ 'N60.9' ]++
   elseif Left( ad[ 1 ], 3 ) == 'N61'
     hTemp[ 'N61' ]++
   elseif Left( ad[ 1 ], 3 ) == 'N62'
@@ -1139,12 +1109,74 @@ function fill_zabol_girl( ad, hTemp )
     hTemp[ 'N63' ]++
   elseif Left( ad[ 1 ], 5 ) == 'N64.4'
     hTemp[ 'N64.4' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N75.0'
+    hTemp[ 'N75.0' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N75.1'
+    hTemp[ 'N75.1' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N75.8'
+    hTemp[ 'N75.8' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N75.9'
+    hTemp[ 'N75.9' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N76.0'
+    hTemp[ 'N76.0' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N76.1'
+    hTemp[ 'N76.1' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N76.2'
+    hTemp[ 'N76.2' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N76.3'
+    hTemp[ 'N76.3' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N76.6'
+    hTemp[ 'N76.6' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N76.8'
+    hTemp[ 'N76.8' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N90.4'
+    hTemp[ 'N90.4' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N90.6'
+    hTemp[ 'N90.6' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N90.7'
+    hTemp[ 'N90.7' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N90.8'
+    hTemp[ 'N90.8' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N91.1'
+    hTemp[ 'N91.1' ]++
+    hTemp[ 'N91' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N91.3'
+    hTemp[ 'N91.3' ]++
+    hTemp[ 'N91' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N91.4'
+    hTemp[ 'N91.4' ]++
+    hTemp[ 'N91' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N91.5'
+    hTemp[ 'N91.5' ]++
+    hTemp[ 'N91' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N92.1'
+    hTemp[ 'N92.1' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N92.2'
+    hTemp[ 'N92.2' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N92.3'
+    hTemp[ 'N92.3' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N94.3'
+    hTemp[ 'N94.3' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N94.4'
+    hTemp[ 'N94.4' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N94.5'
+    hTemp[ 'N94.5' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N94.6'
+    hTemp[ 'N94.6' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'N94.3'
+    hTemp[ 'N94.3' ]++
+  elseif Left( ad[ 1 ], 3 ) == 'C51'
+    hTemp[ 'C51' ]++
+  elseif Left( ad[ 1 ], 3 ) == 'C52'
+    hTemp[ 'C52' ]++
   elseif Left( ad[ 1 ], 5 ) == 'S30.2'
     hTemp[ 'S30.2' ]++
   elseif Left( ad[ 1 ], 5 ) == 'S31.4'
     hTemp[ 'S31.4' ]++
   elseif Left( ad[ 1 ], 5 ) == 'S31.5'
     hTemp[ 'S31.5' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Q50.0'
+    hTemp[ 'Q50.0' ]++
   elseif Left( ad[ 1 ], 5 ) == 'Q52.0'
     hTemp[ 'Q52.0' ]++
   elseif Left( ad[ 1 ], 5 ) == 'Q52.1'
@@ -1155,22 +1187,24 @@ function fill_zabol_girl( ad, hTemp )
     hTemp[ 'Q52.5' ]++
   elseif Left( ad[ 1 ], 5 ) == 'Q52.6'
     hTemp[ 'Q52.6' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'L68.0'
-    hTemp[ 'L68.0' ]++
-  elseif between_diag( Left( ad[ 1 ], 3 ), 'E40', 'E46' )
-    hTemp[ 'E40_E46' ]++
-  elseif Left( ad[ 1 ], 3 ) == 'E10'
-    hTemp[ 'E10' ]++
-  elseif Left( ad[ 1 ], 3 ) == 'E66'
-    hTemp[ 'E66' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Q56.4'
+    hTemp[ 'Q56.4' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Q64.8'
+    hTemp[ 'Q64.8' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Q78.1'
+    hTemp[ 'Q78.1' ]++
+  elseif Left( ad[ 1 ], 3 ) == 'Q83'
+    hTemp[ 'Q83' ]++
+  elseif Left( ad[ 1 ], 3 ) == 'Q96'
+    hTemp[ 'Q96' ]++
+  elseif Left( ad[ 1 ], 5 ) == 'Z33'
+    hTemp[ 'Z33' ]++
   elseif Left( ad[ 1 ], 5 ) == 'Z72.1'
     hTemp[ 'Z72.1' ]++
   elseif Left( ad[ 1 ], 5 ) == 'Z72.2'
     hTemp[ 'Z72.2' ]++
   elseif Left( ad[ 1 ], 5 ) == 'Z72.0'
     hTemp[ 'Z72.0' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'E89.4'
-    hTemp[ 'E89.4' ]++
   elseif between_diag( Left( ad[ 1 ], 5 ), 'Y83.2', 'Y83.4' )
     hTemp[ 'Y83.2_4' ]++
   elseif Left( ad[ 1 ], 5 ) == 'Z91.2'
