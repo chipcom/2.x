@@ -286,7 +286,7 @@ function tag_mr_usl_n( oUsl, nyear, number, prvs, snils )
   mo_add_xml_stroke( oMR_USL_N, 'CODE_MD', snils )
   return nil
 
-// 24.03.26
+// 17.11.26
 // тэг добавляется только для реестров 1 типа и помощь в условиях дневного
 // и кругосуточного стационара
 function tag_ksg( oSl, lshifr_zak_sl, mdata, is_oncology )
@@ -316,6 +316,9 @@ function tag_ksg( oSl, lshifr_zak_sl, mdata, is_oncology )
       mo_add_xml_stroke( oKSG, 'CRIT', onksl->crit2 )  // второй критерий
     Endif
   Endif
+  If !Empty( human_2->ADD_CRIT )
+    mo_add_xml_stroke( oKSG, 'CRIT', human_2->ADD_CRIT )
+  endif
 
   If ! Empty( human_2->pc1 )
     akslp := list2arr( human_2->pc1 )
