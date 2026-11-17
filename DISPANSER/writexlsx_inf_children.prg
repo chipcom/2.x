@@ -1,14 +1,15 @@
+#include 'common.ch'
 #include 'function.ch'
 #include 'chip_mo.ch'
 #include 'hbxlsxwriter.ch'
 
-// 15.06.26
+// 12.11.26
 function writexlsx_inf_children( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
   arr_2510_DDS, arr_2510_DDSOP, hYoung13_14, hYoung15_17, hGirl13_14, hGirl15_17 )
 
   Local buf := save_maxrow()
   Local workbook
-  Local ws1, ws2, ws3, ws4, ws5, ws6
+  Local ws1, ws2, ws3, ws4, ws5, ws6, ws7
   Local cColorTab1, cColorTab2, cColorTab3, cColorTab4, cColorTab5, cColorTab6
   local error, i
   Local strMO, arr_plan
@@ -165,6 +166,7 @@ function writexlsx_inf_children( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
   format_set_font_size( text_thin, 11 )
 //  format_set_bg_color( titul_table_thin, 0xffff00 )
   format_set_border( text_thin, LXW_BORDER_THIN )
+
 
 //
 // лист 1 - профосмотры
@@ -1440,11 +1442,15 @@ function writexlsx_inf_children( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
   worksheet_merge_range( ws6, 15, 1, 15, 2, 'телефон исполнителя', block_FIO )
   worksheet_merge_range( ws6, 15, 3, 15, 6, '', block_FIO )
 
+/*
   disease_youngman( workbook, .f., hYoung15_17, hYoung13_14 )
   disease_youngman( workbook, .t., hYoung15_17, hYoung13_14 )
 
   disease_girl( workbook, .f., hGirl15_17, hGirl13_14 )
   disease_girl( workbook, .t., hGirl15_17, hGirl13_14 )
+*/
+
+  svod_new( workbook, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
 
   /* Закрыть книгу, записать файл и освободить память. */
   error = workbook_close( workbook )
@@ -1454,6 +1460,726 @@ function writexlsx_inf_children( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
     'Ошибка %d = %s\n', error, hb_ntos( error ) ), 'RU866' ), 'error' )
   Endif
   rest_box( buf )
+
+  return nil
+
+// 17.11.26
+function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
+
+    Local ws7, cColorTab7, text_thin_svod,text_thin_svod_center, header_bold
+    local hTemp, total
+    local total_I, total_II, total_III, total_IV, total_V, sum_total, sum_total_young, sum_total_girl
+
+//
+// лист 7 - Заболевания 13-17 ВСЕ
+//
+  cColorTab7 := 0x99ead3
+
+  header_bold := fmt_excel_hc_vc_wrap( wb )
+  format_set_font_name( header_bold, 'Arial' )
+  format_set_bold( header_bold )
+  format_set_font_size( header_bold, 14 )
+
+  text_thin_svod := fmt_excel_hl_vc_wrap( wb )
+
+  format_set_font_name( text_thin_svod, 'Arial' )
+  format_set_font_size( text_thin_svod, 10 )
+//  format_set_bg_color( titul_table_thin, 0xffff00 )
+  format_set_border( text_thin_svod, LXW_BORDER_THIN )
+
+  text_thin_svod_center := fmt_excel_hc_vc_wrap( wb )
+  format_set_font_name( text_thin_svod_center, 'Arial' )
+  format_set_font_size( text_thin_svod_center, 10 )
+//  format_set_bg_color( titul_table_thin, 0xffff00 )
+  format_set_border( text_thin_svod_center, LXW_BORDER_THIN )
+
+
+  ws7 := workbook_add_worksheet( wb, 'Заболевания 13-17 ВСЕ' )
+  worksheet_set_tab_color( ws7, cColorTab7 )
+
+  worksheet_set_row( ws7, 0, 7.8 )
+  worksheet_set_row( ws7, 2, 7.8 )
+  worksheet_set_row( ws7, 3, 7.8 )
+  worksheet_set_row( ws7, 4, 16.8 )
+//  worksheet_set_row( ws7, 10, 31.8 )
+
+  worksheet_set_column( ws7, 0, 0, 8.89   )
+  worksheet_set_column( ws7, 1, 1, 61.11   )
+  worksheet_set_column( ws7, 2, 8, 12.56 )
+  worksheet_set_column( ws7, 9, 9, 1.33 )
+  worksheet_set_column( ws7, 10, 10, 6.11 )
+
+  total_I := hYoung13_14[ 'I' ] + hYoung15_17[ 'I' ] + hGirl13_14[ 'I' ] + hGirl15_17[ 'I' ]
+  total_II := hYoung13_14[ 'II' ] + hYoung15_17[ 'II' ] + hGirl13_14[ 'II' ] + hGirl15_17[ 'II' ]
+  total_III := hYoung13_14[ 'III' ] + hYoung15_17[ 'III' ] + hGirl13_14[ 'III' ] + hGirl15_17[ 'III' ]
+  total_IV := hYoung13_14[ 'IV' ] + hYoung15_17[ 'IV' ] + hGirl13_14[ 'IV' ] + hGirl15_17[ 'IV' ]
+  total_V := hYoung13_14[ 'V' ] + hYoung15_17[ 'V' ] + hGirl13_14[ 'V' ] + hGirl15_17[ 'V' ]
+  sum_total := total_I + total_II + total_III + total_IV + total_V
+
+  worksheet_merge_range( ws7, 1, 1, 1, 7, 'Профосмотры несовершеннолетних', header_bold )
+
+  worksheet_write_string( ws7, 1, 0, '№ строки', text_thin_svod_center )
+  worksheet_merge_range( ws7, 4, 1, 4, 7, 'Наименование показателя', text_thin_svod_center )
+  worksheet_write_string( ws7, 4, 8, 'человек / %', text_thin_svod_center )
+
+  row_single_number( wb, ws7, 5, 1, 13, 'Общее число несовершеннолетних в возрасте 13-17 лет включительно, подлежащих профилактическому осмотру (прикрепленного населения соответствующего возраста)', 0, .t. )
+  row_single_number( wb, ws7, 6, 2, 13, 'Общее число несовершеннолетних в возрасте 13-17 лет включительно, прошедших 1 этап профилактического осмотра в соответствующем возрасте', 0, .f., '=H14+H15+H16+H17+H18' )
+  row_single_number( wb, ws7, 7, 3, 27.6, 'Общее число несовершеннолетних в возрасте 13-17 лет включительно, прошедших 1 этап профилактического осмотра в соответствующем возрасте с применением мобильных медицинских комплексов', 0, .t. )
+  row_single_number( wb, ws7, 8, 4, 13, 'Процент несовершеннолетних в возрасте 13-17 лет включительно, прошедших профилактический осмотр в соответствующем возрасте', 0, .f. )
+  row_single_number( wb, ws7, 9, 5, 27.6, 'Общее число несовершеннолетних в возрасте 13-17 лет включительно с оформленным отказом от профилактического осмотра в соответствующем возрасте', 0, .t. )
+
+  empty_rows( ws7, 10, 2, 3.0 )  
+
+  worksheet_write_number( ws7, 12, 0, 8, text_thin_svod )
+  worksheet_merge_range( ws7, 12, 1, 12, 6, 'Общее число и доля несовершеннолетних в возрасте 13-17 лет включительно из прошедших профилактический осмотр, которые были отнесены к:', text_thin_svod )
+  worksheet_write_string( ws7, 12, 7, 'человек', text_thin_svod_center )
+  worksheet_write_string( ws7, 12, 8, '%', text_thin_svod_center )
+
+  row_two_numbers( wb, ws7, 13, 9, 13, '1 группе здоровья', total_I, number_percent_100( total_I, sum_total ) )
+  row_two_numbers( wb, ws7, 14, 10, 13, '2 группе здоровья', total_II, number_percent_100( total_II, sum_total ) )
+  row_two_numbers( wb, ws7, 15, 11, 13, '3 группе здоровья', total_III, number_percent_100( total_III, sum_total ) )
+  row_two_numbers( wb, ws7, 16, 12, 13, '4 группе здоровья', total_IV, number_percent_100( total_IV, sum_total ) )
+  row_two_numbers( wb, ws7, 17, 13, 13, '5 группе здоровья', total_V, number_percent_100( total_V, sum_total ) )
+
+  empty_rows( ws7, 18, 2, 3.0 )  
+
+  row_single_number( wb, ws7, 20, 16, 27.6, 'Общее число несовершеннолетних в возрасте 13-17 лет включительно с выявленными заболеваниями органов репродуктивной системы из прошедших профилактический осмотр в соответствующем возрасте', 0, .t. )
+  row_single_number( wb, ws7, 21, 17, 27.6, 'Общее число несовершеннолетних в возрасте 13-17 лет включительно, прошедших профилактический осмотр и взятых на учет после профилактического осмотра, в том числе:', 0, .f., '=I23+I24+I25' )
+  row_single_number( wb, ws7, 22, 18, 13, 'для диспансерного наблюдения в амбулаторных условиях', 0, .t. )
+  row_single_number( wb, ws7, 23, 19, 13, 'для обследования и лечения в стационарных условиях за счет средств ОМС', 0, .t. )
+  row_single_number( wb, ws7, 24, 20, 13, 'для обследования и лечения в стационарных условиях с использованием ВМП', 0, .t. )
+  row_single_number( wb, ws7, 25, 21, 13, 'Распределение несовершеннолетних в возрасте 13 - 17 лет включительно по медицинским группам для занятия физкультурой', 0, .f., '=I27+I28+I29+I30+I31' )
+  row_single_number( wb, ws7, 26, 22, 13, 'основная', 0, .t. )
+  row_single_number( wb, ws7, 27, 23, 13, 'подготовительная', 0, .t. )
+  row_single_number( wb, ws7, 28, 24, 13, 'Специальная А', 0, .t. )
+  row_single_number( wb, ws7, 29, 25, 13, 'Специальная Б', 0, .t. )
+  row_single_number( wb, ws7, 30, 26, 13, 'Число законченных случаев 1 этапа профилактических осмотров', 0, .f., '=I7' )
+  row_single_number( wb, ws7, 31, 27, 13, 'Представлено счетов к оплате', 0, .t. )
+  row_single_number( wb, ws7, 32, 28, 13, 'из них оплачено', 0, .t. )
+  row_single_number( wb, ws7, 33, 29, 13, 'Число детей, направленных на 2 этап профилактических осмотров', 0, .f., '=I40+I41' )
+  row_single_number( wb, ws7, 34, 30, 13, 'Из них: завершили 2 этап профилактических осмотров', 0, .t. )
+
+  empty_rows( ws7, 35, 1, 3.0 )  
+
+  worksheet_set_row( ws7, 36, 13 )
+  worksheet_write_number( ws7, 36, 0, 32, text_thin_svod )
+  worksheet_merge_range( ws7, 36, 1, 36, 8, 'Сведения о профилактических осмотрах подростков 13-17 лет включительно (мальчиков детскими урологами-андрологами, девочек акушерами-гинекологами) по субъекту', text_thin_svod )
+
+  worksheet_set_row( ws7, 37, 3.0 )
+
+  total_I := hYoung13_14[ 'I' ] + hYoung15_17[ 'I' ]
+  total_II := hYoung13_14[ 'II' ] + hYoung15_17[ 'II' ]
+  total_III := hYoung13_14[ 'III' ] + hYoung15_17[ 'III' ]
+  total_IV := hYoung13_14[ 'IV' ] + hYoung15_17[ 'IV' ]
+  total_V := hYoung13_14[ 'V' ] + hYoung15_17[ 'V' ]
+  sum_total_young := total_I + total_II + total_III + total_IV + total_V
+
+  total_I := hGirl13_14[ 'I' ] + hGirl15_17[ 'I' ]
+  total_II := hGirl13_14[ 'II' ] + hGirl15_17[ 'II' ]
+  total_III := hGirl13_14[ 'III' ] + hGirl15_17[ 'III' ]
+  total_IV := hGirl13_14[ 'IV' ] + hGirl15_17[ 'IV' ]
+  total_V :=  hGirl13_14[ 'V' ] + hGirl15_17[ 'V' ]
+  sum_total_girl := total_I + total_II + total_III + total_IV + total_V
+
+  worksheet_set_row( ws7, 38, 234 )
+  worksheet_write_number( ws7, 38, 0, 34, text_thin_svod )
+  worksheet_merge_range( ws7, 38, 1, 38, 1, 'Наименование показателя', text_thin_svod )
+  worksheet_write_string( ws7, 38, 1, 'Наименование показателя', text_thin_svod_center )
+  worksheet_write_string( ws7, 38, 2, 'План (подлежало осмотрам несовершеннолетних в возрасте 13-17 лет включительно, согласно статформе №30 на начало мониторируемого года) (чел)', text_thin_svod_center )
+  worksheet_write_string( ws7, 38, 3, 'Факт (чел)', text_thin_svod_center )
+  worksheet_write_string( ws7, 38, 4, 'Отказы (численность несовершеннолетних в возрасте 13-17 лет включительно с оформленными отказами от профилактического осмотра урологом/андрологом акушером/гинекологом) (чел)', text_thin_svod_center )
+  worksheet_write_string( ws7, 38, 5, 'Процент осмотренных от численности подростков 13-17 лет, %', text_thin_svod_center )
+  worksheet_write_string( ws7, 38, 6, 'Количество подростков с патологией из фактически осмотренных урологами/андрологами акушерами/гинекологами (чел)', text_thin_svod_center )
+  worksheet_write_string( ws7, 38, 7, 'Количество подростков с впервые выявленной патологией (чел)', text_thin_svod_center )
+  worksheet_write_string( ws7, 38, 8, 'Направлено на 2 этап для дообследования и лечения из количества подростков с патологией по результатам осмотров (чел)', text_thin_svod_center )
+
+  row_seven_numbers( wb, ws7, 39, 34, 27.6, 'Профилактические осмотры мальчиков в возрасте 13-17 лет включительно', 0, sum_total_young, 0, '=IFERROR(D40/C40*100,0)', '=I62+I133', 0, 0, .t. )
+  row_seven_numbers( wb, ws7, 40, 35, 27.6, 'Профилактические осмотры девочек в возрасте 13-17 лет включительно', 0, sum_total_girl, 0, '=IFERROR(D41/C41*100,0)', '=I204+I259', 0, 0, .t. )
+  row_seven_numbers( wb, ws7, 41, 36, 13, 'ВСЕГО', 0, sum_total_young + sum_total_girl, 0, '=IFERROR(D42/C42*100,0)', '=G40+G41', 0, 0, .f. )
+
+  worksheet_set_row( ws7, 42, 3.0 )
+  worksheet_set_row( ws7, 43, 3.0 )
+  worksheet_set_row( ws7, 44, 13 )
+  worksheet_write_number( ws7, 44, 0, 40, text_thin_svod )
+  worksheet_set_row( ws7, 45, 13 )
+  worksheet_write_number( ws7, 45, 0, 41, text_thin_svod )
+  worksheet_set_row( ws7, 46, 13 )
+  worksheet_write_number( ws7, 46, 0, 42, text_thin_svod )
+  worksheet_merge_range( ws7, 46, 1, 46, 7, '2', text_thin_svod_center )
+  worksheet_write_string( ws7, 46, 8, '', text_thin_svod_center )
+
+  hTemp := hGirl13_14
+  total := hTemp[ 'I' ] + hTemp[ 'II' ] + hTemp[ 'III' ] + hTemp[ 'IV' ] + hTemp[ 'V' ]
+
+  row_single_number( wb, ws7, 47, 43, 27.6, 'Общее число девочек в возрасте 13-14 лет, подлежащих профилактическому осмотру (прикрепленного населения соответствующего возраста), согласно статформе №30-по/у на начало', 0, .t. )
+  row_single_number( wb, ws7, 48, 44, 13, 'Общее число девочек в возрасте 13-14 лет, прошедших профилактический осмотр, из общего числа подлежащих профилактическому осмотру (чел)', 0, .f., '=H55+H56+H57+H58+H59' )
+  row_single_number( wb, ws7, 49, 45, 13, 'Доля девочек, прошедших профилактический осмотр в возрасте 13-14 лет, из общего числа подлежащих профилактическому осмотру (%)', 0, .t. )
+  row_single_number( wb, ws7, 50, 46, 13, 'Общее число девочек в возрасте 13-14 лет с оформленным отказом от профилактического осмотра (чел)', 0, .t. )
+
+  empty_rows( ws7, 51, 2, 3.0 )  
+
+  worksheet_set_row( ws7, 53, 13 )
+  worksheet_write_number( ws7, 53, 0, 49, text_thin_svod )
+  worksheet_merge_range( ws7, 53, 1, 53, 6, 'Общее число и доля девочек в возрасте 13-14 лет из прошедших профилактический осмотр, которые были отнесены к:', text_thin_svod )
+  worksheet_write_string( ws7, 53, 7, 'человек', text_thin_svod_center )
+  worksheet_write_string( ws7, 53, 8, '%', text_thin_svod_center )
+
+  row_two_numbers( wb, ws7, 54, 50, 13, '1 группе здоровья', hTemp[ 'I' ], '=IFERROR(H55/I49*100,0)' )
+  row_two_numbers( wb, ws7, 55, 51, 13, '2 группе здоровья', hTemp[ 'II' ], '=IFERROR(H56/I49*100,0)' )
+  row_two_numbers( wb, ws7, 56, 52, 13, '3 группе здоровья', hTemp[ 'III' ], '=IFERROR(H57/I49*100,0)' )
+  row_two_numbers( wb, ws7, 57, 53, 13, '4 группе здоровья', hTemp[ 'IV' ], '=IFERROR(H58/I49*100,0)' )
+  row_two_numbers( wb, ws7, 58, 54, 13, '5 группе здоровья', hTemp[ 'V' ], '=IFERROR(H59/I49*100,0)' )
+
+  empty_rows( ws7, 59, 2, 3.0 )  
+
+  row_single_number( wb, ws7, 61, 57, 27.6, 'Общее число девочек в возрасте 13-14 лет с выявленными заболеваниями половых органов и молочных желез из прошедших профилактический осмотр (чел.)', 0, .t., '=SUM(G71:G100)' )
+  row_single_number( wb, ws7, 62, 58, 27.6, 'Общее число девочек в возрасте 13-14 лет с впервые выявленными заболеваниями половых органов и молочных желез из прошедших профилактический осмотр (чел.)', 0, .t. )
+  row_single_number( wb, ws7, 63, 59, 13, 'Доля девочек в возрасте 13-14 лет с впервые выявленными заболеваниями половых органов и молочных желез из прошедших профилактический осмотр (%)', 0, .f. )
+  row_single_number( wb, ws7, 64, 60, 13, 'Общее число девочек в возрасте 13-14 лет прошедших профилактический осмотр и взятых на учет после профилактического осмотра, в том числе:', 0, .t. )
+  row_single_number( wb, ws7, 65, 61, 13, 'для диспансерного наблюдения в амбулаторных условиях (чел.)', 0, .t. )
+  row_single_number( wb, ws7, 66, 62, 13, 'для обследования и лечения в стационарных условиях за счет средств ОМС или ДМС (чел.)', 0, .t. )
+  row_single_number( wb, ws7, 67, 63, 13, 'для обследования и лечения в стационарных условиях с использованием ВМП (чел.)', 0, .t. )
+
+  empty_rows( ws7, 68, 1, 3.0 )  
+
+//  worksheet_set_row( ws7, 68, 23 )
+  worksheet_write_number( ws7, 69, 0, 65, text_thin_svod )
+  worksheet_merge_range( ws7, 69, 1, 69, 5, 'наименование заболеваний по кодам МКБ-10, выявленных на профилактическом осмотре девочек в возрасте 13-14 лет', text_thin_svod )
+  worksheet_write_string( ws7, 69, 6, 'Всего зарегистрировано заболеваний (абсолютное число)', text_thin_svod_center )
+  worksheet_write_string( ws7, 69, 7, 'В пересчете на 1000 девочек соответствующег возраста (%)', text_thin_svod_center )
+  worksheet_write_string( ws7, 69, 8, 'Выявлено впервые (абсолютное число)', text_thin_svod_center )
+//  worksheet_write_number( ws7, 69, 10, 26997, nil )
+
+  row_three_numbers( wb, ws7, 70, 66, 13, 'E30.0 Задержка полового созревания (остутствие роста молочных желез и оволосения лобка)', hTemp[ 'E30.0' ], number_percent_1000( hTemp[ 'E30.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 71, 67, 13, 'N76.1 Подострый и хронический вагинит', hTemp[ 'N76.1' ], number_percent_1000( hTemp[ 'N76.1' ], total ), 0 )
+  row_three_numbers( wb, ws7, 72, 68, 13, 'N76.3 Подострый и хронический вульвит', hTemp[ 'N76.3' ], number_percent_1000( hTemp[ 'N76.3' ], total ), 0 )
+  row_three_numbers( wb, ws7, 73, 69, 13, 'N76.6 Изъязвление вульвы', hTemp[ 'N76.6' ], number_percent_1000( hTemp[ 'N76.6' ], total ), 0 )
+  row_three_numbers( wb, ws7, 74, 70, 13, 'N90.4 Лейкоплакия вульвы (на фоне склерозирующего лихена)', hTemp[ 'N90.4' ], number_percent_1000( hTemp[ 'N90.4' ], total ), 0 )
+  row_three_numbers( wb, ws7, 75, 71, 13, 'N90.6 Гипертрофия вульвы (гипертрофия половых губ и клитора)', hTemp[ 'N90.6' ], number_percent_1000( hTemp[ 'N90.6' ], total ), 0 )
+  row_three_numbers( wb, ws7, 76, 72, 13, 'N90.8 Другие уточненные невоспалительные болезни вульвы и промежности (спайки или синехии вульвы)', hTemp[ 'N90.8' ], number_percent_1000( hTemp[ 'N90.8' ], total ), 0 )
+  row_three_numbers( wb, ws7, 77, 73, 13, 'D28.0 Доброкачественное образование вульвы бартолиниевой железы, фиброма, липома, гидроаденома', hTemp[ 'D28.0' ], number_percent_1000( hTemp[ 'D28.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 78, 74, 13, 'A63.0 Аногенитальные (венерические) бородавки', hTemp[ 'A63.0' ], number_percent_1000( hTemp[ 'A63.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 79, 75, 13, 'Q52.0 Врожденное отсутствие влагалища', hTemp[ 'Q52.0' ], number_percent_1000( hTemp[ 'Q52.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 80, 76, 13, 'Q52.3 Девственная плева, полностью закрывающая вход во влагалище (килевидный, решетчатый, мембранный гимен)', hTemp[ 'Q52.3' ], number_percent_1000( hTemp[ 'Q52.3' ], total ), 0 )
+  row_three_numbers( wb, ws7, 81, 77, 13, 'Q52.5 Сращение губ (врожденный урегинетальный синус II-V степени вирилизации по Прадеру)', hTemp[ 'Q52.5' ], number_percent_1000( hTemp[ 'Q52.5' ], total ), 0 )
+  row_three_numbers( wb, ws7, 82, 78, 13, 'Q56.4 Неопределенность пола неуточненная (неопределенность половых органов)', hTemp[ 'Q56.4' ], number_percent_1000( hTemp[ 'Q56.4' ], total ), 0 )
+  row_three_numbers( wb, ws7, 83, 79, 13, 'Q64.8 Другие уточненные врожденные аномалии мочевыделительной системы (уретра, открывающая на передней стенке влагалища)', hTemp[ 'Q64.8' ], number_percent_1000( hTemp[ 'Q64.8' ], total ), 0 )
+  row_three_numbers( wb, ws7, 84, 80, 13, 'N91.1 Вторичная аменорея (отсутствие менструаций в течении 3 месяцев при регулярных и 6 месяцев при нерегулярных до этого менструациях)', hTemp[ 'N91.1' ], number_percent_1000( hTemp[ 'N91.1' ], total ), 0 )
+  row_three_numbers( wb, ws7, 85, 81, 13, 'N91.3 Первичная олигоминорея (менструация с промежутком более 48 дней и менее 6 месяцев)', hTemp[ 'N91.3' ], number_percent_1000( hTemp[ 'N91.3' ], total ), 0 )
+  row_three_numbers( wb, ws7, 86, 82, 13, 'N91.4 Вторичная олигоминорея (менструация с промежутком более 48 дней и менее 3 месяцев при ранее регулярном ритме)', hTemp[ 'N91.4' ], number_percent_1000( hTemp[ 'N91.4' ], total ), 0 )
+  row_three_numbers( wb, ws7, 87, 83, 13, 'N91.5 Олигоменорея неуточненная (скудные регулярные менструальные выделения)', hTemp[ 'N91.5' ], number_percent_1000( hTemp[ 'N91.5' ], total ), 0 )
+  row_three_numbers( wb, ws7, 88, 84, 13, 'N92.2 Обильные кровотечения вначале менструального периода (обильные регулярные менструации, межменструальные маточные кровотечения)', hTemp[ 'N92.2' ], number_percent_1000( hTemp[ 'N92.2' ], total ), 0 )
+  row_three_numbers( wb, ws7, 89, 85, 13, 'N94.6 Дисменорея неуточненная', hTemp[ 'N94.6' ], number_percent_1000( hTemp[ 'N94.6' ], total ), 0 )
+  row_three_numbers( wb, ws7, 90, 86, 13, 'N94.3 Синдром предменструального напряжения', hTemp[ 'N94.3' ], number_percent_1000( hTemp[ 'N94.3' ], total ), 0 )
+  row_three_numbers( wb, ws7, 91, 87, 13, 'N60.9 Доброкачественная дисплазия молочной железы неуточненная', hTemp[ 'N60.9' ], number_percent_1000( hTemp[ 'N60.9' ], total ), 0 )
+  row_three_numbers( wb, ws7, 92, 88, 13, 'N61 Воспалительные болезни молочной железы (мастит, карбункул, абсцесс)', hTemp[ 'N61' ], number_percent_1000( hTemp[ 'N61' ], total ), 0 )
+  row_three_numbers( wb, ws7, 93, 89, 13, 'N62 Гипертрофия молочной железы (массивная пубертатная)', hTemp[ 'N62' ], number_percent_1000( hTemp[ 'N62' ], total ), 0 )
+  row_three_numbers( wb, ws7, 94, 90, 13, 'N63 Образование в молочной железе неуточненное (узелок/узелки в молочной железе без диагностического уточнения)', hTemp[ 'N63' ], number_percent_1000( hTemp[ 'N63' ], total ), 0 )
+  row_three_numbers( wb, ws7, 95, 91, 13, 'Q83 Врожденные аномалии [пороки развития] молочной железы', hTemp[ 'Q83' ], number_percent_1000( hTemp[ 'Q83' ], total ), 0 )
+  row_three_numbers( wb, ws7, 96, 92, 13, 'N64.4 Мастодиния', hTemp[ 'N64.4' ], number_percent_1000( hTemp[ 'N64.4' ], total ), 0 )
+  row_three_numbers( wb, ws7, 97, 93, 13, 'L70.0 Угри обыкновенные', hTemp[ 'L70.0' ], number_percent_1000( hTemp[ 'L70.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 98, 94, 13, 'L68.0 Гирсутизм', hTemp[ 'L68.0' ], number_percent_1000( hTemp[ 'L68.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 99, 95, 13, 'Z33 Состояние свойственное беременности (состояние беременности)', hTemp[ 'Z33' ], number_percent_1000( hTemp[ 'Z33' ], total ), 0 )
+
+  worksheet_set_row( ws7, 100, 3.0 )
+  worksheet_set_row( ws7, 101, 3.0 )
+
+  worksheet_set_row( ws7, 102, 75 )
+  worksheet_write_number( ws7, 102, 0, 98, text_thin_svod )
+  worksheet_merge_range( ws7, 102, 1, 102, 5, 'Общее число девочек в возрасте 13-14 лет с выявленными факторами риска нарушений репродуктивной системы по кодам МКБ-10 по результатам профилактических осмотров', text_thin_svod )
+  worksheet_write_string( ws7, 102, 6, 'абсолютное число)', text_thin_svod_center )
+  worksheet_write_string( ws7, 102, 7, 'на 1000 девочек соответствующег возраста', text_thin_svod_center )
+  worksheet_write_string( ws7, 102, 8, 'Выявлено впервые (абсолютное число)', text_thin_svod_center )
+  row_three_numbers( wb, ws7, 103, 99, 13, 'E40 - E46 Недостаточность питания', hTemp[ 'E40_E46' ], number_percent_1000( hTemp[ 'E40_E46' ], total ), 0 )
+  row_three_numbers( wb, ws7, 104, 100, 13, 'E66 Ожирение', hTemp[ 'E66' ], number_percent_1000( hTemp[ 'E66' ], total ), 0 )
+  row_three_numbers( wb, ws7, 105, 101, 13, 'E10 Сахарный диабет I типа', hTemp[ 'E10' ], number_percent_1000( hTemp[ 'E10' ], total ), 0 )
+  row_three_numbers( wb, ws7, 106, 102, 13, 'Z72.1 Употребление алкоголя', hTemp[ 'Z72.1' ], number_percent_1000( hTemp[ 'Z72.1' ], total ), 0 )
+  row_three_numbers( wb, ws7, 107, 103, 13, 'Z72.2 Использование наркотиков', hTemp[ 'Z72.2' ], number_percent_1000( hTemp[ 'Z72.2' ], total ), 0 )
+  row_three_numbers( wb, ws7, 108, 104, 13, 'Z72.0 Курение табака (ежедневное выкуривание одной сигареты и более)', hTemp[ 'Z72.0' ], number_percent_1000( hTemp[ 'Z72.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 109, 105, 13, 'E89.4 Нарушение функции яичников, возникшее после медицинских процедур', hTemp[ 'E89.4' ], number_percent_1000( hTemp[ 'E89.4' ], total ), 0 )
+  row_three_numbers( wb, ws7, 110, 106, 13, 'Y83.2-4 Хирургические операции и другие хирургические процедуры как причина аномальной реакции или позднего осложнения у пациента без упоминания о случайном нанесении ему вреда во', hTemp[ 'Y83.2_4' ], number_percent_1000( hTemp[ 'Y83.2_4' ], total ), 0 )
+  row_three_numbers( wb, ws7, 111, 107, 13, 'Z91.2 В личном анамнезе о неудовлетворительное соблюдение личной гигиены', hTemp[ 'Z91.2' ], number_percent_1000( hTemp[ 'Z91.2' ], total ), 0 )
+  row_three_numbers( wb, ws7, 112, 108, 13, 'Z91.3 В личном анамнезе нарушение режима сна/бодрствования (исключены нарушения сна - G47. -)', hTemp[ 'Z91.3' ], number_percent_1000( hTemp[ 'Z91.3' ], total ), 0 )
+
+  worksheet_set_row( ws7, 113, 3.0 )
+  worksheet_set_row( ws7, 114, 3.0 )
+
+  hTemp := hGirl15_17
+  total := hTemp[ 'I' ] + hTemp[ 'II' ] + hTemp[ 'III' ] + hTemp[ 'IV' ] + hTemp[ 'V' ]
+
+  worksheet_set_row( ws7, 115, 13 )
+  worksheet_write_number( ws7, 115, 0, 111, text_thin_svod )
+  worksheet_merge_range( ws7, 115, 1, 115, 8, '15-17 лет девочки', text_thin_svod )
+  worksheet_set_row( ws7, 116, 3.0 )
+
+  worksheet_set_row( ws7, 117, 13 )
+  worksheet_write_number( ws7, 117, 0, 113, text_thin_svod )
+  worksheet_merge_range( ws7, 117, 1, 117, 7, '2', text_thin_svod_center )
+  worksheet_write_string( ws7, 117, 8, 'x', text_thin_svod_center )
+
+  row_single_number( wb, ws7, 118, 114, 13, 'Общее число девочек в возрасте 15-17 лет, подлежащих профилактическому осмотру (прикрепленного населения соответствующего возраста), согласно статформе №30-по/у на начало', 0, .f., "'15-17 лет'!A21" )
+  row_single_number( wb, ws7, 119, 115, 13, 'Общее число девочек в возрасте 15-17 лет, прошедших профилактический осмотр, из общего числа подлежащих профилактическому осмотру (чел)', 0, .f., "'15-17 лет'!C21" )
+  row_single_number( wb, ws7, 120, 116, 13, 'Доля девочек, прошедших профилактический осмотр в возрасте 15-17 лет, из общего числа подлежащих профилактическому осмотру (%)', 0, .f. )
+  row_single_number( wb, ws7, 121, 117, 13, 'Общее число девочек в возрасте 15-17 лет с оформленным отказом от профилактического осмотра (чел)', 0, .t. )
+
+//  worksheet_set_row( ws7, 122, 3.0 )
+//  worksheet_set_row( ws7, 123, 3.0 )
+  empty_rows( ws7, 122, 2, 3.0 )  
+
+  worksheet_set_row( ws7, 124, 13 )
+  worksheet_write_number( ws7, 124, 0, 120, text_thin_svod )
+  worksheet_merge_range( ws7, 124, 1, 124, 6, 'Общее число и доля девочек в возрасте 15-17 лет из прошедших профилактический осмотр, которые были отнесены к:', text_thin_svod )
+  worksheet_write_string( ws7, 124, 7, 'человек', text_thin_svod_center )
+  worksheet_write_string( ws7, 124, 8, '%', text_thin_svod_center )
+
+  row_two_numbers( wb, ws7, 125, 121, 13, '1 группе здоровья', hTemp[ 'I' ], '=IFERROR(H126/I120*100,0)' )
+  row_two_numbers( wb, ws7, 126, 122, 13, '2 группе здоровья', hTemp[ 'II' ], '=IFERROR(H127/I120*100,0)' )
+  row_two_numbers( wb, ws7, 127, 123, 13, '3 группе здоровья', hTemp[ 'III' ], '=IFERROR(H128/I120*100,0)' )
+  row_two_numbers( wb, ws7, 128, 124, 13, '4 группе здоровья', hTemp[ 'IV' ], '=IFERROR(H129/I120*100,0)' )
+  row_two_numbers( wb, ws7, 129, 125, 13, '5 группе здоровья', hTemp[ 'V' ], '=IFERROR(H130/I120*100,0)' )
+
+  empty_rows( ws7, 130, 2, 3.0 )  
+
+  row_single_number( wb, ws7, 132, 128, 13, 'Общее число девочек в возрасте 15-17 лет с выявленными заболеваниями половых органов и молочных желез из прошедших профилактический осмотр (чел.)', 0, .t., '=SUM(G142:G171)' )
+  row_single_number( wb, ws7, 133, 129, 13, 'Общее число девочек в возрасте 15-17 лет с впервые выявленными заболеваниями половых органов и молочных желез из прошедших профилактический осмотр (чел.)', 0, .t. )
+  row_single_number( wb, ws7, 134, 130, 13, 'Доля девочек в возрасте 15-17 лет с впервые выявленными заболеваниями половых органов и молочных желез из прошедших профилактический осмотр (%)', 0, .f. )
+  row_single_number( wb, ws7, 135, 131, 13, 'Общее число девочек в возрасте 15-17 лет прошедших профилактический осмотр и взятых на учет после профилактического осмотра, в том числе:', 0, .t. )
+  row_single_number( wb, ws7, 136, 132, 13, 'для диспансерного наблюдения в амбулаторных условиях (чел.)', 0, .t. )
+  row_single_number( wb, ws7, 137, 133, 13, 'для обследования и лечения в стационарных условиях за счет средств ОМС или ДМС (чел.)', 0, .t. )
+  row_single_number( wb, ws7, 138, 134, 13, 'для обследования и лечения в стационарных условиях с использованием ВМП (чел.)', 0, .t. )
+
+  empty_rows( ws7, 139, 1, 3.0 )  
+
+  worksheet_set_row( ws7, 140, 79.2 )
+  worksheet_write_number( ws7, 140, 0, 136, text_thin_svod )
+  worksheet_merge_range( ws7, 140, 1, 140, 5, 'наименование заболеваний по кодам МКБ-10, выявленных на профилактическом осмотре девочек в возрасте 15-17 лет', text_thin_svod )
+  worksheet_write_string( ws7, 140, 6, 'Всего зарегистрировано заболеваний (абсолютное число)', text_thin_svod_center )
+  worksheet_write_string( ws7, 140, 7, 'В пересчете на 1000 девочек соответствующег возраста (%)', text_thin_svod_center )
+  worksheet_write_string( ws7, 140, 8, 'Выявлено впервые (абсолютное число)', text_thin_svod_center )
+
+  row_three_numbers( wb, ws7, 141, 137, 13, 'E30.0 Задержка полового созревания (остутствие роста молочных желез и оволосения лобка)', hTemp[ 'E30.0' ], number_percent_1000( hTemp[ 'E30.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 142, 138, 13, 'N76.1 Подострый и хронический вагинит', hTemp[ 'N76.1' ], number_percent_1000( hTemp[ 'N76.1' ], total ), 0 )
+  row_three_numbers( wb, ws7, 143, 139, 13, 'N76.3 Подострый и хронический вульвит', hTemp[ 'N76.3' ], number_percent_1000( hTemp[ 'N76.3' ], total ), 0 )
+  row_three_numbers( wb, ws7, 144, 140, 13, 'N76.6 Изъязвление вульвы', hTemp[ 'N76.6' ], number_percent_1000( hTemp[ 'N76.6' ], total ), 0 )
+  row_three_numbers( wb, ws7, 145, 141, 13, 'N90.4 Лейкоплакия вульвы (на фоне склерозирующего лихена)', hTemp[ 'N90.4' ], number_percent_1000( hTemp[ 'N90.4' ], total ), 0 )
+  row_three_numbers( wb, ws7, 146, 142, 13, 'N90.6 Гипертрофия вульвы (гипертрофия половых губ и клитора)', hTemp[ 'N90.6' ], number_percent_1000( hTemp[ 'N90.6' ], total ), 0 )
+  row_three_numbers( wb, ws7, 147, 143, 13, 'N90.8 Другие уточненные невоспалительные болезни вульвы и промежности (спайки или синехии вульвы)', hTemp[ 'N90.8' ], number_percent_1000( hTemp[ 'N90.8' ], total ), 0 )
+  row_three_numbers( wb, ws7, 148, 144, 13, 'D28.0 Доброкачественное образование вульвы бартолиниевой железы, фиброма, липома, гидроаденома', hTemp[ 'D28.0' ], number_percent_1000( hTemp[ 'D28.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 149, 145, 13, 'A63.0 Аногенитальные (венерические) бородавки', hTemp[ 'A63.0' ], number_percent_1000( hTemp[ 'A63.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 150, 146, 13, 'Q52.0 Врожденное отсутствие влагалища', hTemp[ 'Q52.0' ], number_percent_1000( hTemp[ 'Q52.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 151, 147, 13, 'Q52.3 Девственная плева, полностью закрывающая вход во влагалище (килевидный, решетчатый, мембранный гимен)', hTemp[ 'Q52.3' ], number_percent_1000( hTemp[ 'Q52.3' ], total ), 0 )
+  row_three_numbers( wb, ws7, 152, 148, 13, 'Q52.5 Сращение губ (врожденный урегинетальный синус II-V степени вирилизации по Прадеру)', hTemp[ 'Q52.5' ], number_percent_1000( hTemp[ 'Q52.5' ], total ), 0 )
+  row_three_numbers( wb, ws7, 153, 149, 13, 'Q56.4 Неопределенность пола неуточненная (неопределенность половых органов)', hTemp[ 'Q56.4' ], number_percent_1000( hTemp[ 'Q56.4' ], total ), 0 )
+  row_three_numbers( wb, ws7, 154, 150, 13, 'Q64.8 Другие уточненные врожденные аномалии мочевыделительной системы (уретра, открывающая на передней стенке влагалища)', hTemp[ 'Q64.8' ], number_percent_1000( hTemp[ 'Q64.8' ], total ), 0 )
+  row_three_numbers( wb, ws7, 155, 151, 13, 'N91.1 Вторичная аменорея (отсутствие менструаций в течении 3 месяцев при регулярных и 6 месяцев при нерегулярных до этого менструациях)', hTemp[ 'N91.1' ], number_percent_1000( hTemp[ 'N91.1' ], total ), 0 )
+  row_three_numbers( wb, ws7, 156, 152, 13, 'N91.3 Первичная олигоминорея (менструация с промежутком более 48 дней и менее 6 месяцев)', hTemp[ 'N91.3' ], number_percent_1000( hTemp[ 'N91.3' ], total ), 0 )
+  row_three_numbers( wb, ws7, 157, 153, 13, 'N91.4 Вторичная олигоминорея (менструация с промежутком более 48 дней и менее 3 месяцев при ранее регулярном ритме)', hTemp[ 'N91.4' ], number_percent_1000( hTemp[ 'N91.4' ], total ), 0 )
+  row_three_numbers( wb, ws7, 158, 154, 13, 'N91.5 Олигоменорея неуточненная (скудные регулярные менструальные выделения)', hTemp[ 'N91.5' ], number_percent_1000( hTemp[ 'N91.5' ], total ), 0 )
+  row_three_numbers( wb, ws7, 159, 155, 13, 'N92.2 Обильные кровотечения вначале менструального периода (обильные регулярные менструации, межменструальные маточные кровотечения)', hTemp[ 'N92.2' ], number_percent_1000( hTemp[ 'N92.2' ], total ), 0 )
+  row_three_numbers( wb, ws7, 160, 156, 13, 'N94.6 Дисменорея неуточненная', hTemp[ 'N94.6' ], number_percent_1000( hTemp[ 'N94.6' ], total ), 0 )
+  row_three_numbers( wb, ws7, 161, 157, 13, 'N94.3 Синдром предменструального напряжения', hTemp[ 'N94.3' ], number_percent_1000( hTemp[ 'N94.3' ], total ), 0 )
+  row_three_numbers( wb, ws7, 162, 158, 13, 'N60.9 Доброкачественная дисплазия молочной железы неуточненная', hTemp[ 'N60.9' ], number_percent_1000( hTemp[ 'N60.9' ], total ), 0 )
+  row_three_numbers( wb, ws7, 163, 159, 13, 'N61 Воспалительные болезни молочной железы (мастит, карбункул, абсцесс)', hTemp[ 'N61' ], number_percent_1000( hTemp[ 'N61' ], total ), 0 )
+  row_three_numbers( wb, ws7, 164, 160, 13, 'N62 Гипертрофия молочной железы (массивная пубертатная)', hTemp[ 'N62' ], number_percent_1000( hTemp[ 'N62' ], total ), 0 )
+  row_three_numbers( wb, ws7, 165, 161, 13, 'N63 Образование в молочной железе неуточненное (узелок/узелки в молочной железе без диагностического уточнения)', hTemp[ 'N63' ], number_percent_1000( hTemp[ 'N63' ], total ), 0 )
+  row_three_numbers( wb, ws7, 166, 162, 13, 'Q83 Врожденные аномалии [пороки развития] молочной железы', hTemp[ 'Q83' ], number_percent_1000( hTemp[ 'Q83' ], total ), 0 )
+  row_three_numbers( wb, ws7, 167, 163, 13, 'N64.4 Мастодиния', hTemp[ 'N64.4' ], number_percent_1000( hTemp[ 'N64.4' ], total ), 0 )
+  row_three_numbers( wb, ws7, 168, 164, 13, 'L70.0 Угри обыкновенные', hTemp[ 'L70.0' ], number_percent_1000( hTemp[ 'L70.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 169, 165, 13, 'L68.0 Гирсутизм', hTemp[ 'L68.0' ], number_percent_1000( hTemp[ 'L68.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 170, 166, 13, 'Z33 Состояние свойственное беременности (состояние беременности)', hTemp[ 'Z33' ], number_percent_1000( hTemp[ 'Z33' ], total ), 0 )
+
+  empty_rows( ws7, 171, 2, 3.0 )  
+
+  worksheet_set_row( ws7, 172, 75 )
+  worksheet_write_number( ws7, 172, 0, 167, text_thin_svod )
+  worksheet_merge_range( ws7, 172, 1, 172, 5, 'Общее число девочек в возрасте 15-17 лет с выявленными факторами риска нарушений репродуктивной системы по кодам МКБ-10 по результатам профилактических осмотров', text_thin_svod )
+  worksheet_write_string( ws7, 172, 6, 'абсолютное число)', text_thin_svod_center )
+  worksheet_write_string( ws7, 172, 7, 'на 1000 девочек соответствующег возраста', text_thin_svod_center )
+  worksheet_write_string( ws7, 172, 8, 'Выявлено впервые (абсолютное число)', text_thin_svod_center )
+
+  row_three_numbers( wb, ws7, 173, 168, 13, 'E40 - E46 Недостаточность питания', hTemp[ 'E40_E46' ], number_percent_1000( hTemp[ 'E40_E46' ], total ), 0 )
+  row_three_numbers( wb, ws7, 174, 169, 13, 'E66 Ожирение', hTemp[ 'E66' ], number_percent_1000( hTemp[ 'E66' ], total ), 0 )
+  row_three_numbers( wb, ws7, 175, 170, 13, 'E10 Сахарный диабет I типа', hTemp[ 'E10' ], number_percent_1000( hTemp[ 'E10' ], total ), 0 )
+  row_three_numbers( wb, ws7, 176, 171, 13, 'Z72.1 Употребление алкоголя', hTemp[ 'Z72.1' ], number_percent_1000( hTemp[ 'Z72.1' ], total ), 0 )
+  row_three_numbers( wb, ws7, 177, 172, 13, 'Z72.2 Использование наркотиков', hTemp[ 'Z72.2' ], number_percent_1000( hTemp[ 'Z72.2' ], total ), 0 )
+  row_three_numbers( wb, ws7, 178, 173, 13, 'Z72.0 Курение табака (ежедневное выкуривание одной сигареты и более)', hTemp[ 'Z72.0' ], number_percent_1000( hTemp[ 'Z72.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 179, 174, 13, 'E89.4 Нарушение функции яичников, возникшее после медицинских процедур', hTemp[ 'E89.4' ], number_percent_1000( hTemp[ 'E89.4' ], total ), 0 )
+  row_three_numbers( wb, ws7, 180, 175, 13, 'Y83.2-4 Хирургические операции и другие хирургические процедуры как причина аномальной реакции или позднего осложнения у пациента без упоминания о случайном нанесении ему вреда во', hTemp[ 'Y83.2_4' ], number_percent_1000( hTemp[ 'Y83.2_4' ], total ), 0 )
+  row_three_numbers( wb, ws7, 181, 176, 13, 'Z91.2 В личном анамнезе о неудовлетворительное соблюдение личной гигиены', hTemp[ 'Z91.2' ], number_percent_1000( hTemp[ 'Z91.2' ], total ), 0 )
+  row_three_numbers( wb, ws7, 182, 177, 13, 'Z91.3 В личном анамнезе нарушение режима сна/бодрствования (исключены нарушения сна - G47. -)', hTemp[ 'Z91.3' ], number_percent_1000( hTemp[ 'Z91.3' ], total ), 0 )
+
+  empty_rows( ws7, 183, 2, 3.0 )  
+
+  hTemp := hYoung13_14
+  total := hTemp[ 'I' ] + hTemp[ 'II' ] + hTemp[ 'III' ] + hTemp[ 'IV' ] + hTemp[ 'V' ]
+
+  worksheet_write_number( ws7, 185, 0, 182, text_thin_svod )
+  worksheet_merge_range( ws7, 185, 1, 185, 8, '13-14 лет мальчики', text_thin_svod_center )
+
+  empty_rows( ws7, 186, 2, 3.0 )  
+
+  worksheet_set_row( ws7, 188, 13 )
+  worksheet_write_number( ws7, 188, 0, 184, text_thin_svod )
+  worksheet_merge_range( ws7, 188, 1, 188, 7, '2', text_thin_svod_center )
+  worksheet_write_string( ws7, 188, 8, 'x', text_thin_svod_center )
+  row_single_number( wb, ws7, 189, 185, 27.6, 'Общее число мальчиков в возрасте 13-14 лет, подлежащих профилактическому осмотру (прикрепленного населения соответствующего возраста), согласно статформе №30-по/у на начало', 0, .t. )
+  row_single_number( wb, ws7, 190, 186, 13, 'Общее число мальчиков в возрасте 13-14 лет, прошедших профилактический осмотр, из общего числа подлежащих профилактическому осмотру (чел)', 0, .f., '=H197+H198+H199+H200+H201' )
+  row_single_number( wb, ws7, 191, 187, 13, 'Доля мальчиков, прошедших профилактический осмотр в возрасте 13-14 лет, из общего числа подлежащих профилактическому осмотру (%)', 0, .f. )
+  row_single_number( wb, ws7, 192, 188, 13, 'Общее число мальчиков в возрасте 13-14 лет с оформленным отказом от профилактического осмотра (чел)', 0, .t. )
+
+  empty_rows( ws7, 193, 2, 3.0 )  
+
+  worksheet_set_row( ws7, 195, 13 )
+  worksheet_write_number( ws7, 195, 0, 191, text_thin_svod )
+  worksheet_merge_range( ws7, 195, 1, 195, 6, 'Общее число и доля мальчиков в возрасте 13-14 лет из прошедших профилактический осмотр, которые были отнесены к:', text_thin_svod )
+  worksheet_write_string( ws7, 195, 7, 'человек', text_thin_svod_center )
+  worksheet_write_string( ws7, 195, 8, '%', text_thin_svod_center )
+
+  row_two_numbers( wb, ws7, 196, 192, 13, '1 группе здоровья', hTemp[ 'I' ], '=IFERROR(H197/I191*100,0)' )
+  row_two_numbers( wb, ws7, 197, 193, 13, '2 группе здоровья', hTemp[ 'II' ], '=IFERROR(H198/I191*100,0)' )
+  row_two_numbers( wb, ws7, 198, 194, 13, '3 группе здоровья', hTemp[ 'III' ], '=IFERROR(H199/I191*100,0)' )
+  row_two_numbers( wb, ws7, 199, 195, 13, '4 группе здоровья', hTemp[ 'IV' ], '=IFERROR(H200/I191*100,0)' )
+  row_two_numbers( wb, ws7, 200, 196, 13, '5 группе здоровья', hTemp[ 'V' ], '=IFERROR(H200/I191*100,0)' )
+
+  empty_rows( ws7, 201, 2, 3.0 )  
+
+  row_single_number( wb, ws7, 203, 199, 13, 'Общее число мальчиков в возрасте 13-14 лет с выявленными заболеваниями половых органов и молочных желез из прошедших профилактический осмотр (чел.)', 0, .t., '=SUM(G213:G222)' )
+  row_single_number( wb, ws7, 204, 200, 13, 'Общее число мальчиков в возрасте 13-14 лет с впервые выявленными заболеваниями половых органов и молочных желез из прошедших профилактический осмотр (чел.)', 0, .t. )
+  row_single_number( wb, ws7, 205, 201, 13, 'Доля мальчиков в возрасте 13-14 лет с впервые выявленными заболеваниями половых органов и молочных желез из прошедших профилактический осмотр (%)', 0, .f. )
+  row_single_number( wb, ws7, 206, 202, 13, 'Общее число мальчиков в возрасте 13-14 лет прошедших профилактический осмотр и взятых на учет после профилактического осмотра, в том числе:', 0, .t. )
+  row_single_number( wb, ws7, 207, 203, 13, 'для диспансерного наблюдения в амбулаторных условиях (чел.)', 0, .t. )
+  row_single_number( wb, ws7, 208, 204, 13, 'для обследования и лечения в стационарных условиях за счет средств ОМС или ДМС (чел.)', 0, .t. )
+  row_single_number( wb, ws7, 209, 205, 13, 'для обследования и лечения в стационарных условиях с использованием ВМП (чел.)', 0, .t. )
+
+  empty_rows( ws7, 210, 1, 3.0 )
+
+  worksheet_set_row( ws7, 211, 79.2 )
+  worksheet_write_number( ws7, 211, 0, 207, text_thin_svod )
+  worksheet_merge_range( ws7, 211, 1, 211, 5, 'наименование заболеваний по кодам МКБ-10, выявленных на профилактическом осмотре мальчиков в возрасте 13-14 лет', text_thin_svod )
+  worksheet_write_string( ws7, 211, 6, 'Всего зарегистрировано заболеваний (абсолютное число)', text_thin_svod_center )
+  worksheet_write_string( ws7, 211, 7, 'В пересчете на 1000 мальчиков соответствующег возраста (%)', text_thin_svod_center )
+  worksheet_write_string( ws7, 211, 8, 'Выявлено впервые (абсолютное число)', text_thin_svod_center )
+
+  row_three_numbers( wb, ws7, 212, 208, 13, 'E30.0 Задержка полового созревания (отсутствие или слабое развитие оволосения лобка, яички объемом менее 4 куб. см, непигментированная мошонка, "детский" половой член)', hTemp[ 'E30.0' ], number_percent_1000( hTemp[ 'E30.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 213, 209, 13, 'N43 Гидроцеле или сперматоцеле (водянка семенного канатика, яичка или влагалищной оболочки яичка)', hTemp[ 'N43' ], number_percent_1000( hTemp[ 'N43' ], total ), 0 )
+  row_three_numbers( wb, ws7, 214, 210, 13, 'N45 Орхит, эпидидимит, эпидимоорхит', hTemp[ 'N45' ], number_percent_1000( hTemp[ 'N45' ], total ), 0 )
+  row_three_numbers( wb, ws7, 215, 211, 13, 'N47 Избыточная крайняя плоть, фимоз и парафимоз', hTemp[ 'N47' ], number_percent_1000( hTemp[ 'N47' ], total ), 0 )
+  row_three_numbers( wb, ws7, 216, 212, 13, 'N48.0 Лейкоплакия полового члена (облитерирущий ксеротический балонопостит, склеротический лихен или крауроз)', hTemp[ 'N48.0' ], number_percent_1000( 0, total ), 0 )
+  row_three_numbers( wb, ws7, 217, 213, 13, 'N48.1 Баланопостит (баланит)', hTemp[ 'N48.1' ], number_percent_1000( hTemp[ 'N48.1' ], total ), 0 )
+  row_three_numbers( wb, ws7, 218, 214, 13, 'N50.0 Атрофия яичка', hTemp[ 'N50.0' ], number_percent_1000( hTemp[ 'N50.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 219, 215, 13, 'A63.0 Аногенитальные (венерические) бородавки', hTemp[ 'A63.0' ], number_percent_1000( hTemp[ 'A63.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 220, 216, 13, 'I86.1 Варикозное расширение вен мошонки', hTemp[ 'I86.1' ], number_percent_1000( hTemp[ 'I86.1' ], total ), 0 )
+  row_three_numbers( wb, ws7, 221, 217, 13, 'Q53 Неопущение яичка', hTemp[ 'Q53' ], number_percent_1000( hTemp[ 'Q53' ], total ), 0 )
+  row_three_numbers( wb, ws7, 222, 218, 13, 'Q54 Гипоспадия', hTemp[ 'Q54' ], number_percent_1000( hTemp[ 'Q54' ], total ), 0 )
+  row_three_numbers( wb, ws7, 223, 219, 13, 'Q55 Другие врожденные аномалии (пороки развития) мужских половых органов', hTemp[ 'Q55' ], number_percent_1000( hTemp[ 'Q55' ], total ), 0 )
+  row_three_numbers( wb, ws7, 224, 220, 13, 'Q64.0 Эписпадия', hTemp[ 'Q64.0' ], number_percent_1000( hTemp[ 'Q64.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 225, 221, 13, 'N62 Гипертрофия молочной железы (гинекомастия)', hTemp[ 'N62' ], number_percent_1000( hTemp[ 'N62' ], total ), 0 )
+  row_three_numbers( wb, ws7, 226, 222, 13, 'L70.0 Угри обыкновенные', hTemp[ 'L70.0' ], number_percent_1000( hTemp[ 'L70.0' ], total ), 0 )
+
+  empty_rows( ws7, 227, 2, 3.0 )  
+
+  worksheet_set_row( ws7, 229, 75 )
+  worksheet_write_number( ws7, 229, 0, 225, text_thin_svod )
+  worksheet_merge_range( ws7, 229, 1, 229, 5, 'Число мальчиков в возрасте 13-14 лет с выявленными факторами риска нарушений репродуктивной системы по кодам МКБ-10 по результатам профилактических осмотров', text_thin_svod )
+  worksheet_write_string( ws7, 229, 6, 'абсолютное число', text_thin_svod_center )
+  worksheet_write_string( ws7, 229, 7, 'на 1000 мальчиков соответствующег возраста', text_thin_svod_center )
+  worksheet_write_string( ws7, 229, 8, 'Выявлено впервые (абсолютное число)', text_thin_svod_center )
+
+  row_three_numbers( wb, ws7, 230, 226, 13, 'E40 - E46 Недостаточность питания', hTemp[ 'E40_E46' ], number_percent_1000( hTemp[ 'E40_E46' ], total ), 0 )
+  row_three_numbers( wb, ws7, 231, 227, 13, 'E66 Ожирение', hTemp[ 'E66' ], number_percent_1000( hTemp[ 'E66' ], total ), 0 )
+  row_three_numbers( wb, ws7, 232, 228, 13, 'E10 Сахарный диабет I типа', hTemp[ 'E10' ], number_percent_1000( hTemp[ 'E10' ], total ), 0 )
+  row_three_numbers( wb, ws7, 233, 229, 13, 'Z72.1 Употребление алкоголя', hTemp[ 'Z72.1' ], number_percent_1000( hTemp[ 'Z72.1' ], total ), 0 )
+  row_three_numbers( wb, ws7, 234, 230, 13, 'Z72.2 Использование наркотиков', hTemp[ 'Z72.2' ], number_percent_1000( hTemp[ 'Z72.2' ], total ), 0 )
+  row_three_numbers( wb, ws7, 235, 231, 13, 'Z72.0 Курение табака (ежедневное выкуривание одной сигареты и более)', hTemp[ 'Z72.0' ], number_percent_1000( hTemp[ 'Z72.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 236, 232, 13, 'Y83.2-4 Хирургические операции и другие хирургические процедуры как причина аномальной реакции или позднего осложнения у пациента без упоминания о случайном нанесении ему вреда во', hTemp[ 'Y83.2_4' ], number_percent_1000( hTemp[ 'Y83.2_4' ], total ), 0 )
+  row_three_numbers( wb, ws7, 237, 233, 13, 'Z91.2 В личном анамнезе о неудовлетворительное соблюдение личной гигиены', hTemp[ 'Z91.2' ], number_percent_1000( hTemp[ 'Z91.2' ], total ), 0 )
+  row_three_numbers( wb, ws7, 238, 234, 13, 'Z91.3 В личном анамнезе нарушение режима сна/бодрствования (исключены нарушения сна - G47. -)', hTemp[ 'Z91.3' ], number_percent_1000( hTemp[ 'Z91.3' ], total ), 0 )
+
+  empty_rows( ws7, 239, 2, 3.0 )
+
+  hTemp := hYoung15_17
+  total := hTemp[ 'I' ] + hTemp[ 'II' ] + hTemp[ 'III' ] + hTemp[ 'IV' ] + hTemp[ 'V' ]
+
+  worksheet_write_number( ws7, 241, 0, 237, text_thin_svod )
+  worksheet_merge_range( ws7, 241, 1, 241, 8, '15-17 лет мальчики', text_thin_svod_center )
+
+  empty_rows( ws7, 242, 1, 3.0 )  
+
+  worksheet_set_row( ws7, 243, 13 )
+  worksheet_write_number( ws7, 243, 0, 239, text_thin_svod )
+  worksheet_merge_range( ws7, 243, 1, 243, 7, '2', text_thin_svod_center )
+  worksheet_write_string( ws7, 243, 8, 'x', text_thin_svod_center )
+  row_single_number( wb, ws7, 244, 240, 27.6, 'Общее число мальчиков в возрасте 15-17 лет, подлежащих профилактическому осмотру (прикрепленного населения соответствующего возраста), согласно статформе №30-по/у на начало', 0, .f., "'15-17 лет'!A15" )
+  row_single_number( wb, ws7, 245, 241, 13, 'Общее число мальчиков в возрасте 15-17 лет, прошедших профилактический осмотр, из общего числа подлежащих профилактическому осмотру (чел)', 0, .f., "'15-17 лет'!C15" )
+  row_single_number( wb, ws7, 246, 242, 13, 'Доля мальчиков, прошедших профилактический осмотр в возрасте 15-17 лет, из общего числа подлежащих профилактическому осмотру (%)', 0, .f. )
+  row_single_number( wb, ws7, 247, 243, 13, 'Общее число мальчиков в возрасте 15-17 лет с оформленным отказом от профилактического осмотра (чел)', 0, .t. )
+
+  empty_rows( ws7, 248, 2, 3.0 )  
+
+  worksheet_set_row( ws7, 250, 13 )
+  worksheet_write_number( ws7, 250, 0, 246, text_thin_svod )
+  worksheet_merge_range( ws7, 250, 1, 250, 6, 'Общее число и доля мальчиков в возрасте 15-17 лет из прошедших профилактический осмотр, которые были отнесены к:', text_thin_svod )
+  worksheet_write_string( ws7, 250, 7, 'человек', text_thin_svod_center )
+  worksheet_write_string( ws7, 250, 8, '%', text_thin_svod_center )
+
+  row_two_numbers( wb, ws7, 251, 247, 13, '1 группе здоровья', hTemp[ 'I' ], '=IFERROR(H252/I246*100,0)' )
+  row_two_numbers( wb, ws7, 252, 248, 13, '2 группе здоровья', hTemp[ 'II' ], '=IFERROR(H252/I247*100,0)' )
+  row_two_numbers( wb, ws7, 253, 249, 13, '3 группе здоровья', hTemp[ 'III' ], '=IFERROR(H252/I248*100,0)' )
+  row_two_numbers( wb, ws7, 254, 250, 13, '4 группе здоровья', hTemp[ 'IV' ], '=IFERROR(H252/I249*100,0)' )
+  row_two_numbers( wb, ws7, 255, 251, 13, '5 группе здоровья', hTemp[ 'V' ], '=IFERROR(H252/I250*100,0)' )
+
+  empty_rows( ws7, 256, 2, 3.0 )  
+
+  row_single_number( wb, ws7, 258, 254, 13, 'Общее число мальчиков в возрасте 15-17 лет с выявленными заболеваниями половых органов и молочных желез из прошедших профилактический осмотр (чел.)', 0, .t., '=SUM(G268:G282)' )
+  row_single_number( wb, ws7, 259, 255, 13, 'Общее число мальчиков в возрасте 15-17 лет с впервые выявленными заболеваниями половых органов и молочных желез из прошедших профилактический осмотр (чел.)', 0, .t. )
+  row_single_number( wb, ws7, 260, 256, 13, 'Доля мальчиков в возрасте 15-17 лет с впервые выявленными заболеваниями половых органов и молочных желез из прошедших профилактический осмотр (%)', 0, .f. )
+  row_single_number( wb, ws7, 261, 257, 13, 'Общее число мальчиков в возрасте 15-17 лет прошедших профилактический осмотр и взятых на учет после профилактического осмотра, в том числе:', 0, .t. )
+  row_single_number( wb, ws7, 262, 258, 13, 'для диспансерного наблюдения в амбулаторных условиях (чел.)', 0, .t. )
+  row_single_number( wb, ws7, 263, 259, 13, 'для обследования и лечения в стационарных условиях за счет средств ОМС или ДМС (чел.)', 0, .t. )
+  row_single_number( wb, ws7, 264, 260, 13, 'для обследования и лечения в стационарных условиях с использованием ВМП (чел.)', 0, .t. )
+
+  empty_rows( ws7, 265, 1, 3.0 )
+
+  worksheet_set_row( ws7, 266, 79.2 )
+  worksheet_write_number( ws7, 265, 0, 262, text_thin_svod )
+  worksheet_merge_range( ws7, 266, 1, 266, 5, 'наименование заболеваний по кодам МКБ-10, выявленных на профилактическом осмотре мальчиков в возрасте 15-17 лет', text_thin_svod )
+  worksheet_write_string( ws7, 266, 6, 'Всего зарегистрировано заболеваний (абсолютное число)', text_thin_svod_center )
+  worksheet_write_string( ws7, 266, 7, 'В пересчете на 1000 мальчиков соответствующег возраста (%)', text_thin_svod_center )
+  worksheet_write_string( ws7, 266, 8, 'Выявлено впервые (абсолютное число)', text_thin_svod_center )
+
+  row_three_numbers( wb, ws7, 267, 263, 13, 'E30.0 Задержка полового созревания (отсутствие или слабое развитие оволосения лобка, яички объемом менее 4 куб. см, непигментированная мошонка, "детский" половой член)', hTemp[ 'E30.0' ], number_percent_1000( hTemp[ 'E30.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 268, 264, 13, 'N43 Гидроцеле или сперматоцеле (водянка семенного канатика, яичка или влагалищной оболочки яичка)', hTemp[ 'N43' ], number_percent_1000( hTemp[ 'N43' ], total ), 0 )
+  row_three_numbers( wb, ws7, 269, 265, 13, 'N45 Орхит, эпидидимит, эпидимоорхит', hTemp[ 'N45' ], number_percent_1000( hTemp[ 'N45' ], total ), 0 )
+  row_three_numbers( wb, ws7, 270, 266, 13, 'N47 Избыточная крайняя плоть, фимоз и парафимоз', hTemp[ 'N47' ], number_percent_1000( hTemp[ 'N47' ], total ), 0 )
+  row_three_numbers( wb, ws7, 271, 267, 13, 'N48.0 Лейкоплакия полового члена (облитерирущий ксеротический балонопостит, склеротический лихен или крауроз)', hTemp[ 'N48.0' ], number_percent_1000( hTemp[ 'N48.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 272, 268, 13, 'N48.1 Баланопостит (баланит)', hTemp[ 'N48.1' ], number_percent_1000( hTemp[ 'N48.1' ], total ), 0 )
+  row_three_numbers( wb, ws7, 273, 269, 13, 'N50.0 Атрофия яичка', hTemp[ 'N50.0' ], number_percent_1000( hTemp[ 'N50.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 274, 270, 13, 'A63.0 Аногенитальные (венерические) бородавки', hTemp[ 'A63.0' ], number_percent_1000( hTemp[ 'A63.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 275, 271, 13, 'I86.1 Варикозное расширение вен мошонки', hTemp[ 'I86.1' ], number_percent_1000( hTemp[ 'I86.1' ], total ), 0 )
+  row_three_numbers( wb, ws7, 276, 272, 13, 'Q53 Неопущение яичка', hTemp[ 'Q53' ], number_percent_1000( hTemp[ 'Q53' ], total ), 0 )
+  row_three_numbers( wb, ws7, 277, 273, 13, 'Q54 Гипоспадия', hTemp[ 'Q54' ], number_percent_1000( hTemp[ 'Q54' ], total ), 0 )
+  row_three_numbers( wb, ws7, 278, 274, 13, 'Q55 Другие врожденные аномалии (пороки развития) мужских половых органов', hTemp[ 'Q55' ], number_percent_1000( hTemp[ 'Q55' ], total ), 0 )
+  row_three_numbers( wb, ws7, 279, 275, 13, 'Q64.0 Эписпадия', hTemp[ 'Q64.0' ], number_percent_1000( hTemp[ 'Q64.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 280, 276, 13, 'N62 Гипертрофия молочной железы (гинекомастия)', hTemp[ 'N62' ], number_percent_1000( hTemp[ 'N62' ], total ), 0 )
+  row_three_numbers( wb, ws7, 281, 277, 13, 'L70.0 Угри обыкновенные', hTemp[ 'L70.0' ], number_percent_1000( hTemp[ 'L70.0' ], total ), 0 )
+
+  empty_rows( ws7, 282, 2, 3.0 )  
+
+  worksheet_set_row( ws7, 284, 75 )
+  worksheet_write_number( ws7, 284, 0, 280, text_thin_svod )
+  worksheet_merge_range( ws7, 284, 1, 284, 5, 'Число мальчиков в возрасте 15-17 лет с выявленными факторами риска нарушений репродуктивной системы по кодам МКБ-10 по результатам профилактических осмотров', text_thin_svod )
+  worksheet_write_string( ws7, 284, 6, 'абсолютное число', text_thin_svod_center )
+  worksheet_write_string( ws7, 284, 7, 'на 1000 мальчиков соответствующег возраста', text_thin_svod_center )
+  worksheet_write_string( ws7, 284, 8, 'Выявлено впервые (абсолютное число)', text_thin_svod_center )
+
+  row_three_numbers( wb, ws7, 285, 281, 13, 'E40 - E46 Недостаточность питания', hTemp[ 'E40_E46' ], number_percent_1000( hTemp[ 'E40_E46' ], total ), 0 )
+  row_three_numbers( wb, ws7, 286, 282, 13, 'E66 Ожирение', hTemp[ 'E66' ], number_percent_1000( hTemp[ 'E66' ], total ), 0 )
+  row_three_numbers( wb, ws7, 287, 283, 13, 'E10 Сахарный диабет I типа', hTemp[ 'E10' ], number_percent_1000( hTemp[ 'E10' ], total ), 0 )
+  row_three_numbers( wb, ws7, 288, 284, 13, 'Z72.1 Употребление алкоголя', hTemp[ 'Z72.1' ], number_percent_1000( hTemp[ 'Z72.1' ], total ), 0 )
+  row_three_numbers( wb, ws7, 289, 285, 13, 'Z72.2 Использование наркотиков', hTemp[ 'Z72.2' ], number_percent_1000( hTemp[ 'Z72.2' ], total ), 0 )
+  row_three_numbers( wb, ws7, 290, 286, 13, 'Z72.0 Курение табака (ежедневное выкуривание одной сигареты и более)', hTemp[ 'Z72.0' ], number_percent_1000( hTemp[ 'Z72.0' ], total ), 0 )
+  row_three_numbers( wb, ws7, 291, 287, 13, 'Y83.2-4 Хирургические операции и другие хирургические процедуры как причина аномальной реакции или позднего осложнения у пациента без упоминания о случайном нанесении ему вреда во', hTemp[ 'Y83.2_4' ], number_percent_1000( hTemp[ 'Y83.2_4' ], total ), 0 )
+  row_three_numbers( wb, ws7, 292, 288, 13, 'Z91.2 В личном анамнезе о неудовлетворительное соблюдение личной гигиены', hTemp[ 'Z91.2' ], number_percent_1000( hTemp[ 'Z91.2' ], total ), 0 )
+  row_three_numbers( wb, ws7, 293, 289, 13, 'Z91.3 В личном анамнезе нарушение режима сна/бодрствования (исключены нарушения сна - G47. -)', hTemp[ 'Z91.3' ], number_percent_1000( hTemp[ 'Z91.3' ], total ), 0 )
+
+  empty_rows( ws7, 294, 2, 3.0 )
+
+  return nil
+
+// 17.11.26
+function number_percent_100( value, total )
+
+  return iif( value == 0, 0, ( value / total ) * 100 )
+
+// 16.11.26
+function number_percent_1000( value, total )
+
+  return iif( value == 0, 0, ( value / total ) * 1000 )
+
+// 14.11.26
+function empty_rows( ws, value, count, height )
+
+  local i
+
+  for i := 1 to count
+    worksheet_set_row( ws, value + ( i - 1 ), height )
+  next
+
+  return nil
+
+// 16.11.26
+function row_single_number( wb, ws, row, num_str, heigh, text, value, lColor, cFormula )
+
+  static text_thin_svod
+  local block_value
+
+  default cFormula to ''
+
+  if HB_ISNIL( text_thin_svod )
+    text_thin_svod := fmt_excel_hl_vc_wrap( wb )
+    format_set_font_name( text_thin_svod, 'Arial' )
+    format_set_font_size( text_thin_svod, 10 )
+//    format_set_bg_color( titul_table_thin, 0xffff00 )
+    format_set_border( text_thin_svod, LXW_BORDER_THIN )
+  endif
+
+  block_value := fmt_excel_hc_vc_wrap( wb )
+  format_set_font_name( block_value, 'Arial' )
+  format_set_font_size( block_value, 10 )
+  if lColor
+    format_set_bg_color( block_value, 0xffffc3 )
+  else
+    format_set_bg_color( block_value, 0xcdcdcd )
+  endif
+  format_set_border( block_value, LXW_BORDER_THIN )
+//  format_set_num_format( block_value, '#,###0.000' )
+
+  worksheet_set_row( ws, row, heigh )
+
+  worksheet_write_number( ws, row, 0, num_str, text_thin_svod )
+  worksheet_merge_range( ws, row, 1, row, 7, text, text_thin_svod )
+  if Empty( cFormula )
+    worksheet_write_number( ws, row, 8, value, block_value )
+  else
+    worksheet_write_formula( ws, row, 8, cFormula, block_value )
+  endif
+
+  return nil
+
+// 14.11.26
+function row_two_numbers( wb, ws, row, num_str, heigh, text, value, next_value )
+
+  static text_thin_svod
+  static block_value, block_next_value
+
+  if HB_ISNIL( text_thin_svod )
+    text_thin_svod := fmt_excel_hl_vc_wrap( wb )
+    format_set_font_name( text_thin_svod, 'Arial' )
+    format_set_font_size( text_thin_svod, 10 )
+//    format_set_bg_color( titul_table_thin, 0xffff00 )
+    format_set_border( text_thin_svod, LXW_BORDER_THIN )
+  endif
+
+  if HB_ISNIL( block_value )
+    block_value := fmt_excel_hc_vc_wrap( wb )
+    format_set_font_name( block_value, 'Arial' )
+    format_set_font_size( block_value, 10 )
+    format_set_bg_color( block_value, 0xffffc3 )
+    format_set_border( block_value, LXW_BORDER_THIN )
+//    format_set_num_format( block_value, '#,###0.000' )
+  endif
+
+  if HB_ISNIL( block_next_value )
+    block_next_value := fmt_excel_hc_vc_wrap( wb )
+    format_set_font_name( block_next_value, 'Arial' )
+    format_set_font_size( block_next_value, 10 )
+    format_set_bg_color( block_next_value, 0xcdcdcd )
+    format_set_num_format( block_next_value, '#,#0.0' )
+    format_set_border( block_next_value, LXW_BORDER_THIN )
+  endif
+
+  worksheet_set_row( ws, row, heigh )
+
+  worksheet_write_number( ws, row, 0, num_str, text_thin_svod )
+  worksheet_merge_range( ws, row, 1, row, 6, text, text_thin_svod )
+  worksheet_write_number( ws, row, 7, value, block_value )
+  if ValType( next_value ) == 'N'
+    worksheet_write_number( ws, row, 8, next_value, block_next_value )
+  else
+    worksheet_write_formula( ws, row, 8, next_value, block_next_value )
+  endif
+
+  return nil
+
+// 13.11.26
+function row_three_numbers( wb, ws, row, num_str, heigh, text, vsego, percent, first )
+
+  static text_thin_svod, block_empty, block_gray
+
+  if HB_ISNIL( text_thin_svod )
+    text_thin_svod := fmt_excel_hl_vc_wrap( wb )
+    format_set_font_name( text_thin_svod, 'Arial' )
+    format_set_font_size( text_thin_svod, 10 )
+//    format_set_bg_color( titul_table_thin, 0xffff00 )
+    format_set_border( text_thin_svod, LXW_BORDER_THIN )
+  endif
+
+  if HB_ISNIL( block_empty )
+    block_empty := fmt_excel_hc_vc_wrap( wb )
+    format_set_font_name( block_empty, 'Arial' )
+    format_set_font_size( block_empty, 10 )
+    format_set_bg_color( block_empty, 0xffffc3 )
+    format_set_border( block_empty, LXW_BORDER_THIN )
+  endif
+
+  if HB_ISNIL( block_gray )
+    block_gray := fmt_excel_hc_vc_wrap( wb )
+    format_set_font_name( block_gray, 'Arial' )
+    format_set_font_size( block_gray, 10 )
+    format_set_bg_color( block_gray, 0xcdcdcd )
+    format_set_border( block_gray, LXW_BORDER_THIN )
+    format_set_num_format( block_gray, '#,###0.000' )
+  endif
+
+  worksheet_set_row( ws, row, heigh )
+  worksheet_write_number( ws, row, 0, num_str, text_thin_svod )
+  worksheet_merge_range( ws, row, 1, row, 5, text, text_thin_svod )
+
+  worksheet_write_number( ws, row, 6, vsego, block_empty )
+  worksheet_write_number( ws, row, 7, percent, block_gray )
+  worksheet_write_number( ws, row, 8, first, block_empty )
+
+  return nil
+
+// 17.11.26
+function row_seven_numbers( wb, ws, row, num_str, heigh, text, val1, val2, val3, val4, val5, val6, val7, lColor )
+
+  local text_thin_svod, block_value, block_value_gray
+
+  block_value := fmt_excel_hc_vc_wrap( wb )
+  format_set_font_name( block_value, 'Arial' )
+  format_set_font_size( block_value, 10 )
+  if lColor
+    format_set_bg_color( block_value, 0xffffc3 )
+  else
+    format_set_bg_color( block_value, 0xcdcdcd )
+  endif
+  format_set_border( block_value, LXW_BORDER_THIN )
+//  format_set_num_format( block_value, '#,###0.000' )
+
+  block_value_gray := fmt_excel_hc_vc_wrap( wb )
+  format_set_font_name( block_value_gray, 'Arial' )
+  format_set_font_size( block_value_gray, 10 )
+  format_set_bg_color( block_value_gray, 0xcdcdcd )
+  format_set_border( block_value_gray, LXW_BORDER_THIN )
+//  format_set_num_format( block_value_gray, '#,###0.000' )
+
+  text_thin_svod := fmt_excel_hl_vc_wrap( wb )
+  format_set_font_name( text_thin_svod, 'Arial' )
+  format_set_font_size( text_thin_svod, 10 )
+//  format_set_bg_color( titul_table_thin, 0xffff00 )
+  format_set_border( text_thin_svod, LXW_BORDER_THIN )
+
+  worksheet_set_row( ws, row, heigh )
+  worksheet_write_number( ws, row, 0, num_str, text_thin_svod )
+//  worksheet_merge_range( ws, row, 1, row, 5, text, text_thin_svod )
+  worksheet_write_string( ws, row, 1, text, text_thin_svod)
+
+  worksheet_write_number( ws, row, 2, val1, block_value )
+  worksheet_write_number( ws, row, 3, val2, block_value )
+  worksheet_write_number( ws, row, 4, val3, block_value )
+  if ValType( val4 ) == 'N'
+    worksheet_write_number( ws, row, 5, val4, block_value_gray )
+  else
+    worksheet_write_formula( ws, row, 5, val4, block_value_gray )
+  endif
+  if ValType( val5 ) == 'N'
+    worksheet_write_number( ws, row, 6, val5, block_value )
+  else
+    worksheet_write_formula( ws, row, 6, val5, block_value )
+  endif
+  worksheet_write_number( ws, row, 7, val6, block_value )
+  worksheet_write_number( ws, row, 8, val7, block_value )
 
   return nil
 
@@ -1725,7 +2451,7 @@ function disease_youngman( wb, lYoungman15_17, hYoun15_17, hYoun13_14 )
   worksheet_write_string( ws, 38, 3, 'X', diseases_norm_cent_gray )
   worksheet_write_string( ws, 38, 4, '', diseases_block_empty )
 
-  worksheet_merge_range( ws, 39, 0, 42, 0, 'Пролечено в стационарных условиях мальчиков ' + cVozrast + ' лет с диагнозм', diseases_norm_left_gray )
+  worksheet_merge_range( ws, 39, 0, 42, 0, 'Пролечено в стационарных условиях мальчиков ' + cVozrast + ' лет с диагнозом', diseases_norm_left_gray )
   worksheet_write_number( ws, 39, 1, 37, diseases_norm_cent_gray )
   worksheet_write_string( ws, 39, 2, 'Задержка полового развития', diseases_norm_left_gray )
   worksheet_write_string( ws, 39, 3, 'E30.0', diseases_norm_cent_gray )
@@ -1828,7 +2554,7 @@ function disease_girl( wb, lGirl15_17, hGirl15_17, hGirl13_14 )
     worksheet_write_formula( ws, 3, 4, '=E5+E6+E7+E8+E9', diseases_center_gray_bold )
   endif
 
-  worksheet_merge_range( ws, 4, 0, 8, 0, 'Число девочек ' + cVozrast + ' лет прошедших профилактический были отнесены', diseases_norm_left_gray )
+  worksheet_merge_range( ws, 4, 0, 8, 0, 'Число девочек ' + cVozrast + ' лет прошедших профилактический осмотр были отнесены', diseases_norm_left_gray )
   worksheet_write_number( ws, 4, 1, 3, diseases_norm_cent_gray )
   worksheet_write_string( ws, 4, 2, 'I группа здоровья', diseases_norm_left_gray )
   worksheet_write_string( ws, 4, 3, 'X', diseases_norm_cent_gray )

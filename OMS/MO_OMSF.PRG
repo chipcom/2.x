@@ -333,7 +333,7 @@ Function zaksluchaccordancediagnoz( lshifr, mdiagnoz, ta )
   Endif
   Return Nil
 
-// 25.07.25 врачебных приемов не должно быть более одного в один день
+// 17.11.26 врачебных приемов не должно быть более одного в один день
 Function vr_pr_1_den( par, /*@*/msg, in_arr)
 
   Local tmp_select := Select(), lshifr, i, k, fl, s, arr_usl := {}, ;
@@ -393,7 +393,7 @@ Function vr_pr_1_den( par, /*@*/msg, in_arr)
     Endif
   Next
   For i := 1 To Len( arr_usl )
-    if AllTrim( arr_usl[ i, 1 ] ) != '2.93.2' // исключение для школ ХНИЗ
+    if AllTrim( arr_usl[ i, 1 ] ) != '2.93.2' .and. AllTrim( arr_usl[ i, 1 ] ) != '2.81.69' // исключение для школ ХНИЗ и конс. врач-врач
       s := 'Услуга "' + arr_usl[ i, 1 ] + '" ' + date_8( c4tod( arr_usl[ i, 2 ] ) ) + 'г. оказана '
       If arr_usl[ i, 3 ] > 1
         msg := s + lstr( arr_usl[ i, 3 ] ) + ' раз' + iif( arr_usl[ i, 3 ] < 5, 'а', '' )
