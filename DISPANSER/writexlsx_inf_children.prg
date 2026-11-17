@@ -1593,9 +1593,9 @@ function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
   worksheet_write_string( ws7, 38, 7, 'Количество подростков с впервые выявленной патологией (чел)', text_thin_svod_center )
   worksheet_write_string( ws7, 38, 8, 'Направлено на 2 этап для дообследования и лечения из количества подростков с патологией по результатам осмотров (чел)', text_thin_svod_center )
 
-  row_seven_numbers( wb, ws7, 39, 34, 27.6, 'Профилактические осмотры мальчиков в возрасте 13-17 лет включительно', 0, sum_total_young, 0, 0, '=I62+I133', 0, 0, .t. )
-  row_seven_numbers( wb, ws7, 40, 35, 27.6, 'Профилактические осмотры девочек в возрасте 13-17 лет включительно', 0, sum_total_girl, 0, 0, '=I204+I259', 0, 0, .t. )
-  row_seven_numbers( wb, ws7, 41, 36, 13, 'ВСЕГО', 0, sum_total_young + sum_total_girl, 0, 0, '=G40+G41', 0, 0, .f. )
+  row_seven_numbers( wb, ws7, 39, 34, 27.6, 'Профилактические осмотры мальчиков в возрасте 13-17 лет включительно', 0, sum_total_young, 0, '=IFERROR(D40/C40*100,0)', '=I62+I133', 0, 0, .t. )
+  row_seven_numbers( wb, ws7, 40, 35, 27.6, 'Профилактические осмотры девочек в возрасте 13-17 лет включительно', 0, sum_total_girl, 0, '=IFERROR(D41/C41*100,0)', '=I204+I259', 0, 0, .t. )
+  row_seven_numbers( wb, ws7, 41, 36, 13, 'ВСЕГО', 0, sum_total_young + sum_total_girl, 0, '=IFERROR(D42/C42*100,0)', '=G40+G41', 0, 0, .f. )
 
   worksheet_set_row( ws7, 42, 3.0 )
   worksheet_set_row( ws7, 43, 3.0 )
@@ -1624,11 +1624,11 @@ function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
   worksheet_write_string( ws7, 53, 7, 'человек', text_thin_svod_center )
   worksheet_write_string( ws7, 53, 8, '%', text_thin_svod_center )
 
-  row_two_numbers( wb, ws7, 54, 50, 13, '1 группе здоровья', hTemp[ 'I' ], 0 )
-  row_two_numbers( wb, ws7, 55, 51, 13, '2 группе здоровья', hTemp[ 'II' ], 0 )
-  row_two_numbers( wb, ws7, 56, 52, 13, '3 группе здоровья', hTemp[ 'III' ], 0 )
-  row_two_numbers( wb, ws7, 57, 53, 13, '4 группе здоровья', hTemp[ 'IV' ], 0 )
-  row_two_numbers( wb, ws7, 58, 54, 13, '5 группе здоровья', hTemp[ 'V' ], 0 )
+  row_two_numbers( wb, ws7, 54, 50, 13, '1 группе здоровья', hTemp[ 'I' ], '=IFERROR(H55/I49*100,0)' )
+  row_two_numbers( wb, ws7, 55, 51, 13, '2 группе здоровья', hTemp[ 'II' ], '=IFERROR(H56/I49*100,0)' )
+  row_two_numbers( wb, ws7, 56, 52, 13, '3 группе здоровья', hTemp[ 'III' ], '=IFERROR(H57/I49*100,0)' )
+  row_two_numbers( wb, ws7, 57, 53, 13, '4 группе здоровья', hTemp[ 'IV' ], '=IFERROR(H58/I49*100,0)' )
+  row_two_numbers( wb, ws7, 58, 54, 13, '5 группе здоровья', hTemp[ 'V' ], '=IFERROR(H59/I49*100,0)' )
 
   empty_rows( ws7, 59, 2, 3.0 )  
 
@@ -1732,11 +1732,11 @@ function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
   worksheet_write_string( ws7, 124, 7, 'человек', text_thin_svod_center )
   worksheet_write_string( ws7, 124, 8, '%', text_thin_svod_center )
 
-  row_two_numbers( wb, ws7, 125, 121, 13, '1 группе здоровья', hTemp[ 'I' ], 0 )
-  row_two_numbers( wb, ws7, 126, 122, 13, '2 группе здоровья', hTemp[ 'II' ], 0 )
-  row_two_numbers( wb, ws7, 127, 123, 13, '3 группе здоровья', hTemp[ 'III' ], 0 )
-  row_two_numbers( wb, ws7, 128, 124, 13, '4 группе здоровья', hTemp[ 'IV' ], 0 )
-  row_two_numbers( wb, ws7, 129, 125, 13, '5 группе здоровья', hTemp[ 'V' ], 0 )
+  row_two_numbers( wb, ws7, 125, 121, 13, '1 группе здоровья', hTemp[ 'I' ], '=IFERROR(H126/I120*100,0)' )
+  row_two_numbers( wb, ws7, 126, 122, 13, '2 группе здоровья', hTemp[ 'II' ], '=IFERROR(H127/I120*100,0)' )
+  row_two_numbers( wb, ws7, 127, 123, 13, '3 группе здоровья', hTemp[ 'III' ], '=IFERROR(H128/I120*100,0)' )
+  row_two_numbers( wb, ws7, 128, 124, 13, '4 группе здоровья', hTemp[ 'IV' ], '=IFERROR(H129/I120*100,0)' )
+  row_two_numbers( wb, ws7, 129, 125, 13, '5 группе здоровья', hTemp[ 'V' ], '=IFERROR(H130/I120*100,0)' )
 
   empty_rows( ws7, 130, 2, 3.0 )  
 
@@ -1835,11 +1835,11 @@ function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
   worksheet_write_string( ws7, 195, 7, 'человек', text_thin_svod_center )
   worksheet_write_string( ws7, 195, 8, '%', text_thin_svod_center )
 
-  row_two_numbers( wb, ws7, 196, 192, 13, '1 группе здоровья', hTemp[ 'I' ], 0 )
-  row_two_numbers( wb, ws7, 197, 193, 13, '2 группе здоровья', hTemp[ 'II' ], 0 )
-  row_two_numbers( wb, ws7, 198, 194, 13, '3 группе здоровья', hTemp[ 'III' ], 0 )
-  row_two_numbers( wb, ws7, 199, 195, 13, '4 группе здоровья', hTemp[ 'IV' ], 0 )
-  row_two_numbers( wb, ws7, 200, 196, 13, '5 группе здоровья', hTemp[ 'V' ], 0 )
+  row_two_numbers( wb, ws7, 196, 192, 13, '1 группе здоровья', hTemp[ 'I' ], '=IFERROR(H197/I191*100,0)' )
+  row_two_numbers( wb, ws7, 197, 193, 13, '2 группе здоровья', hTemp[ 'II' ], '=IFERROR(H198/I191*100,0)' )
+  row_two_numbers( wb, ws7, 198, 194, 13, '3 группе здоровья', hTemp[ 'III' ], '=IFERROR(H199/I191*100,0)' )
+  row_two_numbers( wb, ws7, 199, 195, 13, '4 группе здоровья', hTemp[ 'IV' ], '=IFERROR(H200/I191*100,0)' )
+  row_two_numbers( wb, ws7, 200, 196, 13, '5 группе здоровья', hTemp[ 'V' ], '=IFERROR(H200/I191*100,0)' )
 
   empty_rows( ws7, 201, 2, 3.0 )  
 
@@ -1922,11 +1922,11 @@ function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
   worksheet_write_string( ws7, 250, 7, 'человек', text_thin_svod_center )
   worksheet_write_string( ws7, 250, 8, '%', text_thin_svod_center )
 
-  row_two_numbers( wb, ws7, 251, 247, 13, '1 группе здоровья', hTemp[ 'I' ], 0 )
-  row_two_numbers( wb, ws7, 252, 248, 13, '2 группе здоровья', hTemp[ 'II' ], 0 )
-  row_two_numbers( wb, ws7, 253, 249, 13, '3 группе здоровья', hTemp[ 'III' ], 0 )
-  row_two_numbers( wb, ws7, 254, 250, 13, '4 группе здоровья', hTemp[ 'IV' ], 0 )
-  row_two_numbers( wb, ws7, 255, 251, 13, '5 группе здоровья', hTemp[ 'V' ], 0 )
+  row_two_numbers( wb, ws7, 251, 247, 13, '1 группе здоровья', hTemp[ 'I' ], '=IFERROR(H252/I246*100,0)' )
+  row_two_numbers( wb, ws7, 252, 248, 13, '2 группе здоровья', hTemp[ 'II' ], '=IFERROR(H252/I247*100,0)' )
+  row_two_numbers( wb, ws7, 253, 249, 13, '3 группе здоровья', hTemp[ 'III' ], '=IFERROR(H252/I248*100,0)' )
+  row_two_numbers( wb, ws7, 254, 250, 13, '4 группе здоровья', hTemp[ 'IV' ], '=IFERROR(H252/I249*100,0)' )
+  row_two_numbers( wb, ws7, 255, 251, 13, '5 группе здоровья', hTemp[ 'V' ], '=IFERROR(H252/I250*100,0)' )
 
   empty_rows( ws7, 256, 2, 3.0 )  
 
@@ -2083,7 +2083,11 @@ function row_two_numbers( wb, ws, row, num_str, heigh, text, value, next_value )
   worksheet_write_number( ws, row, 0, num_str, text_thin_svod )
   worksheet_merge_range( ws, row, 1, row, 6, text, text_thin_svod )
   worksheet_write_number( ws, row, 7, value, block_value )
-  worksheet_write_number( ws, row, 8, next_value, block_next_value )
+  if ValType( next_value ) == 'N'
+    worksheet_write_number( ws, row, 8, next_value, block_next_value )
+  else
+    worksheet_write_formula( ws, row, 8, next_value, block_next_value )
+  endif
 
   return nil
 
@@ -2128,7 +2132,7 @@ function row_three_numbers( wb, ws, row, num_str, heigh, text, vsego, percent, f
   return nil
 
 // 17.11.26
-function row_seven_numbers( wb, ws, row, num_str, heigh, text, val1, val2, val3, val4, cFormula5, val6, val7, lColor )
+function row_seven_numbers( wb, ws, row, num_str, heigh, text, val1, val2, val3, val4, val5, val6, val7, lColor )
 
   local text_thin_svod, block_value, block_value_gray
 
@@ -2164,9 +2168,16 @@ function row_seven_numbers( wb, ws, row, num_str, heigh, text, val1, val2, val3,
   worksheet_write_number( ws, row, 2, val1, block_value )
   worksheet_write_number( ws, row, 3, val2, block_value )
   worksheet_write_number( ws, row, 4, val3, block_value )
-  worksheet_write_number( ws, row, 5, val4, block_value )
-//  worksheet_write_number( ws, row, 6, val5, block_value_gray )
-  worksheet_write_formula( ws, row, 6, cFormula5, block_value_gray )
+  if ValType( val4 ) == 'N'
+    worksheet_write_number( ws, row, 5, val4, block_value_gray )
+  else
+    worksheet_write_formula( ws, row, 5, val4, block_value_gray )
+  endif
+  if ValType( val5 ) == 'N'
+    worksheet_write_number( ws, row, 6, val5, block_value )
+  else
+    worksheet_write_formula( ws, row, 6, val5, block_value )
+  endif
   worksheet_write_number( ws, row, 7, val6, block_value )
   worksheet_write_number( ws, row, 8, val7, block_value )
 
