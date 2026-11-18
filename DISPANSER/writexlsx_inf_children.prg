@@ -1463,7 +1463,7 @@ function writexlsx_inf_children( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
 
   return nil
 
-// 17.11.26
+// 18.11.26
 function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
 
     Local ws7, cColorTab7, text_thin_svod,text_thin_svod_center, header_bold
@@ -1525,7 +1525,7 @@ function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
   row_single_number( wb, ws7, 5, 1, 13, 'Общее число несовершеннолетних в возрасте 13-17 лет включительно, подлежащих профилактическому осмотру (прикрепленного населения соответствующего возраста)', 0, .t. )
   row_single_number( wb, ws7, 6, 2, 13, 'Общее число несовершеннолетних в возрасте 13-17 лет включительно, прошедших 1 этап профилактического осмотра в соответствующем возрасте', 0, .f., '=H14+H15+H16+H17+H18' )
   row_single_number( wb, ws7, 7, 3, 27.6, 'Общее число несовершеннолетних в возрасте 13-17 лет включительно, прошедших 1 этап профилактического осмотра в соответствующем возрасте с применением мобильных медицинских комплексов', 0, .t. )
-  row_single_number( wb, ws7, 8, 4, 13, 'Процент несовершеннолетних в возрасте 13-17 лет включительно, прошедших профилактический осмотр в соответствующем возрасте', 0, .f. )
+  row_single_number( wb, ws7, 8, 4, 13, 'Процент несовершеннолетних в возрасте 13-17 лет включительно, прошедших профилактический осмотр в соответствующем возрасте', 0, .f., '=IFERROR(ROUND(I7/I6*100,1),0)' )
   row_single_number( wb, ws7, 9, 5, 27.6, 'Общее число несовершеннолетних в возрасте 13-17 лет включительно с оформленным отказом от профилактического осмотра в соответствующем возрасте', 0, .t. )
 
   empty_rows( ws7, 10, 2, 3.0 )  
@@ -1593,9 +1593,9 @@ function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
   worksheet_write_string( ws7, 38, 7, 'Количество подростков с впервые выявленной патологией (чел)', text_thin_svod_center )
   worksheet_write_string( ws7, 38, 8, 'Направлено на 2 этап для дообследования и лечения из количества подростков с патологией по результатам осмотров (чел)', text_thin_svod_center )
 
-  row_seven_numbers( wb, ws7, 39, 34, 27.6, 'Профилактические осмотры мальчиков в возрасте 13-17 лет включительно', 0, sum_total_young, 0, '=IFERROR(D40/C40*100,0)', '=I62+I133', 0, 0, .t. )
-  row_seven_numbers( wb, ws7, 40, 35, 27.6, 'Профилактические осмотры девочек в возрасте 13-17 лет включительно', 0, sum_total_girl, 0, '=IFERROR(D41/C41*100,0)', '=I204+I259', 0, 0, .t. )
-  row_seven_numbers( wb, ws7, 41, 36, 13, 'ВСЕГО', 0, sum_total_young + sum_total_girl, 0, '=IFERROR(D42/C42*100,0)', '=G40+G41', 0, 0, .f. )
+  row_seven_numbers( wb, ws7, 39, 34, 27.6, 'Профилактические осмотры мальчиков в возрасте 13-17 лет включительно', 0, sum_total_young, 0, '=IFERROR(ROUND(D40/C40*100,1),0)', '=I62+I133', 0, 0, .t. )
+  row_seven_numbers( wb, ws7, 40, 35, 27.6, 'Профилактические осмотры девочек в возрасте 13-17 лет включительно', 0, sum_total_girl, 0, '=IFERROR(ROUND(D41/C41*100,1),0)', '=I204+I259', 0, 0, .t. )
+  row_seven_numbers( wb, ws7, 41, 36, 13, 'ВСЕГО', '=C40+C41', '=D40+D41', '=E40+E41', '=IFERROR(ROUND(D42/C42*100,1),0)', '=G40+G41', '=H40+H41', '=I40+I41', .f. )
 
   worksheet_set_row( ws7, 42, 3.0 )
   worksheet_set_row( ws7, 43, 3.0 )
@@ -2131,7 +2131,7 @@ function row_three_numbers( wb, ws, row, num_str, heigh, text, vsego, percent, f
 
   return nil
 
-// 17.11.26
+// 18.11.26
 function row_seven_numbers( wb, ws, row, num_str, heigh, text, val1, val2, val3, val4, val5, val6, val7, lColor )
 
   local text_thin_svod, block_value, block_value_gray
@@ -2165,9 +2165,21 @@ function row_seven_numbers( wb, ws, row, num_str, heigh, text, val1, val2, val3,
 //  worksheet_merge_range( ws, row, 1, row, 5, text, text_thin_svod )
   worksheet_write_string( ws, row, 1, text, text_thin_svod)
 
-  worksheet_write_number( ws, row, 2, val1, block_value )
-  worksheet_write_number( ws, row, 3, val2, block_value )
-  worksheet_write_number( ws, row, 4, val3, block_value )
+  if ValType( val1 ) == 'N'
+    worksheet_write_number( ws, row, 2, val1, block_value )
+  else
+    worksheet_write_formula( ws, row, 2, val1, block_value )
+  endif
+  if ValType( val2 ) == 'N'
+    worksheet_write_number( ws, row, 3, val2, block_value )
+  else
+    worksheet_write_formula( ws, row, 3, val2, block_value )
+  endif
+  if ValType( val3 ) == 'N'
+    worksheet_write_number( ws, row, 4, val3, block_value )
+  else
+    worksheet_write_formula( ws, row, 4, val3, block_value )
+  endif
   if ValType( val4 ) == 'N'
     worksheet_write_number( ws, row, 5, val4, block_value_gray )
   else
@@ -2178,8 +2190,16 @@ function row_seven_numbers( wb, ws, row, num_str, heigh, text, val1, val2, val3,
   else
     worksheet_write_formula( ws, row, 6, val5, block_value )
   endif
-  worksheet_write_number( ws, row, 7, val6, block_value )
-  worksheet_write_number( ws, row, 8, val7, block_value )
+  if ValType( val6 ) == 'N'
+    worksheet_write_number( ws, row, 7, val6, block_value )
+  else
+    worksheet_write_formula( ws, row, 7, val6, block_value )
+  endif
+  if ValType( val7 ) == 'N'
+    worksheet_write_number( ws, row, 8, val7, block_value )
+  else
+    worksheet_write_formula( ws, row, 8, val7, block_value )
+  endif
 
   return nil
 
