@@ -4,11 +4,13 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 10.10.22 работа с двойными случаями
+// 18.11.26 работа с двойными случаями
 Function oms_double( k )
 
   Static sk := 1
   Local mas_pmt, mas_msg, mas_fun
+
+  private m1ad_cr_II := ''  // для определения КСГ
 
   DEFAULT k TO 0
   do case
