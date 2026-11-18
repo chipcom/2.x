@@ -380,10 +380,12 @@ Function v_i_d_diag( get, par, pr )
 
   Return fl
 
-// 27.03.24 Добавление листка учета лечения больного
+// 18.11.26 Добавление листка учета лечения больного
 Function oms_add()
 
   Local buf, str_sem
+
+  private m1ad_cr_II := ''  // для определения КСГ
 
   change_sys_date() // перечитать системную дату (для травмпунктов, работающих ночами)
   If input_uch( T_ROW -1, T_COL + 5, sys_date ) != Nil .and. input_otd( T_ROW -1, T_COL + 5, sys_date ) != NIL
@@ -419,11 +421,13 @@ Function oms_add()
 
   Return Nil
 
-// Редактирование листка учета лечения больного
+// 18.11.26 Редактирование листка учета лечения больного
 Function oms_edit( k )
 
   Static sk := 1
   Local mas_pmt, mas_msg, mas_fun
+
+  private m1ad_cr_II := ''  // для определения КСГ
 
   Default k To 0
   Do Case
