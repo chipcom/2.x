@@ -25,7 +25,7 @@
 #define USL_SVIDPOM  14   // виды оказываемой медицинской помощи
 #define USL_ZAK_SL   15   // признак оплаты по законченному случаю
 
-// 09.11.26 
+// 19.11.26 
 Function verify_sluch( fl_view, ft )
 
   Local arrUslugi := {} // массив содержаший коды услуг в случае 
@@ -113,6 +113,7 @@ Function verify_sluch( fl_view, ft )
     is_oncology := 0, is_oncology_smp := 0
 
   private mk_data
+  private M1AD_CR_II := ''  // дополнительный критерий 2
 
   a_period_amb := {}
   mIDPC := ''
@@ -724,6 +725,8 @@ Function verify_sluch( fl_view, ft )
       Endif
     Endif
   Endif
+
+  M1AD_CR_II := human_2->ADD_CRIT // дополнительный критерий 2
 
   s := ''
   If l_mdiagnoz_fill .and. f_oms_beremenn( mdiagnoz[ 1 ], human->k_data ) == 3 .and. Between( human_2->pn2, 1, 4 )
