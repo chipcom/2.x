@@ -2,7 +2,7 @@
 #include 'chip_mo.ch'
 #include 'tfile.ch'
 
-// 18.06.26 Приложение к письму ГБУЗ 'ВОМИАЦ' №1025 от 08.07.2019г.
+// 19.11.26 Приложение к письму ГБУЗ 'ВОМИАЦ' №1025 от 08.07.2019г.
 Function svod_KZVO_children( par )      // f21_inf_dnl
 
   Local arr_m, buf := save_maxrow(), adbf
@@ -14,94 +14,94 @@ Function svod_KZVO_children( par )      // f21_inf_dnl
 
   If ( arr_m := year_month(,,, 5 ) ) != NIL
 
-    hYoungMan13_14 := { 'I' => 0, 'II' => 0, 'III' => 0, 'IV' => 0, 'V' => 0, ;
-      'FI' => 0, 'FII' => 0, 'FIII' => 0, 'FIV' => 0, 'FN' => 0, ;
-      'A63.0' => 0, ;
-      'E10' => 0, ;
-      'E30.0' => 0, 'E30.1' => 0, ;
-      'E40_E46' => 0, 'E66' => 0, ;
-      'I86.1' => 0, ;
-      'L70.0' => 0, ;
-      'N43' => 0, 'N45' => 0, 'N47' => 0, 'N48.0' => 0, 'N48.1' => 0, ;
-      'N50.0' => 0, 'N62' => 0, ;
-      'N40_N51' => 0, ;
-      'Q53' => 0, 'Q54' => 0, 'Q55' => 0, 'Q64' => 0, 'Q64.0' => 0, ;
-      'Y83.2_4' => 0, ;
-      'Z72.1' => 0, 'Z72.2' => 0, 'Z72.0' => 0, 'Z91.2' => 0, 'Z91.3' => 0, ;
-      'LOW_WEIGHT' => 0, 'HIGH_WEIGHT' => 0, 'LOW_HIGHT' => 0, 'HIGH_HIGHT' => 0 }
-    hYoungMan15_17 := { 'I' => 0, 'II' => 0, 'III' => 0, 'IV' => 0, 'V' => 0, ;
-      'FI' => 0, 'FII' => 0, 'FIII' => 0, 'FIV' => 0, 'FN' => 0, ;
-      'A63.0' => 0, ;
-      'E10' => 0, ;
-      'E30.0' => 0, 'E30.1' => 0, ;
-      'E40_E46' => 0, 'E66' => 0, ;
-      'I86.1' => 0, ;
-      'L70.0' => 0, ;
-      'N43' => 0, 'N45' => 0, 'N47' => 0, 'N48.0' => 0, 'N48.1' => 0, ;
-      'N50.0' => 0, 'N62' => 0, ;
-      'N40_N51' => 0, ;
-      'Q53' => 0, 'Q54' => 0, 'Q55' => 0, 'Q64' => 0, 'Q64.0' => 0, ;
-      'Y83.2_4' => 0, ;
-      'Z72.1' => 0, 'Z72.2' => 0, 'Z72.0' => 0, 'Z91.2' => 0, 'Z91.3' => 0, ;
-      'LOW_WEIGHT' => 0, 'HIGH_WEIGHT' => 0, 'LOW_HIGHT' => 0, 'HIGH_HIGHT' => 0 }
-    hGirl13_14 := { 'I' => 0, 'II' => 0, 'III' => 0, 'IV' => 0, 'V' => 0, ;
-      'A63.0' => 0, ;
-      'C51' => 0, 'C52' => 0, ;
-      'D28.0' => 0, ;
-      'E10' => 0, ;
-      'E22.8' => 0, 'E25' => 0, ;
-      'E23.0' => 0, 'E23.1' => 0, ;
-      'E26' => 0, 'E27.0' => 0, ;
-      'E28.3' => 0, ;
-      'E30.0' => 0, 'E30.1' => 0, 'E30.8' => 0, 'E45' => 0, 'E40_E46' => 0, ;
-      'E66' => 0, ;
-      'E89.3' => 0, 'E89.4' => 0, ;
-      'N60.9' => 0, 'N61' => 0, 'N62' => 0, 'N63' => 0, 'N64.4' => 0, ;
-      'N75.0' => 0, 'N75.1' => 0, 'N75.8' => 0, 'N75.9' => 0, ;
-      'N76.0' => 0, ;
-      'N76.1' => 0, 'N76.2' => 0, 'N76.3' => 0, 'N76.6' => 0, 'N76.8' => 0, ;
-      'N90.4' => 0, 'N90.6' => 0, 'N90.7' => 0, 'N90.8' => 0, ;
-      'N91' => 0, 'N91.1' => 0, 'N91.3' => 0, 'N91.4' => 0, 'N91.5' => 0, ;
-      'N92.1' => 0, 'N92.2' => 0, 'N92.3' => 0, ;
-      'N94.3' => 0, 'N94.4' => 0, 'N94.5' => 0, 'N94.6' => 0, ;
-      'N40_N51' => 0, ;
-      'L68.0' => 0, 'L70.0' => 0, ;
-      'S30.2' => 0, 'S31.4' => 0, 'S31.5' => 0, ;
-      'Q50.0' => 0, 'Q52.0' => 0, 'Q52.1' => 0, 'Q52.3' => 0, 'Q52.5' => 0, 'Q52.6' => 0, ;
-      'Q55' => 0, 'Q56.4' => 0, 'Q64.8' => 0, 'Q78.1' => 0, 'Q83' => 0, 'Q96' => 0, ;
-      'Y83.2_4' => 0, ;
-      'Z33' => 0, ;
-      'Z72.1' => 0, 'Z72.2' => 0, 'Z72.0' => 0, 'Z91.2' => 0, 'Z91.3' => 0 ;
+    hYoungMan13_14 := { 'I'=> 0, 'II'=> 0, 'III'=> 0, 'IV'=> 0, 'V'=> 0, ;
+      'FI'=> 0, 'FII'=> 0, 'FIII'=> 0, 'FIV'=> 0, 'FN'=> 0, ;
+      'LOW_WEIGHT'=> 0, 'HIGH_WEIGHT'=> 0, 'LOW_HIGHT'=> 0, 'HIGH_HIGHT'=> 0, ;
+      'A63.0' => { 0, 0 }, ;  // 1 - общее число заболеваний, 2 - выявлено впервые
+      'E10' => { 0, 0 }, ;
+      'E30.0' => { 0, 0 }, 'E30.1' => { 0, 0 }, ;
+      'E40_E46' => { 0, 0 }, 'E66' => { 0, 0 }, ;
+      'I86.1' => { 0, 0 }, ;
+      'L70.0' => { 0, 0 }, ;
+      'N43' => { 0, 0 }, 'N45' => { 0, 0 }, 'N47' => { 0, 0 }, 'N48.0' => { 0, 0 }, 'N48.1' => { 0, 0 }, ;
+      'N50.0' => { 0, 0 }, 'N62' => { 0, 0 }, ;
+      'N40_N51' => { 0, 0 }, ;
+      'Q53' => { 0, 0 }, 'Q54' => { 0, 0 }, 'Q55' => { 0, 0 }, 'Q64' => { 0, 0 }, 'Q64.0' => { 0, 0 }, ;
+      'Y83.2_4' => { 0, 0 }, ;
+      'Z72.1' => { 0, 0 }, 'Z72.2' => { 0, 0 }, 'Z72.0' => { 0, 0 }, 'Z91.2' => { 0, 0 }, 'Z91.3' => { 0, 0 } }
+    hYoungMan15_17 := { 'I'=> 0, 'II'=> 0, 'III'=> 0, 'IV'=> 0, 'V'=> 0, ;
+      'FI'=> 0, 'FII'=> 0, 'FIII'=> 0, 'FIV'=> 0, 'FN'=> 0, ;
+      'LOW_WEIGHT'=> 0, 'HIGH_WEIGHT'=> 0, 'LOW_HIGHT'=> 0, 'HIGH_HIGHT'=> 0, ;
+      'A63.0' => { 0, 0 }, ;
+      'E10' => { 0, 0 }, ;
+      'E30.0' => { 0, 0 }, 'E30.1' => { 0, 0 }, ;
+      'E40_E46' => { 0, 0 }, 'E66' => { 0, 0 }, ;
+      'I86.1' => { 0, 0 }, ;
+      'L70.0' => { 0, 0 }, ;
+      'N43' => { 0, 0 }, 'N45' => { 0, 0 }, 'N47' => { 0, 0 }, 'N48.0' => { 0, 0 }, 'N48.1' => { 0, 0 }, ;
+      'N50.0' => { 0, 0 }, 'N62' => { 0, 0 }, ;
+      'N40_N51' => { 0, 0 }, ;
+      'Q53' => { 0, 0 }, 'Q54' => { 0, 0 }, 'Q55' => { 0, 0 }, 'Q64' => { 0, 0 }, 'Q64.0' => { 0, 0 }, ;
+      'Y83.2_4' => { 0, 0 }, ;
+      'Z72.1' => { 0, 0 }, 'Z72.2' => { 0, 0 }, 'Z72.0' => { 0, 0 }, 'Z91.2' => { 0, 0 }, 'Z91.3' => { 0, 0 } }
+    hGirl13_14 := { 'I'=> 0, 'II'=> 0, 'III'=> 0, 'IV'=> 0, 'V'=> 0, ;
+      'A63.0' => { 0, 0 }, ;
+      'C51' => { 0, 0 }, 'C52'=> { 0, 0 }, ;
+      'D28.0'=> { 0, 0 }, ;
+      'E10'=> { 0, 0 }, ;
+      'E22.8'=> { 0, 0 }, 'E25'=> { 0, 0 }, ;
+      'E23.0'=> { 0, 0 }, 'E23.1'=> { 0, 0 }, ;
+      'E26'=> { 0, 0 }, 'E27.0'=> { 0, 0 }, ;
+      'E28.3'=> { 0, 0 }, ;
+      'E30.0'=> { 0, 0 }, 'E30.1'=> { 0, 0 }, 'E30.8'=> { 0, 0 }, 'E45'=> { 0, 0 }, 'E40_E46'=> { 0, 0 }, ;
+      'E66'=> { 0, 0 }, ;
+      'E89.3'=> { 0, 0 }, 'E89.4'=> { 0, 0 }, ;
+      'N60.9'=> { 0, 0 }, 'N61'=> { 0, 0 }, 'N62'=> { 0, 0 }, 'N63'=> { 0, 0 }, 'N64.4'=> { 0, 0 }, ;
+      'N75.0'=> { 0, 0 }, 'N75.1'=> { 0, 0 }, 'N75.8'=> { 0, 0 }, 'N75.9'=> { 0, 0 }, ;
+      'N76.0'=> { 0, 0 }, ;
+      'N76.1'=> { 0, 0 }, 'N76.2'=> { 0, 0 }, 'N76.3'=> { 0, 0 }, 'N76.6'=> { 0, 0 }, 'N76.8'=> { 0, 0 }, ;
+      'N90.4'=> { 0, 0 }, 'N90.6'=> { 0, 0 }, 'N90.7'=> { 0, 0 }, 'N90.8'=> { 0, 0 }, ;
+      'N91'=> { 0, 0 }, 'N91.1'=> { 0, 0 }, 'N91.3'=> { 0, 0 }, 'N91.4'=> { 0, 0 }, 'N91.5'=> { 0, 0 }, ;
+      'N92.1'=> { 0, 0 }, 'N92.2'=> { 0, 0 }, 'N92.3'=> { 0, 0 }, ;
+      'N94.3'=> { 0, 0 }, 'N94.4'=> { 0, 0 }, 'N94.5'=> { 0, 0 }, 'N94.6'=> { 0, 0 }, ;
+      'N40_N51'=> { 0, 0 }, ;
+      'L68.0'=> { 0, 0 }, 'L70.0'=> { 0, 0 }, ;
+      'S30.2'=> { 0, 0 }, 'S31.4'=> { 0, 0 }, 'S31.5'=> { 0, 0 }, ;
+      'Q50.0'=> { 0, 0 }, 'Q52.0'=> { 0, 0 }, 'Q52.1'=> { 0, 0 }, 'Q52.3'=> { 0, 0 }, 'Q52.5'=> { 0, 0 }, 'Q52.6'=> { 0, 0 }, ;
+      'Q55'=> { 0, 0 }, 'Q56.4'=> { 0, 0 }, 'Q64.8'=> { 0, 0 }, 'Q78.1'=> { 0, 0 }, 'Q83'=> { 0, 0 }, 'Q96'=> { 0, 0 }, ;
+      'Y83.2_4'=> { 0, 0 }, ;
+      'Z33'=> { 0, 0 }, ;
+      'Z72.1'=> { 0, 0 }, 'Z72.2'=> { 0, 0 }, 'Z72.0'=> { 0, 0 }, 'Z91.2'=> { 0, 0 }, 'Z91.3'=> { 0, 0 } ;
     }
 
-    hGirl15_17 := { 'I' => 0, 'II' => 0, 'III' => 0, 'IV' => 0, 'V' => 0, ;
-      'A63.0' => 0, ;
-      'C51' => 0, 'C52' => 0, ;
-      'D28.0' => 0, ;
-      'E10' => 0, ;
-      'E22.8' => 0, 'E25' => 0, ;
-      'E23.0' => 0, 'E23.1' => 0, ;
-      'E26' => 0, 'E27.0' => 0, ;
-      'E28.3' => 0, ;
-      'E30.0' => 0, 'E30.1' => 0, 'E30.8' => 0, 'E45' => 0, 'E40_E46' => 0, ;
-      'E66' => 0, ;
-      'E89.3' => 0, 'E89.4' => 0, ;
-      'N60.9' => 0, 'N61' => 0, 'N62' => 0, 'N63' => 0, 'N64.4' => 0, ;
-      'N75.0' => 0, 'N75.1' => 0, 'N75.8' => 0, 'N75.9' => 0, ;
-      'N76.0' => 0, ;
-      'N76.1' => 0, 'N76.2' => 0, 'N76.3' => 0, 'N76.6' => 0, 'N76.8' => 0, ;
-      'N90.4' => 0, 'N90.6' => 0, 'N90.7' => 0, 'N90.8' => 0, ;
-      'N91' => 0, 'N91.1' => 0, 'N91.3' => 0, 'N91.4' => 0, 'N91.5' => 0, ;
-      'N92.1' => 0, 'N92.2' => 0, 'N92.3' => 0, ;
-      'N94.3' => 0, 'N94.4' => 0, 'N94.5' => 0, 'N94.6' => 0, ;
-      'N40_N51' => 0, ;
-      'L68.0' => 0, 'L70.0' => 0, ;
-      'S30.2' => 0, 'S31.4' => 0, 'S31.5' => 0, ;
-      'Q50.0' => 0, 'Q52.0' => 0, 'Q52.1' => 0, 'Q52.3' => 0, 'Q52.5' => 0, 'Q52.6' => 0, ;
-      'Q55' => 0, 'Q56.4' => 0, 'Q64.8' => 0, 'Q78.1' => 0, 'Q83' => 0, 'Q96' => 0, ;
-      'Y83.2_4' => 0, ;
-      'Z33' => 0, ;
-      'Z72.1' => 0, 'Z72.2' => 0, 'Z72.0' => 0, 'Z91.2' => 0, 'Z91.3' => 0 ;
+    hGirl15_17 := { 'I'=> 0, 'II'=> 0, 'III'=> 0, 'IV'=> 0, 'V'=> 0, ;
+      'A63.0'=> { 0, 0 }, ;
+      'C51'=> { 0, 0 }, 'C52'=> { 0, 0 }, ;
+      'D28.0'=> { 0, 0 }, ;
+      'E10'=> { 0, 0 }, ;
+      'E22.8'=> { 0, 0 }, 'E25'=> { 0, 0 }, ;
+      'E23.0'=> { 0, 0 }, 'E23.1'=> { 0, 0 }, ;
+      'E26'=> { 0, 0 }, 'E27.0'=> { 0, 0 }, ;
+      'E28.3'=> { 0, 0 }, ;
+      'E30.0'=> { 0, 0 }, 'E30.1'=> { 0, 0 }, 'E30.8'=> { 0, 0 }, 'E45'=> { 0, 0 }, 'E40_E46'=> { 0, 0 }, ;
+      'E66'=> { 0, 0 }, ;
+      'E89.3'=> { 0, 0 }, 'E89.4'=> { 0, 0 }, ;
+      'N60.9'=> { 0, 0 }, 'N61'=> { 0, 0 }, 'N62'=> { 0, 0 }, 'N63'=> { 0, 0 }, 'N64.4'=> { 0, 0 }, ;
+      'N75.0'=> { 0, 0 }, 'N75.1'=> { 0, 0 }, 'N75.8'=> { 0, 0 }, 'N75.9'=> { 0, 0 }, ;
+      'N76.0'=> { 0, 0 }, ;
+      'N76.1'=> { 0, 0 }, 'N76.2'=> { 0, 0 }, 'N76.3'=> { 0, 0 }, 'N76.6'=> { 0, 0 }, 'N76.8'=> { 0, 0 }, ;
+      'N90.4'=> { 0, 0 }, 'N90.6'=> { 0, 0 }, 'N90.7'=> { 0, 0 }, 'N90.8'=> { 0, 0 }, ;
+      'N91'=> { 0, 0 }, 'N91.1'=> { 0, 0 }, 'N91.3'=> { 0, 0 }, 'N91.4'=> { 0, 0 }, 'N91.5'=> { 0, 0 }, ;
+      'N92.1'=> { 0, 0 }, 'N92.2'=> { 0, 0 }, 'N92.3'=> { 0, 0 }, ;
+      'N94.3'=> { 0, 0 }, 'N94.4'=> { 0, 0 }, 'N94.5'=> { 0, 0 }, 'N94.6'=> { 0, 0 }, ;
+      'N40_N51'=> { 0, 0 }, ;
+      'L68.0'=> { 0, 0 }, 'L70.0'=> { 0, 0 }, ;
+      'S30.2'=> { 0, 0 }, 'S31.4'=> { 0, 0 }, 'S31.5'=> { 0, 0 }, ;
+      'Q50.0'=> { 0, 0 }, 'Q52.0'=> { 0, 0 }, 'Q52.1'=> { 0, 0 }, 'Q52.3'=> { 0, 0 }, 'Q52.5'=> { 0, 0 }, 'Q52.6'=> { 0, 0 }, ;
+      'Q55'=> { 0, 0 }, 'Q56.4'=> { 0, 0 }, 'Q64.8'=> { 0, 0 }, 'Q78.1'=> { 0, 0 }, 'Q83'=> { 0, 0 }, 'Q96'=> { 0, 0 }, ;
+      'Y83.2_4'=> { 0, 0 }, ;
+      'Z33'=> { 0, 0 }, ;
+      'Z72.1'=> { 0, 0 }, 'Z72.2'=> { 0, 0 }, 'Z72.0'=> { 0, 0 }, 'Z91.2'=> { 0, 0 }, 'Z91.3'=> { 0, 0 } ;
     }
 
     Private arr_deti, arr_2510
@@ -358,7 +358,7 @@ Function svod_inf_dnl( arr_m, is_schet, is_reg, arr_ishod, is_snils )
 
   Return fl
 
-// 16.11.26
+// 19.11.26
 Function svod_inf_dnl_LU( Loc_kod, hYoungMan13_14, hYoungMan15_17, hGirl13_14, hGirl15_17 ) // сводная информация из листов учета
 
   Local ii, im, i, j, k, s, sumr := 0, ar := { 0 }, ltip_school := -1, ar15[ 26 ], ;
@@ -524,7 +524,8 @@ Function svod_inf_dnl_LU( Loc_kod, hYoungMan13_14, hYoungMan15_17, hGirl13_14, h
   Endif
 
   For i := 1 To Len( ad )
-    If !( Left( ad[ i, 1 ], 1 ) == 'A' .or. Left( ad[ i, 1 ], 1 ) == 'B' ) .and. ad[ i, 2 ] > 0 // неинфекционные заболевания уст.впервые
+//    If !( Left( ad[ i, 1 ], 1 ) == 'A' .or. Left( ad[ i, 1 ], 1 ) == 'B' ) .and. ad[ i, 2 ] > 0 // неинфекционные заболевания уст.впервые
+    If !( Left( ad[ i, 1 ], 1 ) == 'B' ) // неинфекционные заболевания уст.впервые
       arr[ 7 ] ++
       If Left( ad[ i, 1 ], 1 ) == 'I' // болезни системы кровообращения
         arr[ 8 ] ++
@@ -626,7 +627,7 @@ Function svod_inf_dnl_LU( Loc_kod, hYoungMan13_14, hYoungMan15_17, hGirl13_14, h
           hTemp[ 'Y83.2_4' ]++
         endif
 */
-        fill_zabol_young( ad[ i ], hTemp )
+        fill_zabol_youngman( ad[ i ], hTemp )
       elseif human->pol == 'Ж' .and. mvozrast >= 13 .and. mvozrast < 18
         if mvozrast >= 13 .and. mvozrast < 15
           hTemp := hGirl13_14
@@ -1053,173 +1054,412 @@ Function svod_inf_dds_LU( Loc_kod, kod_kartotek, mvozrast )
 
   Return Nil
 
-// 17.11.26
+// 19.11.26
 function fill_zabol_girl( ad, hTemp )
 
-  if Left( ad[ 1 ], 5 ) == 'A63.0'
-    hTemp[ 'A63.0' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'D28.0'
-    hTemp[ 'D28.0' ]++
-  elseif between_diag( Left( ad[ 1 ], 3 ), 'E40', 'E44' )
-    hTemp[ 'E40_E46' ]++
-  elseif Left( ad[ 1 ], 3 ) == 'E10'
-    hTemp[ 'E10' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'E22.8'
-    hTemp[ 'E22.8' ]++
-  elseif Left( ad[ 1 ], 3 ) == 'E25'
-    hTemp[ 'E25' ]++
-  elseif Left( ad[ 1 ], 3 ) == 'E26'
-    hTemp[ 'E26' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'E27.0'
-    hTemp[ 'E27.0' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'E30.0'
-    hTemp[ 'E30.0' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'E30.1'
-    hTemp[ 'E30.1' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'E30.8'
-    hTemp[ 'E30.8' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'Е23.0'
-    hTemp[ 'Е23.0' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'Е23.1'
-    hTemp[ 'Е23.1' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'Е28.3'
-    hTemp[ 'Е28.3' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'Е30.0'
-    hTemp[ 'Е30.0' ]++
-  elseif Left( ad[ 1 ], 3 ) == 'Е45'
-    hTemp[ 'Е45' ]++
-    hTemp[ 'E40_E46' ]++
-  elseif Left( ad[ 1 ], 3 ) == 'Е46'
-    hTemp[ 'Е46' ]++
-    hTemp[ 'E40_E46' ]++
-  elseif Left( ad[ 1 ], 3 ) == 'E66'
-    hTemp[ 'E66' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'Е89.3'
-    hTemp[ 'Е89.3' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'Е89.4'
-    hTemp[ 'Е89.4' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'L68.0'
-    hTemp[ 'L68.0' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'L70.0'
-    hTemp[ 'L70.0' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N60.9'
-    hTemp[ 'N60.9' ]++
-  elseif Left( ad[ 1 ], 3 ) == 'N61'
-    hTemp[ 'N61' ]++
-  elseif Left( ad[ 1 ], 3 ) == 'N62'
-    hTemp[ 'N62' ]++
-  elseif Left( ad[ 1 ], 3 ) == 'N63'
-    hTemp[ 'N63' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N64.4'
-    hTemp[ 'N64.4' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N75.0'
-    hTemp[ 'N75.0' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N75.1'
-    hTemp[ 'N75.1' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N75.8'
-    hTemp[ 'N75.8' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N75.9'
-    hTemp[ 'N75.9' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N76.0'
-    hTemp[ 'N76.0' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N76.1'
-    hTemp[ 'N76.1' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N76.2'
-    hTemp[ 'N76.2' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N76.3'
-    hTemp[ 'N76.3' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N76.6'
-    hTemp[ 'N76.6' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N76.8'
-    hTemp[ 'N76.8' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N90.4'
-    hTemp[ 'N90.4' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N90.6'
-    hTemp[ 'N90.6' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N90.7'
-    hTemp[ 'N90.7' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N90.8'
-    hTemp[ 'N90.8' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N91.1'
-    hTemp[ 'N91.1' ]++
-    hTemp[ 'N91' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N91.3'
-    hTemp[ 'N91.3' ]++
-    hTemp[ 'N91' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N91.4'
-    hTemp[ 'N91.4' ]++
-    hTemp[ 'N91' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N91.5'
-    hTemp[ 'N91.5' ]++
-    hTemp[ 'N91' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N92.1'
-    hTemp[ 'N92.1' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N92.2'
-    hTemp[ 'N92.2' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N92.3'
-    hTemp[ 'N92.3' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N94.3'
-    hTemp[ 'N94.3' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N94.4'
-    hTemp[ 'N94.4' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N94.5'
-    hTemp[ 'N94.5' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N94.6'
-    hTemp[ 'N94.6' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'N94.3'
-    hTemp[ 'N94.3' ]++
-  elseif Left( ad[ 1 ], 3 ) == 'C51'
-    hTemp[ 'C51' ]++
-  elseif Left( ad[ 1 ], 3 ) == 'C52'
-    hTemp[ 'C52' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'S30.2'
-    hTemp[ 'S30.2' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'S31.4'
-    hTemp[ 'S31.4' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'S31.5'
-    hTemp[ 'S31.5' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'Q50.0'
-    hTemp[ 'Q50.0' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'Q52.0'
-    hTemp[ 'Q52.0' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'Q52.1'
-    hTemp[ 'Q52.1' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'Q52.3'
-    hTemp[ 'Q52.3' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'Q52.5'
-    hTemp[ 'Q52.5' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'Q52.6'
-    hTemp[ 'Q52.6' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'Q56.4'
-    hTemp[ 'Q56.4' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'Q64.8'
-    hTemp[ 'Q64.8' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'Q78.1'
-    hTemp[ 'Q78.1' ]++
-  elseif Left( ad[ 1 ], 3 ) == 'Q83'
-    hTemp[ 'Q83' ]++
-  elseif Left( ad[ 1 ], 3 ) == 'Q96'
-    hTemp[ 'Q96' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'Z33'
-    hTemp[ 'Z33' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'Z72.1'
-    hTemp[ 'Z72.1' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'Z72.2'
-    hTemp[ 'Z72.2' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'Z72.0'
-    hTemp[ 'Z72.0' ]++
-  elseif between_diag( Left( ad[ 1 ], 5 ), 'Y83.2', 'Y83.4' )
-    hTemp[ 'Y83.2_4' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'Z91.2'
-    hTemp[ 'Z91.2' ]++
-  elseif Left( ad[ 1 ], 5 ) == 'Z91.3'
-    hTemp[ 'Z91.3' ]++
+  local diag3, diag5
+
+  diag3 := Left( ad[ 1 ], 3 )
+  diag5 := Left( ad[ 1 ], 5 )
+
+  if diag5 == 'A63.0'
+    hTemp[ 'A63.0' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'A63.0' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'D28.0'
+    hTemp[ 'D28.0' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'D28.0' ][ 2 ] += 1
+    endif
+  elseif between_diag( diag3, 'E40', 'E44' )
+    hTemp[ 'E40_E46' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'E40_E46' ][ 2 ] += 1
+    endif
+  elseif diag3 == 'E10'
+    hTemp[ 'E10' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'E10' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'E22.8'
+    hTemp[ 'E22.8' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'E22.8' ][ 2 ] += 1
+    endif
+  elseif diag3 == 'E25'
+    hTemp[ 'E25' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'E25' ][ 2 ] += 1
+    endif
+  elseif diag3 == 'E26'
+    hTemp[ 'E26' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'E26' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'E27.0'
+    hTemp[ 'E27.0' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'E27.0' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'E30.0'
+    hTemp[ 'E30.0' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'E30.0' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'E30.1'
+    hTemp[ 'E30.1' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'E30.1' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'E30.8'
+    hTemp[ 'E30.8' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'E30.8' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'Е23.0'
+    hTemp[ 'Е23.0' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'E23.0' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'Е23.1'
+    hTemp[ 'Е23.1' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'E23.1' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'Е28.3'
+    hTemp[ 'Е28.3' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'E28.3' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'Е30.0'
+    hTemp[ 'Е30.0' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'E30.0' ][ 2 ] += 1
+    endif
+  elseif diag3 == 'Е45'
+    hTemp[ 'Е45' ][ 1 ] += 1
+    hTemp[ 'E40_E46' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'E45' ][ 2 ] += 1
+      hTemp[ 'E40_E46' ][ 2 ] += 1
+    endif
+  elseif diag3 == 'Е46'
+    hTemp[ 'Е46' ][ 1 ] += 1
+    hTemp[ 'E40_E46' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'E46' ][ 2 ] += 1
+      hTemp[ 'E40_E46' ][ 2 ] += 1
+    endif
+  elseif diag3 == 'E66'
+    hTemp[ 'E66' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'E66' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'Е89.3'
+    hTemp[ 'Е89.3' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'E89.3' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'Е89.4'
+    hTemp[ 'Е89.4' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'E89.4' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'L68.0'
+    hTemp[ 'L68.0' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'L68.0' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'L70.0'
+    hTemp[ 'L70.0' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'L70.0' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'N60.9'
+    hTemp[ 'N60.9' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N60.9' ][ 2 ] += 1
+    endif
+  elseif diag3 == 'N61'
+    hTemp[ 'N61' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N61' ][ 2 ] += 1
+    endif
+  elseif diag3 == 'N62'
+    hTemp[ 'N62' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N62' ][ 2 ] += 1
+    endif
+  elseif diag3 == 'N63'
+    hTemp[ 'N63' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N63' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'N64.4'
+    hTemp[ 'N64.4' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N64.4' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'N75.0'
+    hTemp[ 'N75.0' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N75.0' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'N75.1'
+    hTemp[ 'N75.1' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N75.1' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'N75.8'
+    hTemp[ 'N75.8' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N75.8' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'N75.9'
+    hTemp[ 'N75.9' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N75.9' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'N76.0'
+    hTemp[ 'N76.0' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N76.0' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'N76.1'
+    hTemp[ 'N76.1' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N76.1' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'N76.2'
+    hTemp[ 'N76.2' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N76.2' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'N76.3'
+    hTemp[ 'N76.3' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N76.3' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'N76.6'
+    hTemp[ 'N76.6' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N76.6' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'N76.8'
+    hTemp[ 'N76.8' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N76.8' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'N90.4'
+    hTemp[ 'N90.4' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N90.4' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'N90.6'
+    hTemp[ 'N90.6' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N90.6' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'N90.7'
+    hTemp[ 'N90.7' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N90.1' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'N90.8'
+    hTemp[ 'N90.8' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N90.8' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'N91.1'
+    hTemp[ 'N91.1' ][ 1 ] += 1
+    hTemp[ 'N91' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N91.1' ][ 2 ] += 1
+      hTemp[ 'N91' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'N91.3'
+    hTemp[ 'N91.3' ][ 1 ] += 1
+    hTemp[ 'N91' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N91.3' ][ 2 ] += 1
+      hTemp[ 'N91' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'N91.4'
+    hTemp[ 'N91.4' ][ 1 ] += 1
+    hTemp[ 'N91' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N91.4' ][ 2 ] += 1
+      hTemp[ 'N91' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'N91.5'
+    hTemp[ 'N91.5' ][ 1 ] += 1
+    hTemp[ 'N91' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N91.5' ][ 2 ] += 1
+      hTemp[ 'N91' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'N92.1'
+    hTemp[ 'N92.1' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N92.1' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'N92.2'
+    hTemp[ 'N92.2' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N92.2' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'N92.3'
+    hTemp[ 'N92.3' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N92.3' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'N94.3'
+    hTemp[ 'N94.3' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N94.3' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'N94.4'
+    hTemp[ 'N94.4' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N94.4' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'N94.5'
+    hTemp[ 'N94.5' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N94.5' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'N94.6'
+    hTemp[ 'N94.6' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N94.6' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'N94.3'
+    hTemp[ 'N94.3' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N94.3' ][ 2 ] += 1
+    endif
+  elseif diag3 == 'C51'
+    hTemp[ 'C51' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'C51' ][ 2 ] += 1
+    endif
+  elseif diag3 == 'C52'
+    hTemp[ 'C52' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'C52' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'S30.2'
+    hTemp[ 'S30.2' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'S30.2' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'S31.4'
+    hTemp[ 'S31.4' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'S31.4' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'S31.5'
+    hTemp[ 'S31.5' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'S31.5' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'Q50.0'
+    hTemp[ 'Q50.0' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'Q50.0' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'Q52.0'
+    hTemp[ 'Q52.0' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'Q52.0' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'Q52.1'
+    hTemp[ 'Q52.1' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'Q52.1' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'Q52.3'
+    hTemp[ 'Q52.3' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'Q52.3' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'Q52.5'
+    hTemp[ 'Q52.5' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'Q52.5' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'Q52.6'
+    hTemp[ 'Q52.6' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'Q52.6' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'Q56.4'
+    hTemp[ 'Q56.4' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'Q56.4' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'Q64.8'
+    hTemp[ 'Q64.8' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'Q64.8' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'Q78.1'
+    hTemp[ 'Q78.1' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'Q78.1' ][ 2 ] += 1
+    endif
+  elseif diag3 == 'Q83'
+    hTemp[ 'Q83' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'Q83' ][ 2 ] += 1
+    endif
+  elseif diag3 == 'Q96'
+    hTemp[ 'Q96' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'Q96' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'Z33'
+    hTemp[ 'Z33' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'Z33' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'Z72.1'
+    hTemp[ 'Z72.1' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'Z72.1' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'Z72.2'
+    hTemp[ 'Z72.2' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'Z72.2' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'Z72.0'
+    hTemp[ 'Z72.0' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'Z72.0' ][ 2 ] += 1
+    endif
+  elseif between_diag( diag5, 'Y83.2', 'Y83.4' )
+    hTemp[ 'Y83.2_4' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'Y83.2_4' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'Z91.2'
+    hTemp[ 'Z91.2' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'Z91.2' ][ 2 ] += 1
+    endif
+  elseif diag5 == 'Z91.3'
+    hTemp[ 'Z91.3' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'Z91.3' ][ 2 ] += 1
+    endif
   endif
 
   return nil
 
 // 19.11.26
-function fill_zabol_young( ad, hTemp )
+function fill_zabol_youngman( ad, hTemp )
 
   local diag3, diag5
 
@@ -1227,57 +1467,135 @@ function fill_zabol_young( ad, hTemp )
   diag5 := Left( ad[ 1 ], 5 )
 
   If diag5 == 'E30.0'
-    hTemp[ 'E30.0' ]++
+    hTemp[ 'E30.0' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'E30.0' ][ 2 ] += 1
+    endif
   elseif diag5 == 'E30.1'
-    hTemp[ 'E30.1' ]++
+    hTemp[ 'E30.1' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'E30.1' ][ 2 ] += 1
+    endif
   elseif diag3 == 'E66'
-    hTemp[ 'E66' ]++
+    hTemp[ 'E66' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'E66' ][ 2 ] += 1
+    endif
   elseif diag3 == 'E10'
-    hTemp[ 'E10' ]++
+    hTemp[ 'E10' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'E10' ][ 2 ] += 1
+    endif
   elseif diag5 == 'A63.0'
-    hTemp[ 'A63.0' ]++
+    hTemp[ 'A63.0' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'A63.0' ][ 2 ] += 1
+    endif
   elseif diag5 == 'I86.1'
-    hTemp[ 'I86.1' ]++
+    hTemp[ 'I86.1' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'I86.1' ][ 2 ] += 1
+    endif
   elseif diag5 == 'L70.0'
-    hTemp[ 'L70.0' ]++
+    hTemp[ 'L70.0' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'L70.0' ][ 2 ] += 1
+    endif
   elseif diag3 == 'N43'
-    hTemp[ 'N43' ]++
+    hTemp[ 'N43' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N43' ][ 2 ] += 1
+    endif
   elseif diag3 == 'N45'
-    hTemp[ 'N45' ]++
+    hTemp[ 'N45' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N45' ][ 2 ] += 1
+    endif
   elseif diag3 == 'N47'
-    hTemp[ 'N47' ]++
+    hTemp[ 'N47' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N47' ][ 2 ] += 1
+    endif
   elseif diag5 == 'N48.0'
-    hTemp[ 'N48.0' ]++
+    hTemp[ 'N48.0' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N48.0' ][ 2 ] += 1
+    endif
   elseif diag5 == 'N48.1'
-    hTemp[ 'N48.1' ]++
+    hTemp[ 'N48.1' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N48.1' ][ 2 ] += 1
+    endif
   elseif diag5 == 'N50.0'
-    hTemp[ 'N50.0' ]++
+    hTemp[ 'N50.0' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N50.0' ][ 2 ] += 1
+    endif
   elseif diag3 == 'N62'
-    hTemp[ 'N62' ]++
+    hTemp[ 'N62' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N62' ][ 2 ] += 1
+    endif
   elseif diag3 == 'Q53'
-    hTemp[ 'Q53' ]++
+    hTemp[ 'Q53' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'Q53' ][ 2 ] += 1
+    endif
   elseif diag3 == 'Q54'
-    hTemp[ 'Q54' ]++
+    hTemp[ 'Q54' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'Q54' ][ 2 ] += 1
+    endif
   elseif diag3 == 'Q55'
-    hTemp[ 'Q55' ]++
+    hTemp[ 'Q55' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'Q55' ][ 2 ] += 1
+    endif
   elseif diag5 == 'Q64.0'
-    hTemp[ 'Q64.0' ]++
+    hTemp[ 'Q64.0' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'Q64.0' ][ 2 ] += 1
+    endif
   elseif diag5 == 'Z72.1'
-    hTemp[ 'Z72.1' ]++
+    hTemp[ 'Z72.1' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'Z72.1' ][ 2 ] += 1
+    endif
   elseif diag5 == 'Z72.2'
-    hTemp[ 'Z72.2' ]++
+    hTemp[ 'Z72.2' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'Z72.2' ][ 2 ] += 1
+    endif
   elseif diag5 == 'Z72.0'
-    hTemp[ 'Z72.0' ]++
+    hTemp[ 'Z72.0' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'Z72.0' ][ 2 ] += 1
+    endif
   elseif diag5 == 'Z91.2'
-    hTemp[ 'Z91.2' ]++
+    hTemp[ 'Z91.2' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'Z91.2' ][ 2 ] += 1
+    endif
   elseif diag5 == 'Z91.3'
-    hTemp[ 'Z91.3' ]++
+    hTemp[ 'Z91.3' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'Z91.3' ][ 2 ] += 1
+    endif
   elseif between_diag( diag3, 'E40', 'E46' )
-    hTemp[ 'E40_E46' ]++
+    hTemp[ 'E40_E46' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'E40_E46' ][ 2 ] += 1
+    endif
   elseif between_diag( diag3, 'N40', 'N51' )
-    hTemp[ 'N40_N51' ]++
+    hTemp[ 'N40_N51' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N40_N51' ][ 2 ] += 1
+    endif
   elseif between_diag( diag5, 'Y83.2', 'Y83.4' )
-    hTemp[ 'Y83.2_4' ]++
+    hTemp[ 'Y83.2_4' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'Y83.2_4' ][ 2 ] += 1
+    endif
   endif
 
   return nil
