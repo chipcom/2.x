@@ -1463,9 +1463,40 @@ function fill_zabol_youngman( ad, hTemp )
 
   local diag3, diag5
 
-  diag3 := Left( ad[ 1 ], 3 )
-  diag5 := Left( ad[ 1 ], 5 )
+  diag3 := Upper( Left( ad[ 1 ], 3 ) )
+  diag5 := Upper( Left( ad[ 1 ], 5 ) )
 
+  if hb_hHaskey( hTemp, diag3 )
+    hTemp[ diag3 ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ diag3 ][ 2 ] += 1
+    endif
+  endif
+
+  if hb_hHaskey( hTemp, diag5 )
+    hTemp[ diag5 ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ diag5 ][ 2 ] += 1
+    endif
+  endif
+
+  if between_diag( diag3, 'E40', 'E46' )
+    hTemp[ 'E40_E46' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'E40_E46' ][ 2 ] += 1
+    endif
+  elseif between_diag( diag3, 'N40', 'N51' )
+    hTemp[ 'N40_N51' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'N40_N51' ][ 2 ] += 1
+    endif
+  elseif between_diag( diag5, 'Y83.2', 'Y83.4' )
+    hTemp[ 'Y83.2_4' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'Y83.2_4' ][ 2 ] += 1
+    endif
+  endif
+/*
   If diag5 == 'E30.0'
     hTemp[ 'E30.0' ][ 1 ] += 1
     if ad[ 2 ] == 1
@@ -1597,5 +1628,5 @@ function fill_zabol_youngman( ad, hTemp )
       hTemp[ 'Y83.2_4' ][ 2 ] += 1
     endif
   endif
-
+*/
   return nil
