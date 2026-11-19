@@ -571,6 +571,7 @@ Function svod_inf_dnl_LU( Loc_kod, hYoungMan13_14, hYoungMan15_17, hGirl13_14, h
         elseif mvozrast >= 15 .and. mvozrast < 18
           hTemp := hYoungMan15_17
         endif
+/*
         If Left( ad[ i, 1 ], 5 ) == 'E30.0'
           hTemp[ 'E30.0' ]++
         elseif Left( ad[ i, 1 ], 5 ) == 'E30.1'
@@ -624,6 +625,8 @@ Function svod_inf_dnl_LU( Loc_kod, hYoungMan13_14, hYoungMan15_17, hGirl13_14, h
         elseif between_diag( Left( ad[ i, 1 ], 5 ), 'Y83.2', 'Y83.4' )
           hTemp[ 'Y83.2_4' ]++
         endif
+*/
+        fill_zabol_young( ad[ i ], hTemp )
       elseif human->pol == '†' .and. mvozrast >= 13 .and. mvozrast < 18
         if mvozrast >= 13 .and. mvozrast < 15
           hTemp := hGirl13_14
@@ -1211,6 +1214,70 @@ function fill_zabol_girl( ad, hTemp )
     hTemp[ 'Z91.2' ]++
   elseif Left( ad[ 1 ], 5 ) == 'Z91.3'
     hTemp[ 'Z91.3' ]++
+  endif
+
+  return nil
+
+// 19.11.26
+function fill_zabol_young( ad, hTemp )
+
+  local diag3, diag5
+
+  diag3 := Left( ad[ 1 ], 3 )
+  diag5 := Left( ad[ 1 ], 5 )
+
+  If diag5 == 'E30.0'
+    hTemp[ 'E30.0' ]++
+  elseif diag5 == 'E30.1'
+    hTemp[ 'E30.1' ]++
+  elseif diag3 == 'E66'
+    hTemp[ 'E66' ]++
+  elseif diag3 == 'E10'
+    hTemp[ 'E10' ]++
+  elseif diag5 == 'A63.0'
+    hTemp[ 'A63.0' ]++
+  elseif diag5 == 'I86.1'
+    hTemp[ 'I86.1' ]++
+  elseif diag5 == 'L70.0'
+    hTemp[ 'L70.0' ]++
+  elseif diag3 == 'N43'
+    hTemp[ 'N43' ]++
+  elseif diag3 == 'N45'
+    hTemp[ 'N45' ]++
+  elseif diag3 == 'N47'
+    hTemp[ 'N47' ]++
+  elseif diag5 == 'N48.0'
+    hTemp[ 'N48.0' ]++
+  elseif diag5 == 'N48.1'
+    hTemp[ 'N48.1' ]++
+  elseif diag5 == 'N50.0'
+    hTemp[ 'N50.0' ]++
+  elseif diag3 == 'N62'
+    hTemp[ 'N62' ]++
+  elseif diag3 == 'Q53'
+    hTemp[ 'Q53' ]++
+  elseif diag3 == 'Q54'
+    hTemp[ 'Q54' ]++
+  elseif diag3 == 'Q55'
+    hTemp[ 'Q55' ]++
+  elseif diag5 == 'Q64.0'
+    hTemp[ 'Q64.0' ]++
+  elseif diag5 == 'Z72.1'
+    hTemp[ 'Z72.1' ]++
+  elseif diag5 == 'Z72.2'
+    hTemp[ 'Z72.2' ]++
+  elseif diag5 == 'Z72.0'
+    hTemp[ 'Z72.0' ]++
+  elseif diag5 == 'Z91.2'
+    hTemp[ 'Z91.2' ]++
+  elseif diag5 == 'Z91.3'
+    hTemp[ 'Z91.3' ]++
+  elseif between_diag( diag3, 'E40', 'E46' )
+    hTemp[ 'E40_E46' ]++
+  elseif between_diag( diag3, 'N40', 'N51' )
+    hTemp[ 'N40_N51' ]++
+  elseif between_diag( diag5, 'Y83.2', 'Y83.4' )
+    hTemp[ 'Y83.2_4' ]++
   endif
 
   return nil
