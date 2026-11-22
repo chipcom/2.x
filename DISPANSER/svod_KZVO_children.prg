@@ -2,7 +2,7 @@
 #include 'chip_mo.ch'
 #include 'tfile.ch'
 
-// 20.11.26 Приложение к письму ГБУЗ 'ВОМИАЦ' №1025 от 08.07.2019г.
+// 22.11.26 Приложение к письму ГБУЗ 'ВОМИАЦ' №1025 от 08.07.2019г.
 Function svod_KZVO_children( par )      // f21_inf_dnl
 
   Local arr_m, buf := save_maxrow(), adbf
@@ -14,11 +14,8 @@ Function svod_KZVO_children( par )      // f21_inf_dnl
 
   If ( arr_m := year_month(,,, 5 ) ) != NIL
 
-//      'E30.0' => { 0, 0 }, 'E30.1' => { 0, 0 }, ;
-//      'N40_N51' => { 0, 0 }, 'Q64' => { 0, 0 }, ;
-    hYoungMan13_14 := { 'I'=> 0, 'II'=> 0, 'III'=> 0, 'IV'=> 0, 'V'=> 0, ;
-      'FI'=> 0, 'FII'=> 0, 'FIII'=> 0, 'FIV'=> 0, 'FN'=> 0, ;
-      'LOW_WEIGHT'=> 0, 'HIGH_WEIGHT'=> 0, 'LOW_HIGHT'=> 0, 'HIGH_HIGHT'=> 0, ;
+    hYoungMan13_14 := { 'GR1'=> 0, 'GR2'=> 0, 'GR3'=> 0, 'GR4'=> 0, 'GR5'=> 0, ;
+      'F1'=> 0, 'F2'=> 0, 'F3'=> 0, 'F4'=> 0, 'F0'=> 0, ;
       'A63.0' => { 0, 0 }, ;  // 1 - общее число заболеваний, 2 - выявлено впервые
       'E10' => { 0, 0 }, ;
       'E30.0' => { 0, 0 }, ;
@@ -30,36 +27,10 @@ Function svod_KZVO_children( par )      // f21_inf_dnl
       'Q53' => { 0, 0 }, 'Q54' => { 0, 0 }, 'Q55' => { 0, 0 }, 'Q64.0' => { 0, 0 }, ;
       'Y83.2_4' => { 0, 0 }, ;
       'Z72.1' => { 0, 0 }, 'Z72.2' => { 0, 0 }, 'Z72.0' => { 0, 0 }, 'Z91.2' => { 0, 0 }, 'Z91.3' => { 0, 0 } }
-    hYoungMan15_17 := { 'I'=> 0, 'II'=> 0, 'III'=> 0, 'IV'=> 0, 'V'=> 0, ;
-      'FI'=> 0, 'FII'=> 0, 'FIII'=> 0, 'FIV'=> 0, 'FN'=> 0, ;
-      'LOW_WEIGHT'=> 0, 'HIGH_WEIGHT'=> 0, 'LOW_HIGHT'=> 0, 'HIGH_HIGHT'=> 0, ;
-      'A63.0' => { 0, 0 }, ;  // 1 - общее число заболеваний, 2 - выявлено впервые
-      'E10' => { 0, 0 }, ;
-      'E30.0' => { 0, 0 }, ;
-      'E40_E46' => { 0, 0 }, 'E66' => { 0, 0 }, ;
-      'I86.1' => { 0, 0 }, ;
-      'L70.0' => { 0, 0 }, ;
-      'N43' => { 0, 0 }, 'N45' => { 0, 0 }, 'N47' => { 0, 0 }, 'N48.0' => { 0, 0 }, 'N48.1' => { 0, 0 }, ;
-      'N50.0' => { 0, 0 }, 'N62' => { 0, 0 }, ;
-      'Q53' => { 0, 0 }, 'Q54' => { 0, 0 }, 'Q55' => { 0, 0 }, 'Q64.0' => { 0, 0 }, ;
-      'Y83.2_4' => { 0, 0 }, ;
-      'Z72.1' => { 0, 0 }, 'Z72.2' => { 0, 0 }, 'Z72.0' => { 0, 0 }, 'Z91.2' => { 0, 0 }, 'Z91.3' => { 0, 0 } }
-//      'C51' => { 0, 0 }, 'C52'=> { 0, 0 }, ;
-//      'E22.8'=> { 0, 0 }, 'E25'=> { 0, 0 }, ;
-//      'E23.0'=> { 0, 0 }, 'E23.1'=> { 0, 0 }, ;
-//      'E26'=> { 0, 0 }, 'E27.0'=> { 0, 0 }, ;
-//      'E28.3'=> { 0, 0 }, ;
-//      'E30.1'=> { 0, 0 }, 'E30.8'=> { 0, 0 }, 'E45'=> { 0, 0 }, ;
-//      'E89.3'=> { 0, 0 }, ;
-//      'N75.0'=> { 0, 0 }, 'N75.1'=> { 0, 0 }, 'N75.8'=> { 0, 0 }, 'N75.9'=> { 0, 0 }, ;
-//      'N76.0'=> { 0, 0 }, ;
-//      'N76.2'=> { 0, 0 }, 'N76.8'=> { 0, 0 }, ;
-//  , 'N90.7'=> { 0, 0 }, 'N91'=> { 0, 0 }, 'N92.1'=> { 0, 0 },  'N92.3'=> { 0, 0 },
-// , 'N94.4'=> { 0, 0 }, 'N94.5'=> { 0, 0 }
-//      'N40_N51'=> { 0, 0 }, ;
-//      'S30.2'=> { 0, 0 }, 'S31.4'=> { 0, 0 }, 'S31.5'=> { 0, 0 }, ;
-//  'Q50.0'=> { 0, 0 }, , 'Q52.1'=> { 0, 0 }, 'Q52.6'=> { 0, 0 }, 'Q55'=> { 0, 0 },  'Q78.1'=> { 0, 0 }, 'Q96'=> { 0, 0 }, 
-    hGirl13_14 := { 'I'=> 0, 'II'=> 0, 'III'=> 0, 'IV'=> 0, 'V'=> 0, ;
+    hYoungMan15_17 := hb_HClone( hYoungMan13_14 )
+
+    hGirl13_14 := { 'GR1'=> 0, 'GR2'=> 0, 'GR3'=> 0, 'GR4'=> 0, 'GR5'=> 0, ;
+      'F1'=> 0, 'F2'=> 0, 'F3'=> 0, 'F4'=> 0, 'F0'=> 0, ;
       'A63.0' => { 0, 0 }, ;
       'D28.0'=> { 0, 0 }, ;
       'E10'=> { 0, 0 }, ;
@@ -80,26 +51,7 @@ Function svod_KZVO_children( par )      // f21_inf_dnl
       'Z72.1'=> { 0, 0 }, 'Z72.2'=> { 0, 0 }, 'Z72.0'=> { 0, 0 }, 'Z91.2'=> { 0, 0 }, 'Z91.3'=> { 0, 0 } ;
     }
 
-    hGirl15_17 := { 'I'=> 0, 'II'=> 0, 'III'=> 0, 'IV'=> 0, 'V'=> 0, ;
-      'A63.0' => { 0, 0 }, ;
-      'D28.0'=> { 0, 0 }, ;
-      'E10'=> { 0, 0 }, ;
-      'E30.0'=> { 0, 0 },  'E40_E46'=> { 0, 0 },  ;
-      'E66'=> { 0, 0 }, ;
-      'E89.4'=> { 0, 0 }, ;
-      'N60.9'=> { 0, 0 }, 'N61'=> { 0, 0 }, 'N62'=> { 0, 0 }, 'N63'=> { 0, 0 }, 'N64.4'=> { 0, 0 }, ;
-      'N76.1'=> { 0, 0 }, 'N76.3'=> { 0, 0 }, 'N76.6'=> { 0, 0 }, ;
-      'N90.4'=> { 0, 0 }, 'N90.6'=> { 0, 0 }, 'N90.8'=> { 0, 0 }, ;
-      'N91.1'=> { 0, 0 }, 'N91.3'=> { 0, 0 }, 'N91.4'=> { 0, 0 }, 'N91.5'=> { 0, 0 }, ;
-      'N92.2'=> { 0, 0 }, ;
-      'N94.3'=> { 0, 0 }, 'N94.6'=> { 0, 0 }, ;
-      'L68.0'=> { 0, 0 }, 'L70.0'=> { 0, 0 }, ;
-      'Q52.0'=> { 0, 0 }, 'Q52.3'=> { 0, 0 }, 'Q52.5'=> { 0, 0 }, ;
-      'Q56.4'=> { 0, 0 }, 'Q64.8'=> { 0, 0 }, 'Q83'=> { 0, 0 }, ;
-      'Y83.2_4'=> { 0, 0 }, ;
-      'Z33'=> { 0, 0 }, ;
-      'Z72.1'=> { 0, 0 }, 'Z72.2'=> { 0, 0 }, 'Z72.0'=> { 0, 0 }, 'Z91.2'=> { 0, 0 }, 'Z91.3'=> { 0, 0 } ;
-    }
+    hGirl15_17 := hb_HClone( hGirl13_14 )
 
     Private arr_deti, arr_2510
 
@@ -348,20 +300,17 @@ Function svod_inf_dnl( arr_m, is_schet, is_reg, arr_ishod, is_snils )
     human->( dbSkip() )
   Enddo
   fl := .t.
-//  If tmp->( LastRec() ) == 0
-//    fl := func_error( 4, 'Не найдено л/у по медосмотрам несовершеннолетних ' + arr_m[ 4 ] )
-//  Endif
   dbCloseAll()
 
   Return fl
 
-// 19.11.26
+// 21.11.26
 Function svod_inf_dnl_LU( Loc_kod, hYoungMan13_14, hYoungMan15_17, hGirl13_14, hGirl15_17 ) // сводная информация из листов учета
 
   Local ii, im, i, j, k, s, sumr := 0, ar := { 0 }, ltip_school := -1, ar15[ 26 ], ;
     is_2 := .f., ad := {}, arr, a3 := {}, fl_ves := .t.
   local fl, is_selo, mvar, m1var, lshifr, pole, flPol
-  local hTemp
+  local hTemp, tStr
 
   Private m1tip_school := -1, m1school := 0, mvozrast, mdvozrast, mgruppa := 0, m1GR_FIZ := 1, m1invalid1 := 0
 //  Private mvar, m1var, 
@@ -389,76 +338,49 @@ Function svod_inf_dnl_LU( Loc_kod, hYoungMan13_14, hYoungMan15_17, hGirl13_14, h
   read_arr_pn( Loc_kod, .t., human->K_DATA )
   mGRUPPA := human_->RSLT_NEW - 331// L_BEGIN_RSLT
 
-//  If human->pol == 'М'
-  if human->pol == 'М' .and. mvozrast >= 13 .and. mvozrast < 18
-    if mvozrast >= 13 .and. mvozrast < 15
-      hTemp := hYoungMan13_14
-    elseif mvozrast >= 15 .and. mvozrast < 18
-      hTemp := hYoungMan15_17
+  if mdvozrast >= 13 .and. mdvozrast < 18
+    if mdvozrast < 15
+      if human->pol == 'М'
+        hTemp := hYoungMan13_14
+      else
+        hTemp := hGirl13_14
+      endif
+    else
+      if human->pol == 'М'
+        hTemp := hYoungMan15_17
+      else
+        hTemp := hGirl15_17
+      endif
     endif
 
-    if mgruppa == 1
-      hTemp[ 'I' ]++
-    elseif  mgruppa == 2
-      hTemp[ 'II' ]++
-    elseif  mgruppa == 3
-      hTemp[ 'III' ]++
-    elseif  mgruppa == 4
-      hTemp[ 'IV' ]++
-    elseif  mgruppa == 5
-      hTemp[ 'V' ]++
-    Endif
-    if m1gr_fiz == 1
-      hTemp[ 'FI' ]++
-    elseif  m1gr_fiz == 2
-      hTemp[ 'FII' ]++
-    elseif  m1gr_fiz == 3
-      hTemp[ 'FIII' ]++
-    elseif  m1gr_fiz == 4
-      hTemp[ 'FIV' ]++
-    elseif  m1gr_fiz == 0
-      hTemp[ 'FN' ]++
-    Endif
-    if m1FIZ_RAZV1 == 1
-      hTemp[ 'LOW_WEIGHT' ]++
-    elseif m1FIZ_RAZV1 == 2
-      hTemp[ 'HIGH_WEIGHT' ]++
-    endif
-    if m1FIZ_RAZV2 == 1
-      hTemp[ 'LOW_HIGHT' ]++
-    elseif m1FIZ_RAZV2 == 2
-      hTemp[ 'HIGH_HIGHT' ]++
-    endif
+    for i := 1 to 5
+      tStr := 'GR' + StrZero( i, 1 )
+      if mgruppa == i
+        hTemp[ tStr ]++
+      endif
+    next
+    for i := 0 to 4
+      tStr := 'F' + StrZero( i, 1 )
+      if m1gr_fiz == i
+        hTemp[ tStr ]++
+      endif
+    next
+  endif
 
-    If m1napr_stac > 0
-      ar15[ 23 ] ++
-      If f_is_selo()
-        ar15[ 24 ] ++
+  if mdvozrast >= 15
+    If human->pol == 'М'
+      If m1napr_stac > 0
+        ar15[ 23 ] ++
+        If f_is_selo()
+          ar15[ 24 ] ++
+        Endif
       Endif
-    Endif
-  elseif human->pol == 'Ж' .and. mvozrast >= 13 .and. mvozrast < 18
-
-    if mvozrast >= 13 .and. mvozrast < 15
-      hTemp := hGirl13_14
-    elseif mvozrast >= 15 .and. mvozrast < 18
-      hTemp := hGirl15_17
-    endif
-    if mgruppa == 1
-      hTemp[ 'I' ]++
-    elseif  mgruppa == 2
-      hTemp[ 'II' ]++
-    elseif  mgruppa == 3
-      hTemp[ 'III' ]++
-    elseif  mgruppa == 4
-      hTemp[ 'IV' ]++
-    elseif  mgruppa == 5
-      hTemp[ 'V' ]++
-    Endif
-
-    If m1napr_stac > 0
-      ar15[ 25 ] ++
-      If f_is_selo()
-        ar15[ 26 ] ++
+    elseif human->pol == 'Ж'    //  .and. mvozrast >= 13 .and. mvozrast < 18
+      If m1napr_stac > 0
+        ar15[ 25 ] ++
+        If f_is_selo()
+          ar15[ 26 ] ++
+        Endif
       Endif
     Endif
   Endif
@@ -563,76 +485,21 @@ Function svod_inf_dnl_LU( Loc_kod, hYoungMan13_14, hYoungMan15_17, hGirl13_14, h
         fl_ves := .f.
       Endif
 
-      If human->pol == 'М' .and. mvozrast >= 13 .and. mvozrast < 18
-        if mvozrast >= 13 .and. mvozrast < 15
-          hTemp := hYoungMan13_14
-        elseif mvozrast >= 15 .and. mvozrast < 18
-          hTemp := hYoungMan15_17
+      If mdvozrast >= 13 .and. mdvozrast < 18
+        If human->pol == 'М'
+          if mdvozrast < 15  // для возраста 13-14 лет
+            hTemp := hYoungMan13_14
+          else   // для возраста 15-17 лет
+            hTemp := hYoungMan15_17
+          endif
+        elseif human->pol == 'Ж'
+          if mdvozrast < 15    // для возраста 13-14 лет
+            hTemp := hGirl13_14
+          else    // для возраста 15-17 лет
+            hTemp := hGirl15_17
+          endif
         endif
-/*
-        If Left( ad[ i, 1 ], 5 ) == 'E30.0'
-          hTemp[ 'E30.0' ]++
-        elseif Left( ad[ i, 1 ], 5 ) == 'E30.1'
-          hTemp[ 'E30.1' ]++
-        elseif Left( ad[ i, 1 ], 3 ) == 'E66'
-          hTemp[ 'E66' ]++
-        elseif Left( ad[ i, 1 ], 3 ) == 'E10'
-          hTemp[ 'E10' ]++
-        elseif Left( ad[ i, 1 ], 5 ) == 'A63.0'
-          hTemp[ 'A63.0' ]++
-        elseif Left( ad[ i, 1 ], 5 ) == 'I86.1'
-          hTemp[ 'I86.1' ]++
-        elseif Left( ad[ i, 1 ], 5 ) == 'L70.0'
-          hTemp[ 'L70.0' ]++
-        elseif Left( ad[ i, 1 ], 3 ) == 'N43'
-          hTemp[ 'N43' ]++
-        elseif Left( ad[ i, 1 ], 3 ) == 'N45'
-          hTemp[ 'N45' ]++
-        elseif Left( ad[ i, 1 ], 3 ) == 'N47'
-          hTemp[ 'N47' ]++
-        elseif Left( ad[ i, 1 ], 5 ) == 'N48.0'
-          hTemp[ 'N48.0' ]++
-        elseif Left( ad[ i, 1 ], 5 ) == 'N48.1'
-          hTemp[ 'N48.1' ]++
-        elseif Left( ad[ i, 1 ], 5 ) == 'N50.0'
-          hTemp[ 'N50.0' ]++
-        elseif Left( ad[ i, 1 ], 3 ) == 'N62'
-          hTemp[ 'N62' ]++
-        elseif Left( ad[ i, 1 ], 3 ) == 'Q53'
-          hTemp[ 'Q53' ]++
-        elseif Left( ad[ i, 1 ], 3 ) == 'Q54'
-          hTemp[ 'Q54' ]++
-        elseif Left( ad[ i, 1 ], 3 ) == 'Q55'
-          hTemp[ 'Q55' ]++
-        elseif Left( ad[ i, 1 ], 5 ) == 'Q64.0'
-          hTemp[ 'Q64.0' ]++
-        elseif Left( ad[ i, 1 ], 5 ) == 'Z72.1'
-          hTemp[ 'Z72.1' ]++
-        elseif Left( ad[ i, 1 ], 5 ) == 'Z72.2'
-          hTemp[ 'Z72.2' ]++
-        elseif Left( ad[ i, 1 ], 5 ) == 'Z72.0'
-          hTemp[ 'Z72.0' ]++
-        elseif Left( ad[ i, 1 ], 5 ) == 'Z91.2'
-          hTemp[ 'Z91.2' ]++
-        elseif Left( ad[ i, 1 ], 5 ) == 'Z91.3'
-          hTemp[ 'Z91.3' ]++
-        elseif between_diag( Left( ad[ i, 1 ], 3 ), 'E40', 'E46' )
-          hTemp[ 'E40_E46' ]++
-        elseif between_diag( Left( ad[ i, 1 ], 3 ), 'N40', 'N51' )
-          hTemp[ 'N40_N51' ]++
-        elseif between_diag( Left( ad[ i, 1 ], 5 ), 'Y83.2', 'Y83.4' )
-          hTemp[ 'Y83.2_4' ]++
-        endif
-*/
-        fill_zabol_youngman( ad[ i ], hTemp )
-      elseif human->pol == 'Ж' .and. mvozrast >= 13 .and. mvozrast < 18
-        if mvozrast >= 13 .and. mvozrast < 15
-          hTemp := hGirl13_14
-        elseif mvozrast >= 15 .and. mvozrast < 18
-          hTemp := hGirl15_17
-        endif
-
-        fill_zabol_girl( ad[ i ], hTemp )
+        fill_zabol( ad[ i ], hTemp )  // заполним заболевания и вновь выявленные
       endif
 
       // надо деффицит массы тела
@@ -685,7 +552,7 @@ Function svod_inf_dnl_LU( Loc_kod, hYoungMan13_14, hYoungMan15_17, hGirl13_14, h
 
     fl := .f.
     Select HU
-    hu->( dbSeek( Str( Loc_kod, 7 ) ) )      //  find ( Str( Loc_kod, 7 ) )
+    hu->( dbSeek( Str( Loc_kod, 7 ) ) )
     Do While hu->kod == Loc_kod .and. ! hu->( Eof() )
       If eq_any( hu_->PROFIL, 19, 136 )
         fl := .t.
@@ -717,7 +584,7 @@ Function svod_inf_dnl_LU( Loc_kod, hYoungMan13_14, hYoungMan15_17, hGirl13_14, h
         Endif
       Endif
       Select HU
-      hu->( dbSkip() )      //  Skip
+      hu->( dbSkip() )
     Enddo
     If fl
       ar15[ j + 2 ] ++
@@ -865,9 +732,6 @@ Function svod_inf_dds( arr_m, tip_lu, is_schet, is_reg, is_snils )
     human->( dbSkip() )
   Enddo
   fl := .t.
-//  If tmp->( LastRec() ) == 0
-//    fl := func_error( 4, 'Не найдено л/у по диспансеризации детей-сирот ' + arr_m[ 4 ] )
-//  Endif
   dbCloseAll()
 
   Return fl
@@ -937,25 +801,24 @@ Function svod_inf_dds_LU( Loc_kod, kod_kartotek, mvozrast )
   AFill( ar2, 0 )
   For i := 1 To Len( ad ) // цикл по диагнозам
     If !( Left( ad[ i, 1 ], 1 ) == 'A' .or. Left( ad[ i, 1 ], 1 ) == 'B' ) .and. ad[ i, 2 ] == 1 // неинфекционные заболевания уст.впервые
-      // arr_deti[k, 7] ++
       ar2[ 7 ] := 1
       If Left( ad[ i, 1 ], 1 ) == 'I' // болезни системы кровообращения
-        ar2[ 8 ] := 1     // arr_deti[k, 8] ++
+        ar2[ 8 ] := 1
       Endif
       If Left( ad[ i, 1 ], 1 ) == 'J' // болезни органов дыхания
-        ar2[ 11 ] := 1      // arr_deti[k, 11] ++
+        ar2[ 11 ] := 1
       Endif
       If Left( ad[ i, 1 ], 1 ) == 'K' // болезни органов пищеварения
-        ar2[ 12 ] := 1     // arr_deti[k, 12] ++
+        ar2[ 12 ] := 1
       Endif
       If Left( ad[ i, 1 ], 1 ) == 'H' // болезни глаз
-        ar2[ 18 ] := 1    // arr_deti[k, 18] ++
+        ar2[ 18 ] := 1
       Endif
       If Left( ad[ i, 1 ], 1 ) == 'E' // болезни эндокринология
-        ar2[ 19 ] := 1  // arr_deti[k, 19] ++
+        ar2[ 19 ] := 1
       Endif
       If Left( ad[ i, 1 ], 1 ) == 'M' // болезни костно-мышечной системы
-        ar2[ 21 ] := 1  // arr_deti[k, 21] ++
+        ar2[ 21 ] := 1
       Endif
       //
       If Left( ad[ i, 1 ], 3 ) == 'E78'
@@ -977,15 +840,15 @@ Function svod_inf_dds_LU( Loc_kod, kod_kartotek, mvozrast )
       Endif
       //
       If Left( ad[ i, 1 ], 1 ) == 'C' .or. Between( Left( ad[ i, 1 ], 3 ), 'D00', 'D09' ) // ЗНО
-        ar2[ 9 ] := 1  // arr_deti[k, 9] ++
+        ar2[ 9 ] := 1
       Endif
       If ad[ i, 3 ] > 0
-        ar2[ 13 ] := 1  // arr_deti[k, 13] ++  // взяты на диспасерное наблюдение
+        ar2[ 13 ] := 1  // взяты на диспасерное наблюдение
       Endif
       If m1napr_stac > 0 // направлен на лечение
-        ar2[ 14 ] := 1 // arr_deti[k, 14] ++ // считаем, что было начато лечение
+        ar2[ 14 ] := 1 // считаем, что было начато лечение
         If is_selo
-          ar2[ 15 ] := 1   // arr_deti[k, 15] ++
+          ar2[ 15 ] := 1
         Endif
       Endif
     Endif
@@ -1052,6 +915,45 @@ Function svod_inf_dds_LU( Loc_kod, kod_kartotek, mvozrast )
   Return Nil
 
 // 20.11.26
+function fill_zabol( ad, hTemp )
+
+  local diag3, diag5
+
+  diag3 := Left( ad[ 1 ], 3 )
+  diag5 := Left( ad[ 1 ], 5 )
+
+  if ValType( hTemp ) != 'H' .or. Empty( diag3 )
+    altd()
+  endif
+  if hb_hHaskey( hTemp, diag3 )
+    hTemp[ diag3 ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ diag3 ][ 2 ] += 1
+    endif
+  endif
+
+  if hb_hHaskey( hTemp, diag5 )
+    hTemp[ diag5 ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ diag5 ][ 2 ] += 1
+    endif
+  endif
+
+  if between_diag( diag3, 'E40', 'E46' )
+    hTemp[ 'E40_E46' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'E40_E46' ][ 2 ] += 1
+    endif
+  elseif between_diag( diag5, 'Y83.2', 'Y83.4' )
+    hTemp[ 'Y83.2_4' ][ 1 ] += 1
+    if ad[ 2 ] == 1
+      hTemp[ 'Y83.2_4' ][ 2 ] += 1
+    endif
+  endif
+  return nil
+
+/*
+// 20.11.26
 function fill_zabol_girl( ad, hTemp )
 
   local diag3, diag5
@@ -1084,401 +986,6 @@ function fill_zabol_girl( ad, hTemp )
       hTemp[ 'Y83.2_4' ][ 2 ] += 1
     endif
   endif
-/*
-  if diag5 == 'A63.0'
-    hTemp[ 'A63.0' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'A63.0' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'D28.0'
-    hTemp[ 'D28.0' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'D28.0' ][ 2 ] += 1
-    endif
-  elseif between_diag( diag3, 'E40', 'E44' )
-    hTemp[ 'E40_E46' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'E40_E46' ][ 2 ] += 1
-    endif
-  elseif diag3 == 'E10'
-    hTemp[ 'E10' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'E10' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'E22.8'
-    hTemp[ 'E22.8' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'E22.8' ][ 2 ] += 1
-    endif
-  elseif diag3 == 'E25'
-    hTemp[ 'E25' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'E25' ][ 2 ] += 1
-    endif
-  elseif diag3 == 'E26'
-    hTemp[ 'E26' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'E26' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'E27.0'
-    hTemp[ 'E27.0' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'E27.0' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'E30.0'
-    hTemp[ 'E30.0' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'E30.0' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'E30.1'
-    hTemp[ 'E30.1' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'E30.1' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'E30.8'
-    hTemp[ 'E30.8' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'E30.8' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'Е23.0'
-    hTemp[ 'Е23.0' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'E23.0' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'Е23.1'
-    hTemp[ 'Е23.1' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'E23.1' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'Е28.3'
-    hTemp[ 'Е28.3' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'E28.3' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'Е30.0'
-    hTemp[ 'Е30.0' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'E30.0' ][ 2 ] += 1
-    endif
-  elseif diag3 == 'Е45'
-    hTemp[ 'Е45' ][ 1 ] += 1
-    hTemp[ 'E40_E46' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'E45' ][ 2 ] += 1
-      hTemp[ 'E40_E46' ][ 2 ] += 1
-    endif
-  elseif diag3 == 'Е46'
-    hTemp[ 'Е46' ][ 1 ] += 1
-    hTemp[ 'E40_E46' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'E46' ][ 2 ] += 1
-      hTemp[ 'E40_E46' ][ 2 ] += 1
-    endif
-  elseif diag3 == 'E66'
-    hTemp[ 'E66' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'E66' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'Е89.3'
-    hTemp[ 'Е89.3' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'E89.3' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'Е89.4'
-    hTemp[ 'Е89.4' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'E89.4' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'L68.0'
-    hTemp[ 'L68.0' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'L68.0' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'L70.0'
-    hTemp[ 'L70.0' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'L70.0' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'N60.9'
-    hTemp[ 'N60.9' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N60.9' ][ 2 ] += 1
-    endif
-  elseif diag3 == 'N61'
-    hTemp[ 'N61' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N61' ][ 2 ] += 1
-    endif
-  elseif diag3 == 'N62'
-    hTemp[ 'N62' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N62' ][ 2 ] += 1
-    endif
-  elseif diag3 == 'N63'
-    hTemp[ 'N63' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N63' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'N64.4'
-    hTemp[ 'N64.4' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N64.4' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'N75.0'
-    hTemp[ 'N75.0' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N75.0' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'N75.1'
-    hTemp[ 'N75.1' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N75.1' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'N75.8'
-    hTemp[ 'N75.8' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N75.8' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'N75.9'
-    hTemp[ 'N75.9' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N75.9' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'N76.0'
-    hTemp[ 'N76.0' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N76.0' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'N76.1'
-    hTemp[ 'N76.1' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N76.1' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'N76.2'
-    hTemp[ 'N76.2' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N76.2' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'N76.3'
-    hTemp[ 'N76.3' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N76.3' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'N76.6'
-    hTemp[ 'N76.6' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N76.6' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'N76.8'
-    hTemp[ 'N76.8' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N76.8' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'N90.4'
-    hTemp[ 'N90.4' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N90.4' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'N90.6'
-    hTemp[ 'N90.6' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N90.6' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'N90.7'
-    hTemp[ 'N90.7' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N90.1' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'N90.8'
-    hTemp[ 'N90.8' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N90.8' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'N91.1'
-    hTemp[ 'N91.1' ][ 1 ] += 1
-    hTemp[ 'N91' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N91.1' ][ 2 ] += 1
-      hTemp[ 'N91' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'N91.3'
-    hTemp[ 'N91.3' ][ 1 ] += 1
-    hTemp[ 'N91' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N91.3' ][ 2 ] += 1
-      hTemp[ 'N91' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'N91.4'
-    hTemp[ 'N91.4' ][ 1 ] += 1
-    hTemp[ 'N91' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N91.4' ][ 2 ] += 1
-      hTemp[ 'N91' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'N91.5'
-    hTemp[ 'N91.5' ][ 1 ] += 1
-    hTemp[ 'N91' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N91.5' ][ 2 ] += 1
-      hTemp[ 'N91' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'N92.1'
-    hTemp[ 'N92.1' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N92.1' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'N92.2'
-    hTemp[ 'N92.2' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N92.2' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'N92.3'
-    hTemp[ 'N92.3' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N92.3' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'N94.3'
-    hTemp[ 'N94.3' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N94.3' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'N94.4'
-    hTemp[ 'N94.4' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N94.4' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'N94.5'
-    hTemp[ 'N94.5' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N94.5' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'N94.6'
-    hTemp[ 'N94.6' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N94.6' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'N94.3'
-    hTemp[ 'N94.3' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N94.3' ][ 2 ] += 1
-    endif
-  elseif diag3 == 'C51'
-    hTemp[ 'C51' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'C51' ][ 2 ] += 1
-    endif
-  elseif diag3 == 'C52'
-    hTemp[ 'C52' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'C52' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'S30.2'
-    hTemp[ 'S30.2' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'S30.2' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'S31.4'
-    hTemp[ 'S31.4' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'S31.4' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'S31.5'
-    hTemp[ 'S31.5' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'S31.5' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'Q50.0'
-    hTemp[ 'Q50.0' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'Q50.0' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'Q52.0'
-    hTemp[ 'Q52.0' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'Q52.0' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'Q52.1'
-    hTemp[ 'Q52.1' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'Q52.1' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'Q52.3'
-    hTemp[ 'Q52.3' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'Q52.3' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'Q52.5'
-    hTemp[ 'Q52.5' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'Q52.5' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'Q52.6'
-    hTemp[ 'Q52.6' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'Q52.6' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'Q56.4'
-    hTemp[ 'Q56.4' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'Q56.4' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'Q64.8'
-    hTemp[ 'Q64.8' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'Q64.8' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'Q78.1'
-    hTemp[ 'Q78.1' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'Q78.1' ][ 2 ] += 1
-    endif
-  elseif diag3 == 'Q83'
-    hTemp[ 'Q83' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'Q83' ][ 2 ] += 1
-    endif
-  elseif diag3 == 'Q96'
-    hTemp[ 'Q96' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'Q96' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'Z33'
-    hTemp[ 'Z33' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'Z33' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'Z72.1'
-    hTemp[ 'Z72.1' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'Z72.1' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'Z72.2'
-    hTemp[ 'Z72.2' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'Z72.2' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'Z72.0'
-    hTemp[ 'Z72.0' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'Z72.0' ][ 2 ] += 1
-    endif
-  elseif between_diag( diag5, 'Y83.2', 'Y83.4' )
-    hTemp[ 'Y83.2_4' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'Y83.2_4' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'Z91.2'
-    hTemp[ 'Z91.2' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'Z91.2' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'Z91.3'
-    hTemp[ 'Z91.3' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'Z91.3' ][ 2 ] += 1
-    endif
-  endif
-*/
   return nil
 
 // 20.11.26
@@ -1514,137 +1021,5 @@ function fill_zabol_youngman( ad, hTemp )
       hTemp[ 'Y83.2_4' ][ 2 ] += 1
     endif
   endif
-/*
-  If diag5 == 'E30.0'
-    hTemp[ 'E30.0' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'E30.0' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'E30.1'
-    hTemp[ 'E30.1' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'E30.1' ][ 2 ] += 1
-    endif
-  elseif diag3 == 'E66'
-    hTemp[ 'E66' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'E66' ][ 2 ] += 1
-    endif
-  elseif diag3 == 'E10'
-    hTemp[ 'E10' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'E10' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'A63.0'
-    hTemp[ 'A63.0' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'A63.0' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'I86.1'
-    hTemp[ 'I86.1' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'I86.1' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'L70.0'
-    hTemp[ 'L70.0' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'L70.0' ][ 2 ] += 1
-    endif
-  elseif diag3 == 'N43'
-    hTemp[ 'N43' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N43' ][ 2 ] += 1
-    endif
-  elseif diag3 == 'N45'
-    hTemp[ 'N45' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N45' ][ 2 ] += 1
-    endif
-  elseif diag3 == 'N47'
-    hTemp[ 'N47' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N47' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'N48.0'
-    hTemp[ 'N48.0' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N48.0' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'N48.1'
-    hTemp[ 'N48.1' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N48.1' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'N50.0'
-    hTemp[ 'N50.0' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N50.0' ][ 2 ] += 1
-    endif
-  elseif diag3 == 'N62'
-    hTemp[ 'N62' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N62' ][ 2 ] += 1
-    endif
-  elseif diag3 == 'Q53'
-    hTemp[ 'Q53' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'Q53' ][ 2 ] += 1
-    endif
-  elseif diag3 == 'Q54'
-    hTemp[ 'Q54' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'Q54' ][ 2 ] += 1
-    endif
-  elseif diag3 == 'Q55'
-    hTemp[ 'Q55' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'Q55' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'Q64.0'
-    hTemp[ 'Q64.0' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'Q64.0' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'Z72.1'
-    hTemp[ 'Z72.1' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'Z72.1' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'Z72.2'
-    hTemp[ 'Z72.2' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'Z72.2' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'Z72.0'
-    hTemp[ 'Z72.0' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'Z72.0' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'Z91.2'
-    hTemp[ 'Z91.2' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'Z91.2' ][ 2 ] += 1
-    endif
-  elseif diag5 == 'Z91.3'
-    hTemp[ 'Z91.3' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'Z91.3' ][ 2 ] += 1
-    endif
-  elseif between_diag( diag3, 'E40', 'E46' )
-    hTemp[ 'E40_E46' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'E40_E46' ][ 2 ] += 1
-    endif
-  elseif between_diag( diag3, 'N40', 'N51' )
-    hTemp[ 'N40_N51' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'N40_N51' ][ 2 ] += 1
-    endif
-  elseif between_diag( diag5, 'Y83.2', 'Y83.4' )
-    hTemp[ 'Y83.2_4' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'Y83.2_4' ][ 2 ] += 1
-    endif
-  endif
-*/
   return nil
+*/
