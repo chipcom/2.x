@@ -2,7 +2,7 @@
 #include 'chip_mo.ch'
 #include 'tfile.ch'
 
-// 22.11.26 Приложение к письму ГБУЗ 'ВОМИАЦ' №1025 от 08.07.2019г.
+// 23.11.26 Приложение к письму ГБУЗ 'ВОМИАЦ' №1025 от 08.07.2019г.
 Function svod_KZVO_children( par )      // f21_inf_dnl
 
   Local arr_m, buf := save_maxrow(), adbf
@@ -15,7 +15,8 @@ Function svod_KZVO_children( par )      // f21_inf_dnl
   If ( arr_m := year_month(,,, 5 ) ) != NIL
 
     hYoungMan13_14 := { 'GR1'=> 0, 'GR2'=> 0, 'GR3'=> 0, 'GR4'=> 0, 'GR5'=> 0, ;
-      'F1'=> 0, 'F2'=> 0, 'F3'=> 0, 'F4'=> 0, 'F0'=> 0, ;
+      'F1' => 0, 'F2'=> 0, 'F3'=> 0, 'F4'=> 0, 'F0'=> 0, ;
+      'DISPAN' =>0, 'STAC' => 0, 'VMP' => 0, ;
       'A63.0' => { 0, 0 }, ;  // 1 - общее число заболеваний, 2 - выявлено впервые
       'E10' => { 0, 0 }, ;
       'E30.0' => { 0, 0 }, ;
@@ -31,6 +32,7 @@ Function svod_KZVO_children( par )      // f21_inf_dnl
 
     hGirl13_14 := { 'GR1'=> 0, 'GR2'=> 0, 'GR3'=> 0, 'GR4'=> 0, 'GR5'=> 0, ;
       'F1'=> 0, 'F2'=> 0, 'F3'=> 0, 'F4'=> 0, 'F0'=> 0, ;
+      'DISPAN' =>0, 'STAC' => 0, 'VMP' => 0, ;
       'A63.0' => { 0, 0 }, ;
       'D28.0'=> { 0, 0 }, ;
       'E10'=> { 0, 0 }, ;
@@ -427,6 +429,13 @@ Function svod_inf_dnl_LU( Loc_kod, hYoungMan13_14, hYoungMan15_17, hGirl13_14, h
       Endif
     Next
   Next
+
+//  If mdvozrast >= 13 .and. mdvozrast < 15 .and. human->pol == 'Ж'
+//    if AllTrim( human->UCH_DOC ) == '12519'
+//      altd()
+//    endif
+//  endif
+
   //
   arr := Array( 24 )
   AFill( arr, 0 )
@@ -914,7 +923,7 @@ Function svod_inf_dds_LU( Loc_kod, kod_kartotek, mvozrast )
 
   Return Nil
 
-// 20.11.26
+// 23.11.26
 function fill_zabol( ad, hTemp )
 
   local diag3, diag5
@@ -922,9 +931,18 @@ function fill_zabol( ad, hTemp )
   diag3 := Left( ad[ 1 ], 3 )
   diag5 := Left( ad[ 1 ], 5 )
 
-  if ValType( hTemp ) != 'H' .or. Empty( diag3 )
-    altd()
+  if ad[ 3 ] != 0    //  установлен диспансерное наблюдение
+    hTemp[ 'DISPAN' ] += 1
   endif
+
+  if ad[ 10 ] == 1 .and. ad[ 11 ] == 2    //  назначено лечение в условиях стационара
+    hTemp[ 'STAC' ] += 1
+  endif
+
+  if ad[ 16 ] == 1    //  назначено ВМП
+    hTemp[ 'VMP' ] += 1
+  endif
+
   if hb_hHaskey( hTemp, diag3 )
     hTemp[ diag3 ][ 1 ] += 1
     if ad[ 2 ] == 1
