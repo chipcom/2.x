@@ -316,6 +316,7 @@ Function svod_inf_dnl_LU( Loc_kod, hYoungMan13_14, hYoungMan15_17, hGirl13_14, h
     is_2 := .f., ad := {}, arr, a3 := {}, fl_ves := .t.
   local fl, is_selo, mvar, m1var, lshifr, pole, flPol
   local hTemp, tStr
+  local hArr
 
   Private m1tip_school := -1, m1school := 0, mvozrast, mdvozrast, mgruppa := 0, m1GR_FIZ := 1, m1invalid1 := 0
 //  Private mvar, m1var, 
@@ -340,7 +341,8 @@ Function svod_inf_dnl_LU( Loc_kod, hYoungMan13_14, hYoungMan15_17, hGirl13_14, h
   Next
   ii := 1
   is_2 := ( human->ishod == 302 ) // это второй этап
-  read_arr_pn( Loc_kod, .t., human->K_DATA )
+  hArr := read_arr_pn( Loc_kod, .t., human->K_DATA )
+
   mGRUPPA := human_->RSLT_NEW - 331// L_BEGIN_RSLT
 
   if mdvozrast >= 13 .and. mdvozrast < 18
@@ -973,3 +975,82 @@ function fill_zabol( ad, hTemp )
     endif
   endif
   return nil
+
+// 24.11.26
+function arr_PN_hash( arr )
+
+  local hPN := hb_Hash(), i
+  local aDiagAfter := {}
+
+  for i := 1 to Len( arr )
+    If ValType( arr[ i ] ) == 'A' .and. ValType( arr[ i, 1 ] ) == 'C'
+      Do Case
+        Case arr[ i, 1 ] == '0' .and. ValType( arr[ i, 2 ] ) == 'N'
+          hb_hSet( hPN, 'mobil', arr[ i, 2 ] )    // мобильная бригада 0 - нет, 1 - да
+        Case arr[ i, 1 ] == '1' .and. ValType( arr[ i, 2 ] ) == 'N'
+          hb_hSet( hPN, 'period', arr[ i, 2 ] )   // период пациента
+        Case arr[ i, 1 ] == '2' .and. ValType( arr[ i, 2 ] ) == 'N'
+          hb_hSet( hPN, 'mesto_prov', arr[ i, 2 ] )   // место проведения
+        Case arr[ i, 1 ] == '5' .and. ValType( arr[ i, 2 ] ) == 'N'
+          hb_hSet( hPN, 'kateg_uch', arr[ i, 2 ] )   // категория учета?
+        Case arr[ i, 1 ] == '6' .and. ValType( arr[ i, 2 ] ) == 'C'
+          hb_hSet( hPN, 'mo_prik', arr[ i, 2 ] )    // МО прикрепления
+        Case arr[ i, 1 ] == '8' .and. ValType( arr[ i, 2 ] ) == 'N'
+          hb_hSet( hPN, 'school', arr[ i, 2 ] )
+        Case arr[ i, 1 ] == '12.1' .and. ValType( arr[ i, 2 ] ) == 'N'
+          hb_hSet( hPN, 'weight', arr[ i, 2 ] )   // вес
+        Case arr[ i, 1 ] == '12.2' .and. ValType( arr[ i, 2 ] ) == 'N'
+          hb_hSet( hPN, 'height', arr[ i, 2 ] )         // рост
+        Case arr[ i, 1 ] == '12.3' .and. ValType( arr[ i, 2 ] ) == 'N'
+          hb_hSet( hPN, 'per_head', arr[ i, 2 ] )       // окружность головы
+        Case arr[ i, 1 ] == '12.4' .and. ValType( arr[ i, 2 ] ) == 'N'
+          hb_hSet( hPN, 'fiz_razv', arr[ i, 2 ] )               // физ. развитие 
+        Case arr[ i, 1 ] == '12.4.1' .and. ValType( arr[ i, 2 ] ) == 'N'
+          hb_hSet( hPN, 'fiz_razv1', arr[ i, 2 ] )               // физ. развитие 1
+        Case arr[ i, 1 ] == '12.4.2' .and. ValType( arr[ i, 2 ] ) == 'N'
+          hb_hSet( hPN, 'fiz_razv2', arr[ i, 2 ] )               // физ. развитие 2
+
+
+        Case arr[ i, 1 ] == '16.1' .and. ValType( arr[ i, 2 ] ) == 'N'
+          hb_hSet( hPN, 'diag_16_1', arr[ i, 2 ] )
+        Case arr[ i, 1 ] == '16.2' .and. ValType( arr[ i, 2 ] ) == 'A' .and. Len( arr[ i, 2 ] ) >= 16
+          AAdd( aDiagAfter, arr_diagPN_hash( arr[ i, 2 ] ) )
+        Case arr[ i, 1 ] == '16.3' .and. ValType( arr[ i, 2 ] ) == 'A' .and. Len( arr[ i, 2 ] ) >= 16
+          AAdd( aDiagAfter, arr_diagPN_hash( arr[ i, 2 ] ) )
+        Case arr[ i, 1 ] == '16.4' .and. ValType( arr[ i, 2 ] ) == 'A' .and. Len( arr[ i, 2 ] ) >= 16
+          AAdd( aDiagAfter, arr_diagPN_hash( arr[ i, 2 ] ) )
+        Case arr[ i, 1 ] == '16.5' .and. ValType( arr[ i, 2 ] ) == 'A' .and. Len( arr[ i, 2 ] ) >= 16
+          AAdd( aDiagAfter, arr_diagPN_hash( arr[ i, 2 ] ) )
+        Case arr[ i, 1 ] == '16.6' .and. ValType( arr[ i, 2 ] ) == 'A' .and. Len( arr[ i, 2 ] ) >= 16
+          AAdd( aDiagAfter, arr_diagPN_hash( arr[ i, 2 ] ) )
+      endcase
+//          hb_hSet( hPN, '', arr[ i, 2 ] )
+    endif
+  next
+  hb_hSet( hPN, 'diag_after', aDiagAfter )
+
+  return hPN
+
+// 24.11.26
+function arr_diagPN_hash( arr )
+
+  local hDiag := hb_Hash()
+
+  hb_hSet( hDiag, 'diag', AllTrim( arr[ 1 ] ) )
+  hb_hSet( hDiag, 'first_set', arr[ 2 ] )
+  hb_hSet( hDiag, 'disp_nab', arr[ 3 ] )
+  hb_hSet( hDiag, 'dop_cons_set', arr[ 4 ] )
+  hb_hSet( hDiag, 'dop_cons_usl', arr[ 5 ] )
+  hb_hSet( hDiag, 'dop_cons_uch', arr[ 6 ] )
+  hb_hSet( hDiag, 'dop_cons_done', arr[ 7 ] )
+  hb_hSet( hDiag, 'dop_cons_done_usl', arr[ 8 ] )
+  hb_hSet( hDiag, 'dop_cons_done_uch', arr[ 9 ] )
+  hb_hSet( hDiag, 'lech_set', arr[ 10 ] )
+  hb_hSet( hDiag, 'lech_usl', arr[ 11 ] )
+  hb_hSet( hDiag, 'lech_uch', arr[ 12 ] )
+  hb_hSet( hDiag, 'reab_set', arr[ 13 ] )
+  hb_hSet( hDiag, 'reab_usl', arr[ 14 ] )
+  hb_hSet( hDiag, 'reab_uch', arr[ 15 ] )
+  hb_hSet( hDiag, 'vmp', arr[ 16 ] )
+
+  return hDiag

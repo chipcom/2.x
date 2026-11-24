@@ -572,13 +572,14 @@ Function save_arr_pn( lkod, mdata )
   save_arr_dispans( lkod, arr )
   Return Nil
 
-// 16.10.25
+// 24.11.26
 Function read_arr_pn( lkod, is_all, mdata )
 
   Local arr, i, k
   Local aliasIsUse := aliasisalreadyuse( 'TPERS' )
   Local oldSelect
   Local mvar
+  local hArr  //, js
 
   // Private mvar
   If ! aliasIsUse
@@ -867,7 +868,14 @@ Function read_arr_pn( lkod, is_all, mdata )
     TPERS->( dbCloseArea() )
     Select( oldSelect )
   Endif
-  Return Nil
+
+  hArr := arr_PN_hash( arr )
+//  if AllTrim( human->uch_doc ) == '160734'
+//    js := hb_jsonEncode( hArr, .f. )
+//    altd()
+//  endif
+//  Return Nil
+  return hArr
 
 // 27.10.25
 Function is_issled_pn( ausl, _period, arr, _pol, mdata )
