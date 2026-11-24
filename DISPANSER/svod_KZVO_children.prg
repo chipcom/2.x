@@ -1,5 +1,6 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
+#include 'chip_color.ch'
 #include 'tfile.ch'
 
 // 23.11.26 Приложение к письму ГБУЗ 'ВОМИАЦ' №1025 от 08.07.2019г.
@@ -16,6 +17,7 @@ Function svod_KZVO_children( par )      // f21_inf_dnl
 
     hYoungMan13_14 := { 'GR1'=> 0, 'GR2'=> 0, 'GR3'=> 0, 'GR4'=> 0, 'GR5'=> 0, ;
       'F1' => 0, 'F2'=> 0, 'F3'=> 0, 'F4'=> 0, 'F0'=> 0, ;
+      'ETAP_II' => 0, ;
       'DISPAN' =>0, 'STAC' => 0, 'VMP' => 0, ;
       'A63.0' => { 0, 0 }, ;  // 1 - общее число заболеваний, 2 - выявлено впервые
       'E10' => { 0, 0 }, ;
@@ -32,6 +34,7 @@ Function svod_KZVO_children( par )      // f21_inf_dnl
 
     hGirl13_14 := { 'GR1'=> 0, 'GR2'=> 0, 'GR3'=> 0, 'GR4'=> 0, 'GR5'=> 0, ;
       'F1'=> 0, 'F2'=> 0, 'F3'=> 0, 'F4'=> 0, 'F0'=> 0, ;
+      'ETAP_II' => 0, ;
       'DISPAN' =>0, 'STAC' => 0, 'VMP' => 0, ;
       'A63.0' => { 0, 0 }, ;
       'D28.0'=> { 0, 0 }, ;
@@ -166,7 +169,7 @@ Function svod_KZVO_children( par )      // f21_inf_dnl
     tmp->( dbGoTop() )
     mywait( '' )  // очистим информационную строку
     Do While !tmp->( Eof() )
-      @ MaxRow(), 0 Say 'Профосмотры несовершеннолетних: ' + Str( RecNo() / LastRec() * 100, 6, 2 ) + '%' Color cColorWait
+      @ MaxRow(), 0 Say 'Профосмотры несовершеннолетних: ' + Str( RecNo() / LastRec() * 100, 6, 2 ) + '%' Color CCOLORWAIT
       svod_inf_dnl_LU( tmp->kod, hYoungMan13_14, hYoungMan15_17, hGirl13_14, hGirl15_17 )
       Select TMP
       tmp->( dbSkip() )
@@ -243,7 +246,7 @@ function collect_arr2510( arr_m, type_LU, par, titul )
   tmp->( dbGoTop() )
   do while !tmp->( Eof() )
     rec := tmp->( RecNo() )
-    @ MaxRow(), 0 Say titul + Str( rec / tmp->( LastRec() ) * 100, 6, 2 ) + '%' Color cColorWait
+    @ MaxRow(), 0 Say titul + Str( rec / tmp->( LastRec() ) * 100, 6, 2 ) + '%' Color CCOLORWAIT
     oms_sluch_dds( type_LU, tmp->kod, tmp->kod_k, 'svod_inf_DDS_LU' )
     dbCloseAll()
     r_use( cur_dir() + 'tmp' )
@@ -353,6 +356,7 @@ Function svod_inf_dnl_LU( Loc_kod, hYoungMan13_14, hYoungMan15_17, hGirl13_14, h
       else
         hTemp := hGirl15_17
       endif
+      hTemp[ 'ETAP_II' ] += iif( is_2, 1, 0 )
     endif
 
     for i := 1 to 5
@@ -969,75 +973,3 @@ function fill_zabol( ad, hTemp )
     endif
   endif
   return nil
-
-/*
-// 20.11.26
-function fill_zabol_girl( ad, hTemp )
-
-  local diag3, diag5
-
-  diag3 := Left( ad[ 1 ], 3 )
-  diag5 := Left( ad[ 1 ], 5 )
-
-  if hb_hHaskey( hTemp, diag3 )
-    hTemp[ diag3 ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ diag3 ][ 2 ] += 1
-    endif
-  endif
-
-  if hb_hHaskey( hTemp, diag5 )
-    hTemp[ diag5 ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ diag5 ][ 2 ] += 1
-    endif
-  endif
-
-  if between_diag( diag3, 'E40', 'E46' )
-    hTemp[ 'E40_E46' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'E40_E46' ][ 2 ] += 1
-    endif
-  elseif between_diag( diag5, 'Y83.2', 'Y83.4' )
-    hTemp[ 'Y83.2_4' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'Y83.2_4' ][ 2 ] += 1
-    endif
-  endif
-  return nil
-
-// 20.11.26
-function fill_zabol_youngman( ad, hTemp )
-
-  local diag3, diag5
-
-  diag3 := Upper( Left( ad[ 1 ], 3 ) )
-  diag5 := Upper( Left( ad[ 1 ], 5 ) )
-
-  if hb_hHaskey( hTemp, diag3 )
-    hTemp[ diag3 ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ diag3 ][ 2 ] += 1
-    endif
-  endif
-
-  if hb_hHaskey( hTemp, diag5 )
-    hTemp[ diag5 ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ diag5 ][ 2 ] += 1
-    endif
-  endif
-
-  if between_diag( diag3, 'E40', 'E46' )
-    hTemp[ 'E40_E46' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'E40_E46' ][ 2 ] += 1
-    endif
-  elseif between_diag( diag5, 'Y83.2', 'Y83.4' )
-    hTemp[ 'Y83.2_4' ][ 1 ] += 1
-    if ad[ 2 ] == 1
-      hTemp[ 'Y83.2_4' ][ 2 ] += 1
-    endif
-  endif
-  return nil
-*/

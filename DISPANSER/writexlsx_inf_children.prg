@@ -42,7 +42,6 @@ function writexlsx_inf_children( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
 
   header_bold_sost := fmt_excel_hc_vc_wrap( workbook )
   format_set_bold( header_bold_sost )
-//  format_set_bg_color( header_bold_sost, 0xff3db9 )
   format_set_font_size( header_bold_sost, 12 )
 
   titul_bold := fmt_excel_hl_vc_wrap( workbook )
@@ -59,7 +58,6 @@ function writexlsx_inf_children( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
   titul_table_bold := fmt_excel_hc_vc_wrap( workbook )
   format_set_bold( titul_table_bold )
   format_set_font_size( titul_table_bold, 11 )
-//  format_set_bg_color( titul_table_thin, 0xffff00 )
   format_set_border( titul_table_bold, LXW_BORDER_THIN )
 
   titul_table_yelow := fmt_excel_hc_vc_wrap( workbook )
@@ -71,19 +69,18 @@ function writexlsx_inf_children( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
   titul_table_bold_green := fmt_excel_hc_vc_wrap( workbook )
   format_set_bold( titul_table_bold_green )
   format_set_font_size( titul_table_bold_green, 11 )
-  format_set_bg_color( titul_table_bold_green, 0x89ead3 ) //0x547346 )
+  format_set_bg_color( titul_table_bold_green, 0x89ead3 )
   format_set_border( titul_table_bold_green, LXW_BORDER_THIN )
 
   note_titul := fmt_excel_hc_vc_wrap( workbook )
   format_set_bold( note_titul )
   format_set_font_size( note_titul, 9 )
-  format_set_bg_color( note_titul, 0x89ead3 ) //0x547346 )
+  format_set_bg_color( note_titul, 0x89ead3 )
   format_set_border( note_titul, LXW_BORDER_THIN )
 
   note_text := fmt_excel_hc_vc_wrap( workbook )
   format_set_italic( note_text )
   format_set_font_size( note_text, 11 )
-//  format_set_bg_color( note_text, 0x89ead3 ) //0x547346 )
   format_set_border( note_text, LXW_BORDER_THIN )
 
   t25_10 := fmt_excel_hc_vc_wrap( workbook )
@@ -98,7 +95,6 @@ function writexlsx_inf_children( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
 
   titul_table_thin := fmt_excel_hc_vc_wrap( workbook )
   format_set_font_size( titul_table_thin, 9 )
-//  format_set_bg_color( titul_table_thin, 0xffff00 )
   format_set_border( titul_table_thin, LXW_BORDER_THIN )
 
   block_FIO := fmt_excel_hc_vc_wrap( workbook )
@@ -164,7 +160,6 @@ function writexlsx_inf_children( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
 
   text_thin := fmt_excel_hl_vc_wrap( workbook )
   format_set_font_size( text_thin, 11 )
-//  format_set_bg_color( titul_table_thin, 0xffff00 )
   format_set_border( text_thin, LXW_BORDER_THIN )
 
 
@@ -1445,7 +1440,7 @@ function writexlsx_inf_children( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
 
   return nil
 
-// 23.11.26
+// 24.11.26
 function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
 
     Local ws7, cColorTab7, text_thin_svod,text_thin_svod_center, header_bold
@@ -1467,13 +1462,11 @@ function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
 
   format_set_font_name( text_thin_svod, 'Arial' )
   format_set_font_size( text_thin_svod, 10 )
-//  format_set_bg_color( titul_table_thin, 0xffff00 )
   format_set_border( text_thin_svod, LXW_BORDER_THIN )
 
   text_thin_svod_center := fmt_excel_hc_vc_wrap( wb )
   format_set_font_name( text_thin_svod_center, 'Arial' )
   format_set_font_size( text_thin_svod_center, 10 )
-//  format_set_bg_color( titul_table_thin, 0xffff00 )
   format_set_border( text_thin_svod_center, LXW_BORDER_THIN )
 
 
@@ -1530,7 +1523,6 @@ function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
   row_single_number( wb, ws7, 22, 18, 13, 'для диспансерного наблюдения в амбулаторных условиях', '=I66+I137+I208+I263', .t. )
   row_single_number( wb, ws7, 23, 19, 13, 'для обследования и лечения в стационарных условиях за счет средств ОМС', '=I67+I138+I209+I264', .t. )
   row_single_number( wb, ws7, 24, 20, 13, 'для обследования и лечения в стационарных условиях с использованием ВМП', '=I68+I139+I210+I265', .t. )
-//  row_single_number( wb, ws7, 25, 21, 13, 'Распределение несовершеннолетних в возрасте 13 - 17 лет включительно по медицинским группам для занятия физкультурой', '=I27+I28+I29+I30+I31', .f. )
   row_single_number( wb, ws7, 25, 21, 13, 'Распределение несовершеннолетних в возрасте 13 - 17 лет включительно по медицинским группам для занятия физкультурой', '=I27+I28+I29+I30', .f. )
 
   total_fiz1 := hYoung13_14[ 'F1' ] + hYoung15_17[ 'F1' ] + hGirl13_14[ 'F1' ] + hGirl15_17[ 'F1' ]
@@ -1582,8 +1574,8 @@ function svod_new( wb, hYoung15_17, hYoung13_14, hGirl15_17, hGirl13_14 )
   worksheet_write_string( ws7, 38, 7, 'Количество подростков с впервые выявленной патологией (чел)', text_thin_svod_center )
   worksheet_write_string( ws7, 38, 8, 'Направлено на 2 этап для дообследования и лечения из количества подростков с патологией по результатам осмотров (чел)', text_thin_svod_center )
 
-  row_seven_numbers( wb, ws7, 39, 34, 27.6, 'Профилактические осмотры мальчиков в возрасте 13-17 лет включительно', 0, sum_total_young, 0, '=IFERROR(ROUND(D40/C40*100,1),0)', '=I62+I133', 0, 0, .t. )
-  row_seven_numbers( wb, ws7, 40, 35, 27.6, 'Профилактические осмотры девочек в возрасте 13-17 лет включительно', 0, sum_total_girl, 0, '=IFERROR(ROUND(D41/C41*100,1),0)', '=I204+I259', 0, 0, .t. )
+  row_seven_numbers( wb, ws7, 39, 34, 27.6, 'Профилактические осмотры мальчиков в возрасте 13-17 лет включительно', 0, sum_total_young, 0, '=IFERROR(ROUND(D40/C40*100,1),0)', '=I62+I133', '=I205+I260', hYoung13_14[ 'ETAP_II' ] + hYoung15_17[ 'ETAP_II' ], .t. )
+  row_seven_numbers( wb, ws7, 40, 35, 27.6, 'Профилактические осмотры девочек в возрасте 13-17 лет включительно', 0, sum_total_girl, 0, '=IFERROR(ROUND(D41/C41*100,1),0)', '=I204+I259', '=I63+I134', hGirl13_14[ 'ETAP_II' ] + hGirl15_17[ 'ETAP_II' ], .t. )
   row_seven_numbers( wb, ws7, 41, 36, 13, 'ВСЕГО', '=C40+C41', '=D40+D41', '=E40+E41', '=IFERROR(ROUND(D42/C42*100,1),0)', '=G40+G41', '=H40+H41', '=I40+I41', .f. )
 
   worksheet_set_row( ws7, 42, 3.0 )
@@ -1994,17 +1986,16 @@ function empty_rows( ws, value, count, height )
 
   return nil
 
-// 19.11.26
+// 24.11.26
 function row_single_number( wb, ws, row, num_str, heigh, text, value, lColor )
 
-  static text_thin_svod
-  local block_value
+//  static text_thin_svod
+  local text_thin_svod, block_value
 
   if HB_ISNIL( text_thin_svod )
     text_thin_svod := fmt_excel_hl_vc_wrap( wb )
     format_set_font_name( text_thin_svod, 'Arial' )
     format_set_font_size( text_thin_svod, 10 )
-//    format_set_bg_color( titul_table_thin, 0xffff00 )
     format_set_border( text_thin_svod, LXW_BORDER_THIN )
   endif
 
@@ -2017,7 +2008,6 @@ function row_single_number( wb, ws, row, num_str, heigh, text, value, lColor )
     format_set_bg_color( block_value, 0xcdcdcd )
   endif
   format_set_border( block_value, LXW_BORDER_THIN )
-//  format_set_num_format( block_value, '#,###0.000' )
 
   worksheet_set_row( ws, row, heigh )
 
@@ -2031,17 +2021,16 @@ function row_single_number( wb, ws, row, num_str, heigh, text, value, lColor )
 
   return nil
 
-// 14.11.26
+// 24.11.26
 function row_two_numbers( wb, ws, row, num_str, heigh, text, value, next_value )
 
-  static text_thin_svod
-  static block_value, block_next_value
+  local text_thin_svod
+  local block_value, block_next_value
 
   if HB_ISNIL( text_thin_svod )
     text_thin_svod := fmt_excel_hl_vc_wrap( wb )
     format_set_font_name( text_thin_svod, 'Arial' )
     format_set_font_size( text_thin_svod, 10 )
-//    format_set_bg_color( titul_table_thin, 0xffff00 )
     format_set_border( text_thin_svod, LXW_BORDER_THIN )
   endif
 
@@ -2051,7 +2040,6 @@ function row_two_numbers( wb, ws, row, num_str, heigh, text, value, next_value )
     format_set_font_size( block_value, 10 )
     format_set_bg_color( block_value, 0xffffc3 )
     format_set_border( block_value, LXW_BORDER_THIN )
-//    format_set_num_format( block_value, '#,###0.000' )
   endif
 
   if HB_ISNIL( block_next_value )
@@ -2076,16 +2064,15 @@ function row_two_numbers( wb, ws, row, num_str, heigh, text, value, next_value )
 
   return nil
 
-// 13.11.26
+// 24.11.26
 function row_three_numbers( wb, ws, row, num_str, heigh, text, vsego, percent, first )
 
-  static text_thin_svod, block_empty, block_gray
+  local text_thin_svod, block_empty, block_gray
 
   if HB_ISNIL( text_thin_svod )
     text_thin_svod := fmt_excel_hl_vc_wrap( wb )
     format_set_font_name( text_thin_svod, 'Arial' )
     format_set_font_size( text_thin_svod, 10 )
-//    format_set_bg_color( titul_table_thin, 0xffff00 )
     format_set_border( text_thin_svod, LXW_BORDER_THIN )
   endif
 
@@ -2116,16 +2103,15 @@ function row_three_numbers( wb, ws, row, num_str, heigh, text, vsego, percent, f
 
   return nil
 
-// 13.11.26
+// 24.11.26
 function row_SVOD_MKB10( wb, ws, row, num_str, heigh, text, arr, total )
 
-  static text_thin_svod, block_empty, block_gray
+  local text_thin_svod, block_empty, block_gray
 
   if HB_ISNIL( text_thin_svod )
     text_thin_svod := fmt_excel_hl_vc_wrap( wb )
     format_set_font_name( text_thin_svod, 'Arial' )
     format_set_font_size( text_thin_svod, 10 )
-//    format_set_bg_color( titul_table_thin, 0xffff00 )
     format_set_border( text_thin_svod, LXW_BORDER_THIN )
   endif
 
@@ -2171,24 +2157,20 @@ function row_seven_numbers( wb, ws, row, num_str, heigh, text, val1, val2, val3,
     format_set_bg_color( block_value, 0xcdcdcd )
   endif
   format_set_border( block_value, LXW_BORDER_THIN )
-//  format_set_num_format( block_value, '#,###0.000' )
 
   block_value_gray := fmt_excel_hc_vc_wrap( wb )
   format_set_font_name( block_value_gray, 'Arial' )
   format_set_font_size( block_value_gray, 10 )
   format_set_bg_color( block_value_gray, 0xcdcdcd )
   format_set_border( block_value_gray, LXW_BORDER_THIN )
-//  format_set_num_format( block_value_gray, '#,###0.000' )
 
   text_thin_svod := fmt_excel_hl_vc_wrap( wb )
   format_set_font_name( text_thin_svod, 'Arial' )
   format_set_font_size( text_thin_svod, 10 )
-//  format_set_bg_color( titul_table_thin, 0xffff00 )
   format_set_border( text_thin_svod, LXW_BORDER_THIN )
 
   worksheet_set_row( ws, row, heigh )
   worksheet_write_number( ws, row, 0, num_str, text_thin_svod )
-//  worksheet_merge_range( ws, row, 1, row, 5, text, text_thin_svod )
   worksheet_write_string( ws, row, 1, text, text_thin_svod)
 
   if ValType( val1 ) == 'N'
