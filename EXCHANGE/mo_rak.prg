@@ -7,7 +7,7 @@
 Static lcount_uch := 1
 Static lcount_otd := 1
 
-// 22.06.26 прочитать и 'разнести' по базам данных РАК
+// 25.11.26 прочитать и 'разнести' по базам данных РАК
 Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
 
   Local fl_akt, fl_schet, blk_akt, blk_schet, i, s, s1, arr_s := {}, t_arr[ 2 ], ;
@@ -342,7 +342,7 @@ Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
             'принято к оплате: ' + lstr( tmp3->_SUMMAP, 15, 2 ) + 'р.'
           If !Empty( tmp3->_SANK_MEK )
             If fl_2019
-              s += ', санкции: ' + lstr( tmp3->_SANK_MEK, 15, 2 ) + 'р.'
+              s += ', санкции МЭК: ' + lstr( tmp3->_SANK_MEK, 15, 2 ) + 'р.' // 25.11.26 ', санкции: '
             Else
               s += ', санкции МЭК: ' + lstr( tmp3->_SANK_MEK, 15, 2 ) + 'р.'
             Endif
@@ -400,7 +400,7 @@ Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
                 'принято к оплате: ' + lstr( tmp4->_SUMP, 15, 2 ) + 'р.'
               If !Empty( tmp4->_SANK_MEK )
                 If fl_2019
-                  s += ', санкции: ' + lstr( tmp4->_SANK_MEK, 15, 2 ) + 'р.'
+                  s += ', санкции МЭК: ' + lstr( tmp4->_SANK_MEK, 15, 2 ) + 'р.' // 25.11.26 ', санкции: '
                 Else
                   s += ', санкции МЭК: ' + lstr( tmp4->_SANK_MEK, 15, 2 ) + 'р.'
                 Endif
@@ -574,7 +574,7 @@ Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
                   Endif
                 endif
               Endif
-              If !emptyall( tmp6->S_SUM, tmp6->PENALTY )
+              If !emptyall( tmp6->S_SUM, tmp6->PENALTY ) .or. tmp6->REFREASON > 0 //25.11.26
                 raksh->REFREASON := tmp6->REFREASON
                 StrFile( Space( 5 ) + '... снятие по данному дефекту ...'  + hb_eol(), cFileProtokol, .t. )
               Endif
@@ -1023,7 +1023,7 @@ Function f1_view_rak_akt_schet( nk, ob, regim )
   Return ret
 
 // 11.05.26
-Function view_rak_akt_schet_human( lkod_raks )
+Function view_rak_akt_schet_human( lkod_raks ) 
 
   Local blk, t_arr[ BR_LEN ], buf := SaveScreen()
   Local ar := getinivar( tmp_ini(), { { 'RAB_MESTO', 'rak_min', '1' } } )
@@ -1044,7 +1044,7 @@ Function view_rak_akt_schet_human( lkod_raks )
   endif  
   Go Top
   If Eof()
-    Return func_error( 4, 'Не обнаружено пациентов в данном счете' )
+    Return func_error( 4, 'Не обнаружено пациентов в данном счете 11' )
   Endif
   t_arr[ BR_TOP ] := T_ROW
   t_arr[ BR_BOTTOM ] := MaxRow() -1
