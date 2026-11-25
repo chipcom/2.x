@@ -341,7 +341,8 @@ Function svod_inf_dnl_LU( Loc_kod, hYoungMan13_14, hYoungMan15_17, hGirl13_14, h
   Next
   ii := 1
   is_2 := ( human->ishod == 302 ) // это второй этап
-  hArr := read_arr_pn( Loc_kod, .t., human->K_DATA )
+//  hArr := read_arr_pn( Loc_kod, .t., human->K_DATA )
+  hArr := read_arr_pn_new( Loc_kod, .t., human->K_DATA )
 
   mGRUPPA := human_->RSLT_NEW - 331// L_BEGIN_RSLT
 
@@ -975,7 +976,54 @@ function fill_zabol( ad, hTemp )
     endif
   endif
   return nil
+  
+// 25.11.26
+function arr_diagPN_hash_after( arr )
 
+  local hDiag := hb_Hash()
+
+  hb_hSet( hDiag, 'diag', AllTrim( arr[ 1 ] ) )
+  hb_hSet( hDiag, 'first_set', arr[ 2 ] )
+  hb_hSet( hDiag, 'disp_nab', arr[ 3 ] )
+  hb_hSet( hDiag, 'dop_cons_set', arr[ 4 ] )
+  hb_hSet( hDiag, 'dop_cons_usl', arr[ 5 ] )
+  hb_hSet( hDiag, 'dop_cons_uch', arr[ 6 ] )
+  hb_hSet( hDiag, 'dop_cons_done', arr[ 7 ] )
+  hb_hSet( hDiag, 'dop_cons_done_usl', arr[ 8 ] )
+  hb_hSet( hDiag, 'dop_cons_done_uch', arr[ 9 ] )
+  hb_hSet( hDiag, 'lech_set', arr[ 10 ] )
+  hb_hSet( hDiag, 'lech_usl', arr[ 11 ] )
+  hb_hSet( hDiag, 'lech_uch', arr[ 12 ] )
+  hb_hSet( hDiag, 'reab_set', arr[ 13 ] )
+  hb_hSet( hDiag, 'reab_usl', arr[ 14 ] )
+  hb_hSet( hDiag, 'reab_uch', arr[ 15 ] )
+  hb_hSet( hDiag, 'vmp', arr[ 16 ] )
+
+  return hDiag
+
+// 25.11.26
+function arr_diagPN_hash_before( arr )
+
+  local hDiag := hb_Hash()
+
+  hb_hSet( hDiag, 'diag', AllTrim( arr[ 1 ] ) )
+  hb_hSet( hDiag, 'disp_nab', arr[ 2 ] )
+  hb_hSet( hDiag, 'lech_set', arr[ 3 ] )
+  hb_hSet( hDiag, 'lech_usl', arr[ 4 ] )
+  hb_hSet( hDiag, 'lech_uch', arr[ 5 ] )
+  hb_hSet( hDiag, 'lech_usl_done', arr[ 6 ] )
+  hb_hSet( hDiag, 'lech_uch_done', arr[ 7 ] )
+  hb_hSet( hDiag, 'reab_set', arr[ 8 ] )
+  hb_hSet( hDiag, 'reab_usl', arr[ 9 ] )
+  hb_hSet( hDiag, 'reab_uch', arr[ 10 ] )
+  hb_hSet( hDiag, 'reab_usl_done', arr[ 11 ] )
+  hb_hSet( hDiag, 'reab_uch_done', arr[ 12 ] )
+  hb_hSet( hDiag, 'vmp_rek', arr[ 13 ] )
+  hb_hSet( hDiag, 'vmp_done', arr[ 14 ] )
+
+  return hDiag
+
+/*
 // 24.11.26
 function arr_PN_hash( arr )
 
@@ -1014,15 +1062,15 @@ function arr_PN_hash( arr )
         Case arr[ i, 1 ] == '16.1' .and. ValType( arr[ i, 2 ] ) == 'N'
           hb_hSet( hPN, 'diag_16_1', arr[ i, 2 ] )
         Case arr[ i, 1 ] == '16.2' .and. ValType( arr[ i, 2 ] ) == 'A' .and. Len( arr[ i, 2 ] ) >= 16
-          AAdd( aDiagAfter, arr_diagPN_hash( arr[ i, 2 ] ) )
+          AAdd( aDiagAfter, arr_diagPN_hash_after( arr[ i, 2 ] ) )
         Case arr[ i, 1 ] == '16.3' .and. ValType( arr[ i, 2 ] ) == 'A' .and. Len( arr[ i, 2 ] ) >= 16
-          AAdd( aDiagAfter, arr_diagPN_hash( arr[ i, 2 ] ) )
+          AAdd( aDiagAfter, arr_diagPN_hash_after( arr[ i, 2 ] ) )
         Case arr[ i, 1 ] == '16.4' .and. ValType( arr[ i, 2 ] ) == 'A' .and. Len( arr[ i, 2 ] ) >= 16
-          AAdd( aDiagAfter, arr_diagPN_hash( arr[ i, 2 ] ) )
+          AAdd( aDiagAfter, arr_diagPN_hash_after( arr[ i, 2 ] ) )
         Case arr[ i, 1 ] == '16.5' .and. ValType( arr[ i, 2 ] ) == 'A' .and. Len( arr[ i, 2 ] ) >= 16
-          AAdd( aDiagAfter, arr_diagPN_hash( arr[ i, 2 ] ) )
+          AAdd( aDiagAfter, arr_diagPN_hash_after( arr[ i, 2 ] ) )
         Case arr[ i, 1 ] == '16.6' .and. ValType( arr[ i, 2 ] ) == 'A' .and. Len( arr[ i, 2 ] ) >= 16
-          AAdd( aDiagAfter, arr_diagPN_hash( arr[ i, 2 ] ) )
+          AAdd( aDiagAfter, arr_diagPN_hash_after( arr[ i, 2 ] ) )
       endcase
 //          hb_hSet( hPN, '', arr[ i, 2 ] )
     endif
@@ -1030,27 +1078,4 @@ function arr_PN_hash( arr )
   hb_hSet( hPN, 'diag_after', aDiagAfter )
 
   return hPN
-
-// 24.11.26
-function arr_diagPN_hash( arr )
-
-  local hDiag := hb_Hash()
-
-  hb_hSet( hDiag, 'diag', AllTrim( arr[ 1 ] ) )
-  hb_hSet( hDiag, 'first_set', arr[ 2 ] )
-  hb_hSet( hDiag, 'disp_nab', arr[ 3 ] )
-  hb_hSet( hDiag, 'dop_cons_set', arr[ 4 ] )
-  hb_hSet( hDiag, 'dop_cons_usl', arr[ 5 ] )
-  hb_hSet( hDiag, 'dop_cons_uch', arr[ 6 ] )
-  hb_hSet( hDiag, 'dop_cons_done', arr[ 7 ] )
-  hb_hSet( hDiag, 'dop_cons_done_usl', arr[ 8 ] )
-  hb_hSet( hDiag, 'dop_cons_done_uch', arr[ 9 ] )
-  hb_hSet( hDiag, 'lech_set', arr[ 10 ] )
-  hb_hSet( hDiag, 'lech_usl', arr[ 11 ] )
-  hb_hSet( hDiag, 'lech_uch', arr[ 12 ] )
-  hb_hSet( hDiag, 'reab_set', arr[ 13 ] )
-  hb_hSet( hDiag, 'reab_usl', arr[ 14 ] )
-  hb_hSet( hDiag, 'reab_uch', arr[ 15 ] )
-  hb_hSet( hDiag, 'vmp', arr[ 16 ] )
-
-  return hDiag
+*/

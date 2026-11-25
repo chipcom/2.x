@@ -579,7 +579,6 @@ Function read_arr_pn( lkod, is_all, mdata )
   Local aliasIsUse := aliasisalreadyuse( 'TPERS' )
   Local oldSelect
   Local mvar
-  local hArr  //, js
 
   // Private mvar
   If ! aliasIsUse
@@ -869,13 +868,343 @@ Function read_arr_pn( lkod, is_all, mdata )
     Select( oldSelect )
   Endif
 
-  hArr := arr_PN_hash( arr )
-//  if AllTrim( human->uch_doc ) == '160734'
-//    js := hb_jsonEncode( hArr, .f. )
-//    altd()
-//  endif
-//  Return Nil
-  return hArr
+  Return Nil
+
+// 25.11.26
+Function read_arr_pn_new( lkod, is_all, mdata )
+
+  Local arr, i, k
+  Local aliasIsUse := aliasisalreadyuse( 'TPERS' )
+  Local oldSelect
+  Local mvar
+  local js
+
+  local hPN := hb_Hash()
+  local aDiagBefore := {}, aDiagAfter := {}
+
+  // Private mvar
+  If ! aliasIsUse
+    oldSelect := Select()
+    r_use( dir_server() + 'mo_pers',, 'TPERS' )
+  Endif
+
+  Default is_all To .t.
+  default mdata to Date()
+  arr := read_arr_dispans( lkod )
+  For i := 1 To Len( arr )
+    If ValType( arr[ i ] ) == 'A' .and. ValType( arr[ i, 1 ] ) == 'C'
+      If arr[ i, 1 ] == '1' .and. ValType( arr[ i, 2 ] ) == 'N'
+        mperiod := arr[ i, 2 ]
+        hb_hSet( hPN, 'period', arr[ i, 2 ] )   // период пациента
+      Elseif is_all
+        Do Case
+        Case arr[ i, 1 ] == '0' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1mobilbr := arr[ i, 2 ]
+          hb_hSet( hPN, 'mobil', arr[ i, 2 ] )    // мобильная бригада 0 - нет, 1 - да
+        Case arr[ i, 1 ] == '2' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1mesto_prov := arr[ i, 2 ]
+          hb_hSet( hPN, 'mesto_prov', arr[ i, 2 ] )   // место проведения
+        Case arr[ i, 1 ] == '5' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1kateg_uch := arr[ i, 2 ]
+          hb_hSet( hPN, 'num_karta', arr[ i, 2 ] )   // № амбулаторной карты
+        Case arr[ i, 1 ] == '6' .and. ValType( arr[ i, 2 ] ) == 'C'
+          m1MO_PR := arr[ i, 2 ]
+          hb_hSet( hPN, 'mo_prik', arr[ i, 2 ] )    // МО прикрепления
+        Case arr[ i, 1 ] == '8' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1school := arr[ i, 2 ]
+          hb_hSet( hPN, 'school', arr[ i, 2 ] )
+        Case arr[ i, 1 ] == '12.1' .and. ValType( arr[ i, 2 ] ) == 'N'
+          mWEIGHT := arr[ i, 2 ]
+          hb_hSet( hPN, 'weight', arr[ i, 2 ] )   // вес
+        Case arr[ i, 1 ] == '12.2' .and. ValType( arr[ i, 2 ] ) == 'N'
+          mHEIGHT := arr[ i, 2 ]
+          hb_hSet( hPN, 'height', arr[ i, 2 ] )         // рост
+        Case arr[ i, 1 ] == '12.3' .and. ValType( arr[ i, 2 ] ) == 'N'
+          mPER_HEAD := arr[ i, 2 ]
+          hb_hSet( hPN, 'circle_head', arr[ i, 2 ] )       // окружность головы
+        Case arr[ i, 1 ] == '12.4' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1FIZ_RAZV := arr[ i, 2 ]
+          hb_hSet( hPN, 'fiz_razv', arr[ i, 2 ] )               // физ. развитие 
+        Case arr[ i, 1 ] == '12.4.1' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1FIZ_RAZV1 := arr[ i, 2 ]
+          hb_hSet( hPN, 'fiz_razv1', arr[ i, 2 ] )               // физ. развитие 1
+        Case arr[ i, 1 ] == '12.4.2' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1FIZ_RAZV2 := arr[ i, 2 ]
+          hb_hSet( hPN, 'fiz_razv2', arr[ i, 2 ] )               // физ. развитие 2
+
+        Case arr[ i, 1 ] == '13.1.1' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih11 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.1.2' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih12 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.1.3' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih13 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.1.4' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih14 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.1.5' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih24 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.1.6' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih25 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.1.7' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih26 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.1.8' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih27 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.1.9' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih28 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.1.10' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih29 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.1.11' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih30 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.1.12' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih31 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.2.1' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih21 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.2.2' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih22 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.2.3' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih23 := arr[ i, 2 ]
+
+        Case arr[ i, 1 ] == '13.2.4' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih32 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.2.5' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih33 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.2.6' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih34 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.2.7' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih35 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.2.8' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih36 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.2.9' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih37 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.2.10' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih38 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.2.11' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih39 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.2.12' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih40 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.2.13' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih41 := arr[ i, 2 ]
+
+        Case arr[ i, 1 ] == '14.1.P' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m141p := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '14.1.Ax' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m141ax := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '14.1.Fa' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m141fa := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '14.2.P' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m142p := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '14.2.Ax' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m142ax := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '14.2.Ma' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m142ma := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '14.2.Me' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m142me := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '14.2.Me1' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m142me1 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '14.2.Me2' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m142me2 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '14.2.Me3' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1142me3 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '14.2.Me4' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1142me4 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '14.2.Me5' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1142me5 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '15.1' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1diag_15_1 := arr[ i, 2 ]
+          hb_hSet( hPN, 'diag_15_1', arr[ i, 2 ] )
+        Case arr[ i, 1 ] == '15.2' .and. ValType( arr[ i, 2 ] ) == 'A' .and. Len( arr[ i, 2 ] ) >= 14
+          mdiag_15_1_1 := arr[ i, 2, 1 ]
+          For k := 2 To 14
+            If Len( arr[ i, 2 ] ) >= k
+              mvar := 'm1diag_15_1_' + lstr( k )
+              &mvar := arr[ i, 2, k ]
+            Endif
+          Next
+          AAdd( aDiagBefore, arr_diagPN_hash_before( arr[ i, 2 ] ) )
+        Case arr[ i, 1 ] == '15.3' .and. ValType( arr[ i, 2 ] ) == 'A' .and. Len( arr[ i, 2 ] ) >= 14
+          mdiag_15_2_1 := arr[ i, 2, 1 ]
+          For k := 2 To 14
+            If Len( arr[ i, 2 ] ) >= k
+              mvar := 'm1diag_15_2_' + lstr( k )
+              &mvar := arr[ i, 2, k ]
+            Endif
+          Next
+          AAdd( aDiagBefore, arr_diagPN_hash_before( arr[ i, 2 ] ) )
+        Case arr[ i, 1 ] == '15.4' .and. ValType( arr[ i, 2 ] ) == 'A' .and. Len( arr[ i, 2 ] ) >= 14
+          mdiag_15_3_1 := arr[ i, 2, 1 ]
+          For k := 2 To 14
+            If Len( arr[ i, 2 ] ) >= k
+              mvar := 'm1diag_15_3_' + lstr( k )
+              &mvar := arr[ i, 2, k ]
+            Endif
+          Next
+          AAdd( aDiagBefore, arr_diagPN_hash_before( arr[ i, 2 ] ) )
+        Case arr[ i, 1 ] == '15.5' .and. ValType( arr[ i, 2 ] ) == 'A' .and. Len( arr[ i, 2 ] ) >= 14
+          mdiag_15_4_1 := arr[ i, 2, 1 ]
+          For k := 2 To 14
+            If Len( arr[ i, 2 ] ) >= k
+              mvar := 'm1diag_15_4_' + lstr( k )
+              &mvar := arr[ i, 2, k ]
+            Endif
+          Next
+          AAdd( aDiagBefore, arr_diagPN_hash_before( arr[ i, 2 ] ) )
+        Case arr[ i, 1 ] == '15.6' .and. ValType( arr[ i, 2 ] ) == 'A' .and. Len( arr[ i, 2 ] ) >= 14
+          mdiag_15_5_1 := arr[ i, 2, 1 ]
+          For k := 2 To 14
+            If Len( arr[ i, 2 ] ) >= k
+              mvar := 'm1diag_15_5_' + lstr( k )
+              &mvar := arr[ i, 2, k ]
+            Endif
+          Next
+          AAdd( aDiagBefore, arr_diagPN_hash_before( arr[ i, 2 ] ) )
+        Case arr[ i, 1 ] == '15.9' .and. ValType( arr[ i, 2 ] ) == 'N'
+          mGRUPPA_DO := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '15.10' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1GR_FIZ_DO := arr[ i, 2 ]
+
+        Case arr[ i, 1 ] == '16.1' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1diag_16_1 := arr[ i, 2 ]
+          hb_hSet( hPN, 'diag_16_1', arr[ i, 2 ] )
+        Case arr[ i, 1 ] == '16.2' .and. ValType( arr[ i, 2 ] ) == 'A' .and. Len( arr[ i, 2 ] ) >= 16
+          mdiag_16_1_1 := arr[ i, 2, 1 ]
+          For k := 2 To 16
+            If Len( arr[ i, 2 ] ) >= k
+              mvar := 'm1diag_16_1_' + lstr( k )
+              &mvar := arr[ i, 2, k ]
+            Endif
+          Next
+          AAdd( aDiagAfter, arr_diagPN_hash_after( arr[ i, 2 ] ) )
+        Case arr[ i, 1 ] == '16.3' .and. ValType( arr[ i, 2 ] ) == 'A' .and. Len( arr[ i, 2 ] ) >= 16
+          mdiag_16_2_1 := arr[ i, 2, 1 ]
+          For k := 2 To 16
+            If Len( arr[ i, 2 ] ) >= k
+              mvar := 'm1diag_16_2_' + lstr( k )
+              &mvar := arr[ i, 2, k ]
+            Endif
+          Next
+          AAdd( aDiagAfter, arr_diagPN_hash_after( arr[ i, 2 ] ) )
+        Case arr[ i, 1 ] == '16.4' .and. ValType( arr[ i, 2 ] ) == 'A' .and. Len( arr[ i, 2 ] ) >= 16
+          mdiag_16_3_1 := arr[ i, 2, 1 ]
+          For k := 2 To 16
+            If Len( arr[ i, 2 ] ) >= k
+              mvar := 'm1diag_16_3_' + lstr( k )
+              &mvar := arr[ i, 2, k ]
+            Endif
+          Next
+          AAdd( aDiagAfter, arr_diagPN_hash_after( arr[ i, 2 ] ) )
+        Case arr[ i, 1 ] == '16.5' .and. ValType( arr[ i, 2 ] ) == 'A' .and. Len( arr[ i, 2 ] ) >= 16
+          mdiag_16_4_1 := arr[ i, 2, 1 ]
+          For k := 2 To 16
+            If Len( arr[ i, 2 ] ) >= k
+              mvar := 'm1diag_16_4_' + lstr( k )
+              &mvar := arr[ i, 2, k ]
+            Endif
+          Next
+          AAdd( aDiagAfter, arr_diagPN_hash_after( arr[ i, 2 ] ) )
+        Case arr[ i, 1 ] == '16.6' .and. ValType( arr[ i, 2 ] ) == 'A' .and. Len( arr[ i, 2 ] ) >= 16
+          mdiag_16_5_1 := arr[ i, 2, 1 ]
+          For k := 2 To 16
+            If Len( arr[ i, 2 ] ) >= k
+              mvar := 'm1diag_16_5_' + lstr( k )
+              &mvar := arr[ i, 2, k ]
+            Endif
+          Next
+          AAdd( aDiagAfter, arr_diagPN_hash_after( arr[ i, 2 ] ) )
+
+        Case arr[ i, 1 ] == '16.7' .and. ValType( arr[ i, 2 ] ) == 'A' .and. Len( arr[ i, 2 ] ) >= 8
+          m1invalid1 := arr[ i, 2, 1 ]
+          m1invalid2 := arr[ i, 2, 2 ]
+          minvalid3  := arr[ i, 2, 3 ]
+          minvalid4  := arr[ i, 2, 4 ]
+          m1invalid5 := arr[ i, 2, 5 ]
+          m1invalid6 := arr[ i, 2, 6 ]
+          minvalid7  := arr[ i, 2, 7 ]
+          m1invalid8 := arr[ i, 2, 8 ]
+        Case arr[ i, 1 ] == '16.8' .and. ValType( arr[ i, 2 ] ) == 'N'
+          // mGRUPPA := arr[i, 2]
+        Case arr[ i, 1 ] == '16.9' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1GR_FIZ := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '16.10' .and. ValType( arr[ i, 2 ] ) == 'A' .and. Len( arr[ i, 2 ] ) >= 3
+          m1privivki1 := arr[ i, 2, 1 ]
+          m1privivki2 := arr[ i, 2, 2 ]
+          mprivivki3  := arr[ i, 2, 3 ]
+        Case arr[ i, 1 ] == '16.11' .and. ValType( arr[ i, 2 ] ) == 'C'
+          mrek_form := PadR( arr[ i, 2 ], 255 )
+        Case arr[ i, 1 ] == '16.12' .and. ValType( arr[ i, 2 ] ) == 'C'
+          mrek_disp := PadR( arr[ i, 2 ], 255 )
+        Case is_all .and. arr[ i, 1 ] == '29' .and. ValType( arr[ i, 2 ] ) == 'A'
+          arr_usl_otkaz := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '47'
+          If ValType( arr[ i, 2 ] ) == 'N'
+            m1dopo_na  := arr[ i, 2 ]
+          Elseif ValType( arr[ i, 2 ] ) == 'A'
+            m1dopo_na  := arr[ i, 2 ][ 1 ]
+            If arr[ i, 2 ][ 2 ] > 0
+              TPERS->( dbGoto( arr[ i, 2 ][ 2 ] ) )
+              mtab_v_dopo_na := TPERS->tab_nom
+            Endif
+          Endif
+        Case arr[ i, 1 ] == '51' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1p_otk  := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '52'
+          If ValType( arr[ i, 2 ] ) == 'N'
+            m1napr_v_mo  := arr[ i, 2 ]
+          Elseif ValType( arr[ i, 2 ] ) == 'A'
+            m1napr_v_mo  := arr[ i, 2 ][ 1 ]
+            If arr[ i, 2 ][ 2 ] > 0
+              TPERS->( dbGoto( arr[ i, 2 ][ 2 ] ) )
+              mtab_v_mo := TPERS->tab_nom
+            Endif
+          Endif
+        Case arr[ i, 1 ] == '53' .and. ValType( arr[ i, 2 ] ) == 'A'
+          arr_mo_spec := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '54'
+          If ValType( arr[ i, 2 ] ) == 'N'
+            m1napr_stac := arr[ i, 2 ]
+          Elseif ValType( arr[ i, 2 ] ) == 'A'
+            m1napr_stac := arr[ i, 2 ][ 1 ]
+            If arr[ i, 2 ][ 2 ] > 0
+              TPERS->( dbGoto( arr[ i, 2 ][ 2 ] ) )
+              mtab_v_stac := TPERS->tab_nom
+            Endif
+          Endif
+        Case arr[ i, 1 ] == '55' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1profil_stac := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '56'
+          If ValType( arr[ i, 2 ] ) == 'N'
+            m1napr_reab := arr[ i, 2 ]
+          Elseif ValType( arr[ i, 2 ] ) == 'A'
+            m1napr_reab := arr[ i, 2 ][ 1 ]
+            If arr[ i, 2 ][ 2 ] > 0
+              TPERS->( dbGoto( arr[ i, 2 ][ 2 ] ) )
+              mtab_v_reab := TPERS->tab_nom
+            Endif
+          Endif
+        Case arr[ i, 1 ] == '57' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1profil_kojki := arr[ i, 2 ]
+        Otherwise
+          For k := 1 To Len( np_arr_issled( mdata ) )
+            If arr[ i, 1 ] == '18.' + lstr( k ) .and. ValType( arr[ i, 2 ] ) == 'C'
+              mvar := 'MREZi' + lstr( k )
+              &mvar := PadR( arr[ i, 2 ], 17 )
+            Endif
+          Next
+        Endcase
+      Endif
+    Endif
+  Next
+  hb_hSet( hPN, 'diag_before', aDiagBefore )
+  hb_hSet( hPN, 'diag_after', aDiagAfter )
+  If ! aliasIsUse
+    TPERS->( dbCloseArea() )
+    Select( oldSelect )
+  Endif
+
+  if AllTrim( human->uch_doc ) == '12519'
+    js := hb_jsonEncode( hPn, .f. )
+    altd()
+  endif
+
+  return hPn
 
 // 27.10.25
 Function is_issled_pn( ausl, _period, arr, _pol, mdata )
@@ -1262,15 +1591,26 @@ Function f2_inf_dnl_karta( Loc_kod, kod_kartotek, lvozrast )
   s := st + '15.1. Практически здоров ' + iif( m1diag_15_1 == 0, Replicate( '_', 30 ), ub + st + RTrim( mdef_diagnoz ) + st + ue ) + ' (код по МКБ).'
   frd->( Eval( blk, s ) )
   //
-  mm_dispans := { { 'установлено ранее', 1 }, { 'установлено впервые', 2 }, { 'не установлено', 0 } }
-  mm_danet := { { 'да', 1 }, { 'нет', 0 } }
-  mm_usl := { { 'в амбулаторных условиях', 0 }, ;
+  mm_dispans := { ;
+    { 'установлено ранее', 1 }, ;
+    { 'установлено впервые', 2 }, ;
+    { 'не установлено', 0 } ;
+  }
+  mm_danet := { ;
+    { 'да', 1 }, ;
+    { 'нет', 0 } ;
+  }
+  mm_usl := { ;
+    { 'в амбулаторных условиях', 0 }, ;
     { 'в условиях дневного стационара', 1 }, ;
-    { 'в стационарных условиях', 2 } }
-  mm_uch := { { 'в муниципальных медицинских организациях', 1 }, ;
+    { 'в стационарных условиях', 2 } ;
+  }
+  mm_uch := { ;
+    { 'в муниципальных медицинских организациях', 1 }, ;
     { 'в государственных медицинских организациях субъекта Российской Федерации ', 0 }, ;
     { 'в федеральных медицинских организациях', 2 }, ;
-    { 'частных медицинских организациях', 3 } }
+    { 'частных медицинских организациях', 3 } ;
+  }
   mm_uch1 := AClone( mm_uch )
   AAdd( mm_uch1, { 'санаторно-курортных организациях', 4 } )
   mm_danet1 := { { 'оказана', 1 }, { 'не оказана', 0 } }
