@@ -25,7 +25,7 @@
 #define USL_SVIDPOM  14   // виды оказываемой медицинской помощи
 #define USL_ZAK_SL   15   // признак оплаты по законченному случаю
 
-// 19.11.26 
+// 25.11.26 
 Function verify_sluch( fl_view, ft )
 
   Local arrUslugi := {} // массив содержаший коды услуг в случае 
@@ -100,6 +100,7 @@ Function verify_sluch( fl_view, ft )
   local mDS_stac := 0     // дневной стационар при стационаре - 1 иначе - 0
   Local is_2_81_69 := .f. // наличие услуг телемедицины врач-врач
   local aSchoolXNIZ
+  local prvs21, ruleNapr
 //  local cUIDSPMO
 
   Default fl_view To .t.
@@ -5103,40 +5104,6 @@ Function verify_sluch( fl_view, ft )
 //    AAdd( ta, 'случай не может быть начат ранее 7 сентября' )
 //  Endif
 
-  // ПРОВЕРКА НАПРАВЛЕНИЯ ДЛЯ СЛУЧАЕВ ОТЛИЧНЫХ ОТ ДИСПАНСЕРИЗАЦИИ
-  If !emptyany( human_->NPR_MO, human_2->NPR_DATE ) .and. !Empty( s := verify_dend_mo( human_->NPR_MO, human_2->NPR_DATE, .t. ) )
-    AAdd( ta, 'направившая МО: ' + s )
-  Endif
-  If ( human_->USL_OK == USL_OK_HOSPITAL .and. SubStr( human_->FORMA14, 1, 1 ) == '0' .and. human_2->p_per != 4 ) .or. ;
-      ( human_->USL_OK == USL_OK_DAY_HOSPITAL )
-
-    s := 'при плановой госпитализации в стационар или при работе дневного стационара '
-    if Empty( human_2->NPR_DATE )
-      AAdd( ta, s + 'должно быть заполнено поле "Дата направления на госпитализацию"' )
-    else
-      if human_2->NPR_DATE > dBegin
-        AAdd( ta, s + '"Дата направления на госпитализацию" не может быть больше "Даты начала лечения"' )
-      Elseif ( human_2->NPR_DATE + 60 < dBegin ) .and. human_->PROFIL != 137
-        AAdd( ta, s + 'направлению на госпитализацию не может быть больше двух месяцев' )
-      Elseif ( human_2->NPR_DATE + 90 < dBegin ) .and. human_->PROFIL == 137
-        AAdd( ta, s + 'направлению на госпитализацию не может быть больше трех месяцев' )
-      Endif
-    endif
-
-    If Empty( human_->NPR_MO )
-      AAdd( ta, s + 'должно быть заполнено поле "Направившая МО"' )
-    Endif
-
-    // проверка номера направления на госпитализацию
-    napr_number := AllTrim( get_NAPR_MO( human->kod, _NPR_LECH ) ) 
-    if Empty( napr_number )
-        AAdd( ta, s + 'должно быть заполнено поле "Номер направления на госпитализацию"' )
-    endif
-    s := ''
-  elseIf human_->USL_OK == USL_OK_POLYCLINIC
-
-  endif
-
   human_->( g_rlock( 'forever' ) )  // заблокируем для последующего использования
 
   // определяем цель посещения для поликлиники
@@ -5178,6 +5145,69 @@ Function verify_sluch( fl_view, ft )
       + '> "Структурное подразделение по ГИС ОМС" = <' + AllTrim( str_lpu1 ) + '> ]' )
 */
     AAdd( ta, 'не определен вид помощи по справочнику услуг ТФОМС' )
+  endif
+
+  // ПРОВЕРКА НАПРАВЛЕНИЯ ДЛЯ СЛУЧАЕВ ОТЛИЧНЫХ ОТ ДИСПАНСЕРИЗАЦИИ
+  If !emptyany( human_->NPR_MO, human_2->NPR_DATE ) .and. !Empty( s := verify_dend_mo( human_->NPR_MO, human_2->NPR_DATE, .t. ) )
+    AAdd( ta, 'направившая МО: ' + s )
+  Endif
+  If ( human_->USL_OK == USL_OK_HOSPITAL .and. SubStr( human_->FORMA14, 1, 1 ) == '0' .and. human_2->p_per != 4 ) .or. ;
+      ( human_->USL_OK == USL_OK_DAY_HOSPITAL )
+
+    s := 'при плановой госпитализации в стационар или при работе дневного стационара '
+    if Empty( human_2->NPR_DATE )
+      AAdd( ta, s + 'должно быть заполнено поле "Дата направления на госпитализацию"' )
+    else
+      if human_2->NPR_DATE > dBegin
+        AAdd( ta, s + '"Дата направления на госпитализацию" не может быть больше "Даты начала лечения"' )
+      Elseif ( human_2->NPR_DATE + 60 < dBegin ) .and. human_->PROFIL != 137
+        AAdd( ta, s + 'направлению на госпитализацию не может быть больше двух месяцев' )
+      Elseif ( human_2->NPR_DATE + 90 < dBegin ) .and. human_->PROFIL == 137
+        AAdd( ta, s + 'направлению на госпитализацию не может быть больше трех месяцев' )
+      Endif
+    endif
+
+    If Empty( human_->NPR_MO )
+      AAdd( ta, s + 'должно быть заполнено поле "Направившая МО"' )
+    Endif
+
+    // проверка номера направления на госпитализацию
+    napr_number := AllTrim( get_NAPR_MO( human->kod, _NPR_LECH ) ) 
+    if Empty( napr_number )
+        AAdd( ta, s + 'должно быть заполнено поле "Номер направления на госпитализацию"' )
+    endif
+    s := ''
+  elseIf human_->USL_OK == USL_OK_POLYCLINIC .and. human_->VIDPOM == 13 .and. ;
+        ( AllTrim( human_->P_CEL ) != '1.3' )
+        
+    prvs21 := ret_prvs_v021( human_->PRVS )
+    ruleNapr := { 90, 46, 45, 2, 53, 88, 69, 71, 21, 68, 206, 207,  208,  215, 217,  219,  280,  283, 292,  306,  310,  321, 323,  72, 84, 20 }
+    if vozrast < 18
+      AAdd( ruleNapr, 52 )
+    endif
+    if AScan( ruleNapr, prvs21 ) == 0
+      if Empty( human_2->NPR_DATE )
+        AAdd( ta, 'Должно быть заполнено поле "Дата направления"' )
+      else
+        if human_2->NPR_DATE > dBegin
+          AAdd( ta, '"Дата направления" не может быть больше "Даты начала лечения"' )
+        Elseif ( human_2->NPR_DATE + 60 < dBegin )
+          AAdd( ta, 'Направлению не может быть больше двух месяцев' )
+        Elseif ( human_2->NPR_DATE + 90 < dBegin )
+          AAdd( ta, 'Направлению не может быть больше трех месяцев' )
+        Endif
+      endif
+
+      If Empty( human_->NPR_MO )
+        AAdd( ta, 'Должно быть заполнено поле "Направившая МО"' )
+      Endif
+
+      // проверка номера направления
+      napr_number := AllTrim( get_NAPR_MO( human->kod, _NPR_LECH ) ) 
+      if Empty( napr_number )
+        AAdd( ta, 'Должно быть заполнено поле "Номер направления"' )
+      endif
+    endif
   endif
 
   If Len( ta ) > 0
