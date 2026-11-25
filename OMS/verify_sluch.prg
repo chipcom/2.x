@@ -5178,7 +5178,7 @@ Function verify_sluch( fl_view, ft )
     endif
     s := ''
   elseIf human_->USL_OK == USL_OK_POLYCLINIC .and. human_->VIDPOM == 13 .and. ;
-        ( AllTrim( human_->P_CEL ) != '1.3' )
+        ( AllTrim( human_->P_CEL ) != '1.3' ) .and. ( human->k_data >= 0d20261101 ) // действует с 01.11.26
         
     prvs21 := ret_prvs_v021( human_->PRVS )
     ruleNapr := { 90, 46, 45, 2, 53, 88, 69, 71, 21, 68, 206, 207,  208,  215, 217,  219,  280,  283, 292,  306,  310,  321, 323,  72, 84, 20 }
