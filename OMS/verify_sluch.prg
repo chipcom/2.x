@@ -25,7 +25,7 @@
 #define USL_SVIDPOM  14   // виды оказываемой медицинской помощи
 #define USL_ZAK_SL   15   // признак оплаты по законченному случаю
 
-// 25.11.26 
+// 26.11.26 
 Function verify_sluch( fl_view, ft )
 
   Local arrUslugi := {} // массив содержаший коды услуг в случае 
@@ -1188,8 +1188,6 @@ Function verify_sluch( fl_view, ft )
           kol_2_60++
         Elseif eq_any( alltrim_lshifr, '2.4.1', '2.4.2' )
           kol_2_4++
-//        Elseif eq_any( alltrim_lshifr, '2.92.1', '2.92.2', '2.92.3' ) .or. ;
-//          eq_any( alltrim_lshifr, '2.92.4', '2.92.5', '2.92.6', '2.92.7', '2.92.8', '2.92.9', '2.92.10', '2.92.11', '2.92.12', '2.92.13' )
         elseif is_usluga_dist_nabl( alltrim_lshifr, mk_data ) // дистанционное наблюдение
 //        elseif eq_any( alltrim_lshifr, '60.17.1', '60.17.2', '60.17.100' ) // дистанционное наблюдение
           kol_60_17_100 += iif( alltrim_lshifr == '60.17.100', 1, 0 )
@@ -1780,7 +1778,6 @@ Function verify_sluch( fl_view, ft )
     Endif
     otd->( dbGoto( mohu->OTD ) )
     // проверка отделения для услуги
-//    if ! glob_mo()[_MO_KOD_TFOMS] == '804501' .and. Empty( otd->LPU_1 ) // без РУСАЛа
     if Empty( otd->LPU_1 )
       AAdd( ta, 'для отделения ' + AllTrim( otd->short_name ) + ', где оказана услуга ' + AllTrim( lshifr ) + ' не выбрано "Структурное подразделение по ГИС ОМС"' )
     endif
@@ -1821,13 +1818,6 @@ Function verify_sluch( fl_view, ft )
       Endif
     Endif
 
-/*// согласно ПУМП вер. 4.6
-    if ! eq_any( lu_type, TIP_LU_DDS, TIP_LU_DVN, TIP_LU_DDSOP, TIP_LU_PN, TIP_LU_PREDN, TIP_LU_PERN, TIP_LU_DVN_COVID, TIP_LU_DRZ )
-      if Empty( mohu->PROFIL_M )
-        AAdd( ta, 'не заполнено поле "Профиль МЗ РФ" для услуги "' + AllTrim( s ) + '"' )
-      endif
-    endif
-*/
     If Empty( mohu->profil )
       mohu->profil := mosu->profil
       If Empty( mohu->profil )
@@ -4810,25 +4800,6 @@ Function verify_sluch( fl_view, ft )
       Next
     Endif
   Endif
-/*
-  //
-  // ПРОВЕРКА РЕЗУЛЬТАТА ОБРАЩЕНИЯ "109-лечение продолжено", ОШИБКА 356
-  // письмо Л.Н.Антоновой 26.11.24
-  //
-  if ( human_->USL_OK == USL_OK_HOSPITAL ) .and. ( human_->RSLT_NEW == 109 ) // лечение продолжено
-    fl := .f.
-    for counter := 1 to len( arrUslugi )
-      if ! eq_any( arrUslugi[ counter ], 'st19.090', 'st19.091', 'st19.092', 'st19.093', ;
-          'st19.094', 'st19.095', 'st19.096', 'st19.097', 'st19.098', 'st19.099', ;
-          'st19.100', 'st19.101', 'st19.102' )
-        fl := .t.
-      endif
-    next
-    if fl
-      AAdd( ta, 'для выбранного КСГ не допустимо применение результата обращения "109-лечение продолжено"' )
-    endif
-  endif
-*/
 
   if ( ( human_->USL_OK == USL_OK_HOSPITAL ) .and. ( human_->RSLT_NEW == 109 ) ) .or. ; // лечение продолжено инструкция КСГ от 01.10.26
     ( ( human_->USL_OK == USL_OK_DAY_HOSPITAL ) .and. ( human_->RSLT_NEW == 209 ) )
@@ -5052,7 +5023,6 @@ Function verify_sluch( fl_view, ft )
     Endif
     If i > 0
       Select D_SROK
-//      Append Blank
       d_srok->( dbAppend() )
       d_srok->kod   := human->kod
       d_srok->tip   := ltip
@@ -5072,7 +5042,6 @@ Function verify_sluch( fl_view, ft )
       If human->OBRASHEN == '1' // подозрение на ЗНО
         AAdd( ta, 'первая группа не может быть присвоена пациенту с подозрением на ЗНО' )
       Endif
-//    Elseif eq_any( human_->RSLT_NEW, 323, 324, 325, 334, 335, 336, 349, 350, 351, 355, 356, 373, 374, 357, 358, 377, 379 )
     Elseif eq_any( human_->RSLT_NEW, 323, 324, 325, 334, 335, 336, 349, 350, 351, 355, 356, 373, 374, 377, 379 )
       fl := !Empty( arr_onkna )
       If !fl .and. m1dopo_na > 0
@@ -5099,20 +5068,13 @@ Function verify_sluch( fl_view, ft )
     AAdd( ta, 'для исхода заболевания "306/Осмотр" некорректный результат обращения "' + ;
       inieditspr( A__MENUVERT, getv009(), human_->RSLT_NEW ) + '"' )
   Endif
-//  If ( is_disp_DDS .or. is_disp_DVN .or. is_prof_PN ) .and. ;
-//      ( Between( dEnd, 0d20200320, 0d20200906 ) .or. Between( dBegin, 0d20200320, 0d20200906 ) )
-//    AAdd( ta, 'случай не может быть начат ранее 7 сентября' )
-//  Endif
 
   human_->( g_rlock( 'forever' ) )  // заблокируем для последующего использования
 
   // определяем цель посещения для поликлиники
   if ( human_->USL_OK == USL_OK_POLYCLINIC ) // .and. ( ( len( arr_povod ) == 1 ) .or. glob_mo()[ _MO_KOD_TFOMS ] == '805965' )
-//    for counter := 1 to len( arrUslugi )
-//      mPCEL := getPCEL_usl( arrUslugi[ counter ] )
     for counter := 1 to len( arrUslugiHuman_U )
       if arrUslugiHuman_U[ counter, USL_TYPEF ] == 0  // услуга из human_u.dbf
-//        mPCEL := getPCEL_usl( arrUslugiHuman_U[ counter, USL_SHIFR ], arrUslugiHuman_U[ counter, USL_U_KOD ], human->k_data )
         mPCEL := getPCEL_usl( arrUslugiHuman_U[ counter, USL_SHIFR ] )
         if ! Empty( mPCEL )
           human_->P_CEL := mPCEL
@@ -5126,24 +5088,10 @@ Function verify_sluch( fl_view, ft )
 
   // проверяем вид помощи
   if ! is_dispanserizaciya( human->ishod ) .and. ! ( lu_type == TIP_LU_SMP .or. human_->USL_OK == USL_OK_AMBULANCE )
-//    human_->( g_rlock( 'forever' ) )
     human_->VIDPOM := define_vidpom_new( arrUslugiHuman_U, mDS_stac, human->kod, human->K_DATA, human_->USL_OK )
-//    human_->( dbUnlock() )
   endif
 
   if human_->VIDPOM == 0
-/*
-    mm_lpu1 := get_f033_with_address( glob_mo()[ _MO_KOD_FFOMS ] )
-    cUIDSPMO := otd->LPU_1
-    str_lpu1 := ''
-    if ( ic := ascan( mm_lpu1, { | x | x[ 2 ] == cUIDSPMO } ) ) > 0
-      str_lpu1 := mm_lpu1[ ic, 1 ]
-    endif
-
-    AAdd( ta, 'не определен вид помощи по справочнику услуг ТФОМС [ вероятно неверно указано в справочнике для отделения <' ;
-      + AllTrim( otd->name ) + ' (' + AllTrim( otd->short_name ) + ')' ;
-      + '> "Структурное подразделение по ГИС ОМС" = <' + AllTrim( str_lpu1 ) + '> ]' )
-*/
     AAdd( ta, 'не определен вид помощи по справочнику услуг ТФОМС' )
   endif
 
@@ -5178,10 +5126,11 @@ Function verify_sluch( fl_view, ft )
     endif
     s := ''
   elseIf human_->USL_OK == USL_OK_POLYCLINIC .and. human_->VIDPOM == 13 .and. ;
+        SubStr( human_->FORMA14, 1, 1 ) == '0' .and. ;
         ( AllTrim( human_->P_CEL ) != '1.3' ) .and. ( human->k_data >= 0d20261101 ) // действует с 01.11.26
         
     prvs21 := ret_prvs_v021( human_->PRVS )
-    ruleNapr := { 90, 46, 45, 2, 53, 88, 69, 71, 21, 68, 206, 207,  208,  215, 217,  219,  280,  283, 292,  306,  310,  321, 323,  72, 84, 20 }
+    ruleNapr := { 90, 46, 45, 2, 53, 88, 69, 71, 21, 68, 206, 207, 208, 215, 217, 219, 280, 283, 292, 306, 310, 321, 323, 72, 84, 20 }
     if vozrast < 18
       AAdd( ruleNapr, 52 )
     endif
