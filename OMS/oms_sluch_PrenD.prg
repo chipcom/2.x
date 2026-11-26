@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 31.03.26 ПренД - добавление или редактирование случая (листа учета)
+// 26.11.26 ПренД - добавление или редактирование случая (листа учета)
 Function oms_sluch_prend( Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -15,7 +15,7 @@ Function oms_sluch_prend( Loc_kod, kod_kartotek )
     i, j, k, n, s, colget_menu := 'R/W', colgetImenu := 'R/BG', ;
     pos_read := 0, k_read := 0, count_edit := 0, ;
     tmp_help := chm_help_code, fl_write_sluch := .f., t_arr[ 2 ]
-  Local top2 := 9
+  Local top2 := 8 //  9
   //
   Default st_N_DATA To sys_date
   Default Loc_kod To 0, kod_kartotek To 0
@@ -65,11 +65,14 @@ Function oms_sluch_prend( Loc_kod, kod_kartotek )
   Private m1MOP := st_MOP, mMOP := Space( 25 )    // место обращения (посещения) tmp_V040
   private m1MO_PR := Space( 6 ), mMO_PR := Space( 20 ) // МО прикрепления
   private m1profil_m := 0
+  Private m1NPR_MO := '',  mNPR_MO := Space( 20 ),  mNPR_DATE := CToD( '' ), mNAPR_NUM := Space( 20 )
+
   //
   AFill( adiag_talon, 0 )
+  r_use( dir_server() + 'human_2', , 'HUMAN_2' )
   r_use( dir_server() + 'human_', , 'HUMAN_' )
   r_use( dir_server() + 'human', , 'HUMAN' )
-  Set Relation To RecNo() into HUMAN_
+  Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
   If mkod_k > 0
     r_use( dir_server() + 'kartote2', , 'KART2' )
     Goto ( mkod_k )
@@ -115,17 +118,6 @@ Function oms_sluch_prend( Loc_kod, kod_kartotek )
     // проверка исхода = СМЕРТЬ
     Select HUMAN
     Set Index to ( dir_server() + 'humankk' )
-    // find (str(mkod_k, 7))
-    // do while human->kod_k == mkod_k .and. !eof()
-    // if recno() != Loc_kod .and. is_death(human_->RSLT_NEW) .and. ;
-    // human_->oplata != 9 .and. human_->NOVOR == 0
-    // a_smert := {'Данный больной умер!', ;
-    // 'Лечение с ' + full_date(human->N_DATA) + ;
-    // ' по ' + full_date(human->K_DATA)}
-    // exit
-    // endif
-    // skip
-    // enddo
     arr_patient_died_during_treatment( mkod_k, loc_kod )
     Set Index To
   Endif
@@ -175,6 +167,10 @@ Function oms_sluch_prend( Loc_kod, kod_kartotek )
     mn_data    := human->N_DATA
     mk_data    := human->K_DATA
     mcena_1    := human->CENA_1
+
+    m1NPR_MO   := human_->NPR_MO
+    mNPR_DATE  := human_2->NPR_DATE
+    mNAPR_NUM   := get_NAPR_MO( human->kod, _NPR_LECH ) // получить номер направления на лечение, если есть
     //
     r_use( dir_server() + 'mo_pers', , 'P2' )
     r_use( dir_server() + 'uslugi', , 'USL' )
@@ -226,6 +222,10 @@ Function oms_sluch_prend( Loc_kod, kod_kartotek )
     mMO_PR := Substr( inieditspr( A__MENUVERT, get_f032_prik(), m1MO_PR ), 1, 20 )
   endif
 
+  If !Empty( m1NPR_MO )
+    mNPR_MO := substr( ret_mo( m1NPR_MO )[ _MO_SHORT_NAME ], 1, 20 )
+  Endif
+
   f_valid_komu(, -1 )
   If m1komu == 0
     m1company := Int( Val( msmo ) )
@@ -267,6 +267,16 @@ Function oms_sluch_prend( Loc_kod, kod_kartotek )
       valid {| g, o| update_get( 'mdate_r' ), ;
       update_get( 'mkomu' ), update_get( 'mcompany' ) }
     @ Row(), Col() + 5 Say 'Д.р.' Get mdate_r When .f. Color color14
+
+    @ ++j, 1 Say 'Направление: дата' Get mNPR_DATE
+
+    @ j, Col() + 1 Say 'из МО' Get mNPR_MO PICTURE '@S20';
+      reader {| x| menu_reader( x, { {| k, r, c| f_get_mo( k, r, c ) } }, A__FUNCTION, , , .f. ) } ;
+      Color colget_menu
+
+    @ j, Col() + 1 Say '№' Get mNAPR_NUM PICTURE '@S20' ;
+      Color colget_menu
+
     @ ++j, 1 Say 'Принадлежность счёта' Get mkomu ;
       reader {| x| menu_reader( x, mm_komu(), A__MENUVERT, , , .f. ) } ;
       valid {| g, o| f_valid_komu( g, o ) } ;
@@ -404,7 +414,7 @@ Function oms_sluch_prend( Loc_kod, kod_kartotek )
       If Loc_kod > 0
         find ( Str( Loc_kod, 7 ) )
         mkod := Loc_kod
-        g_rlock( forever )
+        g_rlock( 'forever' )
       Else
         add1rec( 7 )
         mkod := RecNo()
@@ -412,17 +422,19 @@ Function oms_sluch_prend( Loc_kod, kod_kartotek )
       Endif
       Select HUMAN_
       Do While human_->( LastRec() ) < mkod
-        Append Blank
+        human_->( dbAppend() )
+//        Append Blank
       Enddo
       Goto ( mkod )
-      g_rlock( forever )
+      g_rlock( 'forever' )
       //
       Select HUMAN_2
       Do While human_2->( LastRec() ) < mkod
-        Append Blank
+        human_2->( dbAppend() )
+//        Append Blank
       Enddo
       Goto ( mkod )
-      g_rlock( forever )
+      g_rlock( 'forever' )
       //
       st_N_DATA := MN_DATA
       If IsBit( mem_oms_pole, 7 )  // место обращения (посещения) tmp_V040  7
@@ -502,6 +514,7 @@ Function oms_sluch_prend( Loc_kod, kod_kartotek )
       human_->PRVS      := arr_iss[ 1, 2 ]
       human_->OPLATA    := 0 // уберём '2', если отредактировали запись из реестра СП и ТК
       human_->ST_VERIFY := 0 // снова ещё не проверен
+
       If Loc_kod == 0  // при добавлении
         human_->ID_PAC    := mo_guid( 1, human_->( RecNo() ) )
         human_->ID_C      := mo_guid( 2, human_->( RecNo() ) )
@@ -519,7 +532,13 @@ Function oms_sluch_prend( Loc_kod, kod_kartotek )
         human_->kod_p2  := kod_polzovat    // код оператора
         human_->date_e2 := c4sys_date
       Endif
-      put_0_human_2()
+
+      human_->NPR_MO    := m1NPR_MO
+      human_2->NPR_DATE := mNPR_DATE
+      set_NAPR_MO( human->kod, _NPR_LECH, mNAPR_NUM )
+
+
+//      put_0_human_2()
       Private fl_nameismo := .f.
       If m1komu == 0 .and. m1company == 34
         human_->OKATO := m1okato // ОКАТО субъекта РФ территории страхования
@@ -537,7 +556,7 @@ Function oms_sluch_prend( Loc_kod, kod_kartotek )
         find ( Str( mkod, 7 ) )
         If Found()
           If fl_nameismo
-            g_rlock( forever )
+            g_rlock( 'forever' )
             sn->smo_name := mnameismo
           Else
             deleterec( .t. )
@@ -560,7 +579,7 @@ Function oms_sluch_prend( Loc_kod, kod_kartotek )
           hu->kod := human->kod
         Else
           Goto ( arr_usl[ i ] )
-          g_rlock( forever )
+          g_rlock( 'forever' )
         Endif
         mrec_hu := hu->( RecNo() )
         hu->kod_vr  := arr_usl_dop[ i, 1 ]
@@ -578,7 +597,7 @@ Function oms_sluch_prend( Loc_kod, kod_kartotek )
           Append Blank
         Enddo
         Goto ( mrec_hu )
-        g_rlock( forever )
+        g_rlock( 'forever' )
         If i > i1 .or. !valid_guid( hu_->ID_U )
           hu_->ID_U := mo_guid( 3, hu_->( RecNo() ) )
         Endif
@@ -598,12 +617,12 @@ Function oms_sluch_prend( Loc_kod, kod_kartotek )
       Endif
       write_work_oper( glob_task, OPER_LIST, iif( Loc_kod == 0, 1, 2 ), 1, count_edit )
       fl_write_sluch := .t.
-      Close databases
+      dbCloseAll()
       stat_msg( 'Запись завершена!', .f. )
     Endif
     Exit
   Enddo
-  Close databases
+  dbCloseAll()
   SetColor( tmp_color )
   RestScreen( buf )
   chm_help_code := tmp_help

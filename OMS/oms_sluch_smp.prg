@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 24.09.26 СМП - добавление или редактирование случая (листа учета)
+// 26.11.26 СМП - добавление или редактирование случая (листа учета)
 Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -64,7 +64,6 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
 //      r_use( dir_server() + 'kartotek', , 'KART' )
 
       use_base( 'kartotek' )
-
       Select KART
       Goto ( kod_kartotek )
       Select KART_
@@ -110,7 +109,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
         m1ismo := msmo ; msmo := '34'
       Endif
     Endif
-    Close databases
+//    Close databases
   Endif
   If tip_lu == TIP_LU_SMP .and. Empty( mm_brigada )
     mm_brigada := {}
@@ -454,7 +453,8 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
     // mvrach := padr(fam_i_o(p2->fio)+' ' +ret_tmp_prvs(m1prvs), 36)
     mvrach := PadR( fam_i_o( p2->fio ) + ' ' + ret_str_spec( p2->PRVS_021 ), 36 )
   Endif
-  Close databases
+//  Close databases
+  dbCloseAll()
   fv_date_r( iif( Loc_kod > 0, mn_data, ) )
   MFIO_KART := _f_fio_kart()
   mvzros_reb := inieditspr( A__MENUVERT, menu_vzros(), m1vzros_reb )
@@ -819,7 +819,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
         Else
           find ( Str( mkod_k, 7 ) )
           If Found()
-            g_rlock( forever )
+            g_rlock( 'forever' )
           Else
             add1rec( 7 )
             glob_kartotek := mkod_k := kart->kod := RecNo()
@@ -842,15 +842,17 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
         //
         Select KART2
         Do While kart2->( LastRec() ) < mkod_k
-          Append Blank
+          kart2->( dbAppend() )
+//          Append Blank
         Enddo
         //
         Select KART_
         Do While kart_->( LastRec() ) < mkod_k
-          Append Blank
+          kart_->( dbAppend() )
+//          Append Blank
         Enddo
         Goto ( mkod_k )
-        g_rlock( forever )
+        g_rlock( 'forever' )
         kart_->VPOLIS := m1vidpolis
         kart_->SPOLIS := mSPOLIS
         kart_->NPOLIS := mNPOLIS
@@ -877,11 +879,11 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
         Endif
         If m1MEST_INOG == 9 .or. newMEST_INOG == 9
           g_use( dir_server() + 'mo_kfio', , 'KFIO' )
-          Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
+          Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
           find ( Str( mkod_k, 7 ) )
           If Found()
             If newMEST_INOG == 9
-              g_rlock( forever )
+              g_rlock( 'forever' )
               kfio->FAM := mFAM
               kfio->IM  := mIM
               kfio->OT  := mOT
@@ -900,11 +902,11 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
         Endif
         If fl_nameismo .or. rec_inogSMO > 0
           g_use( dir_server() + 'mo_kismo', , 'SN' )
-          Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
+          Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
           find ( Str( mkod_k, 7 ) )
           If Found()
             If fl_nameismo
-              g_rlock( forever )
+              g_rlock( 'forever' )
               sn->smo_name := mnameismo
             Else
               deleterec( .t. )
@@ -923,7 +925,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
       If Loc_kod > 0
         find ( Str( Loc_kod, 7 ) )
         mkod := Loc_kod
-        g_rlock( forever )
+        g_rlock( 'forever' )
       Else
         add1rec( 7 )
         mkod := RecNo()
@@ -931,17 +933,19 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
       Endif
       Select HUMAN_
       Do While human_->( LastRec() ) < mkod
-        Append Blank
+        human_->( dbAppend() )
+//        Append Blank
       Enddo
       Goto ( mkod )
-      g_rlock( forever )
+      g_rlock( 'forever' )
       //
       Select HUMAN_2
       Do While human_2->( LastRec() ) < mkod
-        Append Blank
+        human_2->( dbAppend() )
+//        Append Blank
       Enddo
       Goto ( mkod )
-      g_rlock( forever )
+      g_rlock( 'forever' )
       //
       If IsBit( mem_oms_pole, 1 )  // 'сроки лечения', ;  1
         st_N_DATA := MN_DATA
@@ -1043,11 +1047,11 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
       Endif
       If fl_nameismo .or. rec_inogSMO > 0
         g_use( dir_server() + 'mo_hismo', , 'SN' )
-        Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
+        Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
         find ( Str( mkod, 7 ) )
         If Found()
           If fl_nameismo
-            g_rlock( forever )
+            g_rlock( 'forever' )
             sn->smo_name := mnameismo
           Else
             deleterec( .t. )
@@ -1067,7 +1071,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
         mrec_hu := hu->( RecNo() )
       Else
         Goto ( mrec_hu )
-        g_rlock( forever )
+        g_rlock( 'forever' )
       Endif
       Replace hu->kod     With human->kod, ;
         hu->kod_vr  With m1vrach, ;
@@ -1085,10 +1089,11 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
         hu->KOL_RCP With 0
       Select HU_
       Do While hu_->( LastRec() ) < mrec_hu
-        Append Blank
+        hu_->( dbAppend() )
+//        Append Blank
       Enddo
       Goto ( mrec_hu )
-      g_rlock( forever )
+      g_rlock( 'forever' )
       If Loc_kod == 0 .or. !valid_guid( hu_->ID_U )
         hu_->ID_U := mo_guid( 3, hu_->( RecNo() ) )
       Endif
@@ -1131,7 +1136,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
                 Set Order To 1
                 find ( Str( -1, 6 ) )
                 If Found()
-                  g_rlock( forever )
+                  g_rlock( 'forever' )
                 Else
                   addrec( 6 )
                 Endif
@@ -1145,7 +1150,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
               Select MOHU
               If arr_usluga[ i, 2 ] > 0
                 Goto ( arr_usluga[ i, 2 ] )
-                g_rlock( forever )
+                g_rlock( 'forever' )
               Else
                 add1rec( 7 )
               Endif
@@ -1176,12 +1181,14 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
       //
       write_work_oper( glob_task, OPER_LIST, iif( Loc_kod == 0, 1, 2 ), 1, count_edit )
       fl_write_sluch := .t.
-      Close databases
+//      Close databases
+      dbCloseAll()
       stat_msg( 'Запись завершена!', .f. )
     Endif
     Exit
   Enddo
-  Close databases
+//  Close databases
+  dbCloseAll()
   diag_screen( 2 )
   SetColor( tmp_color )
   RestScreen( buf )
