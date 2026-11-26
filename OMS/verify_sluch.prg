@@ -865,14 +865,6 @@ Function verify_sluch( fl_view, ft )
     Return .f.
   Endif
 
-/*// согласно ПУМП вер. 4.6
-  if ! eq_any( lu_type, TIP_LU_DDS, TIP_LU_DVN, TIP_LU_DDSOP, TIP_LU_PN, TIP_LU_PREDN, TIP_LU_PERN, TIP_LU_DVN_COVID, TIP_LU_DRZ )
-    if Empty( human->PROFIL_M ) .and. ( ( iProfil_m := soot_v002_m003( human_->PROFIL, human->VZROS_REB ) ) > 0 )
-        AAdd( ta, 'не заполнено поле "Профиль МЗ РФ" для листа учета' )
-    endif
-  endif
-*/
-
   lshifr := ''
   lshifr1 := ''
   Do While hu->kod == human->kod .and. !hu->( Eof() )
@@ -881,13 +873,6 @@ Function verify_sluch( fl_view, ft )
       If Empty( hu->kol_1 )
         AAdd( ta, 'не заполнено поле "Количество услуг" для "' + AllTrim( usl->shifr ) + '"' )
       Endif
-/*// согласно ПУМП вер. 4.6
-      if ! eq_any( lu_type, TIP_LU_DDS, TIP_LU_DVN, TIP_LU_DDSOP, TIP_LU_PN, TIP_LU_PREDN, TIP_LU_PERN, TIP_LU_DVN_COVID, TIP_LU_DRZ )
-        if Empty( human->PROFIL_M ) .and. ( ( iProfil_m := soot_v002_m003( human_->PROFIL, human->VZROS_REB ) ) > 0 )
-          AAdd( ta, 'не заполнено поле "Профиль МЗ РФ" для услуги "' + AllTrim( usl->shifr ) + '"' )
-        endif
-      endif
-*/
       lshifr := iif( Empty( lshifr1 ), usl->shifr, lshifr1 )
       If hu->STOIM_1 > 0 .or. lTypeLUOnkoDisp .or. Left( lshifr, 3 ) == '71.'  // скорая помощь
         If !Empty( lbukva ) .and. AScan( a_bukva, {| x| x[ 1 ] == lbukva } ) == 0
@@ -1028,11 +1013,6 @@ Function verify_sluch( fl_view, ft )
         hu_->date_end  } )        // 11 - дата окончания предоставления услуги
       kodKSG := ''
       If is_ksg( lshifr )
-/*
-        If !Empty( sVidpom ) .and. ',' $ sVidpom
-          lvidpoms := sVidpom
-        Endif
-*/
         shifr_ksg := kodKSG := alltrim_lshifr
         cena_ksg := hu->u_cena
         If SubStr( kodKSG, 3, 2 ) == '37'
@@ -2338,6 +2318,7 @@ Function verify_sluch( fl_view, ft )
       AAdd( ta, s )
     Endif
   Endif
+  
   If human_->USL_OK == USL_OK_HOSPITAL .and. SubStr( human_->FORMA14, 1, 1 ) == '0'
     If Empty( human_->NPR_MO )
       AAdd( ta, 'при ПЛАНОВОЙ госпитализации должно быть заполнено поле "Направившая МО"' )
@@ -2361,8 +2342,6 @@ Function verify_sluch( fl_view, ft )
     napr_number := AllTrim( get_NAPR_MO( human->kod, _NPR_LECH ) ) 
     if Empty( napr_number ) ;
       .and. check_condition_npr_num( human_->USL_OK, Int( Val( SubStr( human_->FORMA14, 1, 1 ) ) ) )
-//      .and. ( ( Int( Val( SubStr( human_->FORMA14, 1, 1 ) ) ) == 0 .and. human_->USL_OK == USL_OK_HOSPITAL ) ;
-//      .or. ( human_->USL_OK == USL_OK_DAY_HOSPITAL ) )
         AAdd( ta, 'должно быть заполнено поле "Номер направления на госпитализацию"' )
     endif
   endif
@@ -5128,7 +5107,6 @@ Function verify_sluch( fl_view, ft )
   elseIf human_->USL_OK == USL_OK_POLYCLINIC .and. human_->VIDPOM == 13 .and. ;
         SubStr( human_->FORMA14, 1, 1 ) == '0' .and. ;
         ( AllTrim( human_->P_CEL ) != '1.3' ) .and. ( human->k_data >= 0d20261101 ) // действует с 01.11.26
-        
     prvs21 := ret_prvs_v021( human_->PRVS )
     ruleNapr := { 90, 46, 45, 2, 53, 88, 69, 71, 21, 68, 206, 207, 208, 215, 217, 219, 280, 283, 292, 306, 310, 321, 323, 72, 84, 20 }
     if vozrast < 18
