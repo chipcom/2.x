@@ -927,12 +927,14 @@ Function f4oms_edit()
 
   Return Nil
 
-// 13.04.26 Редактирование листка учета лечения больного + смена отделения
+// 27.11.26 Редактирование листка учета лечения больного + смена отделения
 Function oms_smena_otd()
 
   Static si := 1, sk := 1
   Local buf, buf1, buf2, str_sem, i, sou, old_otd, fl, fl1, mas_pmt, k := 1
 
+  private m1ad_cr_II := ''  // для определения КСГ
+  
   If input_uch( T_ROW -1, T_COL + 5, sys_date ) != Nil .and. ;
       input_otd( T_ROW -1, T_COL + 5, sys_date ) != NIL
     If yes_vypisan == B_END
@@ -1080,7 +1082,6 @@ Function oms_del()
         Endif
         If fl .and. human_->KOD_UP > 0
           // проверяем на удаленный РАК
-     //     mydebug(,human_->(recno()))
           hum_KOD_UP := human_->KOD_UP
           tt_fl := .T.
           tmp_select := Select()
