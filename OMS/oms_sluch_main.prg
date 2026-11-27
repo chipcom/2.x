@@ -2112,7 +2112,9 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       human->MOP        := m1MOP
       human->PROFIL_M   := m1PROFIL_M
       human->MO_PR      := m1MO_PR
-      if ( ( M1F14_EKST == 0 ) .and. ( m1USL_OK == USL_OK_HOSPITAL ) ) .or. ( m1USL_OK == USL_OK_DAY_HOSPITAL ) .or. ( m1USL_OK == USL_OK_POLYCLINIC )
+      if ( ( M1F14_EKST == 0 ) .and. ( m1USL_OK == USL_OK_HOSPITAL ) ) .or. ;
+          ( m1USL_OK == USL_OK_DAY_HOSPITAL ) .or. ;
+          ( ( M1F14_EKST == 0 ) .and. m1USL_OK == USL_OK_POLYCLINIC )
         set_NAPR_MO( human->kod, _NPR_LECH, mNAPR_NUM )
       else
         del_NAPR_MO( human->kod, _NPR_LECH )
