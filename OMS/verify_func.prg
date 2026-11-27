@@ -21,16 +21,19 @@ function check_work_SMO( code )
 
   return ret
 
-// 22.03.26
+// 27.11.26
 function check_condition_npr_num( mUsl_ok, mfor_pom )
 
   //  Заполняется на основании направления на лечение.
   //  Заполнение обязательно в случаях оказания: 1. плановой
-  //  медицинской помощи в условиях стационара (FOR_POM=3 и
-  //  USL_OK = 1); 2. в условиях дневного стационара (USL_OK=2)
+  //  медицинской помощи:
+  // в условиях стационара (FOR_POM=3 и USL_OK = 1);
+  //  в условиях дневного стационара (USL_OK=2);
+  //  в условиях поликлиники (FOR_POM=3 и USL_OK = 3);
 
   return ( mUsl_ok == USL_OK_DAY_HOSPITAL ) .or. ;
-    ( mfor_pom == 3 .and. mUsl_ok == USL_OK_HOSPITAL )  // 1
+    ( mfor_pom == 3 .and. mUsl_ok == USL_OK_HOSPITAL ) .or. ;
+    ( mfor_pom == 3 .and. mUsl_ok == USL_OK_POLYCLINIC )
 
 // 03.09.26
 function arr_school_xniz( mdate )

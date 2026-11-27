@@ -260,7 +260,6 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
           s := iif( Empty( human_2->NPR_DATE ), human->N_DATA, human_2->NPR_DATE )
           mo_add_xml_stroke( oSLUCH, 'NPR_DATE', date2xml( s ) )
           napr_number := get_NAPR_MO( human->kod, _NPR_LECH )
-//          if ( human_->USL_OK == USL_OK_DAY_HOSPITAL ) .or. ( i == 3 .and. human_->USL_OK == USL_OK_HOSPITAL )
           if ! Empty( napr_number ) .and. check_condition_npr_num( human_->USL_OK, i )
             mo_add_xml_stroke( oSLUCH, 'NPR_NUM', napr_number )
           endif
