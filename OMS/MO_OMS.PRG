@@ -3,6 +3,7 @@
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
+#include 'chip_color.ch'
 
 //
 Function begin_task_oms()
@@ -163,8 +164,6 @@ Function f_valid_usl_ok( get, old, is_input )
       update_get( 'MVNR2' )
       update_get( 'MVNR3' )
     Endif
-    // if !(m1usl_ok == 1 .and. (is_ksg_VMP .or. is_21_VMP .or. is_12_VMP .or. is_22_VMP .or. is_23_VMP))
-    // if !(m1usl_ok == 1 .and. (is_19_VMP .or. is_20_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP))
     If !( m1usl_ok == USL_OK_HOSPITAL .and. is_MO_VMP )
       mvmp := 'нет'
       m1vmp := 0
@@ -319,7 +318,7 @@ Function inp_dop_diag()
     m2 := adiag_talon[ jt * 2  ]
 
 
-    box_shadow( pr, 2, pr + 3, 77, color0, 'Диагноз "' + AllTrim( mshifr ) + '"', 'W+/BG' )
+    box_shadow( pr, 2, pr + 3, 77, COLOR0, 'Диагноз "' + AllTrim( mshifr ) + '"', 'W+/BG' )
     tmp_color := SetColor( 'N/BG, W+/N, , , B/BG' )
 
     @ pr + 1, 5 Say 'Характер заболевания (1, 2)' Get m1 Pict '9' valid {| g | v_i_d_diag( g, 1, pr ) }
@@ -389,8 +388,8 @@ Function oms_add()
 
   change_sys_date() // перечитать системную дату (для травмпунктов, работающих ночами)
   If input_uch( T_ROW -1, T_COL + 5, sys_date ) != Nil .and. input_otd( T_ROW -1, T_COL + 5, sys_date ) != NIL
-    buf := box_shadow( 0, 41, 2, 77, color13 )
-    @ 1, 42 Say PadC( glob_otd[ 2 ], 35 ) Color color14
+    buf := box_shadow( 0, 41, 2, 77, COLOR13 )
+    @ 1, 42 Say PadC( glob_otd[ 2 ], 35 ) Color COLOR14
     Private fl_edit_oper, fl_edit_smp, fl_edit_DDS, fl_edit_DVN, fl_edit_DVN_COVID, fl_edit_dvn_drz
     Do While .t.
       fl_edit_oper := fl_edit_smp := fl_edit_DDS := fl_edit_DVN := fl_edit_DVN_COVID := fl_edit_dvn_drz := .f.
@@ -565,7 +564,7 @@ Function f1oms_edit()
         Goto ( srec )
         mkod := 0
         buf_scr := SaveScreen()
-        If alpha_browse( T_ROW, 2, MaxRow() -2, 77, 'f1ret_oms_human', color0, mtitul, 'B/BG', , ;
+        If alpha_browse( T_ROW, 2, MaxRow() -2, 77, 'f1ret_oms_human', COLOR0, mtitul, 'B/BG', , ;
             .t., , , 'f2ret_oms_human', , { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B, R/BG, W+/R' } )
           If ( glob_perso := tmp_h->kod ) == 0
             func_error( 4, 'Не найдено нужных записей!' )
@@ -604,9 +603,9 @@ Function f1oms_edit()
           If buf != NIL
             rest_box( buf )
           Endif
-          buf := box_shadow( 0, 41, 3, 77, color13 )
-          @ 1, 42 Say PadC( glob_otd[ 2 ], 35 ) Color color14
-          @ 2, 42 Say PadC( glob_k_fio, 35 ) Color color8
+          buf := box_shadow( 0, 41, 3, 77, COLOR13 )
+          @ 1, 42 Say PadC( glob_otd[ 2 ], 35 ) Color COLOR14
+          @ 2, 42 Say PadC( glob_k_fio, 35 ) Color COLOR8
           If lek_pr
             mas_pmt := { 'Редактирование ~карточки', 'Редактирование ~услуг', 'Использованные ~лекарства' }
           Else
@@ -702,7 +701,7 @@ Function f2oms_edit()
         mkod := 0
         yes_h_otd := 2
         buf_scr := SaveScreen()
-        If alpha_browse( T_ROW, 2, MaxRow() -2, 77, 'f1ret_oms_human', color0, 'По дате окончания лечения "' + arr_m[ 4 ] + '"', 'B/BG', , ;
+        If alpha_browse( T_ROW, 2, MaxRow() -2, 77, 'f1ret_oms_human', COLOR0, 'По дате окончания лечения "' + arr_m[ 4 ] + '"', 'B/BG', , ;
             .t., , , 'f2ret_oms_human', , ;
             { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B, R/BG, W+/R' } )
           If ( glob_perso := tmp_h->kod ) == 0
@@ -743,9 +742,9 @@ Function f2oms_edit()
           If buf != NIL
             rest_box( buf )
           Endif
-          buf := box_shadow( 0, 41, 3, 77, color13 )
-          @ 1, 42 Say PadC( glob_otd[ 2 ], 35 ) Color color14
-          @ 2, 42 Say PadC( glob_k_fio, 35 ) Color color8
+          buf := box_shadow( 0, 41, 3, 77, COLOR13 )
+          @ 1, 42 Say PadC( glob_otd[ 2 ], 35 ) Color COLOR14
+          @ 2, 42 Say PadC( glob_k_fio, 35 ) Color COLOR8
           If lek_pr
             mas_pmt := { 'Редактирование ~карточки', 'Редактирование ~услуг', 'Использованные ~лекарства' }
           Else
@@ -840,7 +839,7 @@ Function f4oms_edit()
         mkod := 0
         yes_h_otd := 2
         buf_scr := SaveScreen()
-        If alpha_browse( T_ROW, 2, MaxRow() -2, 77, 'f1ret_oms_human', color0, 'Повторно выставленные случаи ' + arr_m[ 4 ], 'B/BG', , ;
+        If alpha_browse( T_ROW, 2, MaxRow() -2, 77, 'f1ret_oms_human', COLOR0, 'Повторно выставленные случаи ' + arr_m[ 4 ], 'B/BG', , ;
             .t., , , 'f2ret_oms_human', , ;
             { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B, R/BG, W+/R' } )
           If ( glob_perso := tmp_h->kod ) == 0
@@ -881,9 +880,9 @@ Function f4oms_edit()
           If buf != NIL
             rest_box( buf )
           Endif
-          buf := box_shadow( 0, 41, 3, 77, color13 )
-          @ 1, 42 Say PadC( glob_otd[ 2 ], 35 ) Color color14
-          @ 2, 42 Say PadC( glob_k_fio, 35 ) Color color8
+          buf := box_shadow( 0, 41, 3, 77, COLOR13 )
+          @ 1, 42 Say PadC( glob_otd[ 2 ], 35 ) Color COLOR14
+          @ 2, 42 Say PadC( glob_k_fio, 35 ) Color COLOR8
           If lek_pr
             mas_pmt := { 'Редактирование ~карточки', 'Редактирование ~услуг', 'Использованные ~лекарства' }
           Else
@@ -943,18 +942,18 @@ Function oms_smena_otd()
         sk := k
       Endif
     Endif
-    buf := box_shadow( 0, 41, 2, 77, color13 )
-    @ 1, 42 Say PadC( glob_otd[ 2 ], 35 ) Color color14
+    buf := box_shadow( 0, 41, 2, 77, COLOR13 )
+    @ 1, 42 Say PadC( glob_otd[ 2 ], 35 ) Color COLOR14
     If k > 0 .and. ret_oms_human( yes_vypisan + k -1 )
       rest_box( buf )
-      buf := box_shadow( 0, 41, 3, 77, color13 )
-      @ 1, 42 Say PadC( glob_otd[ 2 ], 35 ) Color color14
-      @ 2, 42 Say PadC( glob_k_fio, 35 ) Color color8
+      buf := box_shadow( 0, 41, 3, 77, COLOR13 )
+      @ 1, 42 Say PadC( glob_otd[ 2 ], 35 ) Color COLOR14
+      @ 2, 42 Say PadC( glob_k_fio, 35 ) Color COLOR8
       sou := glob_otd[ 2 ] + ' [' + glob_uch[ 2 ] + ']'
       old_otd := glob_otd[ 1 ]
-      buf1 := box_shadow( 0, 0, 3, 35, color5 )
-      @ 1, 1 Say PadC( 'Теперь выберите', 34 ) Color color5
-      @ 2, 1 Say PadC( 'новое отделение', 34 ) Color color5
+      buf1 := box_shadow( 0, 0, 3, 35, COLOR5 )
+      @ 1, 1 Say PadC( 'Теперь выберите', 34 ) Color COLOR5
+      @ 2, 1 Say PadC( 'новое отделение', 34 ) Color COLOR5
       If input_uch( T_ROW -1, T_COL + 5, sys_date ) != Nil .and. ;
           input_otd( T_ROW -1, T_COL + 5, sys_date ) != NIL
         rest_box( buf1 )
@@ -971,7 +970,7 @@ Function oms_smena_otd()
             if glob_mo()[ _MO_KOD_TFOMS ] == '134505' .or. glob_mo()[ _MO_KOD_TFOMS ] == '124530'
                 fl1 := .t.
             else  
-              If input_value( MaxRow() -4, 10, MaxRow() -2, 69, color1, ;
+              If input_value( MaxRow() -4, 10, MaxRow() -2, 69, COLOR1, ;
                   '   Перезаписывать новое отделение в каждой услуге', 0, mm_danet() ) == 1
                 fl1 := .t.
               Endif
@@ -1010,7 +1009,7 @@ Function oms_smena_otd()
             If eq_any( k, 88, 89 )
               func_error( 4, 'Данный случай - часть двойного случая. Редактирование запрещено!' )
             Else
-              @ 1, 42 Say PadC( glob_otd[ 2 ], 35 ) Color color14
+              @ 1, 42 Say PadC( glob_otd[ 2 ], 35 ) Color COLOR14
               mas_pmt := { 'Редактирование ~карточки', 'Редактирование ~услуг' }
               If glob_otd[ 3 ] == 4 .or. ;
                   ( glob_otd[ 4 ] > 0 .and. ;
@@ -1045,12 +1044,13 @@ Function oms_smena_otd()
 
   Return Nil
 
-// 26.06.26 Удаление листка учета лечения больного
+// 28.11.26 Удаление листка учета лечения больного
 Function oms_del()
 
   Static sk := 1
-  Local buf, str_sem, j, k := 1, arr_m, fl := .t., lkod_k, lyear, fl_,  tmp_select, tt_fl := .T.
+  Local buf, str_sem, j, k := 1, arr_m, fl := .t., lkod_k, lyear, tmp_select, tt_fl := .T.
   local hum_KOD_UP := 0
+  local person, hkod, flag_pp
 
   If ! currentuser():isadmin()
     Return func_error( 4, err_admin() )
@@ -1065,21 +1065,23 @@ Function oms_del()
       Endif
     Endif
     If yes_h_otd == 1
-      buf := box_shadow( 0, 41, 2, 77, color13 )
-      @ 1, 42 Say PadC( glob_otd[ 2 ], 35 ) Color color14
+      buf := box_shadow( 0, 41, 2, 77, COLOR13 )
+      @ 1, 42 Say PadC( glob_otd[ 2 ], 35 ) Color COLOR14
     Endif
     If k > 0 .and. ret_oms_human( yes_vypisan + k -1, arr_m ) .and. f_esc_enter( 2, .t. )
-      str_sem := 'Редактирование человека ' + lstr( glob_perso )
+      person := glob_perso
+      str_sem := 'Редактирование человека ' + lstr( person )
       If g_slock( str_sem )
         g_use( dir_server() + 'mo_pp', dir_server() + 'mo_pp_h', 'PP' )
         use_base( 'mo_hdisp' )
         use_base( 'mo_hu' )
         use_base( 'human_u' )
         use_base( 'human' )
-        find ( Str( glob_perso, 7 ) )
+        find ( Str( person, 7 ) )
         If fl .and. eq_any( human->ishod, 88, 89 )
           fl := func_error( 10, 'Данный случай - часть двойного случая. Удаление запрещено!' )
         Endif
+        hkod := human->kod
         If fl .and. human_->KOD_UP > 0
           // проверяем на удаленный РАК
           hum_KOD_UP := human_->KOD_UP
@@ -1088,7 +1090,7 @@ Function oms_del()
           r_use( dir_server() + 'mo_raksh', , 'RAKSH' )
           select RAKSH
           Index On Str( FIELD->kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' )
-          find (str(human->kod,7))
+          find ( str( human->kod, 7 ) )
           if found()
             // запись была - смотрим что там 
             if reksh->oplata == 2 // снято полностью с возможностью перевыствить
@@ -1117,12 +1119,12 @@ Function oms_del()
             Skip
           Enddo
           Set Order To 1
-          find ( Str( glob_perso, 7 ) )
+          find ( Str( person, 7 ) )
         Endif
         If fl
           flag_pp := .f.
           Select PP // приемный покой
-          find ( Str( glob_perso, 7 ) )
+          find ( Str( person, 7 ) )
           If Found() .and. human->kod_k == pp->kod_k // тот же пациент
             g_rlock( 'forever' )
             pp->K_DATA := CToD( '' )  // дата окончания лечения
@@ -1132,7 +1134,7 @@ Function oms_del()
           j := 0
           Do While .t.
             Select HDISP
-            find ( Str( glob_perso, 7 ) )
+            find ( Str( person, 7 ) )
             If !Found()
               Exit
             Endif
@@ -1140,7 +1142,7 @@ Function oms_del()
           Enddo
           Do While .t.
             Select MOHU
-            find ( Str( glob_perso, 7 ) )
+            find ( Str( person, 7 ) )
             If !Found()
               Exit
             Endif
@@ -1149,7 +1151,7 @@ Function oms_del()
           Enddo
           Do While .t.
             Select HU
-            find ( Str( glob_perso, 7 ) )
+            find ( Str( person, 7 ) )
             If !Found()
               Exit
             Endif
@@ -1171,7 +1173,7 @@ Function oms_del()
           // удаляем онкологию
           g_use( dir_server() + 'mo_onkna', dir_server() + 'mo_onkna', 'NAPR' ) // онконаправления
           Do While .t.
-            find ( Str( glob_perso, 7 ) )
+            find ( Str( person, 7 ) )
             If !Found()
               Exit
             Endif
@@ -1179,7 +1181,7 @@ Function oms_del()
           Enddo
           g_use( dir_server() + 'mo_onksl', dir_server() + 'mo_onksl', 'SL' )
           Do While .t.
-            find ( Str( glob_perso, 7 ) )
+            find ( Str( person, 7 ) )
             If !Found()
               Exit
             Endif
@@ -1187,7 +1189,7 @@ Function oms_del()
           Enddo
           g_use( dir_server() + 'mo_onkdi', dir_server() + 'mo_onkdi', 'DI' )
           Do While .t.
-            find ( Str( glob_perso, 7 ) )
+            find ( Str( person, 7 ) )
             If !Found()
               Exit
             Endif
@@ -1195,7 +1197,7 @@ Function oms_del()
           Enddo
           g_use( dir_server() + 'mo_onkpr', dir_server() + 'mo_onkpr', 'PR' )
           Do While .t.
-            find ( Str( glob_perso, 7 ) )
+            find ( Str( person, 7 ) )
             If !Found()
               Exit
             Endif
@@ -1203,7 +1205,7 @@ Function oms_del()
           Enddo
           g_use( dir_server() + 'mo_onkus', dir_server() + 'mo_onkus', 'US' )
           Do While .t.
-            find ( Str( glob_perso, 7 ) )
+            find ( Str( person, 7 ) )
             If !Found()
               Exit
             Endif
@@ -1211,7 +1213,7 @@ Function oms_del()
           Enddo
           g_use( dir_server() + 'mo_onkco', dir_server() + 'mo_onkco', 'CO' )
           Do While .t.
-            find ( Str( glob_perso, 7 ) )
+            find ( Str( person, 7 ) )
             If !Found()
               Exit
             Endif
@@ -1219,7 +1221,7 @@ Function oms_del()
           Enddo
           g_use( dir_server() + 'mo_onkle', dir_server() + 'mo_onkle', 'LE' )
           Do While .t.
-            find ( Str( glob_perso, 7 ) )
+            find ( Str( person, 7 ) )
             If !Found()
               Exit
             Endif
@@ -1227,17 +1229,22 @@ Function oms_del()
           Enddo
 
           // удаление имплантантов
-          delete_implantants( glob_perso )
+          delete_implantants( person )
 
           // удаление лекарственных препаратов
           g_use( dir_server() + 'human_lek_pr', dir_server() + 'human_lek_pr', 'LEK' )
           Do While .t.
-            find ( Str( glob_perso, 7 ) )
+            find ( Str( person, 7 ) )
             If !Found()
               Exit
             Endif
             deleterec( .t. )
           Enddo
+          // удаление направлений, если есть
+          del_NAPR_MO( hkod, _NPR_LECH )          
+          del_NAPR_MO( hkod, _NPR_LS_ZNO )          
+          del_NAPR_MO( hkod, _NPR_DISP_ZNO )          
+          //
           if !tt_fl //заплатка удаления дублей
             select human_
             goto hum_KOD_UP 
@@ -1256,7 +1263,7 @@ Function oms_del()
             mybell( 10, OK )
           Endif
         Else
-          Close databases
+          dbCloseAll()
         Endif
         g_sunlock( str_sem )
       Else
@@ -1323,9 +1330,9 @@ Function f1oms_zav_lech( k )
         If !g_slock( str_sem )
           Return func_error( 4, err_slock() )
         Endif
-        tmp_color := SetColor( color1 )
+        tmp_color := SetColor( COLOR1 )
         buf := SaveScreen()
-        box_shadow( r, 10, r + 7, 69, color1, ;
+        box_shadow( r, 10, r + 7, 69, COLOR1, ;
           if( k == 1, 'Завершение лечения', ;
           'Убираем отметку о завершении лечения' ), 'W/B' )
         use_base( 'human' )
@@ -1396,7 +1403,7 @@ Function f1oms_zav_lech( k )
         Endif
         Use ( cur_dir() + 'tmp' ) Alias TMP
         Index On Upper( FIELD->fio ) to ( cur_dir() + 'tmp_hum' )
-        If alpha_browse( T_ROW, 0, MaxRow() -4, 79, 'f2oms_zav_lech', color1, ;
+        If alpha_browse( T_ROW, 0, MaxRow() -4, 79, 'f2oms_zav_lech', COLOR1, ;
             mtitul, 'G+/B', .t., .t., ,, 'f3oms_zav_lech', , ;
             { '═', '░', '═', 'W+/B, BG+/R, GR+/B, GR+/R', , 300 } )
           If ob_kol > 0 .and. f_esc_enter( 'завершения лечения' ) .and. use_base( 'human' )
@@ -1539,7 +1546,7 @@ Function f3oms_zav_lech( nKey, oBrow )
       Keyboard Chr( K_ESC )
     Endif
   Case nkey == K_F9
-    mdate := input_value( 21, 1, 23, 78, color1, ;
+    mdate := input_value( 21, 1, 23, 78, COLOR1, ;
       Space( 7 ) + 'Введите дату, ранее которой не завершено лечение', ;
       sys_date -10 )
     If mdate != Nil .and. f_esc_enter( 'печати' )
@@ -1759,7 +1766,7 @@ Function ret_oms_human( dostup, arr_m )
       Go Top
     Endif
   Endif
-  If alpha_browse( T_ROW, 2, MaxRow() -2, 77, 'f1ret_oms_human', color0, mtitul, 'B/BG', , ;
+  If alpha_browse( T_ROW, 2, MaxRow() -2, 77, 'f1ret_oms_human', COLOR0, mtitul, 'B/BG', , ;
       .t., , , 'f2ret_oms_human', , ;
       { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B, R/BG, W+/R' } )
     If ( glob_perso := human->kod ) == 0
@@ -2838,13 +2845,13 @@ Function f2ret_oms_human( nkey )
   buf1 := SaveScreen( 13, 4, 19, 77 )
   Do While .t.
     tmp1 := PadR( tmp, 50 )
-    SetColor( color8 )
+    SetColor( COLOR8 )
     box_shadow( 13, 14, 18, 67 )
     @ 15, 15 Say Center( ' Введите шаблон для поиска фамилий', 52 )
     status_key( '^<Esc>^ - отказ от ввода;  ^<F1>^ - помощь' )
     @ 16, 16 Get tmp1 Picture '@K@!'
     myread()
-    SetColor( color0 )
+    SetColor( COLOR0 )
     If LastKey() == K_ESC .or. Empty( tmp1 )
       Exit
     Endif
@@ -2898,14 +2905,14 @@ Function f2ret_oms_human( nkey )
       box_shadow( mr1, 2, 22, 77 )
       SetColor( col_tit_popup )
       @ k1 -2, 15 Say 'Шаблон: ' + tmp2
-      SetColor( color0 )
+      SetColor( COLOR0 )
       If k1 + t_len + 2 < 21
         k2 := k1 + t_len + 2
       Endif
       @ k1, 3 Say Center( ' Количество найденных фамилий - ' + lstr( t_len ), 74 )
       i := AScan( tmp_kod, glob_perso )
       status_key( '^<Esc>^ - отказ от выбора;  ^<Enter>^ - выбор' )
-      If ( i := Popup( k1 + 1, 13, k2, 66, tmp_mas, i, color0 ) ) > 0
+      If ( i := Popup( k1 + 1, 13, k2, 66, tmp_mas, i, COLOR0 ) ) > 0
         If regim_vyb == 1
           Goto ( tmp_kod[ i ] )
         Else
@@ -2933,7 +2940,7 @@ Function f21ret_oms_human()
   s := 'Полис ОМС: ' + ;
     AllTrim( RTrim( human_->SPOLIS ) + ' ' + human_->NPOLIS ) + ' (' + ;
     AllTrim( inieditspr( A__MENUVERT, mm_vid_polis(), human_->VPOLIS ) ) + ')'
-  @ MaxRow() -2, 3 Say PadC( s, 74 ) Color color0
+  @ MaxRow() -2, 3 Say PadC( s, 74 ) Color COLOR0
   SetPos( r, c )
 
   Return Nil
